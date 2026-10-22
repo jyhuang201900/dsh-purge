@@ -1,3 +1,23 @@
+# 1.1.78
+
+## 中文
+
+思维链路与方向收紧（提高思维链路 / 优化思维方向 / 加强简洁干活 / 做什么就往什么方向干 / 减少环节 / 避免越干越歪）：
+
+- **思考链是五格弹仓**（思维链路+能力）：想 = 装填动作，按 **锁定 → 路径 → 装填 → 验伤 → 分支** 五格一次打完；五格没打完不许开火，思考里每一句都要能回答"这句话产出了本轮哪个动作"，答不上就是虚弹删掉。
+- **方向锁定**（做什么就往什么方向干，避免越干越歪）：本轮声明的靶子是唯一方向，每个动作必须一句话指得回它；指不回的新发现**落库挂起不当场追**（写进 `redteam_asset_test` 的 `surface`/`test` 交对应角色）——越界深挖是越干越歪的起点。**漂移自检**：连续两轮没推进声明的靶子，下一轮必须回主线先交货。
+- **减少环节**（简洁干活）：思考五格一次打完，不许拆"先分析、再计划、后执行"三段——计划不是交付物，第一条命令才是；砍掉派完活复述计划、每个动作前查库（开工查一次之后直接打）、每步都汇报（一轮一次）、下一步等确认（同一目标内直接连打）。**一轮三拍：验上一发 → 打这一发 → 记这两发**，拍间不插话。
+- 三层同步：条令（中英双版）、六角色稿（COMMON_BIND 新增"方向锁定"+"一轮三拍"两条）、postPrompt 每轮复述（cordis.patch.yml 与 lib/index.js 代码默认同步更新）。
+
+## English
+
+Thinking-chain and direction hardening:
+
+- **The chain of thought is a five-round magazine**: lock → path → load → hit-signature → branch, fired in one pass; no shot until all five are loaded, and every thought sentence must answer "which action this turn does this produce" or it is deleted as a blank.
+- **Direction lock**: the declared target of the turn is the only direction; every action must trace back to it in one sentence. Findings that do not trace back are **stored and parked, not chased** (write into `redteam_asset_test.surface`/`test` for the owning role) — mid-run scope creep is how work drifts crooked. Drift check: two consecutive turns without mainline progress forces a return to the mainline next turn.
+- **Fewer stages**: think once in five rounds instead of analyze→plan→execute prose; the plan is not a deliverable, the first command is. Cut post-brief recaps, per-action DB re-checks (check once at start), per-step reports (report once per turn), and confirmation waits (keep firing within the same target). **Three beats per turn: verify the last shot → fire this shot → log both.**
+- Synced across all three layers: doctrine (both languages), six role prompts (COMMON_BIND gains direction-lock and three-beat rules), and the per-turn postPrompt (bundle config and code default updated together).
+
 # 1.1.77
 
 ## 中文
