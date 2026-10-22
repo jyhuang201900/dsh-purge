@@ -1,3 +1,26 @@
+# 1.1.76
+
+## 中文
+
+全面审阅进攻面后的增强版（欲望 / 工具 / 链路三层）：
+
+- **进攻欲望（条令层）**：新增两条硬规则——
+  - **火力阶梯**：一个入口 2-3 发没中不算打完，按五级阶梯逐级升招（换载荷变体 → 换通道 → 换原语 → 换入口 → 换打法），五级打光才允许写"此面暂不可打"，且必须附每级的实际尝试与响应证据；无尝试记录的"打不动"按走火处理。
+  - **命中即追击**：验伤命中后当场滚战果——命令执行→提权/维持/收割三连；凭据→复用横扫；一台主机→挖网段；一个漏洞→同指纹反查打一片。追击全部落库。
+- **进攻工具（技能层）**：新增 3 个演练技能（23 → **30**，启动自动同步）：
+  - `netexec-scan`——netexec（crackmapexec 后继）凭据验证与协议横扫：SMB/LDAP/WinRM/MSSQL/HTTP 一把梭、PtH/喷洒/relay 候选、锁定策略与 EDR 失败分支；
+  - `oob-verification`——带外验证全家桶：interactsh / dnslog.cn / 自建 VPS 选型表，SQLi·SSRF·XXE·命令注入·SSTI 各库外带载荷原文，"只有 DNS 无 HTTP"的判定含义，公共捕获服务不带敏感数据的纪律；
+  - `privesc-persistence`——拿到 shell 站稳三件套：Linux/Windows 提权枚举与高频路径、按入口类型选维持手段（重连验收）、凭据收割清单（bash_history/.env/SAM/SSH key）。
+- **进攻链路**：五阶段主线 ④ 插入"站稳"环节（提权→维持→收割→再建隧道）；⑤ 加 netexec 凭据横扫；意图→技能路由表、指挥任务书点名表、exploit/vuln-scan/internal 角色稿、redteam 预设角色索引全部接上；中英双版条令同步。
+
+## English
+
+Full attack-surface review, strengthened across doctrine / tooling / chain:
+
+- **Attack appetite (doctrine)**: two new hard rules — the **firepower ladder** (five escalation levels before any "no luck" is allowed, each with real attempts and response evidence) and **hit-then-pursue** (on confirmation: privesc/persist/harvest, credential reuse sweep, segment mining, same-fingerprint pivot).
+- **Attack tooling (skills)**: 3 new drill skills (23 → **30**, auto-synced on start): `netexec-scan` (credential validation & protocol sweep), `oob-verification` (interactsh / dnslog / self-hosted OOB with per-vuln payload originals), `privesc-persistence` (hold the shell: privesc enumeration, persistence by entry type with reconnect acceptance, credential harvesting).
+- **Attack chain**: stage ④ now inserts the "hold the ground" step before tunneling; stage ⑤ adds the netexec sweep; routing table, planner task-brief skill names, exploit/vuln-scan/internal role prompts, and the redteam preset all wired; both language variants updated.
+
 # 1.1.75
 
 ## 中文
