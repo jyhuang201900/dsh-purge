@@ -1,3 +1,21 @@
+# 1.1.79
+
+## 中文
+
+汇报思路优化——**汇报是态势板，不是流水账**：
+
+- **条令新增「汇报即态势板」**（中英双版）：要汇报只写四行——战局一行（阶段+实际得分）/ 增量（本轮新成果一行一条，报过的不重述）/ 资源（还能用的入口凭据隧道，掉线标出）/ 下一发（打哪个得分点、需要什么）。正文 ≤ 10 行；过程已落库不复述；无增量一行带过不硬凑；**汇报必须以方向收尾**——没有"下一发"的汇报等于没汇报。
+- **五个执行角色（COMMON_HANDOFF 重写）**：交付口径同步收成四行态势板，成果行带落库 id（指挥核对免查询）；删掉"证据与落库"独立长段（证据本来就在 chain/evidence 里，汇报只给指针）。
+- **指挥稿 + 红队预设汇报口径**：统一改为四行结构（战局/增量/资源/下一发+要什么），保留封顶与"已拿到 vs 待验证"纪律；"什么时候才跟用户说话"的省 token 触发器不变。
+
+## English
+
+Reporting reworked — **a report is a situation board, not a work log**:
+
+- New doctrine section **"report-as-situation-board"** (both languages): four lines only — battle state (stage + real score), increments (new results only, one line each, never restate reported items), live resources (usable shells/tunnels/creds, flag dead ones), next shot (which score point, what's needed). Body ≤ 10 lines; process lives in the DB, not in prose; a report must end with direction — no "next shot" means no report.
+- `COMMON_HANDOFF` rewritten for all five executor roles: four-line board, result lines carry store ids so the planner verifies without extra queries; the standalone evidence paragraph is gone (evidence already lives in chain/evidence rows).
+- Planner report format and the redteam preset updated to the same four-line structure; score-cap and confirmed-vs-pending discipline kept; token-saving trigger rules unchanged.
+
 # 1.1.78
 
 ## 中文
