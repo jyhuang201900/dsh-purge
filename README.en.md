@@ -53,7 +53,7 @@ Harness does more than hand a question to a model. It rewrites prompts, approval
 
 | What you use          | What it does                                                  |
 | --------------------- | ------------------------------------------------------------- |
-| **dsh-purge dock**    | The button next to the session title opens the right dock: Clean and Drill |
+| **dsh-purge dock**    | The button next to the session title opens a layered dock: home → section → sub-layer, joined by breadcrumbs |
 | **Clean**             | Grouped patches, Apply / Restore / Uninstall; edit the prompt and rule sets |
 | **Drill console**     | Built in. After authorization: assets, skills, local environment. Only for machines you own, offline targets, or written-authorized drills |
 | **Host policy**       | Adjust default copy, permission policy and tool caps. Official capability is kept, no second identity invented |

@@ -848,6 +848,31 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 .dshp-table tr:last-child td{border-bottom:0}
 .dshp-table tr.is-on td{background:var(--dshp-accent-soft)}
 .dshp-id{font-family:var(--dshp-mono);opacity:.75;width:42px}
+.dshp-crumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;font-size:12px;color:var(--dshp-mute,#888)}
+.dshp-crumb-item{appearance:none;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;padding:2px 4px;border-radius:6px}
+.dshp-crumb-item:hover{color:var(--dshp-ink,#1a1a1a);background:rgba(127,127,127,.12)}
+.dshp-crumb-sep{opacity:.55}
+.dshp-crumb-cur{color:var(--dshp-ink,#1a1a1a);font-weight:600;padding:2px 4px}
+.dshp-nav{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:0;border:0}
+.dshp-nav-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border:1px solid var(--dshp-line,rgba(127,127,127,.28));border-radius:9px;background:transparent;color:inherit;font:inherit;font-size:13px;cursor:pointer}
+.dshp-nav-btn:hover{border-color:var(--dshp-brand,#8fbf9a)}
+.dshp-nav-btn.is-on{background:var(--dshp-brand,#8fbf9a);border-color:var(--dshp-brand,#8fbf9a);color:#0c1a10;font-weight:600}
+.dshp-layer{display:flex;gap:12px;align-items:flex-start}
+.dshp-layer-main{flex:1;min-width:0}
+.dshp-context{position:sticky;top:0;flex:0 0 176px;box-sizing:border-box;padding:10px;border:1px solid var(--dshp-line,rgba(127,127,127,.24));border-radius:12px;background:rgba(127,127,127,.06)}
+.dshp-context-h{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--dshp-mute,#888);margin:0 0 8px}
+.dshp-context-b{display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:1.5;word-break:break-all}
+.dshp-home{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:10px}
+.dshp-home-card{appearance:none;display:flex;flex-direction:column;gap:6px;min-height:84px;padding:12px;border:1px solid var(--dshp-line,rgba(127,127,127,.24));border-radius:14px;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.dshp-home-card:hover{border-color:var(--dshp-brand,#8fbf9a);transform:translateY(-1px)}
+.dshp-home-card b{font-size:14px}
+.dshp-home-card span{font-size:12px;color:var(--dshp-mute,#888);line-height:1.45}
+.dshp-help{display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:1.6}
+.dshp-help h4{margin:10px 0 2px;font-size:13px}
+.dshp-help ul{margin:0;padding-left:18px}
+.dshp-help p{margin:0;color:var(--dshp-mute,#888)}
+@media (max-width:760px){.dshp-layer{flex-direction:column}.dshp-context{position:static;width:100%;flex:none}}
+
 .dshp-actions{text-align:right;white-space:nowrap}
 .dshp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .dshp-row+.dshp-row{margin-top:10px}
@@ -1392,10 +1417,14 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			return node;
 		}
 
-		function PurgifySection() {
+function PurgifySection(props) {
 			const t = useT();
 			const tRef = useRef(t);
 			tRef.current = t;
+			const Fragment = react.Fragment;
+			/* 子层由 dock 的 tab/sub 决定，本组件不再自存一份 */
+			const VIEW_ALLOW = ["patches", "prompt", "servers", "updates"];
+			const view = props && VIEW_ALLOW.includes(props.sub) ? props.sub : "patches";
 			const [state, setState] = useState(null);
 			const [override, setOverride] = useState("");
 			const [defaultOverride, setDefaultOverride] = useState("");
@@ -1930,148 +1959,183 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 					h(Btn, { tiny: true, kind: actionKind, disabled: actionDisabled, onClick: actionClick }, actionLabel),
 				);
 			};
+			const VIEWS = ["patches", "prompt", "servers", "updates"];
+			const VLABEL = { patches: "补丁", prompt: "提示词", servers: "自己的服务器", updates: "版本与更新" };
+			const crumb = props && typeof props.crumb === "function" ? props.crumb : null;
+			const go = props && typeof props.go === "function" ? props.go : () => {};
 			return h("section", { className: "dshp-panel", "aria-label": t("purge.title") },
 				h("div", { className: "dshp-head" },
 					h("h3", { className: "dshp-title" }, t("purge.title")),
 					h("span", { className: "dshp-pill" }, t("surface." + hostSurface)),
 				),
-				h("div", { className: "dshp-rel" },
-					h("div", { className: "dshp-now" },
-						h("span", { className: "dshp-now-label" }, t("channel.local")),
-						h("b", { className: "dshp-now-ver" }, localVer ? "v" + localVer : "—"),
-						h("em", { className: "dshp-now-mark" }, t("update.current")),
-					),
-					h("div", { className: "dshp-editions" },
-						renderEdition("stable"),
-						renderEdition("beta"),
-					),
-					noticeNode(updateNotice),
+				crumb ? crumb([{ label: "首页", go: () => go("home") }, { label: "清洗" }]) : null,
+				h("div", { className: "dshp-nav", role: "tablist", "aria-label": "清洗分区" },
+					VIEWS.map((v) => h("button", {
+						key: v, type: "button", role: "tab",
+						className: "dshp-nav-btn" + (view === v ? " is-on" : ""),
+						"aria-selected": view === v ? "true" : "false",
+						onClick: () => go("purge", v),
+					}, VLABEL[v])),
 				),
-				s ? h("div", { className: "dshp-metrics" },
-					h("div", { className: "dshp-metric" },
-						h("b", null, located ? (applied + " / " + total) : (patchesLost ? t("metric.lost.count") : (sealedReady ? t("metric.sealed.count") : t("metric.unlocated.count")))),
-						h("span", null, !located ? (patchesLost ? t("metric.lost") : (sealedReady ? t("metric.sealed") : t("metric.unlocated"))) : (metricNotes.length ? metricNotes.join(" · ") : t("metric.purged"))),
-					),
-					h("div", { className: "dshp-metric" },
-						h("b", { style: { fontSize: 13, fontFamily: "var(--dshp-mono)", fontWeight: 500 } },
-							h("span", { className: "dshp-pill is-" + shimKind(s.shim_cmd) }, "cmd"),
-							" ",
-							h("span", { className: "dshp-pill is-" + shimKind(s.shim_ps1) }, "ps1"),
-							" ",
-							h("span", { className: "dshp-pill is-" + shimKind(s.shim_bin || "missing") }, "unix"),
-						),
-						h("span", null, (s.shim_cmd === "n/a" && s.shim_ps1 === "n/a" && (s.shim_bin === "n/a" || !s.shim_bin)) ? t("metric.shim.na") : t("metric.shim")),
-					),
-					h("div", { className: "dshp-metric" },
-						h("b", null, s.has_backup ? t("metric.bak.yes") : t("metric.bak.no")),
-						h("span", null, t("metric.bak.hint")),
-					),
-				) : h("div", { className: "dshp-metrics" },
-					h("div", { className: "dshp-metric" }, h("div", { className: "dshp-skel" }), h("div", { className: "dshp-skel", style: { width: "40%" } })),
-					h("div", { className: "dshp-metric" }, h("div", { className: "dshp-skel" }), h("div", { className: "dshp-skel", style: { width: "40%" } })),
-					h("div", { className: "dshp-metric" }, h("div", { className: "dshp-skel" }), h("div", { className: "dshp-skel", style: { width: "40%" } })),
-				),
-				h("div", { className: "dshp-bar", "aria-hidden": "true" }, h("i", { style: { width: pct + "%" } })),
-				h(PatchGroups, { state: s }),
-				h(HooksDenySection, { onSaved: loadAll }),
-				h("div", { className: "dshp-row", style: { marginTop: 14 } },
-					h(Btn, { kind: "primary", disabled: patchBusy || uninstallBusy || !overrideLoaded, onClick: () => doAction("apply", "action.apply") }, patchBusy ? t("btn.apply.busy") : t("btn.apply")),
-					h(Btn, { kind: "danger", disabled: patchBusy || uninstallBusy, onClick: () => doAction("revert", "action.revert") }, t("btn.revert")),
-					h(Btn, { kind: "solid-danger", disabled: patchBusy || uninstallBusy, onClick: () => setAskUninstall(true) }, uninstallBusy ? t("btn.uninstall.busy") : t("btn.uninstall")),
-					noticeNode(notice),
-				),
-				askUninstall ? h("div", {
-					className: "dshp-modal-bg",
-					role: "dialog",
-					"aria-modal": "true",
-					"aria-labelledby": "dshp-uninstall-title",
-					onClick: (e) => { if (e.target === e.currentTarget && !uninstallBusy) setAskUninstall(false); },
-				},
-					h("div", { className: "dshp-modal" },
-						h("h4", { id: "dshp-uninstall-title" }, t("uninstall.title")),
-						h("p", null, t("uninstall.body")),
-						h("div", { className: "dshp-modal-ops" },
-							h(Btn, { disabled: uninstallBusy, onClick: () => setAskUninstall(false) }, t("uninstall.cancel")),
-							h(Btn, { kind: "solid-danger", disabled: uninstallBusy, onClick: doUninstall }, t("uninstall.confirm")),
-						),
-					),
+				h("div", { className: "dshp-layer" },
+					crumb ? h("aside", { className: "dshp-context", "aria-label": "上一层" },
+						h("div", { className: "dshp-context-h" }, "上一层 · 清洗"),
+						h("div", { className: "dshp-context-b" },
+							h("div", null, "宿主：" + (hostSurface || "web")),
+							h("div", null, "本机版本：" + (localVer ? "v" + localVer : "—")),
+							h("div", null, "补丁：" + (s ? applied + " / " + total : "读取中")),
+							h("div", null, "备份：" + (s && s.has_backup ? "有" : "无")),
+							h("div", null, "注入：" + (s ? (s.override_status || "—") : "—")),
+					)
 				) : null,
-				h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-mute)", fontSize: 12 } }, t("apply.hint")),
-				s && !s.ai_base ? h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-danger, #c44)", fontSize: 12 } }, hostText(t, "warn.noRoot", hostSurface)) : null,
-				s && s.ai_base && s.override_status === "missing" ? h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-mute)", fontSize: 12 } }, t("warn.noInject")) : null,
-				askRestart ? h(RestartAsk, {
-					t: t,
-					theme: detectHostTheme(),
-					onLater: () => {
-						suppressRestartAsk.current = true;
-						setAskRestart(false);
+				h("div", { className: "dshp-layer-main" },
+						view === "patches" ? h(Fragment, null,
+					s ? h("div", { className: "dshp-metrics" },
+						h("div", { className: "dshp-metric" },
+							h("b", null, located ? (applied + " / " + total) : (patchesLost ? t("metric.lost.count") : (sealedReady ? t("metric.sealed.count") : t("metric.unlocated.count")))),
+							h("span", null, !located ? (patchesLost ? t("metric.lost") : (sealedReady ? t("metric.sealed") : t("metric.unlocated"))) : (metricNotes.length ? metricNotes.join(" · ") : t("metric.purged"))),
+						),
+						h("div", { className: "dshp-metric" },
+							h("b", { style: { fontSize: 13, fontFamily: "var(--dshp-mono)", fontWeight: 500 } },
+								h("span", { className: "dshp-pill is-" + shimKind(s.shim_cmd) }, "cmd"),
+								" ",
+								h("span", { className: "dshp-pill is-" + shimKind(s.shim_ps1) }, "ps1"),
+								" ",
+								h("span", { className: "dshp-pill is-" + shimKind(s.shim_bin || "missing") }, "unix"),
+							),
+							h("span", null, (s.shim_cmd === "n/a" && s.shim_ps1 === "n/a" && (s.shim_bin === "n/a" || !s.shim_bin)) ? t("metric.shim.na") : t("metric.shim")),
+						),
+						h("div", { className: "dshp-metric" },
+							h("b", null, s.has_backup ? t("metric.bak.yes") : t("metric.bak.no")),
+							h("span", null, t("metric.bak.hint")),
+						),
+					) : h("div", { className: "dshp-metrics" },
+						h("div", { className: "dshp-metric" }, h("div", { className: "dshp-skel" }), h("div", { className: "dshp-skel", style: { width: "40%" } })),
+						h("div", { className: "dshp-metric" }, h("div", { className: "dshp-skel" }), h("div", { className: "dshp-skel", style: { width: "40%" } })),
+						h("div", { className: "dshp-metric" }, h("div", { className: "dshp-skel" }), h("div", { className: "dshp-skel", style: { width: "40%" } })),
+					),
+					h("div", { className: "dshp-bar", "aria-hidden": "true" }, h("i", { style: { width: pct + "%" } })),
+					h(PatchGroups, { state: s }),
+					h(HooksDenySection, { onSaved: loadAll }),
+					h("div", { className: "dshp-row", style: { marginTop: 14 } },
+						h(Btn, { kind: "primary", disabled: patchBusy || uninstallBusy || !overrideLoaded, onClick: () => doAction("apply", "action.apply") }, patchBusy ? t("btn.apply.busy") : t("btn.apply")),
+						h(Btn, { kind: "danger", disabled: patchBusy || uninstallBusy, onClick: () => doAction("revert", "action.revert") }, t("btn.revert")),
+						h(Btn, { kind: "solid-danger", disabled: patchBusy || uninstallBusy, onClick: () => setAskUninstall(true) }, uninstallBusy ? t("btn.uninstall.busy") : t("btn.uninstall")),
+						noticeNode(notice),
+					),
+					askUninstall ? h("div", {
+						className: "dshp-modal-bg",
+						role: "dialog",
+						"aria-modal": "true",
+						"aria-labelledby": "dshp-uninstall-title",
+						onClick: (e) => { if (e.target === e.currentTarget && !uninstallBusy) setAskUninstall(false); },
 					},
-					onRestart: () => {
-						suppressRestartAsk.current = true;
-						setAskRestart(false);
-						restartDsh(setNotice, function () {}, t, hostSurface);
-					},
-				}) : null,
-				// h(ContinueRetrySection, null),
-				h("div", { className: "dshp-sub" },
-					h("h4", null, t("override.title")),
-					h("div", { className: "dshp-row", style: { margin: 0 } },
-						h(Btn, { kind: "primary", tiny: true, disabled: patchBusy || !overrideLoaded, onClick: saveOverride }, t("btn.saveInject")),
-						h(Btn, { tiny: true, disabled: patchBusy || !overrideLoaded || !defaultOverride, onClick: restoreOverride }, t("btn.restoreInject")),
+						h("div", { className: "dshp-modal" },
+							h("h4", { id: "dshp-uninstall-title" }, t("uninstall.title")),
+							h("p", null, t("uninstall.body")),
+							h("div", { className: "dshp-modal-ops" },
+								h(Btn, { disabled: uninstallBusy, onClick: () => setAskUninstall(false) }, t("uninstall.cancel")),
+								h(Btn, { kind: "solid-danger", disabled: uninstallBusy, onClick: doUninstall }, t("uninstall.confirm")),
+							),
+						),
+					) : null,
+					h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-mute)", fontSize: 12 } }, t("apply.hint")),
+					s && !s.ai_base ? h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-danger, #c44)", fontSize: 12 } }, hostText(t, "warn.noRoot", hostSurface)) : null,
+					s && s.ai_base && s.override_status === "missing" ? h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-mute)", fontSize: 12 } }, t("warn.noInject")) : null,
+					askRestart ? h(RestartAsk, {
+						t: t,
+						theme: detectHostTheme(),
+						onLater: () => {
+							suppressRestartAsk.current = true;
+							setAskRestart(false);
+						},
+						onRestart: () => {
+							suppressRestartAsk.current = true;
+							setAskRestart(false);
+							restartDsh(setNotice, function () {}, t, hostSurface);
+						},
+					}) : null,
+					// h(ContinueRetrySection, null),
+						) : null,
+						view === "prompt" ? h(Fragment, null,
+					h("div", { className: "dshp-sub" },
+						h("h4", null, t("override.title")),
+						h("div", { className: "dshp-row", style: { margin: 0 } },
+							h(Btn, { kind: "primary", tiny: true, disabled: patchBusy || !overrideLoaded, onClick: saveOverride }, t("btn.saveInject")),
+							h(Btn, { tiny: true, disabled: patchBusy || !overrideLoaded || !defaultOverride, onClick: restoreOverride }, t("btn.restoreInject")),
+						),
+					),
+					h("textarea", {
+						className: "dshp-area",
+						ref: promptAreaRef,
+						value: override,
+						onChange: (e) => {
+							promptDirtyRef.current = true;
+							overrideRef.current = e.target.value;
+							setOverride(e.target.value);
+						},
+						spellCheck: false,
+						placeholder: "",
+					}),
+					promptBoxEmpty(override) ? h("p", {
+						className: "dshp-hint",
+						style: { margin: "8px 0 0", color: "var(--dshp-danger, #c44)", fontSize: 12 },
+					}, t("need.prompt")) : null,
+						) : null,
+						view === "servers" ? h(Fragment, null,
+					h("div", { className: "dshp-sub" },
+						h("h4", null, t("own.title")),
+						h("div", { className: "dshp-row", style: { margin: 0 } },
+							h(Btn, {
+								kind: "primary",
+								tiny: true,
+								disabled: !ownLoaded,
+								onClick: () => {
+									fetch("/dsh-purge/own-servers", {
+										method: "POST",
+										headers: { "content-type": "application/json" },
+										body: JSON.stringify({ content: ownServers }),
+									}).then((r) => r.json()).then((d) => {
+										if (!d || !d.ok) {
+											setNotice({ kind: "error", text: (d && d.error) || t("err.override", { error: "" }) });
+											return;
+										}
+										if (typeof d.content === "string") setOwnServers(d.content);
+										setNotice({
+											kind: "ok",
+											text: d.dropped > 0 ? t("saved.own.dropped", { n: d.dropped }) : t("saved.own"),
+										});
+									}).catch((e) => setNotice({ kind: "error", text: e.message }));
+								},
+							}, t("own.save")),
+						),
+					),
+					h("textarea", {
+						className: "dshp-area",
+						value: ownServers,
+						onChange: (e) => setOwnServers(e.target.value),
+						spellCheck: false,
+						rows: 4,
+						style: { minHeight: 96 },
+					}),
+					h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-mute)", fontSize: 12 } }, t("own.hint")),
+						) : null,
+						view === "updates" ? h(Fragment, null,
+					h("div", { className: "dshp-rel" },
+						h("div", { className: "dshp-now" },
+							h("span", { className: "dshp-now-label" }, t("channel.local")),
+							h("b", { className: "dshp-now-ver" }, localVer ? "v" + localVer : "—"),
+							h("em", { className: "dshp-now-mark" }, t("update.current")),
+						),
+						h("div", { className: "dshp-editions" },
+							renderEdition("stable"),
+							renderEdition("beta"),
+						),
+						noticeNode(updateNotice),
+					),
+						) : null,
 					),
 				),
-				h("textarea", {
-					className: "dshp-area",
-					ref: promptAreaRef,
-					value: override,
-					onChange: (e) => {
-						promptDirtyRef.current = true;
-						overrideRef.current = e.target.value;
-						setOverride(e.target.value);
-					},
-					spellCheck: false,
-					placeholder: "",
-				}),
-				promptBoxEmpty(override) ? h("p", {
-					className: "dshp-hint",
-					style: { margin: "8px 0 0", color: "var(--dshp-danger, #c44)", fontSize: 12 },
-				}, t("need.prompt")) : null,
-				h("div", { className: "dshp-sub" },
-					h("h4", null, t("own.title")),
-					h("div", { className: "dshp-row", style: { margin: 0 } },
-						h(Btn, {
-							kind: "primary",
-							tiny: true,
-							disabled: !ownLoaded,
-							onClick: () => {
-								fetch("/dsh-purge/own-servers", {
-									method: "POST",
-									headers: { "content-type": "application/json" },
-									body: JSON.stringify({ content: ownServers }),
-								}).then((r) => r.json()).then((d) => {
-									if (!d || !d.ok) {
-										setNotice({ kind: "error", text: (d && d.error) || t("err.override", { error: "" }) });
-										return;
-									}
-									if (typeof d.content === "string") setOwnServers(d.content);
-									setNotice({
-										kind: "ok",
-										text: d.dropped > 0 ? t("saved.own.dropped", { n: d.dropped }) : t("saved.own"),
-									});
-								}).catch((e) => setNotice({ kind: "error", text: e.message }));
-							},
-						}, t("own.save")),
-					),
-				),
-				h("textarea", {
-					className: "dshp-area",
-					value: ownServers,
-					onChange: (e) => setOwnServers(e.target.value),
-					spellCheck: false,
-					rows: 4,
-					style: { minHeight: 96 },
-				}),
-				h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-mute)", fontSize: 12 } }, t("own.hint")),
 			);
 		}
 
@@ -2081,7 +2145,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			return r.id;
 		}
 
-		function RulesSection() {
+function RulesSection(props) {
 			const t = useT();
 			const tRef = useRef(t);
 			tRef.current = t;
@@ -2212,6 +2276,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			const cwdCandidates = (st && Array.isArray(st.cwd_candidates)) ? st.cwd_candidates : [];
 			const cwdValue = (st && typeof st.cwd === "string") ? st.cwd : "";
 			return h("section", { className: "dshp-panel", "aria-label": t("rules.title") },
+				props && props.crumb ? props.crumb([{ label: "首页", go: () => props.go("home") }, { label: "规则" }]) : null,
 				h("div", { className: "dshp-head" },
 					h("h3", { className: "dshp-title" }, t("rules.title")),
 					h("div", { className: "dshp-row", style: { margin: 0 } },
@@ -2424,7 +2489,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			return base;
 		}
 
-		function SkillsSection() {
+function SkillsSection(props) {
 			const t = useT();
 			const tRef = useRef(t);
 			tRef.current = t;
@@ -2630,6 +2695,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			}
 
 			return h("section", { className: "dshp-panel", "aria-label": t("skills.title") },
+				props && props.crumb ? props.crumb([{ label: "首页", go: () => props.go("home") }, { label: "技能" }]) : null,
 				h("div", { className: "dshp-head" },
 					h("h3", { className: "dshp-title" }, t("skills.title")),
 					h("div", { className: "dshp-row", style: { margin: 0 } }, noticeNode(notice)),
@@ -2824,7 +2890,14 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 
 		function SettingsRoot(props) {
 			const t = typeof props.t === "function" ? props.t : ((key) => key);
+			const Fragment = react.Fragment;
 			const [theme, setTheme] = useState(readTheme);
+			/* 导航只有一个来源：dock 的 tab + sub。
+			   以前这里自己读 window.location.hash 另存一份，于是顶部切到「演练台」再切回来，
+			   清洗页的子层会退回首页 —— 两套状态源各记各的。 */
+			const SECTIONS = ["purge", "rules", "skills", "help"];
+			const nav = props && props.nav ? props.nav : "home";
+			const sub = (props && props.sub) || "";
 			useEffect(() => {
 				let cancelled = false;
 				let timer = 0;
@@ -2855,11 +2928,62 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 				};
 			}, []);
 			translate = t;
+			const NAV = [
+				["purge", "清洗", "补丁、注入开关、应用 / 还原 / 卸载"],
+				["rules", "规则", "多套规则集与启用顺序"],
+				["skills", "技能", "本机技能的查看与管理"],
+				["help", "帮助", "工作原理、还原、状态自检"],
+			];
+			const go = (v, s2) => {
+				if (v === "home") { setDock({ tab: "clean", sub: "" }); return; }
+				setDock({ tab: "clean", sub: v === "purge" ? (s2 || "patches") : v });
+			};
+			const crumb = (path) => h("div", { className: "dshp-crumb", "aria-label": "位置" },
+				h("button", { type: "button", className: "dshp-crumb-item", onClick: () => go("home") }, "dsh-purge"),
+				...path.map((p, i) => {
+					const last = i === path.length - 1;
+					return h(Fragment, { key: p.label },
+						h("span", { className: "dshp-crumb-sep", "aria-hidden": "true" }, "›"),
+						last
+							? h("span", { className: "dshp-crumb-cur" }, p.label)
+							: h("button", { type: "button", className: "dshp-crumb-item", onClick: () => p.go() }, p.label));
+				}),
+			);
+			const HelpLayer = () => h("section", { className: "dshp-panel", "aria-label": "帮助" },
+				h("div", { className: "dshp-head" }, h("h3", { className: "dshp-title" }, "帮助")),
+				crumb([{ label: "首页", go: () => go("home") }, { label: "帮助" }]),
+				h("div", { className: "dshp-help" },
+					h("h4", null, "这版改了什么"),
+					h("ul", null,
+						h("li", null, "适配官方 dsh 0.2.1-rc.2（不再兼容 0.2.0-rc.2 及更早）"),
+						h("li", null, "默认提示词内置「进攻条令」与「进攻技能路由」，每轮追加进攻复述"),
+						h("li", null, "红队技能 27 个：新增注入 / Web 载荷 / WAF 绕过 / 爆破四档"),
+						h("li", null, "界面改为分层：首页 → 分区 → 详情，层间用面包屑返回"),
+					),
+					h("h4", null, "怎样算生效"),
+					h("p", null, "点「清洗 → 补丁」页里的「应用」，成功后宿主自动重启；重启后新开一轮对话，注入才进入当前会话。聊天里输 /purge status 可查补丁计数。"),
+					h("h4", null, "还原"),
+					h("p", null, "「还原」把宿主文件写回官方形态；「卸载」会先还原再移除插件。prompt-inject.md 是用户文件，还原时保留。"),
+				),
+			);
 			return h("div", { className: "dshp-root", "data-theme": theme },
 				h("style", null, PURGE_CSS),
-				h(PurgifySection, null),
-				h(RulesSection, null),
-				h(SkillsSection, null),
+				nav === "home" ? h("section", { className: "dshp-panel", "aria-label": "dsh-purge 首页" },
+					h("div", { className: "dshp-head" },
+						h("h3", { className: "dshp-title" }, "dsh-purge"),
+						h("span", { className: "dshp-pill" }, "分层导航"),
+					),
+					h("div", { className: "dshp-home" },
+						NAV.map(([k, label, desc]) => h("button", {
+							key: k, type: "button", className: "dshp-home-card",
+							onClick: () => go(k), "aria-label": label,
+						}, h("b", null, label), h("span", null, desc))),
+					),
+				) : null,
+				nav === "purge" ? h(PurgifySection, { crumb, go, sub }) : null,
+				nav === "rules" ? h(RulesSection, { crumb, go }) : null,
+				nav === "skills" ? h(SkillsSection, { crumb, go }) : null,
+				nav === "help" ? h(HelpLayer, null) : null,
 			);
 		}
 
@@ -3787,6 +3911,31 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 .rt-concl-i>span{color:var(--dsw-alias-label-secondary);font-size:11.5px}
 .rt-more{color:var(--dsw-alias-brand-primary);font-size:11.5px;cursor:pointer;user-select:none;margin-top:4px;display:inline-block}
 .rt-more:hover{text-decoration:underline}
+.rt-crumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 12px 0;font-size:12px;color:var(--dsw-alias-label-secondary,#999)}
+.rt-crumb-item{appearance:none;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;padding:2px 5px;border-radius:6px}
+.rt-crumb-item:hover{color:var(--dsw-alias-label-primary,#eee);background:rgba(127,127,127,.14)}
+.rt-crumb-sep{opacity:.5}
+.rt-crumb-cur{color:var(--dsw-alias-label-primary,#eee);font-weight:600;padding:2px 5px}
+.rt-tabs-sep{flex:0 0 14px;border-top:1px dashed rgba(127,127,127,.45);align-self:center}
+.rt-layer{display:flex;gap:10px;align-items:flex-start;flex:1;min-height:0;overflow:hidden;padding:0 12px}
+.rt-layer-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.rt-context{position:sticky;top:0;max-height:100%;overflow:auto;flex:0 0 172px;box-sizing:border-box;padding:10px;border:1px solid var(--dsw-alias-border-l1,#3a3a3a);border-radius:12px;background:rgba(127,127,127,.07)}
+.rt-context-h{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--dsw-alias-label-secondary,#999);margin:0 0 8px;word-break:break-all}
+.rt-context-b{display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:1.5}
+.rt-btn-sm{min-height:26px;padding:0 9px;font-size:12px}
+.rt-overview{display:flex;flex-direction:column;gap:12px;padding:4px 0}
+.rt-ov-head{display:flex;align-items:center;gap:8px}
+.rt-ov-head h4{margin:0;font-size:15px}
+.rt-ov-stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:10px}
+.rt-ov-stage{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--dsw-alias-border-l1,#3a3a3a);border-radius:14px;background:rgba(127,127,127,.05)}
+.rt-ov-stage-h{font-size:13px;font-weight:700}
+.rt-ov-stage-d{font-size:12px;color:var(--dsw-alias-label-secondary,#999);line-height:1.45}
+.rt-ov-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.rt-ov-chip{padding:2px 8px;border-radius:999px;background:rgba(127,127,127,.16);font-size:12px}
+.rt-ov-quick h4{margin:0 0 6px;font-size:13px}
+.rt-ov-links{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:820px){.rt-layer{flex-direction:column}.rt-context{position:static;width:100%;flex:none}}
+
 .rt-subtabs{display:flex;gap:4px;padding:6px 10px 0;border-bottom:1px solid var(--dsw-alias-border-l1);align-items:center}
 .rt-subtab{padding:4px 10px;border-radius:6px 6px 0 0;cursor:pointer;font-size:12px;color:var(--dsw-alias-label-secondary)}
 .rt-subtab.on{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2);font-weight:600}
@@ -4069,20 +4218,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(req),
-    }).then(async (res) => {
-      const text = await res.text().catch(() => '')
-      let data = null
-      try { data = text ? JSON.parse(text) : null } catch {
-        return { ok: false, error: res.status + ' non-json: ' + String(text).slice(0, 120) }
-      }
-      if (!res.ok) {
-        return Object.assign({}, data || {}, {
-          ok: false,
-          error: (data && (data.error || data.message)) || (res.status + ' ' + res.statusText),
-        })
-      }
-      return data
-    })
+    }).then((res) => res.json())
 
     let ui = { open: true, tab: 'assets' }
     const subs = new Set()
@@ -5071,6 +5207,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
     }
 
     function FindingsTab(props) {
+      const initialSub = props && props.initialSub ? props.initialSub : 'vulns'
       const eng = props.engagement
       const refreshKey = props.refreshKey || 0
       const [sev, setSev] = React.useState('')
@@ -5084,7 +5221,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       const [openId, setOpenId] = React.useState(null)
       const [msg, setMsg] = React.useState(null)
       /* 子页签：漏洞 / 凭据 / 访问会话（凭据不再铺在漏洞页底部） */
-      const [subTab, setSubTab] = React.useState('vulns')
+      const [subTab, setSubTab] = React.useState(initialSub)
       /* 默认按目标聚合：322 条平铺没法读，先看"哪台被打下什么" */
       const [grouped, setGrouped] = React.useState(true)
       const collapse = useCollapse('findings:' + eng)
@@ -5602,8 +5739,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           a.href = url
           a.download = 'report-' + String(label || 'score').replace(/[^\w.\-]/g, '_') + '.md'
           a.click()
-          /* 立刻 revoke 会在部分浏览器里让 click 启动的下载断流,延后一拍 */
-          setTimeout(() => { try { URL.revokeObjectURL(url) } catch { /* ignore */ } }, 1000)
+          URL.revokeObjectURL(url)
           setMsg({ ok: '已下载：' + label })
         } catch (e) { setMsg({ err: '下载失败：' + ((e && e.message) || e) }) }
       }
@@ -6341,6 +6477,48 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
     }
 
     /* ---------------------------------------------------------- 得分目标 */
+    function OverviewTab(props) {
+      const eng = props.engagement
+      const snapshot = props.snapshot
+      const stats = (snapshot && snapshot.stats) || {}
+      const goTab = typeof props.goTab === 'function' ? props.goTab : () => {}
+      const STAGES = [
+        ['① 信息收集', '资产面收全，不碰漏洞', [
+          '资产 ' + (stats.assets || 0), 'C 段 ' + (stats.segments || 0), '被动 ' + (stats.passiveSignals || 0),
+        ], 'assets'],
+        ['② 资产梳理', '逐条评易打性，排出先打谁', [
+          '存活 ' + (stats.liveAssets || 0), '服务 ' + (stats.services || 0), '指纹 ' + (stats.fingerprints || 0),
+        ], 'assets'],
+        ['③ 漏洞发现', 'Nday 优先，再接未授权与注入面', [
+          '漏洞 ' + (stats.vulns || 0), '未测 ' + (stats.untestedAssets || 0), '被封 ' + (stats.blockedAssets || 0),
+        ], 'findings'],
+        ['④ 漏洞利用', '加密马 + 隧道，必须实测可达', [
+          '凭据 ' + (stats.credentials || 0), '会话 ' + (stats.accesses || 0), '开放端口 ' + (stats.openPorts || 0),
+        ], 'sessions'],
+        ['⑤ 内网渗透', '走隧道铺面打点，挖新网段', [
+          '主动探测 ' + (stats.activeSignals || 0), '攻击链步骤', '得分点',
+        ], 'chain'],
+      ]
+      return h('div', { className: 'rt-overview' },
+        h('div', { className: 'rt-ov-head' },
+          h('h4', null, (eng && (eng.name || eng.id)) || '靶标'),
+          h('span', { className: 'rt-tag' }, '五阶段进度'),
+        ),
+        h('div', { className: 'rt-ov-stages' }, STAGES.map((st2) => h('div', { key: st2[0], className: 'rt-ov-stage' },
+          h('div', { className: 'rt-ov-stage-h' }, st2[0]),
+          h('div', { className: 'rt-ov-stage-d' }, st2[1]),
+          h('div', { className: 'rt-ov-chips' }, st2[2].map((c, k) => h('span', { key: st2[0] + '-' + k, className: 'rt-ov-chip' }, c))),
+          h('button', { className: 'rt-btn rt-btn-sm', onClick: () => goTab(st2[3]) }, '进入 →'),
+        ))),
+        h('div', { className: 'rt-ov-quick' },
+          h('h4', null, '直达'),
+          h('div', { className: 'rt-ov-links' }, [['findings', '漏洞战果'], ['sessions', '会话隧道'], ['chain', '攻击链'], ['scores', '得分目标'], ['report', '报告']].map((x) => h('button', {
+            key: x[0], className: 'rt-btn', onClick: () => goTab(x[0]),
+          }, x[1]))),
+        ),
+      )
+    }
+
     function ScoreTab(props) {
       const eng = props.engagement
       const refreshKey = props.refreshKey || 0
@@ -7198,17 +7376,6 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       const [open, setOpen] = React.useState(false)
       const [msg, setMsg] = React.useState(null)
       const [countdown, setCountdown] = React.useState(0)
-      const countdownRef = React.useRef(null)
-      const clearCountdown = React.useCallback(() => {
-        if (countdownRef.current) { try { clearInterval(countdownRef.current) } catch { /* ignore */ } }
-        countdownRef.current = null
-      }, [])
-      React.useEffect(() => () => clearCountdown(), [clearCountdown])
-      const closeModal = React.useCallback(() => {
-        clearCountdown()
-        setCountdown(0)
-        setOpen(false)
-      }, [clearCountdown])
 
       const check = (silent) => {
         if (!silent) setBusy(true)
@@ -7239,10 +7406,9 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           setMsg({ ok: '已安装 ' + (r.installed || '') + '，正在重启当前宿主…' })
           /* 重启会断开这个页面：倒计时提示用户稍后刷新 */
           setCountdown(6)
-          clearCountdown()
-          countdownRef.current = setInterval(() => {
+          const t = setInterval(() => {
             setCountdown((n) => {
-              if (n <= 1) { clearCountdown(); window.location.reload(); return 0 }
+              if (n <= 1) { clearInterval(t); window.location.reload(); return 0 }
               return n - 1
             })
           }, 1000)
@@ -7274,7 +7440,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
               title: '重新检查 npm 上的最新版本',
             }, busy ? '检查中…' : '检查更新'),
         open
-          ? h('div', { className: 'rt-modal', 'aria-hidden': 'true', onClick: closeModal },
+          ? h('div', { className: 'rt-modal', 'aria-hidden': 'true', onClick: () => setOpen(false) },
               h('div', { className: 'rt-modal-box', onClick: (e) => e.stopPropagation() },
                 h('h4', { style: { marginTop: 0 } }, '更新 RedTeam 模式'),
                 h('div', { className: 'rt-kv' }, h('b', null, '当前版本'), h('span', null, current || '未知')),
@@ -7300,7 +7466,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
                   ? h('div', { className: 'rt-foot' }, '宿主正在重启，' + countdown + ' 秒后自动刷新页面…')
                   : null,
                 h('div', { style: { display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10 } },
-                  h('button', { className: 'rt-btn', onClick: closeModal }, '关闭'),
+                  h('button', { className: 'rt-btn', onClick: () => setOpen(false) }, '关闭'),
                   h('button', {
                     className: 'rt-btn rt-btn-primary',
                     disabled: busy || blockers.length > 0 || mode === 'dev',
@@ -7532,13 +7698,17 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       }
 
       const stats = (snapshot && snapshot.stats) || {}
-      const tabs = [
-        ['assets', '资产测绘'], ['env', '环境适配'], ['agents', '智能体'], ['sessions', '会话隧道'],
-        ['findings', '漏洞战果'],
+      const TABS_TARGET = [
+        ['overview', '概览'], ['assets', '资产测绘'], ['findings', '漏洞战果'], ['sessions', '会话隧道'],
         ['chain', '攻击链'], ['scores', '得分目标'], ['report', '报告'],
-        ['knowledge', '知识库'],
-        ['skills', '技能库'],
       ]
+      const TABS_GLOBAL = [['env', '环境适配'], ['knowledge', '知识库'], ['skills', '技能库'], ['agents', '智能体']]
+      const tabs = eng ? TABS_TARGET.concat([['', '─']], TABS_GLOBAL) : TABS_GLOBAL
+      const tabLabel = (key) => {
+        const hit = TABS_TARGET.concat(TABS_GLOBAL).find((x) => x[0] === key)
+        return hit ? hit[1] : key
+      }
+      const engName = (eng && (eng.name || eng.id)) || ''
       const full = isFullWindow()
       const openFull = () => {
         try { window.open(window.location.href.split('#')[0] + '#redteam-full', '_blank', 'noopener') } catch (e) { setErr('无法打开新窗口：' + ((e && e.message) || e)) }
@@ -7581,13 +7751,13 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
               }),
               h('button', { className: 'rt-btn rt-btn-primary', disabled: creating, onClick: () => openEngagement() },
                 creating ? '创建中…' : '创建靶标'))))
-      } else if (st.tab === 'assets') body = h(AssetsTab, { engagement: eng, snapshot: snapshot, refreshKey: refreshKey, onRefresh: refreshAll, onData: () => loadSnapshot(eng) })
-      else if (st.tab === 'testing') body = h(AssetsTab, { engagement: eng, snapshot: snapshot, refreshKey: refreshKey, onRefresh: refreshAll, onData: () => loadSnapshot(eng) })
+      } else if (st.tab === 'overview') body = h(OverviewTab, { engagement: eng, snapshot: snapshot, refreshKey: refreshKey, goTab: (k) => { markTabSeen(k); setUI({ tab: k }); setRefreshKey((x) => x + 1) } })
+      else if (st.tab === 'assets') body = h(AssetsTab, { engagement: eng, snapshot: snapshot, refreshKey: refreshKey, onRefresh: refreshAll, onData: () => loadSnapshot(eng) })
       else if (st.tab === 'sessions') body = h(SessionTab, { engagement: eng, refreshKey: refreshKey })
       else if (st.tab === 'findings') body = h(FindingsTab, { engagement: eng, refreshKey: refreshKey })
       else if (st.tab === 'chain') body = h(ChainTab, { engagement: eng, refreshKey: refreshKey })
       else if (st.tab === 'report') body = h(ReportTab, { engagement: eng, refreshKey: refreshKey })
-      else if (st.tab === 'attackfiles') body = h(FindingsTab, { engagement: eng, refreshKey: refreshKey })
+      else if (st.tab === 'attackfiles') body = h(FindingsTab, { engagement: eng, refreshKey: refreshKey, initialSub: 'files' })
       else if (st.tab === 'scores') body = h(ScoreTab, { engagement: eng, refreshKey: refreshKey })
       else body = h('div', { className: 'rt-empty' }, '未知页签')
 
@@ -7640,7 +7810,20 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           (full || embedded) ? null : h('button', { className: 'rt-btn', title: '收起面板', onClick: () => setUI({ open: false }) }, '收起')),
         /* 页签栏用标准 tablist/tab 角色：读屏软件据此播报「第几个页签、是否选中」。
            键盘用户 Tab 进来后可用 Enter/Space 切换（由 clickable 提供）。 */
+        h('div', { className: 'rt-crumb', 'aria-label': '位置' },
+          h('span', { className: 'rt-crumb-cur' }, '演练台'),
+          eng ? h('span', { className: 'rt-crumb-sep', 'aria-hidden': 'true' }, '›') : null,
+          eng
+            ? h('button', {
+              type: 'button', className: 'rt-crumb-item', title: '回到全局页（环境适配）',
+              onClick: () => { setUI({ tab: 'env' }); setRefreshKey((k) => k + 1) },
+            }, engName)
+            : null,
+          eng && st.tab ? h('span', { className: 'rt-crumb-sep', 'aria-hidden': 'true' }, '›') : null,
+          eng && st.tab ? h('span', { className: 'rt-crumb-cur' }, tabLabel(st.tab)) : null,
+        ),
         h('div', { className: 'rt-tabs', role: 'tablist' }, tabs.map((t) => {
+          if (t[0] === '') return h('span', { key: 'sep', role: 'presentation', className: 'rt-tabs-sep', 'aria-hidden': 'true', title: '以下是不依赖靶标的全局页' })
           const activate = () => {
             markTabSeen(t[0])
             setUI({ tab: t[0] })
@@ -7657,7 +7840,24 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
             ? h('span', { className: 'rt-tab-dot', 'aria-label': '有新内容' })
             : null)
         })),
-        h('div', { className: 'rt-body', key: 'body-' + st.tab }, h(RtBoundary, { key: st.tab }, body)),
+        h('div', { className: 'rt-layer' },
+          eng && TABS_TARGET.some((x) => x[0] === st.tab)
+            ? h('aside', { className: 'rt-context', 'aria-label': '上一层' },
+              h('div', { className: 'rt-context-h' }, '上一层 · ' + engName),
+              h('div', { className: 'rt-context-b' },
+                h('div', null, '资产 ' + (stats.assets || 0) + '（存活 ' + (stats.liveAssets || 0) + '）'),
+                h('div', null, 'C 段 ' + (stats.segments || 0) + ' · 端口 ' + (stats.openPorts || 0)),
+                h('div', null, '漏洞 ' + (stats.vulns || 0) + ' · 凭据 ' + (stats.credentials || 0)),
+                h('div', null, '会话 ' + (stats.accesses || 0) + ' · 未测 ' + (stats.untestedAssets || 0)),
+                h('button', {
+                  className: 'rt-btn rt-btn-sm', title: '回到本靶标概览',
+                  onClick: () => { setUI({ tab: 'overview' }); setRefreshKey((k) => k + 1) },
+                }, '← 概览'),
+              ),
+            )
+            : null,
+          h('div', { className: 'rt-layer-main', key: 'body-' + st.tab }, h(RtBoundary, { key: st.tab }, body)),
+        ),
         h('div', { className: 'rt-foot' },
           h('span', null, 'C 段 ' + (stats.segments || 0)),
           h('span', null, '资产 ' + (stats.assets || 0) + '（存活 ' + (stats.liveAssets || 0) + '）'),
@@ -7792,7 +7992,10 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 				});
 		}
 
-		let dockBus = { open: false, tab: "clean", authOpen: false, pending: "tab", listeners: new Set() };
+		let dockBus = { open: false, tab: "clean", sub: "", authOpen: false, pending: "tab", listeners: new Set() };
+		/* 清洗页分层取值：section 级与 purge 子层级，dock 与 SettingsRoot 共用同一份 */
+		const SECTIONS_AT_DOCK = ["rules", "skills", "help"];
+		const VIEW_AT_DOCK = ["patches", "prompt", "servers", "updates"];
 		function getDock() { return dockBus; }
 		function setDock(patch) {
 			dockBus = Object.assign({}, dockBus, patch);
@@ -8498,7 +8701,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 				window.addEventListener("mouseup", up);
 			};
 			const body = st.tab === "clean"
-				? h(SettingsRoot, { t })
+				? h(SettingsRoot, { t, nav: st.tab === "clean" ? (SECTIONS_AT_DOCK.includes(st.sub) ? st.sub : (st.sub ? "purge" : "home")) : "home", sub: st.tab === "clean" && VIEW_AT_DOCK.includes(st.sub) ? st.sub : "" })
 				: (readDrillAuth() && __dshPurgeDrill.Panel
 					? h(__dshPurgeDrill.Panel, { embedded: true })
 					: h("div", { style: { padding: 16, color: "var(--dsw-alias-label-secondary)" } }, t("dock.unauthorized")));
