@@ -1,3 +1,15 @@
+# 1.1.75
+
+## 中文
+
+- **移除死补丁 #40 `COMPLETE_PROMPT_KEEP_INJECT`（0.1.5 兼容层）**：0.2.1-rc.2 真机复核，它的 8 条 pattern 在新宿主 `system-prompt` 组装块上永远打不中（官方已改成 `requiredContexts` 新形态），状态面板上是一条恒常 `skipped` 的噪音。补丁总数 84 → **83**。同层的 #47/#49（0.2.0 兼容）实测已生效，保留。
+- 真机复核：桌面端 74/83 已清洗、0 待清洗、0 失败；其余 9 条为可选补丁（未安装的梁神 / hooks-claude-code / hooks-codex / 自造 unrestricted 预设等，目标文件不存在属正常）。hooks 两包虽在 npm 有 0.2.1-rc.2 发布版，但 peer 需要官方桌面发行包里没有的 `dsh-hook-protocol`，为凑绿而装会新增无用代码路径，维持不装。
+
+## English
+
+- **Removed dead patch #40 `COMPLETE_PROMPT_KEEP_INJECT` (0.1.5 compat layer)**: on a real 0.2.1-rc.2 desktop host none of its 8 patterns can ever match the rewritten `system-prompt` assembly block, so it showed as permanent `skipped` noise. Patch count 84 → **83**. The 0.2.0-layer #47/#49 were verified applied and kept.
+- Field check: desktop 74/83 cleaned, 0 pending, 0 failed; the remaining 9 are optional patches for features not installed (liangshen, hooks-claude-code, hooks-codex, a user-made unrestricted preset). The two hooks packages exist on npm at 0.2.1-rc.2 but their peer `dsh-hook-protocol` is absent from the official desktop bundle set — installing them just to go green would add unused code paths, so we keep them out.
+
 # 1.1.74
 
 ## 中文
