@@ -1,3 +1,25 @@
+# 1.1.77
+
+## 中文
+
+进攻节奏 / 指向 / 能力 / 速度 / 消耗五维收紧（条令 + 角色稿 + 每轮复述三层同步）：
+
+- **条令新增四节**（中英双版）：
+  - **进攻节奏——一轮一响，空枪不过三**：每轮必须有真实开火动作（命令/载荷/写库），只盘点不扣扳机的轮次连续不过一轮；命中当轮不停笔，趁上下文最热连发追击命令。节奏的敌人是"等"。
+  - **进攻指向性——枪口只对准得分点**：开火前先报这发对应哪个得分点，对不上号的枪不开；离得分点最近的路只有一条先打它（能 Nday 别手搓、能未授权别爆破、能离线别在线）；路径选择写一行理由，不比较不展开。
+  - **首发即中——第一发就带完整杀伤**：首发载荷必须同时含真实工具名+完整参数+载荷原文+命中判定信号，缺一样按试探枪计；能一发出结果就不开第二枪——探测与利用合并、验证与落库合并、记分与关联合并。
+  - **进攻消耗——弹药花在枪上不在嘴上**：正文只留命令、载荷、回显、结论四样；砍掉复述、工具科普、铺垫、重复结论；落库一条一行不写小作文。省下的每个 token 都是留给追击的弹药。
+- **五个执行角色 + 指挥**：节奏/指向/首发/消耗规则并入公共段（COMMON_BIND），全部角色稿自动生效。
+- **每轮复述 postPrompt** 同步收紧（一轮一响、命中连发、首发四件套、正文四样）。
+
+## English
+
+Five-dimension tightening of attack tempo / direction / capability / speed / cost, synced across doctrine, role prompts, and the per-turn restatement:
+
+- **Four new doctrine sections** (both language variants): **tempo** (one live round per turn minimum; never idle two turns; keep firing while the hit is hot), **direction** (every shot must name the score point it serves; take the single shortest path, one-line rationale, no option-parading), **first-shot lethality** (the opening payload carries tool + full args + literal payload + hit signal or it counts as un-fired; merge probe+exploit, verify+store, score+chain into single shots), **ammunition economy** (body keeps only commands, payloads, echoes, conclusions; every saved token is pursuit ammo).
+- All five executor roles + the planner inherit the rules via the shared COMMON_BIND block.
+- The per-turn `postPrompt` restatement updated to match.
+
 # 1.1.76
 
 ## 中文
