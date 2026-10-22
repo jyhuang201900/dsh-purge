@@ -29,6 +29,9 @@ lib/default-prompt-inject.zh.md
 lib/default-prompt-inject.en.md
 default-prompt-inject.md
 
+# 锚点核对脚本的包缓存与报告（体积大，不进仓库）
+.cache/
+
 # 本机官方安装包、解包目录、拆出的压缩包
 /deepseek-harness-*.exe
 /official-harness-unpacked/

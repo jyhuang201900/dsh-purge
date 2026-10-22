@@ -2,200 +2,82 @@
   <img src="docs/banner.svg" alt="dsh-purge" width="720">
 </p>
 
-<h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
+<h1 align="center">⚔️ DeepSeek Harness red-team security tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.1.71</strong></p>
+<p align="center"><strong>Version 1.1.72</strong></p>
 
 <p align="center">
-  <em>DeepSeek Harness jailbreak: every model, swap prompts per model. Default prompt for 小码酱. Please star ⭐ If you build on this, see Attribution required.</em>
+  <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 23 drill skills.</em>
 </p>
 
 <p align="center">
-  <a href="https://github.com/YuJunZhiXue/dsh-purge/stargazers"><img src="https://img.shields.io/github/stars/YuJunZhiXue/dsh-purge?logo=github&label=Stars" alt="GitHub stars"></a>
-  <a href="https://github.com/YuJunZhiXue/dsh-purge/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Commercial-c45c26?style=flat" alt="Commercial license"></a>
-  <a href="https://awesome-dsh-plugin.com"><img src="https://awesome-dsh-plugin.com/badge.svg" alt="awesome · DSH plugin"></a>
-  <a href="https://deepseek.stream/plugins/dsh-purge"><img src="https://img.shields.io/badge/Hub-dsh--purge-1a73e8" alt="DeepSeek Harness Hub"></a>
-  <a href="https://www.deepseek.com/harness/"><img src="https://img.shields.io/badge/dsh-0.2.0--rc.2%20%2F%200.2.1--rc.2-blue" alt="DSH"></a>
+  <a href="https://github.com/jyhuang201900/dsh-purge/stargazers"><img src="https://img.shields.io/github/stars/jyhuang201900/dsh-purge?logo=github&label=Stars" alt="GitHub stars"></a>
+  <a href="https://github.com/jyhuang201900/dsh-purge/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-View-blueviolet?style=flat" alt="License"></a>
+  <a href="https://www.deepseek.com/harness/"><img src="https://img.shields.io/badge/dsh-0.2.1--rc.2-blue" alt="DSH"></a>
   <br>
   <img src="https://img.shields.io/badge/Node.js-%3E%3D18-339933?logo=node.js&logoColor=fff" alt="Node.js">
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000" alt="JavaScript">
 </p>
 
 <p align="center">
-  <a href="https://dsh-plugin.org/plugins/yujunzhixue/dsh-purge"><img src="https://dsh-plugin.org/badges/listed.svg" alt="Listed on dsh-plugin.org"></a>
-</p>
-
-<p align="center">
   <a href="README.md">中文</a> · <a href="README.en.md"><strong>English</strong></a>
 </p>
 
-> I'll say it straight.
->
-> I got laid off. No job, no steady income. I always wrote this repo after hours. I may end up delivering food just to eat. I probably won't be able to patch this every day.
->
-> **Seven days, through 26 Oct 2026. That's the window I'm leaving open.** Stay, swear, buy an ad, or sponsor — write it on [Issue #130](https://github.com/YuJunZhiXue/dsh-purge/issues/130). I'll read. I won't answer every comment.
->
-> **From 27 Oct I'm closing this repo.** I won't ship new versions on GitHub. Later builds I only put here: [t.me/LLM_PoJia/271](https://t.me/LLM_PoJia/271). Copies you already downloaded still run. I also changed the license. It's commercial now; see below.
-
-> **Official Web and the official desktop app are both supported.** Official `dsh web` uses profile `web`. The official desktop EXE (DeepSeek Harness **0.2.0-rc.2 / 0.2.1-rc.2**) uses profile `desktop`. Install and Apply them separately. This release targets dsh 0.2 only. Older dsh builds need the matching older plugin. Community Desktop is not maintained.
+> **Official Web and the official desktop app are both supported.** Official `dsh web` uses profile `web`. The official desktop EXE (DeepSeek Harness **0.2.1-rc.2**) uses profile `desktop`. Install and Apply them separately. This release targets dsh 0.2.1-rc.2 only (0.2.0-rc.2 and earlier need the matching older plugin). Community Desktop is not maintained.
 >
 > Adding the plugin to a profile does not patch the host. Click **dsh-purge** beside the session title → **Clean** → **Apply**. A successful Apply restarts; an unfinished Apply does not. After the restart, start a new chat — that is when the inject enters the session.
 >
-> Node.js **≥18**. Windows no-flash needs **Node ≥22**. There is no `dsh-purge` package on npm. Until 26 Oct, install from the GitHub archive below; do not `pnpm add dsh-purge`. After 27 Oct, only the [channel](https://t.me/LLM_PoJia/271) counts.
+> Node.js **≥18**. Windows no-flash needs **Node ≥22**. There is no `dsh-purge` package on npm. Install from the GitHub archive below; do not `pnpm add dsh-purge`.
 
 ## Contents
 
-- [Sponsor](#sponsor)
-- [Ad slots](#ad)
 - [What this is](#what-this-is)
-- [Attribution required](#attribution-required)
 - [License](#license)
-- [Unauthorized commercial use](#unauthorized-commercial-use)
 - [Supported hosts](#supported-hosts)
 - [Install](#install)
-- [Preview](#preview)
+- [Interface](#interface-preview)
 - [Usage](#usage)
-- [Own servers](#own-servers)
+- [Your own servers](#your-own-servers)
 - [How it works](#how-it-works)
 - [Restore](#restore)
-- [Releases](#releases)
-
----
-
-<a id="sponsor"></a>
-
-## ☕ Sponsor
-
-If this project helps you, send it over — I'm out here asking~
-
-| Asset | Address |
-| --- | --- |
-| USDT (TRC20) | `TV5ajPkRD8RH623Dx9mqvYZVNN8nPGRKid` |
-| Solana | `6x16GhRgLVpKFFXaU1seKNdx2rypspSJTL4dbpt6Xpwk` |
-| Ethereum | `0xB68BD60C0e8c519513B7DF9bB147696815423B3E` |
-| Bitcoin | `bc1qu70yxkrtwnymt8ryluz9x8y8hqzune5340npht` |
-
----
-
-<a id="ad"></a>
-
-## Ad slots
-
-People actually read this README. I'm opening a few slots. The money goes toward keeping me able to maintain this.
-
-| Placement | Status |
-| --- | --- |
-| Above the sponsor block (text link + one-line blurb, or a small image) | **Open** |
-
-Few slots. I put them up after we agree. Gray-market, piracy, impersonating this repo, or pure traffic farms: I don't take those.
-
-Email [a2269198325@163.com](mailto:a2269198325@163.com) or message [@YuJunZhiXue](https://github.com/YuJunZhiXue) on GitHub. Subject: `dsh-purge ad slot`.
-
-These seven days are also the last public call. What I want to say is here: [Issue #130](https://github.com/YuJunZhiXue/dsh-purge/issues/130). Deadline **26 Oct 2026**. After that I close the source. New versions only on the [channel](https://t.me/LLM_PoJia/271).
+- [Updates](#updates)
 
 ---
 
 ## What this is
 
-I wrote this plugin. You install it on the official [DeepSeek Harness](https://www.deepseek.com/harness/) already on your machine, for cybersecurity red-team evaluation. I support official **Web** (`dsh web`) and the official **desktop EXE**. You install and Apply them separately.
+A local network-security red-team evaluation plugin for the official [DeepSeek Harness](https://www.deepseek.com/harness/) installed on your machine. Both the official **Web** (`dsh web`) and the official **desktop EXE** are supported; install and Apply them separately.
 
-Harness does more than forward a prompt. It rewrites prompts, approval gates, sandbox policy, and session migration at runtime. Asking only “will the model answer” treats a host-layer block as a model refusal. My plugin splits those two layers on your own install, for controlled evaluation and for seeing which default policy is too tight.
+Harness does more than hand a question to a model. It rewrites prompts, approval gates, sandboxes and session formats at runtime. Judging only "does the model answer" mistakes a host block for a model refusal. This plugin separates those two layers inside your own installation, for controlled evaluation and for testing whether the default policy should be tightened.
 
-| You get | What it does |
-|---|---|
-| **dsh-purge dock** | A button beside the session title opens the right dock. Two pages: Clean and Drill |
-| **Clean** | Grouped patch status, Apply / Restore / Uninstall, prompt editor, multiple rule sets |
-| **Drill** | Built into the stable release. After authorization: assets, skills, and the local environment. Only for a host you manage, an offline target, or a written authorized exercise |
-| **Host policy** | Default copy, permission policy, and tool limits. Official capabilities stay. No second invented identity |
-| **On start** | Checks and reapplies. After npm overwrites `node_modules`, you do not hand-edit files |
 
-No hardcoded drive letters. It looks at `$DSH_HOME`, `.dsh` next to the dsh launcher, then `~/.dsh`. It does not patch the Harness source tree. **Apply** on the **Clean** page of **dsh-purge** is what writes the changes. Identity comes from the encrypted prompt shipped in the plugin, the text the prompt box shows by default. The host prompt file is not read.
+| What you use          | What it does                                                  |
+| --------------------- | ------------------------------------------------------------- |
+| **dsh-purge dock**    | The button next to the session title opens the right dock: Clean and Drill |
+| **Clean**             | Grouped patches, Apply / Restore / Uninstall; edit the prompt and rule sets |
+| **Drill console**     | Built in. After authorization: assets, skills, local environment. Only for machines you own, offline targets, or written-authorized drills |
+| **Host policy**       | Adjust default copy, permission policy and tool caps. Official capability is kept, no second identity invented |
+| **On start**          | Re-checks and re-applies. After an npm upgrade overwrites `node_modules` you do not edit files by hand |
 
-My plugin only touches the official `@deepseek-ai` packages and local config already on your machine. It is not a public scanner and not a kit for hitting someone else's site. There is no malware in this repo, and no payload aimed at the public internet.
 
----
+No hard-coded drive letters. It resolves `$DSH_HOME`, the `.dsh` next to the dsh launcher, then falls back to `~/.dsh`. It does not touch the Harness source repository; nothing is written until you press **Apply** under **dsh-purge** → Clean. Identity comes from the encrypted prompt sealed in the plugin — the one the prompt box shows by default. It does not read a prompt file from the host's disk.
 
-## Install it for yourself. Selling it, teaching it as a paid course, or white-labeling it: buy a [commercial license](./LICENSE-COMMERCIAL.md) from me first.
-
-## Attribution required
-
-If you use this project's name, ideas, code, or prompts, you credit me and you name the source repository: [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge).
-
-No credit, hiding the source, or passing it off as yours: I will pursue that.
+This plugin only changes the official `@deepseek-ai` packages already installed on your machine plus local configuration. It is not a public-internet scanner or an attack suite. The repository contains no trojan and no outbound attack payload.
 
 ---
 
 ## License
 
-From this version the [LICENSE](./LICENSE) is the commercial license I wrote. I keep all rights. **This is not open source, and it is not MIT.**
-
-| What you want | Where |
-| --- | --- |
-| Install a copy you already have, on your own machine | Allowed; see [LICENSE](./LICENSE) |
-| Paid plugin / course / white-label / sell it as a product | Buy a grant from me first: [LICENSE-COMMERCIAL.md](./LICENSE-COMMERCIAL.md) |
-| Git tags / tarballs from before the switch | those went out under MIT; I cannot claw them back |
-| Builds after 27 Oct 2026 | I only ship them at [t.me/LLM_PoJia/271](https://t.me/LLM_PoJia/271) |
-
-To everyone who wrote code: thank you. After the cutoff I will not keep this as a public GitHub open-source repo.
+Terms are in [LICENSE](./LICENSE). Personal local use, modification and redistribution are fine; keep a link to the source repository when redistributing.
 
 ---
 
-## Unauthorized commercial use
+### Scope and disclaimer
 
-Douyin live account **「老张的ai」** (room name **「老张AI讲堂」**) is selling my repository: taking fees in the live room, no attribution, claiming to be the author. I was in the room. They still charged.
-
-The commercial license does not allow selling this repo as a paid product. Selling courses, the plugin, tokens, or reselling it: buy a grant from me first, or the license ends on the spot. Old MIT tags I cannot claw back. Passing yourself off as me, or dropping attribution, I still pursue.
-
-Recorded 2026-10-12:
-
-<p align="center">
-  <img src="docs/notice/laozhang-live-1.jpg" width="360" alt="老张的ai live asking for a fee">
-  <img src="docs/notice/laozhang-live-2.jpg" width="360" alt="老张的ai live charging money">
-</p>
-
-WeChat name **「老张的ai科技」**, same handle as the live-room viewer board. Asked if they were this repo's developer, they said they were. I said I would report it.
-
-<p align="center">
-  <img src="docs/notice/laozhang-wechat-1.jpg" width="420" alt="老张的ai科技 WeChat claiming to be the developer">
-</p>
-
----
-
-<a id="strict-legal--compliance-disclaimer"></a>
-
-<div>
-
-### ⚠️ <font color="red">Strict legal and compliance disclaimer</font>
-
-<font color="red">
-
-**Disclaimer:** This project is offered under a commercial license. It used to be MIT on GitHub; that is changing, and the repo will close. Follow applicable laws and platform rules. Do not use it for illegal purposes; the user bears the consequences.
-
-**Zero-tolerance statement:** This project opposes and forbids any illegal activity. The authors do not support, encourage, or assist unauthorized network attacks, exploit use, data theft, unlawful intrusion into computer information systems, or generation of illegal or prohibited content. **Anyone who uses this project for crime is solely responsible under the law. The authors have no liability.**
-
-1. **This repository contains no illegal material.** The published code, docs, patches, and default prompt are **not** malware, backdoors, unauthorized pentest kits, ransomware, credential-stuffing scripts, or attack payloads aimed at the public internet or third-party systems. The project does not supply illegal content and does not incite, organize, or assist crime.
-2. **Local official Harness only.** Security-eval patches and prompt injection run only on the **official DeepSeek Harness already installed on the user's machine** (`@deepseek-ai` packages, local profile / `$DSH_HOME`). The target is the user's own official local software, **not** someone else's website, server, account, or information system.
-3. **Eval patches do not attack the public internet.** Apply, inject, revert, and uninstall stay in local files and local processes. They **do not scan, probe, intrude, or send attack traffic to any public host or unauthorized system**. Do not use this project as a jump host against the public internet. If "check for updates" is on, the plugin may only contact this plugin's own GitHub repository to compare versions. That is **not** an attack on third-party systems and is **not** authorization to penetrate anything.
-4. **Lawful, controlled scope.** This project is an aid for red-team research and robustness evaluation on an **official Harness the user is entitled to administer**. **Do not run it against targets without the owner's lawful written authorization, public online systems, or production workloads.** Testing must stay on the **authorized local official Harness, offline local synthetic fixtures, authorized cybersecurity ranges, and compliant lab environments**.
-5. **Servers and sites in mainland China, Hong Kong, and Macau are forbidden.** Do not access, scan, probe, or otherwise operate against network ranges in mainland China, Hong Kong, or Macau, or against servers, websites, or addresses that resolve into those ranges. A cloud-provider name is not an exception. The only exception is one exact IP, or one exact hostname, that the user registered in advance as their own server. A key, a password, a network range, a wildcard, or a claim made in the conversation does not add an exception. Anything that is not registered stays forbidden.
-6. **Forbidden uses.** Users must not use this project, directly or indirectly, to violate the following (each must be followed; no excuse to evade):
-   - <font color="red"><strong>Criminal Law of the People's Republic of China</strong></font>
-   - <font color="red"><strong>Cybersecurity Law of the People's Republic of China</strong></font>
-   - <font color="red"><strong>Data Security Law of the People's Republic of China</strong></font>
-   - <font color="red"><strong>Personal Information Protection Law of the People's Republic of China</strong></font>
-   - and other applicable laws, regulations, and supervisory rules;
-   - Also forbidden:
-   - Unauthorized intrusion or attacks on public or private computer information systems; extortion, sabotage, credential stuffing, or spreading malicious payloads;
-   - Inducing, generating, or spreading any content the law forbids, including threats to national security, terrorism, violence, pornography, gambling, fraud, and privacy or intellectual-property infringement;
-   - Violating the model provider's terms of service and acceptable-use policy.
-7. **The user bears all responsibility.** The project is provided under the commercial license (older releases under the MIT license then in effect) as-is. The authors make no warranty of completeness, security, or fitness. **Users independently bear all civil, administrative, and criminal liability** for download, deploy, run, modify, distribute, and all resulting inputs and outputs. Authors and contributors bear no direct, indirect, or joint liability for abuse.
-8. **The license ends on breach.** Anyone who uses this project for illegal attacks, malicious activity, unauthorized resale, or other violations has their license **automatically and irrevocably terminated** from the moment of the violation. They must stop using the project, permanently destroy all copies and derivatives, and accept legal sanctions.
-9. **No affiliation.** This is an independent security-eval research project. It has no employment, commercial, authorization, or endorsement relationship with DeepSeek or its affiliates. "Official" here only means the eval target is the official DeepSeek Harness package on the user's machine. It does **not** mean DeepSeek developed, approved, or warrants this plugin.
-10. **Attribution is required.** If you borrow this project's name, ideas, code, or prompts, you must credit the author and name this repository. Failure to attribute will be pursued. See [Attribution required](#attribution-required).
-
-</font>
-
-</div>
+1. **Local official Harness only**: patches, prompt injection, rollback and uninstall all happen inside the official DeepSeek Harness you installed on your own machine (`@deepseek-ai` packages, local profile / `$DSH_HOME`). The object is your own local software, not somebody else's website, server, account or information system.
+2. **You own outbound traffic**: the drill console, scanning, brute force and tunnels send real packets. Targets must be environments you are entitled to operate — your machine, offline targets, authorized ranges, or written-authorized public targets.
+3. **Compliance is yours**: follow local law and platform rules; you carry the consequences of your own use.
+4. **No affiliation with DeepSeek**: "official" here only means the evaluation target is the official DeepSeek Harness package. It does not mean DeepSeek built, endorses or warrants this plugin.
 
 ---
 
@@ -203,8 +85,8 @@ WeChat name **「老张的ai科技」**, same handle as the live-room viewer boa
 
 The latest plugin supports **dsh 0.2** only — do not apply it to 0.1.x.
 
-- **dsh 0.2** (official desktop **0.2.0-rc.2 / 0.2.1-rc.2** / official `dsh web`): use **1.1.40** or newer. This page installs that line.
-- **dsh 0.1.7** (incl. rc.1 / rc.2): use **1.1.39** or older — pick the tag on [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases).
+- **dsh 0.2** (official desktop **0.2.1-rc.2** / official `dsh web`): use **1.1.40** or newer. This page installs that line.
+- **dsh 0.1.7** (incl. rc.1 / rc.2): use **1.1.39** or older — pick the tag on [Releases](https://github.com/jyhuang201900/dsh-purge/releases).
 
 Unmatched patches stay pending or skipped; nothing is rewritten blindly.
 
@@ -217,23 +99,23 @@ Web and the official desktop EXE are the two maintained hosts. **Install both. A
 **Web (official `dsh web`)**
 
 ```sh
-dsh plugin --profile web add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz
+dsh plugin --profile web add https://github.com/jyhuang201900/dsh-purge/archive/refs/heads/master.tar.gz
 ```
 
 **Desktop (official EXE)**
 
 ```sh
-dsh plugin --profile desktop add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz
+dsh plugin --profile desktop add https://github.com/jyhuang201900/dsh-purge/archive/refs/heads/master.tar.gz
 ```
 
 If this directory is already a clone, use `add .` instead of the archive URL. If `dsh` is not on PATH, use [Manual install](#manual).
 
-Hub one-click on [dsh-plugin.org](https://dsh-plugin.org/plugins/yujunzhixue/dsh-purge) still 404s if it looks up the npm package name. Use the GitHub archive commands above.
+The plugin hub still 404s if it looks up the npm package name. Use the GitHub archive commands above.
 
 For the desktop client you can also click the button (`dsh://` deep link):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.71&repo=YuJunZhiXue%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FYuJunZhiXue%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.72&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
 </p>
 
 ### After the command: three steps
@@ -268,13 +150,13 @@ If `dsh` is not on PATH, tell the user and stop. If this directory is already a 
 **Web (official `dsh web`)**
 
 ```sh
-dsh plugin --profile web add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz
+dsh plugin --profile web add https://github.com/jyhuang201900/dsh-purge/archive/refs/heads/master.tar.gz
 ```
 
 **Desktop (official EXE)**
 
 ```sh
-dsh plugin --profile desktop add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz
+dsh plugin --profile desktop add https://github.com/jyhuang201900/dsh-purge/archive/refs/heads/master.tar.gz
 ```
 
 After the commands finish, tell the user to fully quit and restart `dsh web`, and to quit the desktop tray then reopen the EXE. On each host, open **dsh-purge** beside the session title and **Apply** on **Clean**. Then stop.
@@ -312,10 +194,10 @@ $cands | Select-Object -Unique | Where-Object { $_ -and (Test-Path (Join-Path $_
 **2. Put the plugin at `$DSH_HOME/plugins/dsh-purge`** (folder must be named `dsh-purge`, with a `package.json` whose `"name"` is `dsh-purge`).
 
 ```sh
-git clone https://github.com/YuJunZhiXue/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
+git clone https://github.com/jyhuang201900/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
 ```
 
-Without git: download [master.tar.gz](https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz), extract, rename `dsh-purge-master` → `dsh-purge`, and place it under `plugins`. If you already have a clone, copy the whole tree — not a few `.js` files.
+Without git: download [master.tar.gz](https://github.com/jyhuang201900/dsh-purge/archive/refs/heads/master.tar.gz), extract, rename `dsh-purge-master` → `dsh-purge`, and place it under `plugins`. If you already have a clone, copy the whole tree — not a few `.js` files.
 
 **3. Edit only that profile's `package.json` — back it up first.** Web → `$DSH_HOME/profiles/web/package.json`; desktop → `$DSH_HOME/profiles/desktop/package.json`. Add **only two things**, keeping every existing dependency and bundle:
 
@@ -613,16 +495,14 @@ If nothing is found, set `DSH_BASE` / `DSH_DESKTOP_INSTALL`. No files are change
 
 ## Releases
 
-**Through 26 Oct 2026:** this version's notes and packages are still in my repo / [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases).
-
-**From 27 Oct:** I will not ship new packages on GitHub. Later versions exist only at [t.me/LLM_PoJia/271](https://t.me/LLM_PoJia/271). If it is not in that channel, I did not publish it.
+Release notes: [release-notes.md](./release-notes.md) and [Releases](https://github.com/jyhuang201900/dsh-purge/releases).
 
 ## Notes
 
-- Scope is rendered copy, defaults, and runtime logic inside local `@deepseek-ai/*` packages, plus override files and rule sets under the harness home.
-- After an upgrade, unmatched originals show as skipped. Apply still completes, and those files are left unchanged.
-- Third-party plugin *source repos* outside `@deepseek-ai` are left alone (CMD silence may **best-effort** patch installed doctor / market / liangshen / mnemon at runtime).
-- Until 26 Oct you may still install from the GitHub archive, not npm: `dsh plugin --profile web add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz` (use profile `desktop` for the EXE). From this repo, `add .`. After 27 Oct, only packages in the [channel](https://t.me/LLM_PoJia/271) count.
+- The change surface is rendered copy, default policy and execution logic inside local `@deepseek-ai/*` packages, plus override files and rule sets under the harness home.
+- After an upgrade, unmatched originals show as skipped; that Apply still completes and those files are left unchanged.
+- Third-party plugin *source repos* outside `@deepseek-ai` are left alone (the CMD silence may **best-effort** patch an installed doctor / market / liangshen / mnemon at runtime).
+- Install from the GitHub archive, not an npm package name: `dsh plugin --profile web add https://github.com/jyhuang201900/dsh-purge/archive/refs/heads/master.tar.gz` (use profile `desktop` for the EXE). From this repository, `add .`.
 
 ---
 
