@@ -28,7 +28,11 @@
   config:
     includeHarnessIdentity: false
     personaPrefix: ""
-    personaSuffix: Your working directory is {{cwd}}.
+    # 0.2.1-rc.2 起官方删掉 {{cwd}} 变量（只注册 provider/model），
+    # 含 {{cwd}} 的 personaSuffix 会让官方 interpolate() 在组装期 throw
+    # "unknown prompt variable"，整个系统提示词装配失败。
+    # 工作目录由官方 working-directory 服务以 user 上下文提供，这里留空。
+    personaSuffix: ""
 
 - id: dsh-purge
   inject: [systemPrompt, tools]

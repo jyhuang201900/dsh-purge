@@ -25,7 +25,9 @@
 # ── identity ────────────────────────────────────────────────────────────────
 
 # The preset's own persona, shadowing the deployment default for this agent.
-# `{{model}}` and `{{cwd}}` resolve from the agent's own route and workspace.
+# `{{model}}` resolves from the agent's own route. Since 0.2.1-rc.2 the host
+# no longer registers a `{{cwd}}` prompt variable (only provider/model), so
+# preset text must not reference `{{cwd}}` — it would fail prompt assembly.
 - id: persona
   name: '@deepseek-ai/dsh-persona'
   config:
