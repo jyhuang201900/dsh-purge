@@ -1,3 +1,25 @@
+# 1.1.80
+
+## 中文
+
+武器库补全最后两个得分面（30 → **32 技能**），并立"最强进攻手"总纲：
+
+- **新增 `secdev-boundary`（安全设备与集权系统直取）**——对着分值最高的入口：边界突破（1000/10000/30000）与集权系统（500）。深信服/H3C/奇安信/TOPSEC 的 VPN、上网行为管理、堡垒机、邮件网关、防火墙管理口：识别表（端口+title+特征路径）、Nday 族（STPOPO、ddwtf、JumpServer 未授权+反序列化、Exchange ProxyLogon/ProxyShell、Fortinet CVE-2018-13379）、默认口令小字典（-t 2 防锁）、堡垒机=内网地图的收割逻辑、boundary 四档记分口径与"VPN 必须实测内网可达"铁律、设备禁重启纪律。
+- **新增 `iot-iiot-netdev`（物联网/工控/网络设备）**——三条冷门高分面：摄像头/NVR（ISAPI 空口令、ONVIF、snapshot 未授权、海康/大华 CVE 族）、工控（Modbus 502/S7 102/OPC-UA 4840/BACnet 只读探测 + "写线圈动阀门"纪律 + 老 PLC 防扫宕机）、网络设备（SNMP public 一发读路由表=免费内网地图、telnet 默认口令、netdev 100/200 档证据口径）。
+- **条令新增「最强进攻手的优先级」**：开火顺序 = 分值 × 命中率 ÷ 成本，不是发现顺序——边界突破＞集权系统＞服务器权限＞账号/数据库＞敏感信息；有 30000 分的 VPN 可打就不许在 50 分主机上磨第二枪；冷门面顺手收不放过。
+- 全链路接线：意图→技能路由表（中英双版）、五阶段主线 ④"先打最贵的靶子"、assess 排序口径（安全设备排最前+分值写进 reason）、exploit 工作顺序第 1 步、指挥派活点名表、web-fingerprint 设备识别分流表、fofa-recon 边界设备测绘语句、redteam 预设角色索引。
+- 审计脚本复核：32 技能 × 56 工具引用零缺失，路由表技能名全部存在。
+
+## English
+
+Completed the last two score-category gaps in the arsenal (30 → **32 skills**) and added the "strongest attacker" priority doctrine:
+
+- **New `secdev-boundary`** — the highest-value entries: boundary breach (1000/10000/30000) and central systems (500). Sangfor/H3C/QAX/TOPSEC SSL VPN, web behavior managers, bastion hosts, mail gateways, firewall admin ports: recognition table, Nday families (JumpServer unauth+deser, Exchange ProxyLogon/Shell, Fortinet CVE-2018-13379), default-cred discipline (-t 2), bastion-as-internal-map harvesting, boundary tier scoring with "VPN must prove internal reachability", no-reboot rule.
+- **New `iot-iiot-netdev`** — three low-competition score lines: cameras/NVR (ISAPI empty pass, ONVIF, snapshot unauth, Hikvision/Dahua CVEs), ICS (Modbus/S7/OPC-UA/BACnet read-only probing with write-authorization and fragile-PLC discipline), network devices (SNMP public = free internal map via routing table, telnet defaults, netdev 100/200 evidence tiers).
+- **New doctrine "strongest attacker priority"**: firing order = score × hit-rate ÷ cost, not discovery order — boundary > central-system > server-host > accounts/DB > sensitive data; never grind a 50-point host while a 30000-point VPN is live; cold surfaces are picked up free.
+- Wired everywhere: routing tables (both languages), five-stage mainline ④ "shoot the most expensive target first", assess ordering (security devices on top, score magnitude in `reason`), exploit step 1, planner task-brief names, web-fingerprint device triage, fofa-recon boundary-device queries, preset role index.
+- Audit re-run: 32 skills × 56 tools, zero missing references; every routed skill name exists.
+
 # 1.1.79
 
 ## 中文

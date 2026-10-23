@@ -59,6 +59,10 @@ curl -s http://TARGET/<bundle>.js | grep -oE '(angular|vue|react|webpack)[^"]{0,
 | 已知 CMS（dedecms / phpmyadmin / wordpress / javakey） | 直接查 Nday，转 `nuclei-scan` |
 | `X-Powered-By: PHP/5.x` 或 `Server: Apache/2.2` | 老栈，优先反序列化与已知 RCE |
 | Jenkins / Concourse / GitLab 面板 | 未授权 + 已知 CVE，优先级最高 |
+| 中文登录页 + 非常规端口（4430/8443/2663）+ 版权含厂商名 | **先当安全设备认**：深信服/H3C/奇安信/TOPSEC/堡垒机/邮件网关 → 转 `secdev-boundary`（边界突破与集权系统是最贵的分） |
+| 554/8000/37777 端口、ISAPI、ONVIF、snapshot.cgi | 摄像头 / NVR → 转 `iot-iiot-netdev`（`iot-platform` 得分） |
+| 502/102/4840/9600 端口 | 工控（Modbus/S7/OPC-UA）→ 转 `iot-iiot-netdev`（`iiot` 得分，只读优先） |
+| 23/161/2601 端口、SNMP 响应带型号 | 网络设备（路由器/交换机）→ 转 `iot-iiot-netdev`（`netdev` 得分，public community 一发即出内网地图） |
 
 ## 失败分支
 

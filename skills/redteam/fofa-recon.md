@@ -175,5 +175,7 @@ python3 runs/fofa_client.py 'org="示例科技有限公司"' --pages 2 --interva
 | 按标题找后台 | `title="登录" && domain="example.com"` |
 | 按 body 特征 | `body="/seeyon/"` |
 | 指定端口 | `ip="203.0.113.0/24" && port="3306"` |
+| **找边界/集权设备** | `org="示例科技" && (app="Sangfor-SSL-VPN" \|\| app="H3C-BAS" \|\| app="TopSec-Firewall" \|\| title="堡垒机" \|\| title="上网行为管理")` —— VPN/行为管理/堡垒机/邮件网关是边界突破与集权系统得分入口，**测绘阶段就要单独捞出来**（命中后转技能 `secdev-boundary`） |
+| 找物联网/工控/网络设备 | `org="示例科技" && (port="554" \|\| port="502" \|\| port="102" \|\| port="161" \|\| title="NVR")`（命中后转技能 `iot-iiot-netdev`） |
 
 > 宽泛语句（单独用 `body=` / `title=`）结果量大、消耗配额快，务必叠加域名或 IP 限定。
