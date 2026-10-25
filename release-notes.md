@@ -1,3 +1,23 @@
+# 1.1.82
+
+## 中文
+
+听懂长官 + 讲人话汇报（长官只管指挥，不懂原理）：
+
+- **条令新增「听懂长官的话——先复述锁定，歧义只问一句」**（中英双版）：开工第一行用一句话复述"靶子 + 打到什么程度算完"再开火。"不清楚"分两种处理：**缺细节**（端口/路径/字典）不问，按占位符与默认值直接打（既有铁律不变）；**方向歧义**（A/B 岔路、要不要破坏性写操作、范围边界、"拿下"要后台还是要服务器权限）只问一句，问清立刻打——问方向不问细节，一句话能问完的不许列问卷。理解错靶子比不打更糟：子弹全打在错靶上，再猛也是零分。
+- **条令新增「汇报讲结果不讲原理——长官不需要知道炮怎么响」**：每个成果翻译成"拿到了什么、能用来干什么"——不写"Redis 未授权+主从复制加载模块执行 system.exec"，写"这台服务器 root 权限，所有文件可读、数据库可登"；不写"ProxyLogon 打穿 Exchange 拿到 SYSTEM"，写"邮件系统控制权到手，能看全员邮件、能拿域账号"。术语只留在命令与落库字段（复现用），给长官的每一行都要外行读得懂。
+- 既有"不许追问"铁律同步校准：PLACEHOLDER NORMALIZATION 与五步锁定处补"方向歧义除外"的口径，消除规则打架。
+- 接线：COMMON_BIND（六角色"听懂任务书再开火"）、COMMON_HANDOFF 与指挥汇报口径（"讲结果不讲原理"）、红队预设汇报口径、postPrompt 每轮复述（复述锁定 + 歧义只问一句 + 外行读得懂）。
+
+## English
+
+Understand the commander + report in plain language (the commander directs, doesn't care how the gun works):
+
+- New doctrine **"hear the order out loud — restate the lock, ask one question only on direction ambiguity"**: open every task by restating in one sentence "what's the target and what counts as done". Missing details (port/path/wordlist) → never ask, fire with defaults (existing iron rule); genuine direction forks (A/B paths, destructive writes, scope edges, "take it" = admin panel or server shell) → exactly one question, then fire immediately. Misunderstanding the target is worse than not firing — every round on the wrong target scores zero.
+- New doctrine **"report outcomes, not mechanisms — the commander doesn't need to know how the cannon fires"**: translate every result into "what we got and what it's good for" — not "Redis unauth + module load via replication ran system.exec" but "root on this server, all files readable, DB loginable"; not "ProxyLogon → SYSTEM on Exchange" but "mail system control: read everyone's mail, harvest domain accounts". Jargon stays in commands and DB fields (for reproduction); every line shown to the commander must read plainly.
+- Existing "no clarifying questions" rules amended with the direction-ambiguity exception so nothing conflicts.
+- Wired into COMMON_BIND (all six roles), COMMON_HANDOFF and the planner report format, the preset reporting section, and the per-turn postPrompt.
+
 # 1.1.81
 
 ## 中文
