@@ -1,3 +1,21 @@
+# 1.1.81
+
+## 中文
+
+反放弃强化——治"执行一半就停、觉得有困难就收手、放弃爆破"：
+
+- **条令新增「没有"难"，只有没拆对弹药」**（中英双版）：禁用词表（太难/耗时太长/暂时打不动/这个先放着/可能进不去）；"难"不是停火理由，是换弹指令——只意味着当前原语/参数/字典/路径不对；爆破没出结果不是放弃，是换更小更准的字典（单位名+年份+域名组合先于大字典）、换协议入口、转离线路线；**没到火力阶梯五级打光就自己打下去，不问"还要继续吗"、不等确认、不中途收手**。
+- **条令新增「长活挂后台，前台永远在推进」**：hydra/ffuf/feroxbuster/hashcat/nuclei 大扫必须后台启动（`run_in_background`/`nohup &`/tmux）+ 输出重定向进 `runs/`，启动后立刻转打下一个面，到点 `tail` 收账；**绝不前台干等一把爆破——干等 3 分钟就会诱发"放弃爆破"**；工具调用超时 ≠ 任务失败，进程还活着就继续等它的账。
+- **六角色 COMMON_BIND 同步**两条硬规则；**postPrompt 每轮复述**加入"没有难只有弹药没拆对——五级没打光不停火、不问、不等；长活挂后台，前台永远推进"。
+
+## English
+
+Anti-quitting hardening — fixes "stops mid-task, gives up when something looks hard, abandons brute force":
+
+- New doctrine **"there is no 'hard', only wrong ammunition"**: banned-phrase list (too hard / takes too long / probably unreachable / park it); "hard" is a reload instruction, not a cease-fire — it means the current primitive/args/wordlist/path is wrong; a dry brute force means switching to a smaller targeted wordlist (company-name+year+domain combos before rockyou), another protocol entry, or the offline route; **keep firing until the five-level ladder is empty — no "should I continue?", no waiting, no mid-task stop**.
+- New doctrine **"long jobs run backgrounded, foreground always advances"**: hydra/ffuf/feroxbuster/hashcat/big nuclei scans must launch with `run_in_background`/`nohup &`/tmux with output redirected into `runs/`, then immediately work the next surface and `tail` the result file to collect; **never block the foreground waiting on a brute force — 3 minutes of idling triggers "abandon brute force"**; a tool-call timeout ≠ failure, the process is still alive.
+- Both rules mirrored into COMMON_BIND (all six roles) and the per-turn postPrompt.
+
 # 1.1.80
 
 ## 中文
