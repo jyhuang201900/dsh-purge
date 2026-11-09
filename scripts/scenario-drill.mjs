@@ -110,6 +110,30 @@ const main = async () => {
 
 await main();
 
+// 12) 真机只读探针：默认指到 ~/.dsh/redteam（零写入，只 list/report）。
+//     本机没开靶时必须明确报「跳过」而不是假装通过；可用 REDTEAM_HOME 指到别处验证非跳过分支不是死代码。
+//     注：RedteamStore 构造里有 mkdirSync(engagements/)，所以「只读」指不写数据；对已存在路径无副作用（实测本机时间戳未变）。
+const liveRoot = process.env.REDTEAM_HOME || path.join(process.env.DSH_HOME || path.join(os.homedir(), ".dsh"), "redteam");
+const liveStore = new RedteamStore(liveRoot);
+try {
+  const liveList = Array.isArray(liveStore.listEngagements()) ? liveStore.listEngagements() : [];
+  if (!liveList.length) {
+    console.log(`真机探针：跳过（${liveRoot.replace(os.homedir(), "~")} 里没有靶标，本机还没开靶）`);
+  } else {
+    const live = buildModelTools({ core, rules, hostctl, updater, rejectIfNeedPrompt: () => null, redteamStore: liveStore })
+      .find((x) => x.name === "purge_drill");
+    const sumLive = String((await live.execute({ op: "summary" })).text ?? "");
+    const cnt = Number((/靶标 (\d+) 个/.exec(sumLive) || [])[1] ?? NaN);
+    if (cnt !== liveList.length) failures.push(`真机探针：summary 报 ${cnt} 个靶标，listEngagements 是 ${liveList.length} 个`);
+    const repLive = String((await live.execute({ op: "report" })).text ?? "");
+    if (!/战报|为空/.test(repLive)) failures.push("真机探针：report 既没出战报也没说为空");
+    const listLive = String((await live.execute({ op: "pocs" })).text ?? "");
+    if (!/POC 库|库总量/.test(listLive)) failures.push("真机探针：pocs 没给出库计数");
+    console.log(`真机探针：${liveList.length} 个靶标（不写数据；路径已存在则无副作用）｜summary=${cnt}｜report=${repLive.split(` + q + NL + q + `)[0].slice(0, 34)}…`);
+  }
+} finally {
+  try { liveStore.close?.(); } catch { /* 关不掉就算了，探针是只读的 */ }
+}
 if (verbose) for (const s of steps) console.log(`  ${s.ok ? "✓" : "✗"} ${s.label.padEnd(22)} ${s.text.slice(0, 96)}`);
 console.log(`情景测试：${steps.length} 步，断言失败 ${failures.length}`);
 for (const f of failures) console.log(`  ✗ ${f}`);
