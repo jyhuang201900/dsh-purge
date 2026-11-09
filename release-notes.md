@@ -1,3 +1,26 @@
+# 1.1.83
+
+## 中文
+
+**生成物即资产**——补上文件质量层：项目性 / 工程性 / 连续性三条纪律，全链路接线。
+
+- **病根**：模型此前是"聊天式生成"——每轮现写、写完就完。产物是一次性草稿：IP/口令硬编码、无头注释、一脚本糊三件事、静默吞错；`runs/` 里躺 `out.txt`/`test2.sh` 式的孤儿文件；下次遇到同类活不查库直接重写，同一件事攒出三个变体（断代）。
+- **条令新增三节**（中英双版）：
+  - **① 工程性——文件四件套**：参数化（换目标只改参数不改代码）/ 头注释四行（用途·用法·依赖·验证）/ 单一职责（一文件一事，链条串事不糊事）/ 失败可观测（非零退出码+stderr）；可执行脚本补 shebang/权限/平台语法出厂检查。
+  - **② 连续性——先查家底再造轮子**：动手前查 `redteam_attack_file_list`（本靶标）+ `redteam_poc_search`（跨靶标知识库）；有就复用改参，**禁止同义重写**；调通或升版当场回填。
+  - **③ 项目性——落库带索引，库外无孤儿**：`runs/` 命名 `阶段-目标-内容[-日期]`；**实际生效的文件当场 `redteam_attack_file_add` 归档**——runs/ 是工作台，attack-files/ 是交付仓库；**谁生成，谁归档**（归档不再是 exploit 一个角色的事）。
+- **工具闸门收紧**：`redteam_attack_file_add` description 加四件套自检 + 入库查重；`redteam_attack_file_list` description 升格为"动手新写前先查（连续性纪律）"。
+- **角色与预设接线**：`COMMON_EVIDENCE` 新增第 7 条"生成物即资产三查"（六角色全员生效）；红队预设红线区加一条复述版；postPrompt 每轮复述加"新脚本先查库复用，出厂过四件套，生效当场归档，runs/ 命名带目标"。
+
+## English
+
+**Generated files are assets** — the file-quality layer lands with three disciplines: project-grade / engineering-grade / continuity, wired end to end.
+
+- **Root cause**: the model used to generate chat-style — write per turn, done per turn. Artifacts were one-shot drafts: hardcoded IPs/passwords, no header comments, three jobs crammed in one script, silently swallowed errors; `runs/` filled with `out.txt`/`test2.sh` orphans; next similar task re-invented the wheel instead of querying the library, growing three variants of one thing (generational break).
+- **Three new doctrine sections** (both languages): **engineering — the four-piece file standard** (parameterized inputs; 4-line header: purpose/usage/deps/verified; single responsibility; observable failure via exit code + stderr; shebang/permission/platform-syntax checks for executables); **continuity — check the vault before building** (query `redteam_attack_file_list` + `redteam_poc_search` first; reuse-and-adapt, no synonym rewrites; backfill on the spot when a new version proves out); **project — index every artifact, no orphans outside the vault** (`runs/` naming `stage-target-content[-date]`; every working file archived via `redteam_attack_file_add` on the spot — runs/ is the workbench, attack-files/ is the warehouse; whoever generates, archives).
+- **Tool gates tightened**: `redteam_attack_file_add` description now carries the four-piece self-check + dedup-before-store; `redteam_attack_file_list` promoted to "check before writing anything new (continuity discipline)".
+- **Roles and preset wired**: COMMON_EVIDENCE rule #7 "artifacts-are-assets triple check" (all six roles); preset red-line section restates it; per-turn postPrompt adds "check the library first, ship the four-piece standard, archive on effect, name runs/ with the target".
+
 # 1.1.82
 
 ## 中文
