@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { ALL_PATCHES } from "../lib/core.js";
+import { ALL_PATCHES, defaultOverrideText } from "../lib/core.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const asJson = process.argv.includes("--json");
@@ -119,6 +119,15 @@ else {
 const dshDep = Object.keys(pkg.peerDependencies || {}).some((k) => k.startsWith("@deepseek-ai/")) || Object.keys(pkg.dependencies || {}).some((k) => k.startsWith("@deepseek-ai/"));
 if (!dshDep) problems.push("包元数据没声明 @deepseek-ai/* 依赖（tier3）");
 notes.push(`目录站三级证据：tier1 README 安装命令 ${readmes.length - noInstall.length}/${readmes.length}、tier2 dsh.bundle=${bundle ? "有" : "无"}、tier3 dsh 依赖=${dshDep ? "有" : "无"}`);
+
+// 12) 注入正文体积预算：这是「不许堆叠」唯一能被机器看的量 —— 默认注入越长，每个会话的固定成本越高。
+//     预算按 2026-11-09 实测 29,777 字放宽到 33,000（约 +11%），只防失控增长，不做常红灯。
+const INJECT_BUDGET = 33000;
+let injectLen = 0;
+try { injectLen = String(defaultOverrideText() || "").length; } catch (e) { problems.push(`读不到默认注入正文：${String(e.message).slice(0, 60)}`); }
+if (!injectLen) problems.push("默认注入正文是空的（打包或 asset-table 出问题）");
+else if (injectLen > INJECT_BUDGET) problems.push(`默认注入正文 ${injectLen} 字，超预算 ${INJECT_BUDGET}：加条款前先想能不能折进现有段落`);
+if (injectLen) notes.push(`注入体积 ${injectLen} 字（预算 ${INJECT_BUDGET}，占 ${Math.round((100 * injectLen) / INJECT_BUDGET)}%）`);
 
 // 10) 闸门数自证：从 verify.mjs 读出实际关卡数，要求 README 中英两侧的说法与之一致。
 //     （「五关/六关/七关」这种话是最容易漂的口径：加一道门却忘了改文档，本仓库已经发生过两轮。）
