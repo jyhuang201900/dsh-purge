@@ -28,7 +28,7 @@
     {"source": "gates_probe_suite", "target": "scripts_verify", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/verify.mjs", "source_location": "L50", "weight": 1.0},
     {"source": "gates_probe_suite", "target": "scripts_build_locale", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/build-locale.mjs", "source_location": "L1", "weight": 1.0},
     {"source": "gates_probe_suite", "target": "gates_dev_suite", "relation": "part_of", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "scripts/verify.mjs", "source_location": "L50", "weight": 1.0},
-    {"source": "gates_ammo_audit", "target": "package_scripts_audit_skills", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/audit-skills.mjs", "source_location": "L1", "weight": 1.0},
+    {"source": "gates_ammo_audit", "target": "scripts_audit_skills", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/audit-skills.mjs", "source_location": "L1", "weight": 1.0},
     {"source": "gates_ammo_audit", "target": "gates_dev_suite", "relation": "part_of", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "scripts/verify.mjs", "source_location": "L84", "weight": 1.0}
   ],
   "hyperedges": [
