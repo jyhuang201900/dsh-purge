@@ -396,13 +396,13 @@ DSH 会按顺序执行同一批中的 Bash 调用。旧版 dsh-purge 把默认�
 
 ## 本地校验
 
+一条命令过三关（语法 / 体积预算 / JSON 合法），未通过时退出码非 0：
+
 ```sh
-node --check lib/index.js
-node --check lib/core.js
-node --check lib/rewind.js
-node --check lib/skills.js
-node --check client.js
+npm run verify
 ```
+
+单项排查：`npm run check-size`（只看体积），或 `node scripts/verify.mjs --skip-size`（跳过体积）。
 
 ---
 

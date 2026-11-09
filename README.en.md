@@ -388,17 +388,13 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 
 ## Local checks
 
+One command runs three gates (syntax / size budget / valid JSON); a non-zero exit means a gate failed:
+
 ```sh
-node --check lib/index.js
-node --check lib/core.js
-node --check lib/surface.js
-node --check lib/web.js
-node --check lib/desktop.js
-node --check lib/host.js
-node --check lib/rewind.js
-node --check lib/skills.js
-node --check client.js
+npm run verify
 ```
+
+To check one gate alone: `npm run check-size`, or `node scripts/verify.mjs --skip-size`.
 
 ---
 
