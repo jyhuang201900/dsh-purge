@@ -22,7 +22,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const asJson = process.argv.includes("--json");
 
 // 预算：按 2026-11-09 实测值放宽约 20-30%，只防失控增长，不做常红灯。
-const BUDGET = { tools_min: 9, tools_max: 12, surface_max: 3600, per_tool_max: 1600, output_max: 1500, output_lines_max: 20, drill_ops_max: 16 };
+const BUDGET = { tools_min: 9, tools_max: 12, surface_max: 3600, per_tool_max: 1600, output_max: 1500, output_lines_max: 20, drill_ops_max: 18 };
 
 const tools = buildModelTools({ core, rules, hostctl, updater, renderStatus, rejectIfNeedPrompt: () => null });
 const problems = [];
@@ -104,7 +104,8 @@ const entDesc = drillTool?.parameters?.properties?.entity?.description || "";
 const hiddenEnt = [...ents, ...writes].filter((e) => !entDesc.includes(e));
 if (hiddenEnt.length) problems.push(`entity 已实现但没写进描述：${hiddenEnt.join(", ")}`);
 notes.push(`可发现性：op ${known.length - hidden.length}/${known.length}、entity ${(ents.length + writes.length) - hiddenEnt.length}/${ents.length + writes.length}（读 ${ents.length} + 写 ${writes.length}）已写进描述`);
-// 6) 反堆叠：drill 的 op 数是「聚合入口」退化的先行指标。2026-11-09 审计后定为上限 16（现 14），
+// 6) 反堆叠：op 数是聚合入口退化的先行指标。规则（2026-11-09 定）：新增 op 必须至少收纳 3 个 store 方法
+//    或一整条流程，否则折进 kind/entity —— 据此抬到 18（op=update 一个 op 收 updateVuln/updateWebshell/updateTunnel 三个方法）。
 //    新面优先折进 kind/entity（如 report kind=targets 零新增参数只涨 109 字符），而不是再加 op。
 if (known.length > BUDGET.drill_ops_max) problems.push(`drill 已有 ${known.length} 种 op，超上限 ${BUDGET.drill_ops_max}：先考虑用 kind/entity 收纳，别堆 op`);
 
