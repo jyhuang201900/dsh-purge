@@ -406,6 +406,26 @@ DSH 会按顺序执行同一批中的 Bash 调用。旧版 dsh-purge 把默认�
 npm run verify
 ```
 
+### 三面入口矩阵（命令 × 面板路由 × 模型工具）
+
+| 能力 | `/purge` 等命令 | 面板路由 | 模型工具 | 说明 |
+| --- | --- | --- | --- | --- |
+| 状态 | `/purge status` | `GET /status` | `purge_status` | 三面齐 |
+| 应用清洗 | `/purge apply` | `GET /apply` | `purge_apply`（可 `patches=` 选打） | 选打会先恢复 `.bak`，未选中的会回滚 |
+| 回滚还原 | `/purge revert` | `GET /revert` | `purge_revert` | 三面齐 |
+| 卸载 | `/purge uninstall`（别名 `remove`） | `GET /uninstall` | — | 工具面故意不做：模型自卸载等于自己拆台 |
+| 注入正文 | `/purge edit` | `GET/POST /override` | `purge_override`（show/reset） | 编辑留人，读状态给模型 |
+| 对齐体检 | `/purge align` | — | `purge_align` | 本轮补齐命令面（原先只有工具与 CLI） |
+| 更新现状 | `/purge update` | `GET /update`（执行） | `purge_update`（读） | 命令与工具只读现状，按钮才是动作 |
+| 规则集 | `/rules` | `GET /rules` | `purge_rules` | 独立顶层命令 |
+| 技能 | `/skills` | `GET /skills` + `/skill` | `purge_skills` | 同上 |
+| 补丁明细 | `/purge status`（含逐条） | 面板展示 | `purge_patch` | 单一来源：都读 `patchTally()` |
+| 演练台 | —（预设面有 56 个 `redteam_*`） | `GET /drill-grant` | `purge_drill`（18 op） | 模型面主打；命令面不做，避免第二套话术 |
+| 会话回退 | `/rewind` | `GET /rewind` + `/rewind/options` | — | 会话动作，模型自己 rewind 有风险 |
+| MCP 通路 | — | `POST /mcp` | 与 `ctx.tools` 同一张表 | 传输层，不是能力 |
+
+**故意不三面平铺的判据**：配置/状态类要能被模型读到；UI 动作类（`restart`、rewind、uninstall）给了模型反而危险。**每条豁免都写在这张表里，不留口头账**；`/purge` 的子命令与 hint 由 `check-package` 第 20 项对账（别名按 fall-through 规则自动识别，不用手填清单）。
+
 包自证里有一类**自我约束型断言**——它们不检查外部世界，只检查 purge 有没有偷偷变胖：闸门条数（文档说几关就得是几关）、发布清单与自更新清单不分叉、工具数（文档写的 N 个 == 源码 `purge_*` 定义数）、默认注入正文体积（≤ 33,000 字）、提示词层净增减（≤ 2,000 字；只有这一层真的烧 token，代码层增减不算）、中英文案组数。
 
 全部本地入口（14 个，逐个都有存在理由；少写一个就等于少一道门）：

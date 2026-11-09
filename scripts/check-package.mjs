@@ -174,6 +174,40 @@ else if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对
 else if (fileKeys !== PLANE_BASELINE.targetFileKeys) problems.push(`targetFiles ${fileKeys} 个键，基线 ${PLANE_BASELINE.targetFileKeys}：文件映射增减要同步状态文案`);
 notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 ${fileKeys === -2 ? "跳过" : fileKeys}（与文档一致）`);
 
+// 20) 命令面对账：/purge 的每个非别名子命令都必须出现在它的 hint 里。
+//     本轮补 align/update 时最容易漏的就是 hint 字符串 —— 漏了就是「命令存在但没人知道」。
+{
+  const idxSrc = fs.readFileSync(path.join(root, "lib", "index.js"), "utf8");
+  const start = idxSrc.indexOf("export async function handlePurgeCommand");
+  if (start < 0) {
+    problems.push("找不到 handlePurgeCommand（改名或未导出：命令面对账无从下手）");
+  } else {
+    let depth = 0;
+    let end = start;
+    const lines = idxSrc.slice(start).split("\n");
+    for (let k = 0; k < lines.length; k += 1) {
+      for (const ch of lines[k]) { if (ch === "{") depth += 1; else if (ch === "}") depth -= 1; }
+      if (depth === 0 && k > 0) { end = start + idxSrc.slice(start).split("\n").slice(0, k + 1).join("\n").length; break; }
+    }
+    const body = idxSrc.slice(start, end + 200);
+    // 别名识别用规则不用手填清单：`case "X":` 紧跟 `case "Y":` 说明 Y 落到 X 的同一分支（fall-through），是别名。
+    const caseLines = [...body.matchAll(/case "([a-zA-Z-]+)":/g)].map((m) => ({ name: m[1], at: m.index }));
+    const aliases = new Set();
+    for (let k = 1; k < caseLines.length; k += 1) {
+      const gap = body.slice(caseLines[k - 1].at, caseLines[k].at);
+      if (!/return|await|\{/.test(gap)) aliases.add(caseLines[k].name);
+    }
+    const cases = [...new Set(caseLines.map((c) => c.name))].filter((x) => x.length > 1 && !aliases.has(x));
+    const reg = /name: "purge",[\s\S]{0,400}?hint: "([^"]+)"/.exec(idxSrc);
+    if (!reg) problems.push("读不到 /purge 的 hint 字符串（注册写法变了？）");
+    else {
+      const missing = cases.filter((c) => !reg[1].includes(c));
+      if (missing.length) problems.push(`/purge 有子命令 ${missing.join("/")} 没写进 hint（"${reg[1]}"）：命令存在但用户不知道${aliases.size ? `（别名 ${[...aliases].join("/")} 按 fall-through 规则豁免）` : ""}`);
+      else notes.push(`命令面对账 ${cases.length} 个主名全在 hint 里（别名 ${aliases.size} 个按 fall-through 识别）`);
+    }
+  }
+}
+
 // 19) 入口清单对账：package.json 里每个 npm script 都必须在两份 README 中出现。
 //     本轮实测：加了 scenario / probe:gates 等命令后，README 只提到 14 个里的 7 个 —— 没人知道的门等于半个门。
 {

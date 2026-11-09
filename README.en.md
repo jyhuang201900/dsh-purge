@@ -398,6 +398,26 @@ One command runs eight gates (syntax / size budget / bilingual copy / manifest p
 npm run verify
 ```
 
+### Three-entrance matrix (command x panel route x model tool)
+
+| Capability | Slash command | Panel route | Model tool | Note |
+| --- | --- | --- | --- | --- |
+| Status | `/purge status` | `GET /status` | `purge_status` | all three |
+| Apply | `/purge apply` | `GET /apply` | `purge_apply` (`patches=`) | subset apply restores .bak first, unselected patches roll back |
+| Revert | `/purge revert` | `GET /revert` | `purge_revert` | all three |
+| Uninstall | `/purge uninstall` (alias `remove`) | `GET /uninstall` | - | deliberately no tool: a model uninstalling itself is a trap |
+| Injected body | `/purge edit` | `GET/POST /override` | `purge_override` (show/reset) | editing stays human, state is model-readable |
+| Alignment check | `/purge align` | - | `purge_align` | command side added this round (was tool/CLI only) |
+| Update state | `/purge update` | `GET /update` (executes) | `purge_update` (reads) | command and tool only report; the button acts |
+| Rules | `/rules` | `GET /rules` | `purge_rules` | own top-level command |
+| Skills | `/skills` | `GET /skills` + `/skill` | `purge_skills` | same |
+| Patch detail | `/purge status` (includes per-patch) | panel view | `purge_patch` | single source: all read `patchTally()` |
+| Drill console | - (preset plane has 56 `redteam_*`) | `GET /drill-grant` | `purge_drill` (18 ops) | model-first; no second command dialect |
+| Session rewind | `/rewind` | `GET /rewind` + `/rewind/options` | - | session action; risky for the model to invoke |
+| MCP transport | - | `POST /mcp` | same contract table as `ctx.tools` | transport, not a capability |
+
+**Rule for not mirroring everything**: configuration/state belongs in the model's reach; UI actions (`restart`, rewind, uninstall) are safer left to humans. **Every exemption is written here, not kept as folklore.** `/purge` subcommands vs their hint string are enforced by check-package item 20 (aliases detected by the fall-through rule, no hand-maintained list).
+
 Part of the package self-proof is a family of **self-restraint assertions**: they do not check the outside world, only whether purge has quietly fattened itself - the gate count (whatever the README claims must match the code), publish manifest vs self-update manifest, tool count (the N stated in docs == the number of `purge_*` definitions in source), default injected body size (<= 33,000 chars), prompt-layer net delta (<= 2,000 chars; only this layer actually burns tokens, code-layer changes do not) and the bilingual copy-key count.
 
 All local entry points (14 of them, each with a reason to exist; a documented gap is a missing gate):
