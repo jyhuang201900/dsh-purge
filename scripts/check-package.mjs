@@ -96,6 +96,24 @@ notes.push(`声明 ${claims} 处，过期 ${stale.length} 处`);
 for (const s of stale.slice(0, 8)) problems.push(s);
 if (stale.length > 8) problems.push(`…另有 ${stale.length - 8} 处过期声明`);
 
+// 10) 闸门数自证：从 verify.mjs 读出实际关卡数，要求 README 中英两侧的说法与之一致。
+//     （「五关/六关/七关」这种话是最容易漂的口径：加一道门却忘了改文档，本仓库已经发生过两轮。）
+const ver = fs.readFileSync(path.join(root, "scripts", "verify.mjs"), "utf8");
+const gateNums = [...ver.matchAll(/^\/\/ 关 (\d+)：/gm)].map((m) => Number(m[1]));
+const gateCount = gateNums.length ? Math.max(...gateNums) : 0;
+if (!gateCount) problems.push("verify.mjs 里读不到关卡编号（注释格式变了？门禁要跟着改）");
+const CN = { 1: "一", 2: "两", 3: "三", 4: "四", 5: "五", 6: "六", 7: "七", 8: "八", 9: "九", 10: "十" };
+const EN = { 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten" };
+if (gateCount) {
+  const zh = fs.readFileSync(path.join(root, "README.md"), "utf8");
+  const en = fs.readFileSync(path.join(root, "README.en.md"), "utf8");
+  const zhWant = `过${CN[gateCount] || gateCount}关`;
+  const enWant = `${EN[gateCount] || gateCount} gates`;
+  if (!zh.includes(zhWant)) problems.push(`README.md 没写「${zhWant}」（verify 实际 ${gateCount} 关，文档口径过期）`);
+  if (!en.toLowerCase().includes(enWant)) problems.push(`README.en.md 没写「${enWant}」（verify 实际 ${gateCount} 关）`);
+  notes.push(`闸门数自证：verify 实际 ${gateCount} 关，README 中英口径一致 ✓`);
+}
+
 // 9) 生态 tag 口径：这几个 tag 是目录站在用的主流 tag，且 purge 确实具备该能力（2026-11-09 用 /api/plugins 实测：
 //    deepseek-harness 36/50、cordis 6/50、mcp 5/50）。写进门禁是防止以后编辑 keywords 时被顺手删掉。
 const WANT_TAGS = ["deepseek-harness", "dsh-plugin", "mcp", "cordis"];

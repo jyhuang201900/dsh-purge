@@ -20,7 +20,7 @@ graphify-out/
 │  ├─ 10-update-framework.json    更新框架（渠道/台账/marker/自愈）
 │  ├─ 11-restart-family.json      重启家族（web/desktop/uninstall + env 兜底分叉）
 │  ├─ 12-host-alignment.json      宿主版本对齐（0.2.2-rc.1 漂移 / 分桶可观测 / 生态约定对照）
-│  ├─ 13-dev-gates.json           工程闸门（五关 verify / 双语一致性 / 清单一致性 / align 建议行）
+│  ├─ 13-dev-gates.json           工程闸门（七关 verify / 双语一致性 / 清单一致性 / align 建议行）
 │  └─ │  ├─ 14-locale-split.json           双语文案拆开（源→内联链与 CRLF 陷阱）
 │  ├─ 15-tool-surface.json         工具面契约表 / MCP server / 技能可用性体检
 │  └─ 16-ecosystem-intel.json        包自证闸门 + 社区生态情报（聚合优先的外部验证）

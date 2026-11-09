@@ -1,0 +1,114 @@
+#!/usr/bin/env node
+/**
+ * 用途：工具面闸门——契约表的结构完整性 + 描述/返回值成本都上预算，防止「聚合入口」悄悄退化回堆叠。
+ * 用法：node scripts/check-tools.mjs [--json]
+ * 依赖：Node ≥18；只执行只读工具（status/align/patch/update/rules/skills/drill），绝不碰 apply/revert（那俩会改宿主文件）。
+ * 验证：2026-11-09 实跑通过（exit=0）——结构 9/9 无缺陷；工具面描述 2938 字符（预算 3600）；单工具最大 1214（预算 1600）；默认返回值最大 538 字符（预算 1500）。
+ *
+ * 为什么单独一道门：drill 一度占到全工具面 45%，是我手量出来的。没有闸门，下次它涨到 70% 也没人知道。
+ */
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
+import * as core from "../lib/core.js";
+import * as rules from "../lib/rules.js";
+import * as hostctl from "../lib/host.js";
+import * as updater from "../lib/update.js";
+import { buildModelTools, defaultRenderStatus } from "../lib/model-tools.js";
+import { renderStatus } from "../lib/index.js";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const asJson = process.argv.includes("--json");
+
+// 预算：按 2026-11-09 实测值放宽约 20-30%，只防失控增长，不做常红灯。
+const BUDGET = { tools_min: 9, tools_max: 12, surface_max: 3600, per_tool_max: 1600, output_max: 1500, output_lines_max: 20 };
+
+const tools = buildModelTools({ core, rules, hostctl, updater, renderStatus, rejectIfNeedPrompt: () => null });
+const problems = [];
+const notes = [];
+
+// 1) 结构完整性
+for (const t of tools) {
+  if (!t.name || !/^purge_[a-z_]+$/.test(t.name)) problems.push(`工具名不合约定：${t.name}`);
+  if (!t.description || t.description.length < 20) problems.push(`${t.name} 描述过短（${t.description?.length ?? 0} 字）`);
+  if (t.parameters?.type !== "object" || t.parameters?.additionalProperties !== false || !t.parameters.properties) {
+    problems.push(`${t.name} parameters 不是严格 object`);
+  }
+  for (const [pk, pv] of Object.entries(t.parameters.properties || {})) {
+    if (!pv?.description) problems.push(`${t.name}.${pk} 参数没有描述（模型无从判断何时用）`);
+    if (!pv?.type) problems.push(`${t.name}.${pk} 参数没有类型`);
+  }
+  if (typeof t.execute !== "function") problems.push(`${t.name} 缺 execute`);
+  if (typeof t.output?.render !== "function" || !t.output?.schema) problems.push(`${t.name} output 不完整`);
+}
+if (tools.length < BUDGET.tools_min || tools.length > BUDGET.tools_max) {
+  problems.push(`工具数 ${tools.length} 不在 [${BUDGET.tools_min}, ${BUDGET.tools_max}]`);
+}
+notes.push(`结构核对 ${tools.length} 个工具`);
+
+// 2) 描述与 schema 成本
+let surface = 0;
+let worst = { name: "", n: 0 };
+for (const t of tools) {
+  const n = t.description.length + JSON.stringify(t.parameters).length;
+  surface += n;
+  if (n > worst.n) worst = { name: t.name, n };
+  if (n > BUDGET.per_tool_max) problems.push(`${t.name} 描述+schema ${n} 字符，超单工具预算 ${BUDGET.per_tool_max}`);
+}
+if (surface > BUDGET.surface_max) problems.push(`工具面合计 ${surface} 字符，超预算 ${BUDGET.surface_max}`);
+notes.push(`描述成本 ${surface}（预算 ${BUDGET.surface_max}），最大 ${worst.name}=${worst.n}`);
+
+// 3) 只读工具的默认返回值体量（apply/revert 会改文件，不参与）
+const READ_ONLY = ["purge_status", "purge_align", "purge_patch", "purge_update", "purge_rules", "purge_skills", "purge_drill"];
+const outMax = { chars: 0, lines: 0, name: "" };
+for (const t of tools.filter((x) => READ_ONLY.includes(x.name))) {
+  let text = "";
+  try {
+    text = String((await t.execute({})).text ?? "");
+  } catch (e) {
+    problems.push(`${t.name} 默认调用抛错：${String(e?.message ?? e).slice(0, 90)}`);
+    continue;
+  }
+  const lines = text.split("\n").length;
+  if (text.length > outMax.chars) Object.assign(outMax, { chars: text.length, lines, name: t.name });
+  if (text.length > BUDGET.output_max) problems.push(`${t.name} 默认返回 ${text.length} 字符，超预算 ${BUDGET.output_max}（无界倾倒会烧上下文）`);
+  if (lines > BUDGET.output_lines_max) problems.push(`${t.name} 默认返回 ${lines} 行，超预算 ${BUDGET.output_lines_max}`);
+}
+notes.push(`返回值最大 ${outMax.chars} 字符 / ${outMax.lines} 行（${outMax.name || "无"}）`);
+
+// 4) 摘要版与宿主版都要有界（同一工具两种消费方，不能只测一边）
+const state = await core.gatherState();
+const fallback = defaultRenderStatus(state);
+if (fallback.length > BUDGET.output_max) problems.push(`defaultRenderStatus ${fallback.length} 字符，超预算`);
+notes.push(`MCP/CLI 摘要版 ${fallback.length} 字符`);
+
+// 5) 可发现性：KNOWN 里每个 op 都必须出现在参数描述里，否则等于加了个模型看不见的隐藏 op
+//    （drill 已经长到 12 种 op + 10 个 entity，最容易出的事故就是「实现了但没写进描述」）。
+const src = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");
+const knownBlock = /const KNOWN = \[([\s\S]*?)\];/.exec(src);
+const known = knownBlock ? [...knownBlock[1].matchAll(/"([a-z_]+)"/g)].map((m) => m[1]) : [];
+if (!known.length) problems.push("读不到 KNOWN 数组（drill 的 op 表改名了？门禁要跟着改）");
+const drillTool = tools.find((x) => x.name === "purge_drill");
+const opDesc = drillTool?.parameters?.properties?.op?.description || "";
+const hidden = known.filter((o) => !opDesc.includes(o));
+if (hidden.length) problems.push(`op 已实现但没写进描述（模型看不见）：${hidden.join(", ")}`);
+const entBlock = /export const DRILL_ENTITIES = \{([\s\S]*?)\n};/.exec(src);
+// 值是字符串（vuln: "listVulns"），不能要求后跟 { —— 上一版就是这个原因匹配到 0 个，变成「0/0 通过」的假保证。
+const ents = entBlock ? [...entBlock[1].matchAll(/^\s*([a-z]+):\s*["'`]/gm)].map((m) => m[1]) : [];
+if (!ents.length) problems.push("读不到 DRILL_ENTITIES 的键（表形变了？门禁要跟着改，别让它 0/0 空转）");
+const writeBlock = /export const DRILL_WRITE_ENTITIES = \{([\s\S]*?)\n};/.exec(src);
+const writes = writeBlock ? [...writeBlock[1].matchAll(/^\s*([a-z]+):\s*\{/gm)].map((m) => m[1]) : [];
+if (!writes.length) problems.push("读不到 DRILL_WRITE_ENTITIES 的键");
+const entDesc = drillTool?.parameters?.properties?.entity?.description || "";
+const hiddenEnt = [...ents, ...writes].filter((e) => !entDesc.includes(e));
+if (hiddenEnt.length) problems.push(`entity 已实现但没写进描述：${hiddenEnt.join(", ")}`);
+notes.push(`可发现性：op ${known.length - hidden.length}/${known.length}、entity ${(ents.length + writes.length) - hiddenEnt.length}/${ents.length + writes.length}（读 ${ents.length} + 写 ${writes.length}）已写进描述`);
+
+if (asJson) process.stdout.write(`${JSON.stringify({ problems, notes, surface, worst }, null, 2)}\n`);
+else {
+  process.stdout.write(`工具面闸门：${notes.length} 项核对，问题 ${problems.length}\n`);
+  for (const n of notes) process.stdout.write(`  · ${n}\n`);
+  for (const p of problems) process.stdout.write(`  ✗ ${p}\n`);
+}
+process.exit(problems.length ? 1 : 0);
