@@ -51,7 +51,7 @@ function printStatus(state, update) {
 }
 
 async function main() {
-  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--mcp", "--edit", "--help"].includes(a));
+  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--drill", "--mcp", "--edit", "--help"].includes(a));
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`dsh-purge 用法:
@@ -62,13 +62,14 @@ async function main() {
   dsh-purge --uninstall  卸载插件（已应用则先还原）
   dsh-purge --edit       编辑注入文件 prompt-inject.md
   dsh-purge --tools      列出模型可见工具（契约表）
+  dsh-purge --drill      演练台聚合体检（只读，不切预设）
   dsh-purge --mcp        以 MCP server 方式跑（stdio JSON-RPC）
   dsh-purge --help       帮助`);
     return;
   }
 
   // MCP / 工具清单：只读契约，不进状态打印，避免污染 stdio 上的 JSON-RPC。
-  if (mode === "--mcp" || mode === "--tools") {
+  if (mode === "--mcp" || mode === "--tools" || mode === "--drill") {
     const [updMod, hostMod, rulesMod, mt, mcp] = await Promise.all([
       import("../lib/update.js"),
       import("../lib/host.js"),
@@ -85,6 +86,11 @@ async function main() {
       renderStatus: mt.defaultRenderStatus,
       rejectIfNeedPrompt: () => null,
     });
+    if (mode === "--drill") {
+      const t9 = tools.find((x) => x.name === "purge_drill");
+      console.log((await t9.execute({ op: args.find((a) => /^--drill$/.test(a)) ? "summary" : "summary" })).text);
+      return;
+    }
     if (mode === "--tools") {
       for (const t2 of tools) {
         const params = Object.keys(t2.parameters.properties || {}).join(",") || "-";
