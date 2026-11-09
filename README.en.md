@@ -500,6 +500,21 @@ Release notes: [release-notes.md](./release-notes.md) and [Releases](https://git
 
 Knowledge graph: the hand-written semantic layer lives in `graphify-out/semantic/`, the contract is [docs/graphify-语义层规范.md](./docs/graphify-%E8%AF%AD%E4%B9%89%E5%B1%82%E8%A7%84%E8%8C%83.md), and one command rebuilds everything: `node scripts/graphify-sync.mjs --cluster`.
 
+## Ecosystem / who does what
+
+Eight third-party dsh plugins are installed in this desktop profile; each owns one layer and they do not overlap. **dsh-purge owns the policy-and-patch layer**:
+
+| Plugin | What it owns | Relation to purge |
+| --- | --- | --- |
+| `dsh-mnemon` | Composable memory (view-based sources / strategies) | Memory is its job; purge injects the persona it reads upstream |
+| `dsh-context` | Context insight (stats / trend / browser / events) | It watches tokens, purge watches policy and patch hits |
+| `dsh-free-search` | Search tool surface (27 engines) | Same idea of handing tools to the model; purge now speaks MCP too |
+| `dsh-ops` | Native file / PTC tools, optional read-only sidebar | Sidebars coexist; purge's dock covers cleaning and the drill console |
+| `dsh-better-sidebar` | File tree / editor / changes / tasks / side chat | Sidebar shape reference |
+| `@panando/dsh-codex-harness`, `@xmanrui/dsh-im` | Coding harness, IM bridge | Orthogonal to purge |
+
+Purge exposes its own capabilities two ways: **9 `purge_*` tools** inside a dsh session (status / align / apply / revert / patch / update / rules / skills / drill), and `node bin/dsh-purge.js --mcp` (stdio JSON-RPC, same 9 tools for any MCP client). Offline self-checks: `dsh-purge --tools` and `dsh-purge --drill`.
+
 ## Notes
 
 - The change surface is rendered copy, default policy and execution logic inside local `@deepseek-ai/*` packages, plus override files and rule sets under the harness home.

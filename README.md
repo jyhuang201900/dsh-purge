@@ -512,6 +512,21 @@ flowchart LR
 
 知识图谱：语义层在 `graphify-out/semantic/`，规范见 [docs/graphify-语义层规范.md](./docs/graphify-语义层规范.md)，重跑一条命令 `node scripts/graphify-sync.mjs --cluster`。
 
+## 联动 / 生态
+
+本机桌面 profile 同时装了 8 个第三方 dsh 插件，各管一段、互不重复。**dsh-purge 管的是「策略与补丁」这一层**：
+
+| 插件 | 它管什么 | 与 purge 的关系 |
+| --- | --- | --- |
+| `dsh-mnemon` | 组合式记忆（view-based sources / strategies） | 记忆归它；purge 的注入正文是它的上游文案 |
+| `dsh-context` | 上下文洞察（Stats / 趋势 / 浏览器 / 事件） | 观测 token；purge 观测策略与补丁命中 |
+| `dsh-free-search` | 搜索工具面（27 engines） | 同为「给模型加工具」，purge 现也走 MCP |
+| `dsh-ops` | 原生 file / PTC 工具、可选只读侧栏 | 侧栏并存；purge 的侧栏只管清洗与演练台 |
+| `dsh-better-sidebar` | 文件树 / 编辑 / 变更 / 任务 / 侧聊合一 | 侧栏形态参考 |
+| `@panando/dsh-codex-harness`、`@xmanrui/dsh-im` | 编码 harness、IM 接入 | 与 purge 正交 |
+
+purge 自己给模型的入口有两条：dsh 会话内的 **9 个 `purge_*` 工具**（status / align / apply / revert / patch / update / rules / skills / drill），以及 `node bin/dsh-purge.js --mcp`（stdio JSON-RPC，任何 MCP 客户端可连，`tools/list` 同为这 9 个）。离线自查用 `dsh-purge --tools` 与 `dsh-purge --drill`。
+
 ## 说明
 
 - 改动范围是本机 `@deepseek-ai/*` 包里的渲染文案、默认策略和执行逻辑，以及用户目录下的覆盖文件与规则集。
