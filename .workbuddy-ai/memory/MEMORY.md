@@ -20,6 +20,8 @@ DeepSeek Harness (dsh) 破甲插件：清洗宿主提示词 + 84→83→76 条�
 - JS 模板字符串里的 `${...}` 必须转义（store-core.js 曾因 `${IFS}` 炸掉 redteam-store/ui 导入）。
 - 补丁状态核对 CLI：`DSH_SURFACE=desktop DSH_BASE="E:\Program Files\harness\resources\app\dsh\node_modules\@deepseek-ai" node bin/dsh-purge.js --status`（bash 里自动探测不到桌面端）。
 - 可选补丁（optional/softSettle）目标文件不存在 → na/missing_file/skipped 属正常，failed=0 即健康。
+- **会改宿主文件的命令别截管道**（1.1.84 实测踩过）：`node bin/dsh-purge.js --apply | Select-Object -First 12` 会让 node 在写文件途中被 EPIPE 打断、连 exit 码都不回，状态一度从 73/76 掉到 6/76。先完整收输出（`| Out-String`）再筛。
+- **`--apply`/`purge_apply patches=` 选打是「先恢复再重打」**：子集会先从 `.bak` 恢复原文、只打选中几条，**未选中的补丁等于被回滚**（实测状态从 74/76 → 6/76）。选打完必须再跑一次全量 apply 才回到满清洗；`purge_apply` 的参数说明已按此写。幂等已验：连跑两次完整 apply 计数不变、marker 每文件 1 个。
 - **宿主升级后判失配的两类假象**（1.1.84 实测）：①锚点**不许依赖 `//#region` 打包注释**——每次重打包都会换路径（0.2.2 已从 home-paths 变成 mime@4.1.1），只锚真语句；②`markersAny: true` 的补丁 **applied 只代表至少打了一处**，验收要数残留原文（#62 就这样藏了半个没打的门）。还有一条通用判据：**file key 落空不会报 missing_file**——`filterTargetFiles` 不登记落空键、状态机 skipped 优先，于是「宿主把文件搬家了」只表现为一条常年 skipped。
 - 技能审计脚本：.cache/audit-skills.mjs（技能×工具引用一致性）。
 - 得分点权威定义在 lib/redteam/score-rules.js（25 项：boundary 1000-30000 / central-system 500 / netdev 100·200 / iiot / iot-platform…）——写技能前先对这张表。
