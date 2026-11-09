@@ -99,6 +99,9 @@ confidence ∈ EXTRACTED | INFERRED | AMBIGUOUS
 
 退出码：`0` 干净；`1` 有硬问题待修（脚本不会静默放行）。
 
+- **类方法的 id 挂在类名下**（2026-11-09 实测）：`store-core` 里 `openEngagement` / `report` / `searchPocs` 的节点 id 是
+  `lib_redteam_store_core_redteamstore_<方法名>`，不是 `lib_redteam_store_core_<方法名>`。我按后者写了四条边，被守门全部判悬空。
+  规矩：**给语义层加边之前，先 graph.json 里查真实 id**，别照路径拼。
 - **文档节点必须自己声明**（2026-11-09 实测）：`graphify extract --code-only` 只把代码收进 AST，`*.md` / `*.svg` 都不进。
   所以图里看到的 `release_notes`、`readme`、`docs_banner` 全是语义层自己写的文档节点；新增一份 md 想在图里被引用，
   **必须先在语义层补它的 node**，否则守门就报悬空。同理 `file_type` 只有白名单六个值（`code/document/paper/image/rationale/rfc`），
