@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * 用途：发版前一键自检——语法、体积预算、双语文案、JSON 合法性四关一起过（替代 README 里那串手工 node --check）。
+ * 用途：发版前一键自检——语法、体积预算、双语文案、清单一致性、JSON 合法性五关一起过（替代 README 里那串手工 node --check）。
  * 用法：node scripts/verify.mjs [--root PATH] [--skip-size]     # 默认跑全部三关
  * 依赖：Node ≥18；内部调用 node --check 与 scripts/check-size.mjs，零第三方包。
- * 验证：2026-11-09 在 dsh-purge 实跑通过（exit=0）—— 语法 62 文件全绿、体积 0 超预算、双语 2×328 key 零漂移、JSON 14/14 合法。
+ * 验证：2026-11-09 在 dsh-purge 实跑通过（exit=0）—— 语法 64 文件全绿、体积 0 超预算、双语 2×328 key 零漂移、清单 COPY_NAMES 14 项全覆盖、JSON 15/15 合法。
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -55,7 +55,15 @@ if (!skipSize) {
   else notes.push(`双语：${tail.replace(/^双语闸门：/, "")}`);
 }
 
-// 关 4：JSON 合法性——package.json + 图谱语义层手写件。
+// 关 4：清单一致性——COPY_NAMES（自更新拷贝清单）与 files（发布白名单）不许分叉。
+if (!skipSize) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-manifest.mjs")], { encoding: "utf8" });
+  const head = (res.stdout || "").trim().split("\n").filter(Boolean)[0] || "";
+  if (res.status !== 0) failures.push(`清单闸门未过：${(res.stderr || head).trim().split("\n")[0]}`);
+  else notes.push(`清单：${head.replace(/^清单闸门：/, "")}`);
+}
+
+// 关 5：JSON 合法性——package.json + 图谱语义层手写件。
 const jsons = ["package.json", "screenshots.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))
   .concat(fs.readdirSync(path.join(root, "graphify-out", "semantic")).filter((f) => f.endsWith(".json")).map((f) => `graphify-out/semantic/${f}`));
