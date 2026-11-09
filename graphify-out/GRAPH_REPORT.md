@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `923d199d`
+- Built from commit: `227ff857`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -208,7 +208,7 @@ Nodes (39): applyAt, beginAt, body, client, clientPath, drillSrc, end, endAt (+3
 
 ### Community 14 - "RedteamStore"
 Cohesion: 0.10
-Nodes (9): 真 bug：openEngagement 把 scope 串直接存进 scope_cidrs，导致 report() 的 .join 抛错, op=report / kind=score：战报与得分报告接入，默认截 14 行并提示放宽方式, scopeOfIp(), slugify(), slugTarget(), promptHash(), readMeta(), RedteamStore (+1 more)
+Nodes (9): 真 bug：openEngagement 把 scope 串直接存进 scope_cidrs，导致 report() 的 .join 抛错, op=report：战报 / kind=score 得分报告 / kind=targets 目标汇总（零新增参数收纳，输出 2-16 行有界）, scopeOfIp(), slugify(), slugTarget(), promptHash(), readMeta(), RedteamStore (+1 more)
 
 ### Community 15 - ".db"
 Cohesion: 0.08
