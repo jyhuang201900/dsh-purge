@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    { "id": "gates_tool_surface_contract", "label": "模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）", "file_type": "concept", "source_file": "lib/model-tools.js", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "改造前 4 个工具各自手写 output schema 与 render，样板 125 行；抽表后 index.js 只剩 11 行注册循环（-123/+10）。工具数从 4 补到 8 是为了消掉「面板 14 条路由 vs 模型 4 个工具」的能力缺口——update/rules/skills/patch 这些面板能做的事，模型此前完全碰不到。purge_status 的完整渲染仍由宿主注入，MCP/bin 回退到 defaultRenderStatus 摘要，所以宿主侧输出逐字节不变。" },
+    { "id": "gates_mcp_stdio_server", "label": "lib/mcp-server.js：stdio 上的 JSON-RPC MCP server（initialize / tools/list / tools/call / ping）", "file_type": "concept", "source_file": "lib/mcp-server.js", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "宿主自带 dsh-mcp-client（stdio 起子进程）与 dsh-mcp-resources，但它不在本机 bundles 里，所以 purge 走「自己当 server、任何 MCP 客户端可连」而不是改宿主。通知类消息（无 id）按协议不回，实测输出恰好 3 条。" },
+    { "id": "gates_skill_availability", "label": "进攻力体检：红队 32 技能可用 32、坏 0；单查给出缺的环境变量与修法", "file_type": "concept", "source_file": "lib/redteam/skill-availability.js", "source_location": "L111", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "红队技能不在 $DSH_HOME/skills（那里是 20 个用户技能），而在 ~/.dsh/redteam/skills 的 32 个 md —— 早期版本的 purge_skills 只数前者，于是把整个进攻面数没了。复用 bundledSkillSummaries + checkSkill + summarizeSkills 现成链路（不新造判定），每个 issue 自带 fix 文案。" }
+  ],
+  "edges": [
+    { "source": "gates_tool_surface_contract", "target": "lib_model_tools", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/model-tools.js", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_tool_surface_contract", "target": "lib_index", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/index.js", "source_location": "L1575", "weight": 1.0 },
+    { "source": "gates_tool_surface_contract", "target": "lib_core_alignsummary", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/model-tools.js", "source_location": "L60", "weight": 1.0 },
+    { "source": "gates_mcp_stdio_server", "target": "lib_mcp_server", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/mcp-server.js", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_mcp_stdio_server", "target": "lib_model_tools", "relation": "shares_data_with", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/mcp-server.js", "source_location": "L30", "weight": 1.0 },
+    { "source": "gates_mcp_stdio_server", "target": "bin_dsh_purge", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "bin/dsh-purge.js", "source_location": "L52", "weight": 1.0 },
+    { "source": "gates_skill_availability", "target": "lib_redteam_skill_availability", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/redteam/skill-availability.js", "source_location": "L111", "weight": 1.0 },
+    { "source": "gates_skill_availability", "target": "lib_model_tools", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/model-tools.js", "source_location": "L200", "weight": 1.0 },
+    { "source": "gates_skill_availability", "target": "skills_redteam_fofa_recon", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "skills/redteam/fofa-recon.md", "source_location": "L12", "weight": 1.0 },
+    { "source": "gates_tool_surface_contract", "target": "gates_dev_suite", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "lib/model-tools.js", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_mcp_stdio_server", "target": "lib_update", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "lib/mcp-server.js", "source_location": "L1", "weight": 1.0 },
+    { "source": "release_notes", "target": "gates_tool_surface_contract", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L15", "weight": 1.0 }
+  ],
+  "hyperedges": [
+    { "id": "one_contract_two_consumers", "label": "单一契约两处消费：model-tools 表 →（宿主 ctx.tools）+（MCP stdio server），CLI --tools 可离线核对", "nodes": ["lib_model_tools", "lib_index", "lib_mcp_server", "bin_dsh_purge"], "relation": "form", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/model-tools.js" }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "lib/model-tools.js": 235,
+    "lib/mcp-server.js": 78,
+    "lib/redteam/skill-availability.js": 355,
+    "bin/dsh-purge.js": 190
+  }
+}

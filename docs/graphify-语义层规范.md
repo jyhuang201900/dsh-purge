@@ -21,7 +21,8 @@ graphify-out/
 │  ├─ 11-restart-family.json      重启家族（web/desktop/uninstall + env 兜底分叉）
 │  ├─ 12-host-alignment.json      宿主版本对齐（0.2.2-rc.1 漂移 / 分桶可观测 / 生态约定对照）
 │  ├─ 13-dev-gates.json           工程闸门（五关 verify / 双语一致性 / 清单一致性 / align 建议行）
-│  └─ 14-locale-split.json           双语文案拆开（源→内联链与 CRLF 陷阱）
+│  └─ │  ├─ 14-locale-split.json           双语文案拆开（源→内联链与 CRLF 陷阱）
+│  └─ 15-tool-surface.json         工具面契约表 / MCP server / 技能可用性体检
 ├─ ast-baseline.json    AST 基线（脚本冻结，勿手改）
 ├─ graph.json           交付图（生成物）
 ├─ graph.html           交互视图（生成物）

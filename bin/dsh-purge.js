@@ -51,7 +51,7 @@ function printStatus(state, update) {
 }
 
 async function main() {
-  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--edit", "--help"].includes(a));
+  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--mcp", "--edit", "--help"].includes(a));
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`dsh-purge 用法:
@@ -61,7 +61,39 @@ async function main() {
   dsh-purge --revert     回滚还原
   dsh-purge --uninstall  卸载插件（已应用则先还原）
   dsh-purge --edit       编辑注入文件 prompt-inject.md
+  dsh-purge --tools      列出模型可见工具（契约表）
+  dsh-purge --mcp        以 MCP server 方式跑（stdio JSON-RPC）
   dsh-purge --help       帮助`);
+    return;
+  }
+
+  // MCP / 工具清单：只读契约，不进状态打印，避免污染 stdio 上的 JSON-RPC。
+  if (mode === "--mcp" || mode === "--tools") {
+    const [updMod, hostMod, rulesMod, mt, mcp] = await Promise.all([
+      import("../lib/update.js"),
+      import("../lib/host.js"),
+      import("../lib/rules.js"),
+      import("../lib/model-tools.js"),
+      import("../lib/mcp-server.js"),
+    ]);
+    const pkg = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+    const tools = mt.buildModelTools({
+      core,
+      rules: rulesMod,
+      hostctl: hostMod,
+      updater: updMod,
+      renderStatus: mt.defaultRenderStatus,
+      rejectIfNeedPrompt: () => null,
+    });
+    if (mode === "--tools") {
+      for (const t2 of tools) {
+        const params = Object.keys(t2.parameters.properties || {}).join(",") || "-";
+        console.log(`${t2.name.padEnd(14)} 参数=${params.padEnd(12)} ${t2.description.split("。")[0]}。`);
+      }
+      console.log(`共 ${tools.length} 个工具（宿主 ctx.tools 与 MCP 共用这张表）`);
+      return;
+    }
+    await mcp.runMcpServer({ tools, name: "dsh-purge", version: pkg.version });
     return;
   }
 
