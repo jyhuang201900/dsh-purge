@@ -117,6 +117,13 @@ const main = async () => {
   await run("list shot 复核", { op: "list", entity: "shot" }, has("共 1 条"), has("#1"));
   await run("delete shot 联动", { op: "delete", entity: "shot", row: 1 }, has("已删 #1"), has("回读剩 0"));
 
+  // 10e) 资产面：登记（importBundle 包成单条）→ 评估（枚举静默回落要如实报）→ 测试回写
+  await run("assets 空态引导", { op: "assets" }, has("共 0 条"), has("importBundle"));
+  await run("entity_add asset", { op: "entity_add", entity: "asset", target: "203.0.113.20", name: "nas-20" }, has("已写入"), has("资产共 1 条"));
+  await run("update asset 评估", { op: "update", entity: "asset", target: "203.0.113.20", kind: "超优先级", text: "值得打" }, has("已评估"), has("不在枚举"), has("priority=medium"));
+  await run("update asset 合法评估", { op: "update", entity: "asset", target: "203.0.113.20", kind: "high", value: "还有 445" }, has("priority=high"), has("潜在面=还有 445"));
+  await run("update asset 测试回写", { op: "update", entity: "asset", target: "203.0.113.20", stage: "tested", text: "跑完 spray" }, has("已回写测试"), has("test_status=tested"));
+
   // 11) 汇总口径要与逐步回读一致（跨 op 的同一事实不许两个数）
   // 跨 op 一致性：同一个事实（记了 1 步链）在 chain / report / summary 三处必须是同一个数。
   const sum = await run("summary 复核", { op: "summary" }, has("靶标 1 个｜当前=示例靶"), has("chainSteps=1"));
