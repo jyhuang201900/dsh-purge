@@ -67,7 +67,17 @@
    - `security:20` 是安全类里唯一有点量的英文 tag，purge 原本**没有** → 本轮补上（purge 的定位就是安全评测与进攻条令，事实成立）。
    - 据此把 `check-package` 第 9 项的 `WANT_TAGS` 扩到 7 个（`deepseek-harness / dsh-plugin / mcp / cordis / skill / skills / security`），全部满足"生态在用 + purge 真具备"。
 
-## 8. 结论（本轮据此动手的事）
+## 8. 三级证据自查（借 dsh-plugin.net 的收录判据，落成 `check-package` 第 11 项）
+
+| 层级 | 目录站判据 | 本机实测 | purge |
+| --- | --- | --- | --- |
+| tier1 | README 写 dsh 安装命令 | 精确串 `dsh plugin add` 对 **7 个已装插件全部不成立**，真实写法是 `dsh plugin --profile web add` / `--profile desktop add` | ✓ 三语各 5 处 |
+| tier2 | 仓库有 bundle manifest | 不是独立文件，而是 `package.json` 的 **`dsh.bundle`** 字段；官方 hub 把它当布尔标记（宿主 `client.js` L15679 字段说明）；`dsh-client-modules` L1065 规定可选 `dsh.bundle.platforms` 必须是非空字符串数组 | ✓ `{patch: "./cordis.patch.yml"}`（文件存在已校验） |
+| tier3 | 包元数据声明 dsh 依赖 | 7 个已装插件都有 `peerDependencies.@deepseek-ai/*`（cordis 等） | ✓ `@deepseek-ai/cordis ^4.0.1` |
+
+结论：**purge 三级证据全绿，唯一缺的是"发 npm"这个动作**（dshmp 按 `npmName` 索引，purge 至今不在目录里）。反向探针：抹掉 README 全部 5 处安装命令 → `✗ README 缺安装命令（tier1）`、exit 1。
+
+## 9. 结论（本轮据此动手的事）
 
 1. 继续走聚合优先：能力增长优先加 op/参数，而不是加第 N 个工具。
 2. 补 `check-package` 包自证闸门，对标市场的 manifest 准入（purge 是 GitHub tarball 分发，manifest 校验只能自己做）。

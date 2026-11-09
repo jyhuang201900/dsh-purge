@@ -96,6 +96,30 @@ notes.push(`声明 ${claims} 处，过期 ${stale.length} 处`);
 for (const s of stale.slice(0, 8)) problems.push(s);
 if (stale.length > 8) problems.push(`…另有 ${stale.length - 8} 处过期声明`);
 
+// 11) 目录站三级证据自查（借 dsh-plugin.net 的收录判据，但每条都按本机实测的写法来）
+//     tier1 README 写安装命令：真实措辞是 `dsh plugin --profile web add`（不是 `dsh plugin add`，
+//           我用 7 个已装插件的 README 验过：精确串 dsh plugin add 对它们全部不成立）
+//     tier2 package.json 有 dsh.bundle（官方 hub 把它当布尔标记：client.js L15679「Whether the version declares a `dsh.bundle`」）
+//     tier3 包元数据声明 dsh 依赖（peerDependencies 里的 @deepseek-ai/*）
+const INSTALL_RE = /dsh\s+plugin\s+(--[^\s]+\s+\S+\s+)?add\b/;
+const readmes = ["README.md", "README.zh-CN.md", "README.en.md"];
+const noInstall = readmes.filter((rel) => has(rel) && !INSTALL_RE.test(fs.readFileSync(path.join(root, rel), "utf8")));
+if (!readmes.some((rel) => has(rel))) problems.push("README 一个都不在");
+else if (noInstall.length) problems.push(`README 缺安装命令（tier1）：${noInstall.join(", ")}`);
+const bundle = pkg.dsh && pkg.dsh.bundle;
+if (!bundle) problems.push("package.json 没有 dsh.bundle（tier2：官方 hub 用它判定 bundle manifest）");
+else {
+  if (bundle.patch && !has(String(bundle.patch).replace(/^\.\//, ""))) problems.push(`dsh.bundle.patch 指向的文件不存在：${bundle.patch}`);
+  if (bundle.entry && !has(String(bundle.entry).replace(/^\.\//, ""))) problems.push(`dsh.bundle.entry 指向的文件不存在：${bundle.entry}`);
+  const plats = bundle.platforms;
+  if (plats !== undefined && (!Array.isArray(plats) || !plats.length || plats.some((v) => typeof v !== "string"))) {
+    problems.push("dsh.bundle.platforms 形状不合宿主校验（非空字符串数组，见 dsh-client-modules index.js L1065）");
+  }
+}
+const dshDep = Object.keys(pkg.peerDependencies || {}).some((k) => k.startsWith("@deepseek-ai/")) || Object.keys(pkg.dependencies || {}).some((k) => k.startsWith("@deepseek-ai/"));
+if (!dshDep) problems.push("包元数据没声明 @deepseek-ai/* 依赖（tier3）");
+notes.push(`目录站三级证据：tier1 README 安装命令 ${readmes.length - noInstall.length}/${readmes.length}、tier2 dsh.bundle=${bundle ? "有" : "无"}、tier3 dsh 依赖=${dshDep ? "有" : "无"}`);
+
 // 10) 闸门数自证：从 verify.mjs 读出实际关卡数，要求 README 中英两侧的说法与之一致。
 //     （「五关/六关/七关」这种话是最容易漂的口径：加一道门却忘了改文档，本仓库已经发生过两轮。）
 const ver = fs.readFileSync(path.join(root, "scripts", "verify.mjs"), "utf8");
