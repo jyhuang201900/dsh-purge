@@ -392,13 +392,13 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 
 ## Local checks
 
-One command runs five gates (syntax / size budget / bilingual copy / manifest parity / valid JSON); a non-zero exit means a gate failed:
+One command runs six gates (syntax / size budget / bilingual copy / manifest parity / package self-proof / valid JSON); a non-zero exit means a gate failed:
 
 ```sh
 npm run verify
 ```
 
-To check one gate alone: `npm run check-size`, `npm run check:locale` (328 zh/en copy keys must match), `npm run check:manifest` (self-update list must stay inside the publish list), or `node scripts/verify.mjs --skip-size`.
+To check one gate alone: `npm run check-size`, `npm run check:locale` (328 zh/en copy keys must match), `npm run check:manifest` (self-update list must stay inside the publish list), `npm run check:package` (manifest fields and every user-facing count), or `node scripts/verify.mjs --skip-size`.
 
 ---
 

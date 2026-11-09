@@ -1,0 +1,29 @@
+{
+  "nodes": [
+    {"id": "docs_dsh_mcp_ecosystem_notes", "label": "dsh 生态情报笔记（社区探索所得：聚合原则、目录站、命名约定、同源痛点）", "file_type": "document", "source_file": "docs/dsh-mcp-ecosystem-notes.md", "source_location": "L1", "source_url": "https://dshmp.com/en/categories/mcp", "captured_at": null, "author": null, "contributor": null, "rationale": "只记 purge 用得上的结论：聚合优先（外部验证）、按需展开 schema、三消费方同构、命名约定已在宿主源码证实、MCP 配置手写 YAML 与改配置要重启这两个痛点和 purge 同源。"},
+    {"id": "gates_package_selfproof", "label": "check-package 包自证闸门：manifest 口径 + 全仓数量声明必须等于运行时真相", "file_type": "concept", "source_file": "scripts/check-package.mjs", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "对标社区市场的 bundle manifest 准入校验，但按 purge 自己的痛点改造：本仓库反复出现数字过期（banner 曾写 25 patches、description 与 en 变体曾写 23 技能，实为 76/32），靠人记必然失效。所以门禁不解析文本猜数组，而是 import ALL_PATCHES 取运行时条数，再扫 package/README/banner/inject/presets 等「当前口径」文件里的每条数量声明逐个比对。release-notes 故意排除：changelog 里的旧数字是历史事实不是谎言。实测：声明 5 处、补丁 76 / 技能 32、问题 0。"},
+    {"id": "eco_mcp_lazy_pattern", "label": "社区同路原则：one stable proxy tool instead of N tool schemas（dsh-mcp-lazy / dsh-mcp-lens 按需加载 schema）", "file_type": "document", "source_file": "docs/dsh-mcp-ecosystem-notes.md", "source_location": "L1", "source_url": "https://dshmp.com/en/categories/mcp", "captured_at": null, "author": null, "contributor": null, "rationale": "purge_drill 把 26 个能力面收进 1 个工具（+92 字符换 6 个写面，约 15 字符/面），社区把同一件事做成了一类插件的立身之本 —— 说明「聚合优先」不是权宜之计而是生态共识。另一条被验证的是三消费方结构：mneme 之类就是 10 工具 + MCP server + CLI，与 purge 的 ctx.tools / --mcp / --tools 同构。"},
+    {"id": "eco_marketplace_scale", "label": "生态规模与既有先例：约 1819 个真插件、208 个 MCP 类目，DSH 本身已被做成 MCP server", "file_type": "document", "source_file": "docs/dsh-mcp-ecosystem-notes.md", "source_location": "L9", "source_url": "https://dsh-plugin.net/category/mcp", "captured_at": null, "author": null, "contributor": null, "rationale": "两个独立目录站（dshmp.com 有 /api/plugins JSON API 并按 manifest 认证；dsh-plugin.net 按证据强度收录）加上 Blue-Whale-Harness 的 1958 仓库 / 1819 真插件统计。dsh-harness-mcp-server 与 dsh-chatgpt-bridge 已经做了「把 DSH 暴露成 MCP server」，所以 purge 的 --mcp 不是孤例而是既有类目；差异点在 purge 暴露的是自己的补丁与演练台状态面。社区痛点也有记录：MCP 配置要手写 YAML、改配置要重启（Jnpz 主打热加载免重启）——与 purge 的「需重启 dsh 生效」是同一个约束。"}
+  ],
+  "edges": [
+    {"source": "gates_package_selfproof", "target": "scripts_check_package", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/check-package.mjs", "source_location": "L1", "weight": 1.0},
+    {"source": "gates_package_selfproof", "target": "lib_core_all_patches", "relation": "depends_on", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/check-package.mjs", "source_location": "L20", "weight": 1.0},
+    {"source": "gates_package_selfproof", "target": "package", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/check-package.mjs", "source_location": "L28", "weight": 1.0},
+    {"source": "gates_package_selfproof", "target": "readme", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/check-package.mjs", "source_location": "L103", "weight": 1.0},
+    {"source": "gates_package_selfproof", "target": "docs_banner", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/check-package.mjs", "source_location": "L96", "weight": 1.0},
+    {"source": "gates_package_selfproof", "target": "gates_dev_suite", "relation": "part_of", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "scripts/verify.mjs", "source_location": "L40", "weight": 1.0},
+    {"source": "eco_mcp_lazy_pattern", "target": "gates_drill_aggregate", "relation": "supports", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "docs/dsh-mcp-ecosystem-notes.md", "source_location": "L1", "weight": 1.0},
+    {"source": "eco_mcp_lazy_pattern", "target": "gates_status_sections", "relation": "supports", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "docs/dsh-mcp-ecosystem-notes.md", "source_location": "L3", "weight": 1.0},
+    {"source": "eco_mcp_lazy_pattern", "target": "lib_mcp_server", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/mcp-server.js", "source_location": "L1", "weight": 1.0},
+    {"source": "eco_marketplace_scale", "target": "lib_mcp_server", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/mcp-server.js", "source_location": "L1", "weight": 1.0},
+    {"source": "eco_marketplace_scale", "target": "docs_dsh_mcp_ecosystem_notes", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "docs/dsh-mcp-ecosystem-notes.md", "source_location": "L9", "weight": 1.0},
+    {"source": "release_notes", "target": "gates_package_selfproof", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L15", "weight": 1.0},
+    {"source": "release_notes", "target": "eco_marketplace_scale", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L17", "weight": 1.0}
+  ],
+  "hyperedges": [
+    {"id": "community_validated_design", "label": "被生态验证的三个设计决策：聚合工具（drill）、按需展开（status sections）、三消费方共用契约（ctx.tools + MCP + CLI）", "nodes": ["gates_drill_aggregate", "gates_status_sections", "gates_tool_surface_contract", "lib_mcp_server"], "relation": "participate_in", "confidence": "INFERRED", "confidence_score": 0.9, "source_file": "docs/dsh-mcp-ecosystem-notes.md"}
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {"scripts/check-package.mjs": 110, "docs/dsh-mcp-ecosystem-notes.md": 40, "lib/model-tools.js": 300}
+}

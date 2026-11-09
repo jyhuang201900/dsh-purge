@@ -22,7 +22,8 @@ graphify-out/
 │  ├─ 12-host-alignment.json      宿主版本对齐（0.2.2-rc.1 漂移 / 分桶可观测 / 生态约定对照）
 │  ├─ 13-dev-gates.json           工程闸门（五关 verify / 双语一致性 / 清单一致性 / align 建议行）
 │  └─ │  ├─ 14-locale-split.json           双语文案拆开（源→内联链与 CRLF 陷阱）
-│  └─ 15-tool-surface.json         工具面契约表 / MCP server / 技能可用性体检
+│  ├─ 15-tool-surface.json         工具面契约表 / MCP server / 技能可用性体检
+│  └─ 16-ecosystem-intel.json        包自证闸门 + 社区生态情报（聚合优先的外部验证）
 ├─ ast-baseline.json    AST 基线（脚本冻结，勿手改）
 ├─ graph.json           交付图（生成物）
 ├─ graph.html           交互视图（生成物）
@@ -98,6 +99,10 @@ confidence ∈ EXTRACTED | INFERRED | AMBIGUOUS
 
 退出码：`0` 干净；`1` 有硬问题待修（脚本不会静默放行）。
 
+- **文档节点必须自己声明**（2026-11-09 实测）：`graphify extract --code-only` 只把代码收进 AST，`*.md` / `*.svg` 都不进。
+  所以图里看到的 `release_notes`、`readme`、`docs_banner` 全是语义层自己写的文档节点；新增一份 md 想在图里被引用，
+  **必须先在语义层补它的 node**，否则守门就报悬空。同理 `file_type` 只有白名单六个值（`code/document/paper/image/rationale/rfc`），
+  想写 `context` 之类的新类型是不行的——本轮就被拦了一次。
 - **改结构别用手插逗号**（2026-11-09 实测教训）：本文件是「一个元素一行」的紧凑风格，往数组里插一条时尾逗号会双向出错（新末元素多逗号、原末元素缺逗号）。本轮手改连错两次，正确做法是**摘掉新行 → `json.loads` 确认剩余合法 → 作为数据 `append` → 用发射器整体重写**，而不是在文本里赌逗号。这也是第 5 节「改一处跑一次」的由来：`npm run verify` 的 JSON 关当场把这两次拦下了。
 
 ## 8. 本机降级口径（如实记，不编）

@@ -400,13 +400,13 @@ DSH 会按顺序执行同一批中的 Bash 调用。旧版 dsh-purge 把默认�
 
 ## 本地校验
 
-一条命令过五关（语法 / 体积预算 / 双语文案 / 清单一致性 / JSON 合法），未通过时退出码非 0：
+一条命令过六关（语法 / 体积预算 / 双语文案 / 清单一致性 / 包自证 / JSON 合法），未通过时退出码非 0：
 
 ```sh
 npm run verify
 ```
 
-单项排查：`npm run check-size`（体积）、`npm run check:locale`（中英 328 组文案 key 一致性）、`npm run check:manifest`（自更新清单与发布清单不分叉），或 `node scripts/verify.mjs --skip-size`。
+单项排查：`npm run check-size`（体积）、`npm run check:locale`（中英 328 组文案 key 一致性）、`npm run check:manifest`（自更新清单与发布清单不分叉）、`npm run check:package`（manifest 口径与全仓数量声明），或 `node scripts/verify.mjs --skip-size`。
 
 ---
 
