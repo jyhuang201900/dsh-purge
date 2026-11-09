@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { ALL_PATCHES, defaultOverrideText } from "../lib/core.js";
+import { ALL_PATCHES, defaultOverrideText, targetFiles } from "../lib/core.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const asJson = process.argv.includes("--json");
@@ -150,6 +150,27 @@ else {
 const wantDoc = `docs/适配-${pkg.dshTarget || "?"}-差异分析.md`;
 if (!fs.existsSync(path.join(root, wantDoc))) problems.push(`缺适配记录 ${wantDoc}：改 dshTarget 那轮就要写（实测结论 + 归属判据，别留成口头账）`);
 else notes.push(`适配记录在位（${wantDoc}）`);
+
+// 18) 平面能力数基线：预设面注册数、得分点数、targetFiles 键数。
+//     这三个数散在文档里（如「把 56 个 redteam_* 聚成 1 个 purge_drill」），钉在这儿：上游或我们改了，
+//     就得同时改基线与文档，而不是让文档静默说谎 —— 本轮正是发现 files 描述写 26 条而实际 56。
+const PLANE_BASELINE = { redteamTools: 56, scorePoints: 25, targetFileKeys: 56 };
+const toolsSrc = fs.readFileSync(path.join(root, "lib", "redteam", "tools.js"), "utf8");
+const regCount = (toolsSrc.match(/tools\.register\(/g) || []).length;
+if (regCount !== PLANE_BASELINE.redteamTools) problems.push(`redteam_* 注册 ${regCount} 处，基线 ${PLANE_BASELINE.redteamTools}：预设面能力数变了要同步文档与语义层的说法`);
+const scoreCount = await (async () => {
+  try {
+    const m = await import(new URL("../lib/redteam/score-rules.js", import.meta.url).href);
+    const arr = Object.values(m).find((v) => Array.isArray(v) && v.length && (v[0].point_id || v[0].id || v[0].code));
+    return arr ? arr.length : 0;
+  } catch { return -1; }
+})();
+if (scoreCount === -1) problems.push("读不到 score-rules（导入失败）");
+else if (scoreCount !== PLANE_BASELINE.scorePoints) problems.push(`得分点 ${scoreCount} 个，基线 ${PLANE_BASELINE.scorePoints}：改分值表要同步文档口径`);
+const fileKeys = (() => { try { return Object.keys(targetFiles(process.env.DSH_BASE || "") || {}).length; } catch { return -1; } })();
+if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对账）");
+else if (fileKeys !== PLANE_BASELINE.targetFileKeys) problems.push(`targetFiles ${fileKeys} 个键，基线 ${PLANE_BASELINE.targetFileKeys}：文件映射增减要同步状态文案`);
+notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 ${fileKeys}（与文档一致）`);
 
 // 15) 中英文案组数对账：README 里写的「N 组文案 / N zh/en copy keys」必须等于 locale/zh.json 的 key 数。
 //     本轮发现 README 还写着 328（实际 329）—— 数字不进门禁就是这个下场。
