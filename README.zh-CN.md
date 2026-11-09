@@ -328,6 +328,7 @@ dsh-purge --uninstall
 # CLI
 dsh-purge --status
 dsh-purge --apply
+dsh-purge --align
 dsh-purge --revert
 dsh-purge --uninstall
 dsh-purge --edit
@@ -339,7 +340,7 @@ dsh-purge --edit
 /rewind
 
 # 模型工具
-purge_status   purge_apply   purge_revert
+purge_status   purge_align   purge_apply   purge_revert
 ```
 
 设置页「应用」成功后会自动重启，以加载已改的包文件；也可手动点「重启」。补丁标题下有正式版和测试版。测试版跟 `beta` 分支。点「切换到正式版」会装回 master，并清掉钉选。正式版里选旧版本会固定在该版本，要回到最新再点「更新」。旧的测试标签不再列出。

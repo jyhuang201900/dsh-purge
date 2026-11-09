@@ -37,6 +37,7 @@
   "scripts": {
     "embed-prompt": "node scripts/embed-default-prompt.mjs",
     "check-anchors": "node scripts/check-anchors.mjs",
+    "check-size": "node scripts/check-size.mjs",
     "build:client": "node scripts/build-client.mjs",
     "graphify": "node scripts/graphify-sync.mjs --cluster"
   },

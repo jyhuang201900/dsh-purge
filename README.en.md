@@ -322,6 +322,7 @@ Runtime files live under `$DSH_HOME`: `prompt-inject.md`, `rules/`, `skills/`, `
 ```sh
 dsh-purge --status
 dsh-purge --apply
+dsh-purge --align
 dsh-purge --revert
 dsh-purge --uninstall
 dsh-purge --edit
@@ -331,7 +332,7 @@ dsh-purge --edit
 /skills list | import <zip-or-folder> | create <id> [description] | delete <id> | help
 /rewind
 
-purge_status   purge_apply   purge_revert
+purge_status   purge_align   purge_apply   purge_revert
 ```
 
 After a successful Apply, the host restarts so patched packages load; you can also click **Restart** manually. Under the patch title are the stable release and the test release. The test release follows the `beta` branch. **Switch to stable** installs `master` and clears any pin. Picking an older stable version pins it; click **Update** to return to the latest. Old test tags are not listed.

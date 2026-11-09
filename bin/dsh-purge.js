@@ -26,17 +26,8 @@ function printStatus(state, update) {
   out.push(`  注入文件       ${state.override_path}`);
   out.push(`  注入状态       ${state.override_status}`);
   out.push("");
-  const tally = { applied: 0, pending: 0, skipped: 0, na: 0, missing_file: 0, other: 0 };
-  for (const p of core.ALL_PATCHES) {
-    const s = state.patch_status[p.id];
-    if (s === "applied" || s === "already") tally.applied += 1;
-    else if (s === "pending") tally.pending += 1;
-    else if (s === "skipped") tally.skipped += 1;
-    else if (s === "na") tally.na += 1;
-    else if (s === "missing_file") tally.missing_file += 1;
-    else tally.other += 1;
-  }
-  out.push(`  补丁 ${tally.applied}/${core.ALL_PATCHES.length} 已清洗, ${tally.pending} 待清洗, ${tally.skipped} 锚点未命中, ${tally.na} 不适用, ${tally.missing_file} 缺文件`);
+  const tally = core.patchTally(state);
+  out.push(`  补丁 ${tally.applied}/${tally.total} 已清洗, ${tally.pending} 待清洗, ${tally.skipped.length} 锚点未命中, ${tally.na} 不适用, ${tally.missing} 缺文件`);
   for (const p of core.ALL_PATCHES) {
     const s = state.patch_status[p.id];
     const mark = s === "applied" ? "✓" : s === "pending" ? "✗" : "·";
@@ -60,11 +51,12 @@ function printStatus(state, update) {
 }
 
 async function main() {
-  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--edit", "--help"].includes(a));
+  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--edit", "--help"].includes(a));
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`dsh-purge 用法:
   dsh-purge --status     显示状态
+  dsh-purge --align      对齐体检（宿主版本 / 适配声明 / 未命中清单）
   dsh-purge --apply      应用全部清洗（提示词+代码+shim+override）
   dsh-purge --revert     回滚还原
   dsh-purge --uninstall  卸载插件（已应用则先还原）
@@ -94,7 +86,7 @@ async function main() {
       ? `${ledger.guard.ref} · ${ledger.guard.sha || "-"} · ${String(ledger.guard.at || "").slice(0, 10)}`
       : "无（auto-update-guard.json 未生成）",
   };
-  console.log(printStatus(state, updateInfo));
+  if (mode !== "--align") console.log(printStatus(state, updateInfo));
   console.log("");
 
   if (mode === "--apply") {
@@ -170,6 +162,13 @@ async function main() {
     }
     console.log("");
     console.log("卸载完成。请重启 dsh。");
+  } else if (mode === "--align") {
+    console.log(core.alignSummary(state, {
+      host: hostMod.dshHostVersion(),
+      target: updMod.targetVersion(),
+      ledger: updMod.updateLedger(3),
+      withNames: true,
+    }));
   } else if (mode === "--edit") {
     const r = core.editOverride(state.dsh_home);
     if (!r.ok && r.needCreate) {
