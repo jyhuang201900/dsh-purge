@@ -100,6 +100,17 @@ const main = async () => {
   await run("pocs 读正文", { op: "pocs", name: saved.poc.code }, has("POC「"), has("用法：nmap -sV"), has("正文 2 行"));
   await run("pocs 读不存在的 code", { op: "pocs", name: "没这个码" }, has("没有 POC"));
 
+  // 10c) 截图与提示词写面（复用 target/name/kind/text，零新增参数；shot 要真实文件、prompt 的 role 只有六个合法值）
+  const shotFile = path.join(root, "e2e-shot.png");
+  fs.writeFileSync(shotFile, Buffer.from("89504e470d0a1a0a", "hex"));
+  await run("entity_add shot", { op: "entity_add", entity: "shot", target: shotFile, name: "登录页" }, has("已写入"), has("label=登录页"));
+  await run("entity_add shot 缺 target", { op: "entity_add", entity: "shot" }, has("图片文件路径"));
+  await run("entity_add shot 图不存在", { op: "entity_add", entity: "shot", target: path.join(root, "没有这个图.png") }, has("失败"), has("not found"));
+  await run("entity_add prompt 错角色", { op: "entity_add", entity: "prompt", kind: "attacker", text: "x" }, has("unknown role"), has("plan"));
+  await run("entity_add prompt 写正文", { op: "entity_add", entity: "prompt", kind: "recon", text: "先摸端口再打服务" }, has("已写入"), has("recon（信息收集）"));
+  await run("list shot 复核", { op: "list", entity: "shot" }, has("共 1 条"), has("#1"));
+  await run("delete shot 联动", { op: "delete", entity: "shot", row: 1 }, has("已删 #1"), has("回读剩 0"));
+
   // 11) 汇总口径要与逐步回读一致（跨 op 的同一事实不许两个数）
   // 跨 op 一致性：同一个事实（记了 1 步链）在 chain / report / summary 三处必须是同一个数。
   const sum = await run("summary 复核", { op: "summary" }, has("靶标 1 个｜当前=示例靶"), has("chainSteps=1"));
