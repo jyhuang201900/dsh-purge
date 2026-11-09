@@ -3,7 +3,7 @@
  * 用途：发版前一键自检——语法、体积预算、双语文案、清单一致性、JSON 合法性五关一起过（替代 README 里那串手工 node --check）。
  * 用法：node scripts/verify.mjs [--root PATH] [--skip-size]     # 默认跑全部三关
  * 依赖：Node ≥18；内部调用 node --check 与 scripts/check-size.mjs，零第三方包。
- * 验证：2026-11-09 在 dsh-purge 实跑通过（exit=0）—— 语法 64 文件全绿、体积 0 超预算、双语 2×328 key 零漂移、清单 COPY_NAMES 14 项全覆盖、JSON 15/15 合法。
+ * 验证：2026-11-09 在 dsh-purge 实跑通过（exit=0，五关全绿：语法 / 体积 / 双语 2×328 key 零漂移 / 清单 COPY_NAMES 全覆盖 / JSON 全合法）。各关计数以实跑输出为准，不写死在注释里。
  */
 import fs from "node:fs";
 import path from "node:path";
