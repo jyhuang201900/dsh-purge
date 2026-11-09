@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    { "id": "gates_locale_split", "label": "双语文案拆开：源在 locale/*.json，运行时仍走构建期内联（拆源不拆加载）", "file_type": "concept", "source_file": "scripts/build-locale.mjs", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "选构建期内联而不是运行时 fetch，是为了把重启风险压到零——client.js 里还是同一段 const zh / const en，加载方式没变。代价是要多守一条「源与内联不能分叉」，所以 build-locale 自带 --check、check-manifest 管 files 与 COPY_NAMES 覆盖 locale、exports 补 ./locale/*.json。" },
+    { "id": "gates_crlf_traps", "label": "CRLF 陷阱：python 读会归一行尾、node 读不会", "file_type": "rationale", "source_file": "scripts/build-locale.mjs", "source_location": "L50", "source_url": null, "captured_at": null, "author": null, "contributor": null }
+  ],
+  "edges": [
+    { "source": "gates_crlf_traps", "target": "gates_locale_split", "relation": "rationale_for", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/build-locale.mjs", "source_location": "L50", "weight": 1.0 },
+    { "source": "gates_locale_split", "target": "scripts_build_locale", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/build-locale.mjs", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_locale_split", "target": "scripts_check_locale", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/check-locale.mjs", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_locale_split", "target": "client", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "client.js", "source_location": "L128", "weight": 1.0 },
+    { "source": "gates_locale_split", "target": "package", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "package.json", "source_location": "L21", "weight": 1.0 },
+    { "source": "gates_locale_split", "target": "gates_locale_parity", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "scripts/build-locale.mjs", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_locale_split", "target": "lib_update", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "lib/update.js", "source_location": "L20", "weight": 1.0 },
+    { "source": "readme", "target": "gates_locale_split", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "README.md", "source_location": "L512", "weight": 1.0 }
+  ],
+  "hyperedges": [
+    { "id": "locale_source_to_inline_chain", "label": "文案链：locale/*.json（源）→ build-locale（内联）→ client.js（运行时）→ check-locale 双向守（中英一致 + 源与内联一致）", "nodes": ["gates_locale_split", "scripts_build_locale", "client", "scripts_check_locale"], "relation": "form", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/build-locale.mjs" }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "scripts/build-locale.mjs": 80,
+    "locale/zh.json": 331,
+    "locale/en.json": 331,
+    "client.js": 8913
+  }
+}

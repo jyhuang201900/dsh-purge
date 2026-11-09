@@ -63,8 +63,8 @@ if (!skipSize) {
   else notes.push(`清单：${head.replace(/^清单闸门：/, "")}`);
 }
 
-// 关 5：JSON 合法性——package.json + 图谱语义层手写件。
-const jsons = ["package.json", "screenshots.json"]
+// 关 5：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
+const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))
   .concat(fs.readdirSync(path.join(root, "graphify-out", "semantic")).filter((f) => f.endsWith(".json")).map((f) => `graphify-out/semantic/${f}`));
 let parsed = 0;

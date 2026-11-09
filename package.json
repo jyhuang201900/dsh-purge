@@ -13,7 +13,8 @@
     "./redteam/store": "./lib/redteam/store.js",
     "./redteam/ui": "./lib/redteam/ui.js",
     "./redteam/tools": "./lib/redteam/tools.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "bin": {
     "dsh-purge": "bin/dsh-purge.js"
@@ -23,6 +24,7 @@
     "!lib/default-prompt-inject.md",
     "bin",
     "docs",
+    "locale",
     "presets",
     "skills",
     "scripts",
@@ -39,6 +41,7 @@
     "check-anchors": "node scripts/check-anchors.mjs",
     "check-size": "node scripts/check-size.mjs",
     "check:locale": "node scripts/check-locale.mjs",
+    "build:locale": "node scripts/build-locale.mjs",
     "check:manifest": "node scripts/check-manifest.mjs",
     "verify": "node scripts/verify.mjs",
     "build:client": "node scripts/build-client.mjs",

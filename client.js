@@ -125,8 +125,9 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 
 		const TARGETS = ["AGENTS.md", "CLAUDE.md"];
 
+/* __DSH_PURGE_LOCALE_BEGIN__ 由 scripts/build-locale.mjs 生成，别手改；改 locale/*.json */
 		const zh = {
-			nav: "规则设定",
+			"nav": "规则设定",
 			"dock.clean": "清洗",
 			"dock.drill": "演练台",
 			"dock.toggle": "dsh-purge",
@@ -438,9 +439,9 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"rewind.empty": "没有可回退的上一句",
 			"rewind.fail": "回退失败: {error}",
 			"rewind.once": "回退上一步",
-					"rewind.once.hint": "撤回最后一步已进行的对话，新会话接上之前的上下文；那句回到输入框再发送",
+			"rewind.once.hint": "撤回最后一步已进行的对话，新会话接上之前的上下文；那句回到输入框再发送",
 			"rewind.round": "回退上一轮",
-					"rewind.round.hint": "撤回上一整轮（含子代理）已进行的对话，新会话接上之前的上下文；那句回到输入框再发送",
+			"rewind.round.hint": "撤回上一整轮（含子代理）已进行的对话，新会话接上之前的上下文；那句回到输入框再发送",
 			"continue.title": "失败重试 / 继续",
 			"continue.hint": "请求失败会自动重试；异常停止或中断可点「继续」或自动续跑。自己点停止不会自动继续。次数用完后需新开一轮。",
 			"continue.autoRetry": "失败自动重试",
@@ -454,11 +455,11 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"continue.busy": "继续中…",
 			"continue.ready": "继续（还可 {left} 次）",
 			"continue.limit": "已达继续上限",
-			"continue.fail": "继续失败: {error}",
+			"continue.fail": "继续失败: {error}"
 		};
 
 		const en = {
-			nav: "Rules",
+			"nav": "Rules",
 			"dock.clean": "Clean",
 			"dock.drill": "Drill",
 			"dock.toggle": "dsh-purge",
@@ -770,9 +771,9 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"rewind.empty": "Nothing to undo",
 			"rewind.fail": "Undo failed: {error}",
 			"rewind.once": "Undo last step",
-					"rewind.once.hint": "Withdraw the last step into a new session that keeps earlier context; the line returns to the box",
+			"rewind.once.hint": "Withdraw the last step into a new session that keeps earlier context; the line returns to the box",
 			"rewind.round": "Undo last turn",
-					"rewind.round.hint": "Withdraw the last turn (and its subagents) into a new session that keeps earlier context; the line returns to the box",
+			"rewind.round.hint": "Withdraw the last turn (and its subagents) into a new session that keeps earlier context; the line returns to the box",
 			"continue.title": "Retry / Continue",
 			"continue.hint": "Failed requests auto-retry. After an abnormal stop or interrupt, use Continue or auto-resume. A manual stop never auto-continues. Counts reset after a completed turn.",
 			"continue.autoRetry": "Auto-retry on failure",
@@ -786,8 +787,9 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"continue.busy": "Continuing…",
 			"continue.ready": "Continue ({left} left)",
 			"continue.limit": "Continue limit reached",
-			"continue.fail": "Continue failed: {error}",
+			"continue.fail": "Continue failed: {error}"
 		};
+/* __DSH_PURGE_LOCALE_END__ */
 
 		const PURGE_CSS = `
 .dshp-root{--dshp-display:"Songti SC","Noto Serif SC","Iowan Old Style",Palatino,"Palatino Linotype",Georgia,serif;--dshp-sans:"Yu Gothic UI","Hiragino Sans GB","Source Han Sans SC",system-ui,sans-serif;--dshp-mono:"Cascadia Mono","Sarasa Mono SC",ui-monospace,monospace;--dshp-ease:cubic-bezier(.16,1,.3,1);max-width:920px;display:flex;flex-direction:column;gap:18px;padding:16px;border-radius:12px;background:var(--dshp-bg);color:var(--dshp-ink);font-family:var(--dshp-sans)}

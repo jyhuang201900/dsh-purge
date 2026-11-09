@@ -519,3 +519,5 @@ flowchart LR
 ---
 
 感谢 [LINUX DO](https://linux.do) 社区
+
+文案源已拆到 `locale/zh.json` + `locale/en.json`（329 条 × 2）；改完跑 `npm run build:locale` 内联进 `client.js`，`npm run check:locale` 会同时管中英一致与源/内联一致。

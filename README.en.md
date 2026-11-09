@@ -507,3 +507,5 @@ Knowledge graph: the hand-written semantic layer lives in `graphify-out/semantic
 ---
 
 Thanks to the [LINUX DO](https://linux.do) community
+
+Copy sources are split into `locale/zh.json` + `locale/en.json` (329 entries each); after editing, run `npm run build:locale` to inline them into `client.js`.
