@@ -1,0 +1,34 @@
+{
+  "nodes": [
+    { "id": "gates_dev_suite", "label": "发版四关闸门：语法 / 体积预算 / 双语 key 一致性 / JSON 合法（npm run verify 一票过）", "file_type": "concept", "source_file": "scripts/verify.mjs", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "把 README 里那串手工 node --check 变成退出码；每一关都委托给专用脚本（check-size / check-locale），verify 自己只负责编排，规则不重复第二份。实测：语法 63 文件、体积 0 超、双语 328×2 零漂移、JSON 14/14。" },
+    { "id": "gates_locale_parity", "label": "双语字典 328×2 key 必须一模一样（按连续文案行自动发现块，不硬编码行号）", "file_type": "concept", "source_file": "scripts/check-locale.mjs", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "这个 session 里中英不同步撞了三次：banner 写 25 patches、package description 与 en 变体写 23 技能（实为 32）。靠人记不住，所以把「两块 key 集合相等 + 块内无重复 + 块数必须等于 2」写成闸门；块数变了要人工确认，禁止改期望值蒙过去。" },
+    { "id": "gates_align_advice", "label": "alignSummary 的建议行：把状态灯翻译成下一步命令", "file_type": "concept", "source_file": "lib/core.js", "source_location": "L7225", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "四分支：有待清洗→--apply；有未命中→check-anchors 复核（skipped≠已清洗）；声明不一致→先核对 dshTarget；全对齐→无待办。四个分支都用伪 state 逐个验过，不是只验当前实况那一条。" }
+  ],
+  "edges": [
+    { "source": "gates_dev_suite", "target": "scripts_verify", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/verify.mjs", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_dev_suite", "target": "scripts_check_size", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/check-size.mjs", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_locale_parity", "target": "scripts_check_locale", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/check-locale.mjs", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_locale_parity", "target": "client", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "client.js", "source_location": "L130", "weight": 1.0 },
+    { "source": "gates_locale_parity", "target": "lib_default_prompt_inject_en", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "lib/default-prompt-inject.en.md", "source_location": "L92", "weight": 1.0 },
+    { "source": "gates_align_advice", "target": "lib_core_alignsummary", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/core.js", "source_location": "L7225", "weight": 1.0 },
+    { "source": "gates_align_advice", "target": "bin_dsh_purge", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "bin/dsh-purge.js", "source_location": "L167", "weight": 1.0 },
+    { "source": "gates_align_advice", "target": "lib_index", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/index.js", "source_location": "L1620", "weight": 1.0 },
+    { "source": "gates_dev_suite", "target": "docs_host_alignment_observability", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "scripts/verify.mjs", "source_location": "L1", "weight": 1.0 },
+    { "source": "gates_locale_parity", "target": "docs_host_alignment_pkg_split", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "scripts/check-locale.mjs", "source_location": "L1", "weight": 1.0 },
+    { "source": "release_notes", "target": "gates_locale_parity", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L15", "weight": 1.0 },
+    { "source": "readme", "target": "gates_dev_suite", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "README.md", "source_location": "L400", "weight": 1.0 }
+  ],
+  "hyperedges": [
+    { "id": "verify_four_gates", "label": "verify 四关的组成：编排者 verify.mjs + 三个专职脚本 + core 状态来源", "nodes": ["scripts_verify", "scripts_check_size", "scripts_check_locale", "lib_core"], "relation": "participate_in", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "scripts/verify.mjs" },
+    { "id": "zh_en_drift_history", "label": "中英不同步的三次实例与把它变成闸门这件事", "nodes": ["gates_locale_parity", "lib_default_prompt_inject_en", "release_notes", "docs_banner_stale_patch_count"], "relation": "form", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "release-notes.md" }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "scripts/verify.mjs": 72,
+    "scripts/check-locale.mjs": 88,
+    "scripts/check-size.mjs": 62,
+    "client.js": 8988,
+    "lib/core.js": 8290
+  }
+}
