@@ -1,0 +1,52 @@
+{
+  "nodes": [
+    { "id": "docs_preview_dock_clean", "label": "dock-clean.png（800×850，清洗页侧栏截图）", "file_type": "image", "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-clean.png", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null },
+    { "id": "docs_preview_dock_auth", "label": "dock-auth.png（850×925，演练台授权页截图）", "file_type": "image", "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-auth.png", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null },
+    { "id": "docs_preview_dock_drill", "label": "dock-drill.png（900×850，演练台截图）", "file_type": "image", "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-drill.png", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null },
+    { "id": "docs_preview_rules", "label": "rules.png（1064×1244，规则集截图）", "file_type": "image", "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\rules.png", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null },
+    { "id": "docs_preview_settings", "label": "settings.png（1064×1972，补丁页截图）", "file_type": "image", "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\settings.png", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null },
+    { "id": "docs_preview_own_servers", "label": "own-servers.png（652×509，自己的服务器白名单截图·中文）", "file_type": "image", "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\own-servers.png", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null },
+    { "id": "docs_preview_own_servers_en", "label": "own-servers-en.png（652×505，自己的服务器白名单截图·英文）", "file_type": "image", "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\own-servers-en.png", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null },
+    { "id": "docs_banner", "label": "banner.svg（720×180 项目横幅）", "file_type": "image", "source_file": "E:\\完成项目\\dsh-purge\\docs\\banner.svg", "source_location": "L1", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "横幅原写「规则设定 / 25 patches」，与现状不符；2026-11-09 先改为「破甲 · 红队演练台 / 83 patches」，同日随未安装项摘除再改为 76 patches。横幅这种计数文案必须跟 release-notes 同批改，否则自己就变成新的陈旧点。" },
+    { "id": "docs_banner_stale_patch_count", "label": "横幅计数已随补丁表更新：25 → 83 → 76 patches，定位改为破甲 · 红队演练台", "file_type": "rationale", "source_file": "E:\\完成项目\\dsh-purge\\docs\\banner.svg", "source_location": "L17", "source_url": null, "captured_at": null, "author": null, "contributor": null }
+  ],
+  "edges": [
+    { "source": "readme", "target": "docs_preview_dock_clean", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.md", "source_location": "L278", "weight": 1.0 },
+    { "source": "readme", "target": "docs_preview_dock_auth", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.md", "source_location": "L282", "weight": 1.0 },
+    { "source": "readme", "target": "docs_preview_dock_drill", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.md", "source_location": "L286", "weight": 1.0 },
+    { "source": "readme", "target": "docs_preview_settings", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.md", "source_location": "L290", "weight": 1.0 },
+    { "source": "readme", "target": "docs_preview_rules", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.md", "source_location": "L294", "weight": 1.0 },
+    { "source": "readme", "target": "docs_preview_own_servers", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.md", "source_location": "L300", "weight": 1.0 },
+    { "source": "readme", "target": "docs_banner", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.md", "source_location": "L2", "weight": 1.0 },
+    { "source": "readme_en", "target": "docs_preview_dock_clean", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.en.md", "source_location": "L278", "weight": 1.0 },
+    { "source": "readme_en", "target": "docs_preview_dock_auth", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.en.md", "source_location": "L282", "weight": 1.0 },
+    { "source": "readme_en", "target": "docs_preview_dock_drill", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.en.md", "source_location": "L286", "weight": 1.0 },
+    { "source": "readme_en", "target": "docs_preview_settings", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.en.md", "source_location": "L290", "weight": 1.0 },
+    { "source": "readme_en", "target": "docs_preview_own_servers_en", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.en.md", "source_location": "L296", "weight": 1.0 },
+    { "source": "readme_en", "target": "docs_banner", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.en.md", "source_location": "L2", "weight": 1.0 },
+    { "source": "docs_preview_own_servers_en", "target": "docs_preview_own_servers", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\own-servers-en.png", "source_location": "L1", "weight": 1.0 },
+    { "source": "docs_preview_dock_auth", "target": "docs_preview_dock_drill", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-auth.png", "source_location": "L1", "weight": 1.0 },
+    { "source": "docs_preview_dock_clean", "target": "client", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-clean.png", "source_location": "L1", "weight": 1.0 },
+    { "source": "docs_preview_dock_drill", "target": "lib_redteam_ui", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-drill.png", "source_location": "L1", "weight": 1.0 },
+    { "source": "docs_preview_rules", "target": "lib_rules", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\rules.png", "source_location": "L1", "weight": 1.0 },
+    { "source": "docs_preview_own_servers", "target": "lib_net_scope", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\own-servers.png", "source_location": "L1", "weight": 1.0 },
+    { "source": "docs_preview_settings", "target": "lib_core_applypatches", "relation": "references", "confidence": "AMBIGUOUS", "confidence_score": 0.3, "source_file": "E:\\完成项目\\dsh-purge\\docs\\preview\\settings.png", "source_location": "L1", "weight": 1.0 },
+    { "source": "docs_banner_stale_patch_count", "target": "docs_banner", "relation": "rationale_for", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\docs\\banner.svg", "source_location": "L17", "weight": 1.0 },
+    { "source": "docs_banner_stale_patch_count", "target": "release_notes_dead_patch_scrub", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "E:\\完成项目\\dsh-purge\\docs\\banner.svg", "source_location": "L17", "weight": 1.0 }
+  ],
+  "hyperedges": [
+    { "id": "readme_preview_screenshots", "label": "README 界面预览截图组（清洗 / 授权 / 演练台 / 补丁 / 规则集 / 自己的服务器）", "nodes": ["docs_preview_dock_clean", "docs_preview_dock_auth", "docs_preview_dock_drill", "docs_preview_settings", "docs_preview_rules", "docs_preview_own_servers"], "relation": "participate_in", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "E:\\完成项目\\dsh-purge\\README.md" }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-clean.png": 1,
+    "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-auth.png": 1,
+    "E:\\完成项目\\dsh-purge\\docs\\preview\\dock-drill.png": 1,
+    "E:\\完成项目\\dsh-purge\\docs\\preview\\rules.png": 1,
+    "E:\\完成项目\\dsh-purge\\docs\\preview\\settings.png": 1,
+    "E:\\完成项目\\dsh-purge\\docs\\preview\\own-servers.png": 1,
+    "E:\\完成项目\\dsh-purge\\docs\\preview\\own-servers-en.png": 1,
+    "E:\\完成项目\\dsh-purge\\docs\\banner.svg": 18
+  }
+}

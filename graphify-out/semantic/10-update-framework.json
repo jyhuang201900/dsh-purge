@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    { "id": "docs_update_framework_channel_lane", "label": "渠道双车道与钉选（stable=master / beta，pin 固定旧版本）", "file_type": "concept", "source_file": "lib/update.js", "source_location": "L13", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "插件只允许用户在面板手动更新，启动路径永不自动升（autoUpdateIfNeeded 返回 skipped=manual-only）——版本适配依赖本机宿主，自动升级会把补丁锚点打到没验证过的宿主上。" },
+    { "id": "docs_update_framework_marker", "label": "官方客户端升级回写标记 dsh-purge-reapply-asar", "file_type": "concept", "source_file": "lib/official-update.js", "source_location": "L5", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "闭环三段：重启 wscript 在 resources 下写 marker → 下次启动 lib/index.js 读 marker → 清 marker 并清掉残留的 app.dshpurge-prev* 目录。宿主 EXE 自更新会换掉 asar，没有这个标记就没人知道补丁已经随旧 asar 一起没了。" },
+    { "id": "docs_update_framework_reapply_heal", "label": "宿主重置后的补丁判失与 applied stamp 自愈", "file_type": "concept", "source_file": "lib/reapply.js", "source_location": "L212", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "空 sha 或缺失 installed-rev 会让 settle 每次启动都 reapply+restart（无限重启）；#59/#61 还要求自愈重启不反复弹浏览器窗口。" },
+    { "id": "lib_update_update_ledger", "label": "updateLedger()：渠道/升级史/守卫的对外读点", "file_type": "concept", "source_file": "lib/update.js", "source_location": "L188", "source_url": null, "captured_at": null, "author": null, "contributor": null, "rationale": "version-history.json 原本只被 pushHistory 自己读去做同 ref 去重，auto-update-guard.json 更是只写不读——按「记了但没人读 = 没有这个功能」，这两个台账此前不构成功能；现在 checkUpdate / autoUpdateIfNeeded / CLI --status 三处都读它。" }
+  ],
+  "edges": [
+    { "source": "docs_update_framework_marker", "target": "lib_official_update_upgrademarkerexists", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/official-update.js", "source_location": "L17", "weight": 1.0 },
+    { "source": "docs_update_framework_marker", "target": "lib_official_update_clearupgrademarker", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/official-update.js", "source_location": "L22", "weight": 1.0 },
+    { "source": "docs_update_framework_marker", "target": "lib_official_update_clearstaleextractedapps", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/official-update.js", "source_location": "L28", "weight": 1.0 },
+    { "source": "docs_update_framework_marker", "target": "lib_official_update_wshliteral", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/official-update.js", "source_location": "L39", "weight": 1.0 },
+    { "source": "docs_update_framework_marker", "target": "lib_index", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/index.js", "source_location": "L889", "weight": 1.0 },
+    { "source": "docs_update_framework_channel_lane", "target": "lib_update_channels", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L17", "weight": 1.0 },
+    { "source": "docs_update_framework_channel_lane", "target": "lib_update_readchannelstate", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L142", "weight": 1.0 },
+    { "source": "docs_update_framework_channel_lane", "target": "lib_update_switchversion", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L1079", "weight": 1.0 },
+    { "source": "docs_update_framework_channel_lane", "target": "lib_update_autoupdateifneeded", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L1112", "weight": 1.0 },
+    { "source": "docs_update_framework_channel_lane", "target": "lib_update_isbetaname", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L94", "weight": 1.0 },
+    { "source": "docs_update_framework_channel_lane", "target": "readme", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "README.md", "source_location": "L345", "weight": 1.0 },
+    { "source": "docs_update_framework_reapply_heal", "target": "lib_reapply_patcheslostafterhostreset", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/reapply.js", "source_location": "L212", "weight": 1.0 },
+    { "source": "docs_update_framework_reapply_heal", "target": "lib_reapply_healemptyappliedstamp", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/reapply.js", "source_location": "L71", "weight": 1.0 },
+    { "source": "docs_update_framework_reapply_heal", "target": "lib_reapply_readappliedstamp", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/reapply.js", "source_location": "L37", "weight": 1.0 },
+    { "source": "docs_update_framework_reapply_heal", "target": "lib_reapply_shouldskipsettlerestart", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/reapply.js", "source_location": "L264", "weight": 1.0 },
+    { "source": "docs_update_framework_reapply_heal", "target": "lib_reapply_ensureinstalledrevseed", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/reapply.js", "source_location": "L240", "weight": 1.0 },
+    { "source": "docs_update_framework_reapply_heal", "target": "workbuddy_ai_memory_2026_10_22_liangshen_override", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": ".workbuddy-ai/memory/2026-10-22.md", "source_location": "L38", "weight": 1.0 },
+    { "source": "lib_update_update_ledger", "target": "lib_update_readhistory", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L177", "weight": 1.0 },
+    { "source": "lib_update_update_ledger", "target": "lib_update_pushhistory", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L183", "weight": 1.0 },
+    { "source": "lib_update_update_ledger", "target": "lib_update_markautoupdateguard", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L82", "weight": 1.0 },
+    { "source": "lib_update_update_ledger", "target": "lib_update_checkupdate", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js", "source_location": "L759", "weight": 1.0 },
+    { "source": "lib_update_update_ledger", "target": "bin_dsh_purge", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "bin/dsh-purge.js", "source_location": "L52", "weight": 1.0 },
+    { "source": "lib_update_update_ledger", "target": "lib_update_withdrawnversion", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "lib/update.js", "source_location": "L98", "weight": 1.0 },
+    { "source": "release_notes", "target": "docs_update_framework_channel_lane", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L216", "weight": 1.0 },
+    { "source": "release_notes", "target": "docs_update_framework_reapply_heal", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L211", "weight": 1.0 },
+    { "source": "lib_reapply", "target": "release_notes", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L211", "weight": 1.0 }
+  ],
+  "hyperedges": [
+    { "id": "update_framework_ledgers", "label": "更新框架三份台账：channel.json（有读点）/ version-history.json（新增读点）/ auto-update-guard.json（此前只写不读）", "nodes": ["lib_update_update_ledger", "docs_update_framework_channel_lane", "lib_update", "lib_update_readchannelstate"], "relation": "participate_in", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/update.js" },
+    { "id": "host_upgrade_resilience", "label": "宿主自更新抗断链：wscript 写 marker → index 读 → reapply 回写 → 清 prev 目录", "nodes": ["docs_update_framework_marker", "docs_update_framework_reapply_heal", "lib_index", "lib_reapply"], "relation": "form", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/official-update.js" }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "lib/update.js": 1121,
+    "lib/reapply.js": 400,
+    "lib/official-update.js": 52,
+    "bin/dsh-purge.js": 147,
+    "lib/index.js": 2609
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "nodes": [],
+  "edges": [
+    { "source": "docs_v1_1_34_prompt_inject_web_pentest_slots", "target": "lib_default_prompt_inject_five_phase_spine", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "docs/v1.1.34-prompt-inject.md", "source_location": "L253", "weight": 1.0 },
+    { "source": "readme_net_scope_allowlist", "target": "client", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "README.md", "source_location": "L383", "weight": 1.0 },
+    { "source": "readme_workspace_baseline_policy", "target": "lib_identity_isworkspacebaselinesection", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "README.md", "source_location": "L446", "weight": 1.0 },
+    { "source": "release_notes_skill_count_growth", "target": "lib_redteam_score_rules", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L66", "weight": 1.0 },
+    { "source": "readme_zh_cn", "target": "readme_en", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "README.zh-CN.md", "source_location": "L1", "weight": 1.0 },
+    { "source": "readme_zh_cn", "target": "lib_index", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "README.zh-CN.md", "source_location": "L1", "weight": 1.0 }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {}
+}

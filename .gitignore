@@ -38,3 +38,11 @@ default-prompt-inject.md
 /official-harness-payload.7z
 *.asar
 *.asar.bak
+
+# graphify 图谱：手写语义层与报告入库，生成物不入库（npm run graphify 可重出）
+graphify-out/*
+!graphify-out/semantic/
+!graphify-out/GRAPH_REPORT.md
+
+# .workbuddy-ai/ 是项目记忆台账（发版流程与教训），语义层直接引用它 —— 决策：入库，不忽略
+# .workbuddy-ai/

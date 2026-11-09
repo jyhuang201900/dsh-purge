@@ -1,0 +1,38 @@
+{
+  "nodes": [],
+  "edges": [
+    { "source": "skills_redteam_oob_verification_dns_vs_http", "target": "skills_redteam_injection_payloads_oob_dns", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "skills/redteam/oob-verification.md", "source_location": "L40", "weight": 1.0 },
+    { "source": "skills_redteam_privesc_persistence_three_questions", "target": "skills_redteam_shell_handler", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "skills/redteam/privesc-persistence.md", "source_location": "L11", "weight": 1.0 },
+    { "source": "skills_redteam_secdev_boundary_bastion_map", "target": "skills_redteam_iot_iiot_netdev", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "skills/redteam/secdev-boundary.md", "source_location": "L73", "weight": 1.0 },
+    { "source": "skills_redteam_waf_bypass_origin_ip", "target": "skills_redteam_passive_recon", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "skills/redteam/waf-bypass.md", "source_location": "L28", "weight": 1.0 },
+    { "source": "skills_redteam_subdomain_bruteforce_wildcard_filter", "target": "skills_redteam_passive_recon", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "skills/redteam/subdomain-bruteforce.md", "source_location": "L45", "weight": 1.0 },
+    { "source": "skills_redteam_unauth_exploit_readonly_first", "target": "skills_redteam_nuclei_scan", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "skills/redteam/unauth-exploit.md", "source_location": "L15", "weight": 1.0 },
+    { "source": "skills_redteam_web_vuln_payloads_upload_three_gates", "target": "skills_redteam_webshell_toolkit_behinder_key", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "skills/redteam/web-vuln-payloads.md", "source_location": "L80", "weight": 1.0 },
+    { "source": "skills_redteam_credential_attack_web_form_verdict", "target": "skills_redteam_browser_automation", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "skills/redteam/credential-attack.md", "source_location": "L72", "weight": 1.0 },
+    { "source": "skills_redteam_lateral_movement_credential_reuse", "target": "skills_redteam_netexec_scan", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "skills/redteam/lateral-movement.md", "source_location": "L101", "weight": 1.0 },
+    { "source": "skills_redteam_gogo_intranet_port_presets", "target": "skills_redteam_subdomain_bruteforce", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "skills/redteam/gogo-intranet.md", "source_location": "L51", "weight": 1.0 },
+    { "source": "skills_redteam_asset_correlation_edge_types", "target": "skills_redteam_recon_pipeline", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "skills/redteam/asset-correlation.md", "source_location": "L11", "weight": 1.0 },
+    { "source": "lib_default_prompt_inject_five_phase_spine", "target": "lib_default_prompt_inject_attack_doctrine", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/default-prompt-inject.md", "source_location": "L211", "weight": 1.0 },
+    { "source": "release_notes_three_layer_sync", "target": "lib_default_prompt_inject_attack_doctrine", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L111", "weight": 1.0 },
+    { "source": "docs_inject_rewrite_1_1_34_head_position", "target": "docs_inject_rewrite_1_1_34_defense_layers", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "docs/注入方式改造方案-1.1.34化.md", "source_location": "L233", "weight": 1.0 },
+    { "source": "docs_inject_rewrite_1_1_34_hardcoded_strip_risk", "target": "release_notes_dead_patch_scrub", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "docs/注入方式改造方案-1.1.34化.md", "source_location": "L100", "weight": 1.0 },
+    { "source": "docs_adapt_0_2_1_rc_2_broken_three", "target": "docs_adapt_0_2_1_rc_2_dead_patch_40", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "docs/适配-0.2.1-rc.2-差异分析.md", "source_location": "L170", "weight": 1.0 },
+    { "source": "release_notes_layered_dock", "target": "client", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "release-notes.md", "source_location": "L228", "weight": 1.0 },
+    { "source": "readme_idempotent_apply", "target": "lib_uninstall", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "README.md", "source_location": "L477", "weight": 1.0 },
+    { "source": "readme_dual_host_profiles", "target": "lib_desktop", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "README.md", "source_location": "L28", "weight": 1.0 },
+    { "source": "lib_default_prompt_inject_zh_draft_review", "target": "lib_default_prompt_inject_zh_scoped_rules_dynamic", "relation": "conceptually_related_to", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "lib/default-prompt-inject.zh.md", "source_location": "L227", "weight": 1.0 },
+    { "source": "docs_v1_1_34_prompt_inject_ctf_contract", "target": "lib_default_prompt_inject_lcs_persona", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.75, "source_file": "docs/v1.1.34-prompt-inject.md", "source_location": "L376", "weight": 1.0 },
+    { "source": "docs_v1_1_34_prompt_inject_zero_latency", "target": "lib_default_prompt_inject_attack_doctrine", "relation": "semantically_similar_to", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "docs/v1.1.34-prompt-inject.md", "source_location": "L151", "weight": 1.0 }
+  ],
+  "hyperedges": [
+    { "id": "free_internal_map_pattern", "label": "「免费内网地图」模式：堡垒机托管清单 / SNMP 路由表 / CORS 回调白名单", "nodes": ["skills_redteam_secdev_boundary_bastion_map", "skills_redteam_iot_iiot_netdev", "skills_redteam_asset_correlation_edge_types"], "relation": "form", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "skills/redteam/secdev-boundary.md" },
+    { "id": "store_discipline_pattern", "label": "落库纪律的共同形态：先查库、只读优先、实测才算数", "nodes": ["skills_redteam_unauth_exploit_readonly_first", "skills_redteam_nuclei_scan", "skills_redteam_lateral_movement_credential_reuse", "skills_redteam_netexec_scan"], "relation": "participate_in", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "skills/redteam/nuclei-scan.md" }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "skills/redteam": 0,
+    "release-notes.md": 0,
+    "docs": 0
+  }
+}

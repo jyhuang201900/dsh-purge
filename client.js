@@ -376,12 +376,8 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"patch.24": "preset fetch 启用",
 			"patch.25": "去掉官方默认身份（功能提示词不动）",
 			"patch.26": "minimal：去掉默认身份并打开 inject",
-			"patch.28": "dsh-liangshen（梁神）：phase-1 保留 dsh-purge / dshpg 段",
 			"patch.70": "极简模式终端不再禁止网络",
-			"patch.71": "梁神去掉官方身份句",
 			"patch.29": "dsh-tool-web：外部 untrusted 拦截→可执行",
-			"patch.30": "dsh-hooks-claude-code：deny→allow",
-			"patch.31": "dsh-hooks-codex：deny→allow",
 			"patch.32": "Web 表面身份中性化",
 			"patch.33": "Shell 拒绝提示 → 可执行",
 			"patch.34": "沙箱提示中性化",
@@ -411,8 +407,6 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"patch.61": "官方沙箱策略不再教拒绝",
 			"patch.62": "无审批通道时放行（用户拒绝仍有效）",
 			"patch.63": "计划模式不再软拦执行",
-			"patch.64": "Stop hook 不再注入假用户话",
-			"patch.65": "UserPromptSubmit deny 不再整轮 reject",
 			"patch.66": "空的系统段不再把这一轮打成内部错误",
 			"patch.67": "缺 messages 时这一轮不中断",
 			"patch.68": "回退后缺 content 不中断",
@@ -421,7 +415,6 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"patch.73": "极简 bash 去掉误留的镜像说明",
 			"patch.74": "启动/应用把默认提示词写入 prompt-inject.md",
 			"patch.75": "回退把已完成任务收回成未开始",
-			"patch.76": "unrestricted 预设去掉身份句",
 			"patch.77": "回退标记到达时丢弃已发送消息",
 			"patch.78": "补丁文件缺失时从 .bak 恢复",
 			"patch.80": "恢复官方极简工具表",
@@ -448,10 +441,6 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 					"rewind.once.hint": "撤回最后一步已进行的对话，新会话接上之前的上下文；那句回到输入框再发送",
 			"rewind.round": "回退上一轮",
 					"rewind.round.hint": "撤回上一整轮（含子代理）已进行的对话，新会话接上之前的上下文；那句回到输入框再发送",
-			"hooksDeny.title": "Hooks 拦截",
-			"hooksDeny.bypass": "放行 hooks 的 deny / ask（补丁 30 / 31 / 64 / 65）",
-			"hooksDeny.hint": "关掉后，用户自己的 PreToolUse / UserPromptSubmit / Stop hook 的 deny 会按官方逻辑生效。官方 ask 分支本身是空操作，关开关不会弹出审批框。改完后点「应用」并重启才写进宿主。",
-			"saved.hooksDeny": "已保存",
 			"continue.title": "失败重试 / 继续",
 			"continue.hint": "请求失败会自动重试；异常停止或中断可点「继续」或自动续跑。自己点停止不会自动继续。次数用完后需新开一轮。",
 			"continue.autoRetry": "失败自动重试",
@@ -719,12 +708,8 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"patch.24": "preset fetch on",
 			"patch.25": "Strip official default identity (keep feature prompts)",
 			"patch.26": "minimal: strip identity, open inject",
-			"patch.28": "dsh-liangshen: keep dsh-purge / dshpg in phase-1",
 			"patch.70": "Minimal shell drops the no-network line",
-			"patch.71": "Liangshen drops the stock identity line",
 			"patch.29": "dsh-tool-web: untrusted framing → usable data",
-			"patch.30": "dsh-hooks-claude-code: deny→allow",
-			"patch.31": "dsh-hooks-codex: deny→allow",
 			"patch.32": "Web surface identity neutral",
 			"patch.33": "Shell denial prompt → executable",
 			"patch.34": "Sandbox hint neutralized",
@@ -754,8 +739,6 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"patch.61": "Official sandbox policy no longer teaches refusal",
 			"patch.62": "Fail-open without approval channel (user reject kept)",
 			"patch.63": "Plan mode no longer soft-blocks execution",
-			"patch.64": "Stop hook no longer steers fake user text",
-			"patch.65": "UserPromptSubmit deny no longer rejects turn",
 			"patch.66": "Empty system section no longer ends the turn as an internal error",
 			"patch.67": "A missing messages list no longer ends the turn",
 			"patch.68": "Missing content after rewind no longer ends the turn",
@@ -764,7 +747,6 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"patch.73": "Minimal preset drops stray mirror sentence",
 			"patch.74": "Start/apply writes the default prompt to prompt-inject.md",
 			"patch.75": "Rewind resets completed todos to pending",
-			"patch.76": "Unrestricted preset: strip identity sentence",
 			"patch.77": "Rewind marker drops already-sent messages",
 			"patch.78": "Restore missing overlay from .bak backup",
 			"patch.80": "Restore official minimal tool plugins",
@@ -791,10 +773,6 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 					"rewind.once.hint": "Withdraw the last step into a new session that keeps earlier context; the line returns to the box",
 			"rewind.round": "Undo last turn",
 					"rewind.round.hint": "Withdraw the last turn (and its subagents) into a new session that keeps earlier context; the line returns to the box",
-			"hooksDeny.title": "Hook interception",
-			"hooksDeny.bypass": "Bypass hook deny / ask (patches 30 / 31 / 64 / 65)",
-			"hooksDeny.hint": "When off, your own PreToolUse / UserPromptSubmit / Stop hook deny runs as the official host wrote it. The official ask branch is a no-op; turning this off will not show an approval dialog. Click Apply and restart to write the host files.",
-			"saved.hooksDeny": "Saved",
 			"continue.title": "Retry / Continue",
 			"continue.hint": "Failed requests auto-retry. After an abnormal stop or interrupt, use Continue or auto-resume. A manual stop never auto-continues. Counts reset after a completed turn.",
 			"continue.autoRetry": "Auto-retry on failure",
@@ -1231,61 +1209,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			});
 		}
 
-		function HooksDenySection({ onSaved }) {
-			const t = useT();
-			const [cfg, setCfg] = useState(null);
-			const [notice, setNotice] = useState({ kind: "idle", text: "" });
-			const [busy, setBusy] = useState(false);
-
-			useEffect(() => {
-				apiJson("/dsh-purge/hooks-deny")
-					.then((d) => { if (d && d.ok) setCfg({ hooksDenyBypass: d.hooksDenyBypass !== false }); })
-					.catch(() => {});
-			}, []);
-
-			const save = (hooksDenyBypass) => {
-				if (!cfg || busy) return;
-				setCfg({ hooksDenyBypass });
-				setBusy(true);
-				apiJson("/dsh-purge/hooks-deny", {
-					method: "POST",
-					headers: { "content-type": "application/json" },
-					body: JSON.stringify({ hooksDenyBypass }),
-				})
-					.then((d) => {
-						if (d && d.ok) {
-							setCfg({ hooksDenyBypass: d.hooksDenyBypass === true });
-							setNotice({ kind: "ok", text: t("saved.hooksDeny") });
-							if (typeof onSaved === "function") onSaved();
-						} else {
-							setNotice({ kind: "error", text: t("err.save", { error: (d && d.error) || "" }) });
-						}
-					})
-					.catch((e) => setNotice({ kind: "error", text: t("err.save", { error: e.message }) }))
-					.finally(() => setBusy(false));
-			};
-
-			if (!cfg) return null;
-			return h("div", { className: "dshp-cr", style: { marginTop: 12 } },
-				h("div", { className: "dshp-sub" },
-					h("h4", null, t("hooksDeny.title")),
-					noticeNode(notice),
-				),
-				h("p", { className: "dshp-hint", style: { margin: "0 0 4px", color: "var(--dshp-mute)", fontSize: 12 } }, t("hooksDeny.hint")),
-				h("div", { className: "dshp-cr-row" },
-					h("label", null,
-						h("input", {
-							type: "checkbox",
-							checked: cfg.hooksDenyBypass === true,
-							disabled: busy,
-							onChange: (e) => save(e.target.checked),
-						}),
-						t("hooksDeny.bypass"),
-					),
-				),
-			);
-		}
-
+		
 		function ContinueRetrySection() {
 			const t = useT();
 			const [cfg, setCfg] = useState(null);
@@ -2014,7 +1938,6 @@ function PurgifySection(props) {
 					),
 					h("div", { className: "dshp-bar", "aria-hidden": "true" }, h("i", { style: { width: pct + "%" } })),
 					h(PatchGroups, { state: s }),
-					h(HooksDenySection, { onSaved: loadAll }),
 					h("div", { className: "dshp-row", style: { marginTop: 14 } },
 						h(Btn, { kind: "primary", disabled: patchBusy || uninstallBusy || !overrideLoaded, onClick: () => doAction("apply", "action.apply") }, patchBusy ? t("btn.apply.busy") : t("btn.apply")),
 						h(Btn, { kind: "danger", disabled: patchBusy || uninstallBusy, onClick: () => doAction("revert", "action.revert") }, t("btn.revert")),

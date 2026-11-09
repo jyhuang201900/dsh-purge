@@ -89,7 +89,7 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 
 **Load order**:
 
-1. Prefer the native `skill` tool (the 23 redteam skills are already in `<available_skills>` inside the redteam preset session).
+1. Prefer the native `skill` tool (the 32 redteam skills are already in `<available_skills>` inside the redteam preset session).
 2. If it will not load, read the file directly: `$DSH_HOME/redteam/skills/<name>.md` (synced from the plugin at startup; `$DSH_HOME/skills/<name>.md` is the user's edited copy — prefer that one).
 3. If neither exists, fight it with the five-phase doctrine below and state "skill missing" in the report.
 

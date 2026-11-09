@@ -1,3 +1,33 @@
+# 1.1.84
+
+## 中文
+
+对齐宿主 **dsh 0.2.2-rc.1**（本机 EXE 实测版本，cordis 4.1.0）。上一版只在 0.2.1-rc.2 上验证过：升级后破甲面静默缩水，面板却仍报「0 待清洗」。
+
+- **重锚 4 条必打补丁**：#14 ESCALATION_GRANT_UNCONDITIONAL（官方把 `displayReason` 内联对象改成 `escalationDisplayReason()` 调用）、#17 FS_OBSERVATION_INTENT_FREE（`editIntent` 改成转调 `requirePresent()`——写门一直生效，**编辑门在 0.2.2 上漏了**）、#74 ASSEMBLE_BEFORE_PRESTEP（`preStep` 在 `claimed` 与 `assemble` 之间插入 selection/toolSet，且 assemble 改内联对象）、#87 PREPARE_ASSEMBLE_USE_RETURNED（同一处重构的下游；缺它则 #74 调了 prepare 却没人用返回值）。
+- **三处是映射表问题、不是锚点漂**：#60 与 #54 属宿主包搬家（PTC 执行器拆成 `dsh-tool-executor-ptc`、交付物提示词拆成 `dsh-deliverable-file-references`，旧 key 落空却只报 skipped）；#62 的锚点本来就对，只差 `dsh-tools/lib/types/pipeline.js` 从没登记进映射表。
+- **#62 补第 5 档并逐分支核对**：`markersAny: true` 让「只打了一处」也报 applied——现场核对发现 `case 'unavailable'` 仍在 deny（与旧档只差一个换行）。补档后两个门都放行，原 deny 文案残留归零。
+- **#82 收锚**：打包注释 `//#region` 每次重打包都会变（0.2.2 已变成 `mime@4.1.1/…other.js`），不能当锚点；pattern 收窄到那行唯一 import 后，`DSH_PROFILE=desktop` 兜底在 0.2.2 上重新生效。
+- **可观测加强**：`dsh-purge --status` 改为分桶显示（已清洗 / 待清洗 / 锚点未命中 / 不适用 / 缺文件），并显示宿主版本、cordis 版本与 `dshTarget` 对齐告警——core 早就算好的 `patches_skipped` 之前没人显示。新增 `lib/host.js` 的 `dshHostVersion()` / `hostAlignment()`。
+- **借鉴同机插件**：桌面 profile 实装的 8 个第三方插件里 4 个声明 `engines.dsh`、3 个用自定义 `dsh.compatibility`。本版补上 `engines.dsh: ">=0.2.1-rc.2 <0.2.3-0"`（只承诺实测过的两档，不提前认领未验版本），`dshTarget` 提到 0.2.2-rc.1；顺带修掉 `package.json` 描述与 en 变体里残留的「23 技能」（实为 32）。
+- **实况**：0.2.2-rc.1 上 **74/76 已清洗、0 待清洗、0 不适用、0 缺文件**，与 0.2.1-rc.2 基线一致（2 条 skipped 是清理型 #80/#88）。**补丁只写盘，需重启 dsh 才进当前进程。**
+- **未安装项整体摘除**：删 7 条可选补丁（#28/#71 梁神、#30/#31/#64/#65 hooks、#76 自造 unrestricted 预设）与 `lib/hooks-deny.js` 整个模块——含 `/dsh-purge/hooks-deny` 端点、`hooksDenyBypass` 配置项、22 行面板文案。补丁总数 83 → **76**，面板从此 0 不适用 / 0 缺文件。梁神的三个 CMD 闪窗探测函数与 `listLiangshenBootstrapFiles` 保留：它们仍被 hide-console 的 ok 判定与 #24 预设族调用，不是死代码。
+- 另附知识图谱工具链：`scripts/graphify-sync.mjs` + `npm run graphify` + `docs/graphify-语义层规范.md`——语义层手写件进版本库、生成物不进，改图一条命令重出（守门会拦悬空边、非法 file_type、缺置信分）。
+
+## English
+
+Aligned to host **dsh 0.2.2-rc.1** (measured on this machine; cordis 4.1.0). The previous release was only verified on 0.2.1-rc.2: after the host upgrade the jailbreak surface silently shrank while the panel still reported “0 pending”.
+
+- **Re-anchored 4 mandatory patches**: #14 (official code replaced the inline `displayReason` object with an `escalationDisplayReason()` call), #17 (`editIntent` now delegates to `requirePresent()` — the write gate had stayed effective, **the edit gate was lost on 0.2.2**), #74 (`preStep` gained selection/toolSet steps before `assemble`, and assemble moved to an inline object argument), #87 (downstream of the same refactor; without it #74 calls prepare but nobody consumes the return value).
+- **Three were mapping-table gaps, not drifted anchors**: #60 and #54 follow host package moves (the PTC executor split into `dsh-tool-executor-ptc`, deliverable copy into `dsh-deliverable-file-references` — a dead key only ever shows as `skipped`), and #62's anchors were already correct; `dsh-tools/lib/types/pipeline.js` was simply never registered.
+- **Added a 5th variant for #62 and verified per branch**: `markersAny: true` reports applied even when only one branch landed — inspection showed `case 'unavailable'` still denied (one newline away from the old anchor). Both gates now fail open and no original deny copy remains.
+- **Tightened #82's anchor**: the `//#region` bundler comment changes on every repackage (now `mime@4.1.1/…other.js`), so it cannot be an anchor. Narrowing the pattern to the single unique import line restored the `DSH_PROFILE=desktop` fallback on 0.2.2.
+- **Observability**: `dsh-purge --status` now buckets results (cleaned / pending / anchor-missed / not-applicable / missing-file) and prints host version, cordis version and a `dshTarget` alignment warning — `patches_skipped` had long been computed in core but displayed by nobody. Added `dshHostVersion()` / `hostAlignment()` in `lib/host.js`.
+- **Borrowed from co-installed plugins**: of the 8 third-party plugins in the desktop profile, 4 declare `engines.dsh` and 3 use a custom `dsh.compatibility`. This release adds `engines.dsh: ">=0.2.1-rc.2 <0.2.3-0"` (only what was actually verified) and bumps `dshTarget`; it also fixes the stale “23 skills” claim in the package description and the English prompt variant (it is 32).
+- **Field state**: **74/76 cleaned, 0 pending, 0 not-applicable, 0 missing-file** on 0.2.2-rc.1, matching the 0.2.1-rc.2 baseline (the 2 `skipped` are the cleanup-type #80/#88). **Patches are written to disk only — restart dsh for the running process.**
+- **Uninstalled optionals scrubbed out**: 7 optional patches (#28/#71 liangshen, #30/#31/#64/#65 hooks, #76 a user-made unrestricted preset) and the whole `lib/hooks-deny.js` module — including the `/dsh-purge/hooks-deny` endpoint, the `hooksDenyBypass` config key and 22 panel copy lines. Patch total 83 → **76**; the panel now reports zero not-applicable and zero missing-file. The three liangshen console-flash helpers and `listLiangshenBootstrapFiles` stay: they are still called by the hide-console ok gate and by preset patch #24, so they are live code, not dead weight.
+- Also ships the knowledge-graph toolchain: `scripts/graphify-sync.mjs`, `npm run graphify` and `docs/graphify-语义层规范.md` — hand-written semantic files are versioned, generated artifacts are not, and the gatekeeper rejects dangling edges, illegal `file_type` and missing confidence.
+
 # 1.1.83
 
 ## 中文

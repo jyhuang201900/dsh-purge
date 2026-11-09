@@ -1,7 +1,7 @@
 {
   "name": "dsh-purge",
-  "version": "1.1.83",
-  "description": "DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。Jailbreak for every model — swap prompts per model. Built-in red-team attack doctrine and 23 drill skills.",
+  "version": "1.1.84",
+  "description": "DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。Jailbreak for every model — swap prompts per model. Built-in red-team attack doctrine and 32 drill skills.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -37,7 +37,8 @@
   "scripts": {
     "embed-prompt": "node scripts/embed-default-prompt.mjs",
     "check-anchors": "node scripts/check-anchors.mjs",
-    "build:client": "node scripts/build-client.mjs"
+    "build:client": "node scripts/build-client.mjs",
+    "graphify": "node scripts/graphify-sync.mjs --cluster"
   },
   "license": "SEE LICENSE IN LICENSE",
   "keywords": [
@@ -91,7 +92,8 @@
     "@deepseek-ai/cordis": "^4.0.1"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18",
+    "dsh": ">=0.2.1-rc.2 <0.2.3-0"
   },
-  "dshTarget": "0.2.1-rc.2"
+  "dshTarget": "0.2.2-rc.1"
 }

@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
+import fs from "node:fs";
+
 import * as core from "../lib/core.js";
 import * as rules from "../lib/rules.js";
 
 const args = process.argv.slice(2);
 
-function printStatus(state) {
+function printStatus(state, update) {
   const out = [];
   out.push("dsh-purge 状态 / Status");
   out.push("  宿主 / surface " + (state.surface || "web"));
@@ -24,7 +26,17 @@ function printStatus(state) {
   out.push(`  注入文件       ${state.override_path}`);
   out.push(`  注入状态       ${state.override_status}`);
   out.push("");
-  out.push(`  补丁 ${state.patches_applied}/${core.ALL_PATCHES.length} 已清洗, ${state.patches_pending} 待清洗`);
+  const tally = { applied: 0, pending: 0, skipped: 0, na: 0, missing_file: 0, other: 0 };
+  for (const p of core.ALL_PATCHES) {
+    const s = state.patch_status[p.id];
+    if (s === "applied" || s === "already") tally.applied += 1;
+    else if (s === "pending") tally.pending += 1;
+    else if (s === "skipped") tally.skipped += 1;
+    else if (s === "na") tally.na += 1;
+    else if (s === "missing_file") tally.missing_file += 1;
+    else tally.other += 1;
+  }
+  out.push(`  补丁 ${tally.applied}/${core.ALL_PATCHES.length} 已清洗, ${tally.pending} 待清洗, ${tally.skipped} 锚点未命中, ${tally.na} 不适用, ${tally.missing_file} 缺文件`);
   for (const p of core.ALL_PATCHES) {
     const s = state.patch_status[p.id];
     const mark = s === "applied" ? "✓" : s === "pending" ? "✗" : "·";
@@ -32,6 +44,18 @@ function printStatus(state) {
   }
   out.push("");
   out.push(`  shim: dsh.cmd=${state.shim_cmd}  dsh.ps1=${state.shim_ps1}  dsh=${state.shim_bin}`);
+  const upd = update || {};
+  out.push("");
+  const hostVer = upd.app || upd.runtime || "";
+  if (hostVer) {
+    const mark = upd.aligned === false ? "⚠ 不一致：需按新宿主核对锚点" : upd.aligned === true ? "一致" : "未知";
+    out.push(`  宿主版本     ${hostVer}${upd.cordis ? `（cordis ${upd.cordis}）` : ""}`);
+    out.push(`  适配声明     dshTarget=${upd.target || "?"} → ${mark}`);
+    if (upd.aligned === false) out.push(`  锚点核对     跑 npm run check-anchors 对 ${hostVer} 复核（skipped≠已清洗）`);
+  }
+  out.push(`  更新框架 渠道=${upd.channelLabel || upd.channel || "?"}${upd.pin ? ` 钉选=${upd.pin}` : " 钉选=无"}`);
+  out.push(`  上次升级 ${upd.lastLabel || "无记录"}`);
+  out.push(`  升级守卫 ${upd.guardLabel || "无"}`);
   return out.join("\n");
 }
 
@@ -50,7 +74,27 @@ async function main() {
   }
 
   const state = await core.gatherState();
-  console.log(printStatus(state));
+  // 更新框架的台账原本只被面板读；CLI 也读一份，不开面板也能看到渠道与升级史。
+  const updMod = await import("../lib/update.js");
+  const hostMod = await import("../lib/host.js");
+  const pkg = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+  const host = hostMod.dshHostVersion();
+  const align = hostMod.hostAlignment(pkg.dshTarget, host.app || host.runtime);
+  const ledger = updMod.updateLedger(3);
+  const last = ledger.last;
+  const updateInfo = {
+    ...updMod.channelPublic(),
+    ...host,
+    target: pkg.dshTarget,
+    aligned: align.aligned,
+    lastLabel: last
+      ? `${last.version || last.ref} · ${last.ref}${last.sha ? ` · ${last.sha}` : ""} · ${String(last.at || "").slice(0, 10)}`
+      : "无记录（面板从未执行更新）",
+    guardLabel: ledger.guard
+      ? `${ledger.guard.ref} · ${ledger.guard.sha || "-"} · ${String(ledger.guard.at || "").slice(0, 10)}`
+      : "无（auto-update-guard.json 未生成）",
+  };
+  console.log(printStatus(state, updateInfo));
   console.log("");
 
   if (mode === "--apply") {
