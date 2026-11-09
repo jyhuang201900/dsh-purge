@@ -19,7 +19,8 @@ graphify-out/
 │  ├─ 09-isolated-bridges.json    同上：清零度数 ≤1 的孤立概念
 │  ├─ 10-update-framework.json    更新框架（渠道/台账/marker/自愈）
 │  ├─ 11-restart-family.json      重启家族（web/desktop/uninstall + env 兜底分叉）
-│  └─ 12-host-alignment.json      宿主版本对齐（0.2.2-rc.1 漂移 / 分桶可观测 / 生态约定对照）
+│  ├─ 12-host-alignment.json      宿主版本对齐（0.2.2-rc.1 漂移 / 分桶可观测 / 生态约定对照）
+│  └─ 13-dev-gates.json           工程闸门（五关 verify / 双语一致性 / 清单一致性 / align 建议行）
 ├─ ast-baseline.json    AST 基线（脚本冻结，勿手改）
 ├─ graph.json           交付图（生成物）
 ├─ graph.html           交互视图（生成物）
