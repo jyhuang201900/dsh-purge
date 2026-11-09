@@ -9,7 +9,7 @@ DeepSeek Harness (dsh) 破甲插件：清洗宿主提示词 + 84→83→76 条�
 2. 改 lib/default-prompt-inject.zh.md 保持中英同步；
 3. package.json + 三份 README（Version 行 + dsh:// 链接 version=）一起 bump；release-notes.md 中英双段置顶；
 4. `node --check` 全部改动 JS + store.js 导入测试 + preset YAML 解析验证；
-5. git commit + **push 必须加 `-c http.sslBackend=openssl`**（schannel 报 CRYPT_E_REVOCATION_OFFLINE）；
+5. git commit + **push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`**（schannel 报 CRYPT_E_REVOCATION_OFFLINE；2026-11-09 实测纯 openssl 还会撞 `TLS connect error: wrong version number`，加 HTTP/1.1 才过——同一族 GitHub 网络毛病，与「git 拉包 early EOF」齐名）；
 6. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 里 dsh-purge 的 tarball SHA → `node <runtime pnpm.cjs> update dsh-purge`。
    - 本机 git 协议拉 GitHub 常 early EOF → specifier 用 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>` 直链（现钉 94ffe60 = 1.1.80）；
    - pnpm/node 用宿主自带：C:\Users\Administrator\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\{node\bin\node.exe, pnpm\bin\pnpm.cjs}；
