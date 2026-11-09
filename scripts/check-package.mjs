@@ -174,6 +174,20 @@ else if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对
 else if (fileKeys !== PLANE_BASELINE.targetFileKeys) problems.push(`targetFiles ${fileKeys} 个键，基线 ${PLANE_BASELINE.targetFileKeys}：文件映射增减要同步状态文案`);
 notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 ${fileKeys === -2 ? "跳过" : fileKeys}（与文档一致）`);
 
+// 19) 入口清单对账：package.json 里每个 npm script 都必须在两份 README 中出现。
+//     本轮实测：加了 scenario / probe:gates 等命令后，README 只提到 14 个里的 7 个 —— 没人知道的门等于半个门。
+{
+  const scriptNames = Object.keys(pkg.scripts || {});
+  for (const rel of ["README.md", "README.en.md"]) {
+    const fp = path.join(root, rel);
+    if (!fs.existsSync(fp)) continue;
+    const body = fs.readFileSync(fp, "utf8");
+    const miss = scriptNames.filter((n) => !body.includes(n));
+    if (miss.length) problems.push(`${rel} 漏写 ${miss.length} 个 npm 入口（${miss.slice(0, 4).join(", ")}${miss.length > 4 ? " …" : ""}）：新增命令要进文档，否则等于没有这道门`);
+  }
+  notes.push(`入口清单 ${scriptNames.length} 个（README 全覆盖）`);
+}
+
 // 15) 中英文案组数对账：README 里写的「N 组文案 / N zh/en copy keys」必须等于 locale/zh.json 的 key 数。
 //     本轮发现 README 还写着 328（实际 329）—— 数字不进门禁就是这个下场。
 const localeKeys = (() => {

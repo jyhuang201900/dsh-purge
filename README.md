@@ -408,7 +408,26 @@ npm run verify
 
 包自证里有一类**自我约束型断言**——它们不检查外部世界，只检查 purge 有没有偷偷变胖：闸门条数（文档说几关就得是几关）、发布清单与自更新清单不分叉、工具数（文档写的 N 个 == 源码 `purge_*` 定义数）、默认注入正文体积（≤ 33,000 字）、提示词层净增减（≤ 2,000 字；只有这一层真的烧 token，代码层增减不算）、中英文案组数。
 
-单项排查：`npm run check-size`（体积）、`npm run check:locale`（中英 329 组文案 key 一致性）、`npm run check:manifest`（自更新清单与发布清单不分叉）、`npm run check:package`（manifest 口径与全仓数量声明），或 `node scripts/verify.mjs --skip-size`。
+全部本地入口（14 个，逐个都有存在理由；少写一个就等于少一道门）：
+
+| 命令 | 管什么 |
+| --- | --- |
+| `npm run embed-prompt` | 把默认注入正文重封进 `lib/asset-table.js`（改了源必须跑，否则宿主拿旧稿） |
+| `npm run check-anchors` | 逐条补丁锚点对已发布宿主产物核对（`--old` 现在会自动推断上一档） |
+| `npm run check-size` | 每文件体积预算（默认上限 200KB） |
+| `npm run check:locale` | `client.js` 里中英两块 329 组文案 key 的一致性 |
+| `npm run build:locale` | 由 `locale/*.json` 生成内联块；`--check` 验源与内联不分叉 |
+| `npm run check:manifest` | 自更新拷贝清单与发布白名单不分叉 |
+| `npm run check:package` | manifest 字段、发布文件、全仓数量声明、生态 tag、闸门数、注入体积与平面基线 |
+| `npm run check:tools` | 工具面预算：结构、描述成本、返回值、可发现性 |
+| `npm run scenario` | 端到端情景：串 drill 的 op 逐步断言回读 + 真机只读探针 |
+| `npm run probe:gates` | 闸门反向探针总表：逐关改坏即红（没咬过的门等于不知道真假的门） |
+| `npm run verify` | 一条命令过八关 |
+| `npm run build:client` | 重打前端 bundle |
+| `npm run graphify` | 重建知识图谱（AST + 手写语义层） |
+| `npm run host-sync` | 把 profile 里的已安装副本指到当前 commit（按内容指纹核对，不看声明） |
+
+跑法：`node scripts/verify.mjs --skip-size` 可跳过体积关快速自检。
 
 ---
 

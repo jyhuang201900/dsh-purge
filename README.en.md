@@ -400,7 +400,26 @@ npm run verify
 
 Part of the package self-proof is a family of **self-restraint assertions**: they do not check the outside world, only whether purge has quietly fattened itself - the gate count (whatever the README claims must match the code), publish manifest vs self-update manifest, tool count (the N stated in docs == the number of `purge_*` definitions in source), default injected body size (<= 33,000 chars), prompt-layer net delta (<= 2,000 chars; only this layer actually burns tokens, code-layer changes do not) and the bilingual copy-key count.
 
-To check one gate alone: `npm run check-size`, `npm run check:locale` (329 zh/en copy keys must match), `npm run check:manifest` (self-update list must stay inside the publish list), `npm run check:package` (manifest fields and every user-facing count), or `node scripts/verify.mjs --skip-size`.
+All local entry points (14 of them, each with a reason to exist; a documented gap is a missing gate):
+
+| Command | What it guards |
+| --- | --- |
+| `npm run embed-prompt` | re-seal the default injected body into `lib/asset-table.js` (must run after editing the source) |
+| `npm run check-anchors` | check every patch anchor against published host artifacts (`--old` is now auto-derived) |
+| `npm run check-size` | per-file size budget (200KB default cap) |
+| `npm run check:locale` | key parity of the two inline dictionaries (329 zh/en copy keys) in `client.js` |
+| `npm run build:locale` | inline `locale/*.json` into client.js; `--check` proves source and inline agree |
+| `npm run check:manifest` | self-update copy list must not diverge from the publish whitelist |
+| `npm run check:package` | manifest fields, published files, every user-facing count, ecosystem tags, gate count, injection size, plane baselines |
+| `npm run check:tools` | tool-surface budget: structure, description cost, return size, discoverability |
+| `npm run scenario` | end-to-end drill scenario with read-back assertions plus a live read-only probe |
+| `npm run probe:gates` | reverse-probe table: every gate must turn red when broken (an unprobed gate is an unknown gate) |
+| `npm run verify` | one command, eight gates |
+| `npm run build:client` | rebuild the client bundle |
+| `npm run graphify` | rebuild the knowledge graph (AST + hand-written semantic layer) |
+| `npm run host-sync` | point the installed profile copy at the current commit (verified by content fingerprint, not by claim) |
+
+Quick self-check without the size gate: `node scripts/verify.mjs --skip-size`.
 
 ---
 
