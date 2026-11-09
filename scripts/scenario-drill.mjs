@@ -119,7 +119,8 @@ const main = async () => {
 
   // 10e) 资产面：登记（importBundle 包成单条）→ 评估（枚举静默回落要如实报）→ 测试回写
   await run("assets 空态引导", { op: "assets" }, has("共 0 条"), has("importBundle"));
-  await run("entity_add asset", { op: "entity_add", entity: "asset", target: "203.0.113.20", name: "nas-20" }, has("已写入"), has("资产共 1 条"));
+  await run("entity_add asset", { op: "entity_add", entity: "asset", target: "203.0.113.20", name: "nas-20" }, has("已写入"), has("表内现有 1 条"), has("新增 1 条"));
+  await run("entity_add asset 批量+去重", { op: "entity_add", entity: "asset", target: "203.0.113.20, 203.0.113.21, 203.0.113.20" }, has("提交 3 个"), has("新增 1 条（同 IP 走 upsert 不算新增）"), has("表内现有 2 条"));
   await run("update asset 评估", { op: "update", entity: "asset", target: "203.0.113.20", kind: "超优先级", text: "值得打" }, has("已评估"), has("不在枚举"), has("priority=medium"));
   await run("update asset 合法评估", { op: "update", entity: "asset", target: "203.0.113.20", kind: "high", value: "还有 445" }, has("priority=high"), has("潜在面=还有 445"));
   await run("update asset 测试回写", { op: "update", entity: "asset", target: "203.0.113.20", stage: "tested", text: "跑完 spray" }, has("已回写测试"), has("test_status=tested"));
