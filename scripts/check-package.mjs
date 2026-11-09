@@ -120,6 +120,37 @@ const dshDep = Object.keys(pkg.peerDependencies || {}).some((k) => k.startsWith(
 if (!dshDep) problems.push("包元数据没声明 @deepseek-ai/* 依赖（tier3）");
 notes.push(`目录站三级证据：tier1 README 安装命令 ${readmes.length - noInstall.length}/${readmes.length}、tier2 dsh.bundle=${bundle ? "有" : "无"}、tier3 dsh 依赖=${dshDep ? "有" : "无"}`);
 
+// 16) status 的 section 三方一致：渲染函数里实现的 section 数 == 参数表里声明的 boolean 数 == 描述里写的数量词。
+//     实现有、参数没声明 = 模型够不着的死功能；参数有、实现没有 = 骗模型的死字段；数量词不更新 = 口径腐烂（本轮就差点留下这一条）。
+const mtSrc = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");
+const fnStart = mtSrc.indexOf("export function defaultRenderStatus");
+const fnEnd = mtSrc.indexOf("export function buildModelTools");
+const implSections = fnStart < 0 || fnEnd < 0 ? null
+  : [...new Set([...mtSrc.slice(fnStart, fnEnd).matchAll(/if \(opts\.([a-z]+) === true\) \{/g)].map((m) => m[1]))];
+const stStart = mtSrc.indexOf('name: "purge_status"');
+const stEnd = mtSrc.indexOf('name: "purge_align"');
+const stBlock = stStart >= 0 && stEnd > stStart ? mtSrc.slice(stStart, stEnd) : "";
+const declaredParams = [...new Set([...stBlock.matchAll(/^\s+([a-z]+): \{ type: "boolean"/gm)].map((m) => m[1]))];
+const cnNum = { 一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10 };
+const descNumM = /([一二两三四五六七八九十]|\d+)个\s*section/.exec(stBlock);
+const descNum = descNumM ? (cnNum[descNumM[1]] ?? Number(descNumM[1])) : null;
+if (!implSections) problems.push("找不到 defaultRenderStatus 里的 section 实现（改名了？）");
+else if (!declaredParams.length) problems.push("purge_status 参数表里一个 boolean section 参数都没声明");
+else {
+  const missing = implSections.filter((k) => !declaredParams.includes(k));
+  const ghost = declaredParams.filter((k) => !implSections.includes(k));
+  if (missing.length) problems.push(`status 实现了 ${missing.join("/")} section 却没声明参数：模型够不着（死功能）`);
+  if (ghost.length) problems.push(`status 参数表声明了 ${ghost.join("/")} 但渲染函数没实现：骗模型的死字段`);
+  if (descNum === null) problems.push("status 描述里找不到「N个 section」的数量词（口径漂移或句子被改）");
+  else if (descNum !== implSections.length) problems.push(`status 描述写 ${descNum} 个 section，实现是 ${implSections.length} 个：加/减 section 要同步描述`);
+  else notes.push(`section 三方一致（实现 ${implSections.length} = 参数 = 描述）`);
+}
+
+// 17) 每档宿主版本必须有适配记录：docs/适配-<dshTarget>-差异分析.md
+const wantDoc = `docs/适配-${pkg.dshTarget || "?"}-差异分析.md`;
+if (!fs.existsSync(path.join(root, wantDoc))) problems.push(`缺适配记录 ${wantDoc}：改 dshTarget 那轮就要写（实测结论 + 归属判据，别留成口头账）`);
+else notes.push(`适配记录在位（${wantDoc}）`);
+
 // 15) 中英文案组数对账：README 里写的「N 组文案 / N zh/en copy keys」必须等于 locale/zh.json 的 key 数。
 //     本轮发现 README 还写着 328（实际 329）—— 数字不进门禁就是这个下场。
 const localeKeys = (() => {
