@@ -120,6 +120,23 @@ const dshDep = Object.keys(pkg.peerDependencies || {}).some((k) => k.startsWith(
 if (!dshDep) problems.push("包元数据没声明 @deepseek-ai/* 依赖（tier3）");
 notes.push(`目录站三级证据：tier1 README 安装命令 ${readmes.length - noInstall.length}/${readmes.length}、tier2 dsh.bundle=${bundle ? "有" : "无"}、tier3 dsh 依赖=${dshDep ? "有" : "无"}`);
 
+// 13) 工具数对账：README 里写的「N 个工具」必须等于源码里的 purge_* 定义数。
+//     不加这条的话，多接一个工具就会让文档静默变陈旧（本轮就是这样：README 还写 9，实际已经 10）。
+const toolSrc = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");
+const toolCount = (toolSrc.match(/name: "purge_[a-z_]+"/g) || []).length;
+if (!toolCount) problems.push("源码里一个 purge_* 工具定义都没找到（改名了？）");
+for (const [rel, rex, why] of [
+  ["README.md", /(\d+) 个工具：status/, "中文工具数"],
+  ["README.en.md", /(\d+) tools?: status/, "英文工具数"],
+]) {
+  const fp = path.join(root, rel);
+  if (!fs.existsSync(fp)) continue;
+  const mm = new RegExp(rex.source).exec(fs.readFileSync(fp, "utf8"));
+  if (!mm) { problems.push(`${rel} 里找不到「${why}」的表述（口径漂移）`); continue; }
+  if (Number(mm[1]) !== toolCount) problems.push(`${rel} 写 ${mm[1]} 个工具，源码实际 ${toolCount} 个：加/减工具要同步文档`);
+}
+if (toolCount) notes.push(`工具数 ${toolCount}（文档口径一致）`);
+
 // 12) 注入正文体积预算：这是「不许堆叠」唯一能被机器看的量 —— 默认注入越长，每个会话的固定成本越高。
 //     预算按 2026-11-09 实测 29,777 字放宽到 33,000（约 +11%），只防失控增长，不做常红灯。
 const INJECT_BUDGET = 33000;

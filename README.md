@@ -526,7 +526,7 @@ flowchart LR
 | `dsh-better-sidebar` | 文件树 / 编辑 / 变更 / 任务 / 侧聊合一 | 侧栏形态参考 |
 | `@panando/dsh-codex-harness`、`@xmanrui/dsh-im` | 编码 harness、IM 接入 | 与 purge 正交 |
 
-purge 给模型的入口有三条，共用同一张契约表（`lib/model-tools.js`，9 个工具：status / align / apply / revert / patch / update / rules / skills / drill）：
+purge 给模型的入口有三条，共用同一张契约表（`lib/model-tools.js`，10 个工具：status / align / apply / revert / patch / update / rules / skills / override / drill）：
 
 1. **dsh 会话内**：插件激活时直接 `ctx.tools.register`，模型看到 `purge_*`。
 2. **MCP over stdio**：`node bin/dsh-purge.js --mcp`，任何 MCP 客户端可连，不需要 dsh 在跑。

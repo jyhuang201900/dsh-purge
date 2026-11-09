@@ -514,7 +514,7 @@ Eight third-party dsh plugins are installed in this desktop profile; each owns o
 | `dsh-better-sidebar` | File tree / editor / changes / tasks / side chat | Sidebar shape reference |
 | `@panando/dsh-codex-harness`, `@xmanrui/dsh-im` | Coding harness, IM bridge | Orthogonal to purge |
 
-Purge hands capabilities to models through three entrances, all built from one contract table (`lib/model-tools.js`, 9 tools: status / align / apply / revert / patch / update / rules / skills / drill):
+Purge hands capabilities to models through three entrances, all built from one contract table (`lib/model-tools.js`, 10 tools: status / align / apply / revert / patch / update / rules / skills / override / drill):
 
 1. **Inside a dsh session**: registered via `ctx.tools` on activation, so the model sees `purge_*`.
 2. **MCP over stdio**: `node bin/dsh-purge.js --mcp`, connectable by any MCP client, no running dsh required.
