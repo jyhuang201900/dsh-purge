@@ -167,10 +167,12 @@ const scoreCount = await (async () => {
 })();
 if (scoreCount === -1) problems.push("读不到 score-rules（导入失败）");
 else if (scoreCount !== PLANE_BASELINE.scorePoints) problems.push(`得分点 ${scoreCount} 个，基线 ${PLANE_BASELINE.scorePoints}：改分值表要同步文档口径`);
-const fileKeys = (() => { try { return Object.keys(targetFiles(process.env.DSH_BASE || "") || {}).length; } catch { return -1; } })();
-if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对账）");
+const hostPresent = Boolean(process.env.DSH_BASE && fs.existsSync(process.env.DSH_BASE));
+const fileKeys = (() => { if (!hostPresent) return -2; try { return Object.keys(targetFiles(process.env.DSH_BASE) || {}).length; } catch { return -1; } })();
+if (fileKeys === -2) notes.push("映射基线：本机未装宿主（DSH_BASE 不存在），跳过对账而非判红");
+else if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对账）");
 else if (fileKeys !== PLANE_BASELINE.targetFileKeys) problems.push(`targetFiles ${fileKeys} 个键，基线 ${PLANE_BASELINE.targetFileKeys}：文件映射增减要同步状态文案`);
-notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 ${fileKeys}（与文档一致）`);
+notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 ${fileKeys === -2 ? "跳过" : fileKeys}（与文档一致）`);
 
 // 15) 中英文案组数对账：README 里写的「N 组文案 / N zh/en copy keys」必须等于 locale/zh.json 的 key 数。
 //     本轮发现 README 还写着 328（实际 329）—— 数字不进门禁就是这个下场。
