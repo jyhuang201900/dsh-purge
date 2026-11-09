@@ -23,6 +23,7 @@
     "!lib/default-prompt-inject.md",
     "bin",
     "docs",
+    "!docs/preview",
     "presets",
     "skills",
     "scripts",

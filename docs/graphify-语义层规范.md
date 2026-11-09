@@ -29,6 +29,8 @@ graphify-out/
 
 规则：**手写的只有 `semantic/`**，其余全是生成物。要改图就改 `semantic/`，然后重跑。
 
+发布边界：`graphify-out/` 进 git（`semantic/` + `GRAPH_REPORT.md`），但**不随 npm 包发布**——`package.json` 的 `files` 白名单里没有它，宿主运行时也不需要图谱。所以宿主副本里看不到 `graphify-out/` 属正常，不是丢文件。
+
 ## 2. 再生流程（可复制）
 
 ```sh
