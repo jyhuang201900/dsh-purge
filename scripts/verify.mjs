@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 用途：发版前一键自检——语法、体积预算、双语文案、清单一致性、包自证、工具面、JSON 合法性七关一起过（替代 README 里那串手工 node --check）。
+ * 用途：发版前一键自检——语法、体积预算、双语文案、清单一致性、包自证、工具面、端到端情景、JSON 合法性八关一起过（替代 README 里那串手工 node --check）。
  * 用法：node scripts/verify.mjs [--root PATH] [--skip-size]     # 默认跑全部三关
  * 依赖：Node ≥18；内部调用 node --check 与 scripts/check-size.mjs，零第三方包。
  * 验证：2026-11-09 在 dsh-purge 实跑通过（exit=0，五关全绿：语法 / 体积 / 双语 2×328 key 零漂移 / 清单 COPY_NAMES 全覆盖 / JSON 全合法）。各关计数以实跑输出为准，不写死在注释里。
@@ -79,7 +79,17 @@ if (!skipSize) {
   else notes.push(`工具面：${head.replace(/^工具面闸门：/, "")}`);
 }
 
-// 关 7：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
+// 关 7：端到端情景——把 drill 的 18 个 op 串成一条真实流程逐步断言回读（组合期最容易出「说谎的回读」）。
+if (!skipSize) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "scenario-drill.mjs")], { encoding: "utf8" });
+  const tail = (res.stdout || "").trim().split("\n").filter(Boolean).slice(-1)[0] || "";
+  if (res.status !== 0) {
+    const bad = (res.stdout || "").split("\n").filter((l) => l.includes("✗")).slice(0, 3).join(" / ");
+    failures.push(`情景测试未过：${bad || tail || (res.stderr || "").trim().split("\n")[0]}`);
+  } else notes.push(`情景：${tail.replace(/^情景测试：/, "")}`);
+}
+
+// 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
 const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))
   .concat(fs.readdirSync(path.join(root, "graphify-out", "semantic")).filter((f) => f.endsWith(".json")).map((f) => `graphify-out/semantic/${f}`));

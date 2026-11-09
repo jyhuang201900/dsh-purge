@@ -392,7 +392,7 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 
 ## Local checks
 
-One command runs seven gates (syntax / size budget / bilingual copy / manifest parity / package self-proof / tool surface / valid JSON); a non-zero exit means a gate failed:
+One command runs eight gates (syntax / size budget / bilingual copy / manifest parity / package self-proof / tool surface / end-to-end scenario / valid JSON); a non-zero exit means a gate failed:
 
 ```sh
 npm run verify
