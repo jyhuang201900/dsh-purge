@@ -120,6 +120,43 @@ const dshDep = Object.keys(pkg.peerDependencies || {}).some((k) => k.startsWith(
 if (!dshDep) problems.push("包元数据没声明 @deepseek-ai/* 依赖（tier3）");
 notes.push(`目录站三级证据：tier1 README 安装命令 ${readmes.length - noInstall.length}/${readmes.length}、tier2 dsh.bundle=${bundle ? "有" : "无"}、tier3 dsh 依赖=${dshDep ? "有" : "无"}`);
 
+// 15) 中英文案组数对账：README 里写的「N 组文案 / N zh/en copy keys」必须等于 locale/zh.json 的 key 数。
+//     本轮发现 README 还写着 328（实际 329）—— 数字不进门禁就是这个下场。
+const localeKeys = (() => {
+  try { return Object.keys(JSON.parse(fs.readFileSync(path.join(root, "locale", "zh.json"), "utf8"))).length; } catch { return 0; }
+})();
+if (!localeKeys) problems.push("读不到 locale/zh.json 的 key 数");
+else {
+  const CLAIMS = [
+    ["README.md", /(\d+)\s*组文案/, "中文「N 组文案」"],
+    ["README.zh-CN.md", /(\d+)\s*组文案/, "中文「N 组文案」"],
+    ["README.en.md", /(\d+)\s*zh\/en copy keys/, "英文「N zh/en copy keys」"],
+  ];
+  for (const [rel, rex, why] of CLAIMS) {
+    const fp = path.join(root, rel);
+    if (!fs.existsSync(fp)) continue;
+    const mm = rex.exec(fs.readFileSync(fp, "utf8"));
+    if (!mm) { problems.push(`${rel} 找不到${why}的表述（口径漂移或句子被删）`); continue; }
+    if (Number(mm[1]) !== localeKeys) problems.push(`${rel} 写 ${mm[1]} 组文案，locale/zh.json 实际 ${localeKeys} 个 key：改文案要同步文档`);
+  }
+  notes.push(`文案组数 ${localeKeys}（文档口径一致）`);
+}
+
+// 14) 提示词层净增减预算：76 条补丁里只有「提示词」层的增减真的进模型上下文。
+//     2026-11-09 实测 +904 字（占默认注入 29,777 的 3.0%），预算设 2,000（约 6.7%）——
+//     代码层净 +14,975 字不烧 token，别拿它当成本；0.2.0 兼容层与工具层实测是净减少（-1,162 / -1,589）。
+const PROMPT_NET_BUDGET = 2000;
+let promptNet = 0;
+for (const pt of ALL_PATCHES) {
+  if (!String(pt.layer || "").includes("提示词")) continue;
+  for (const r of pt.replacements || []) {
+    const pat = Array.isArray(r.pattern) ? r.pattern[0] : r.pattern;
+    promptNet += String(r.replace ?? "").length - String(pat ?? "").length;
+  }
+}
+if (promptNet > PROMPT_NET_BUDGET) problems.push(`提示词层净增 ${promptNet} 字，超预算 ${PROMPT_NET_BUDGET}：往 prompt 里加句子前先想能不能折进现有条款（代码层增减不计 token，不受此限）`);
+else notes.push(`提示词层净 ${promptNet > 0 ? "+" : ""}${promptNet} 字（预算 ${PROMPT_NET_BUDGET}）`);
+
 // 13) 工具数对账：README 里写的「N 个工具」必须等于源码里的 purge_* 定义数。
 //     不加这条的话，多接一个工具就会让文档静默变陈旧（本轮就是这样：README 还写 9，实际已经 10）。
 const toolSrc = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");

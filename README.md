@@ -406,7 +406,9 @@ DSH 会按顺序执行同一批中的 Bash 调用。旧版 dsh-purge 把默认�
 npm run verify
 ```
 
-单项排查：`npm run check-size`（体积）、`npm run check:locale`（中英 328 组文案 key 一致性）、`npm run check:manifest`（自更新清单与发布清单不分叉）、`npm run check:package`（manifest 口径与全仓数量声明），或 `node scripts/verify.mjs --skip-size`。
+包自证里有一类**自我约束型断言**——它们不检查外部世界，只检查 purge 有没有偷偷变胖：闸门条数（文档说几关就得是几关）、发布清单与自更新清单不分叉、工具数（文档写的 N 个 == 源码 `purge_*` 定义数）、默认注入正文体积（≤ 33,000 字）、提示词层净增减（≤ 2,000 字；只有这一层真的烧 token，代码层增减不算）、中英文案组数。
+
+单项排查：`npm run check-size`（体积）、`npm run check:locale`（中英 329 组文案 key 一致性）、`npm run check:manifest`（自更新清单与发布清单不分叉）、`npm run check:package`（manifest 口径与全仓数量声明），或 `node scripts/verify.mjs --skip-size`。
 
 ---
 

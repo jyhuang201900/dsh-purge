@@ -398,7 +398,9 @@ One command runs eight gates (syntax / size budget / bilingual copy / manifest p
 npm run verify
 ```
 
-To check one gate alone: `npm run check-size`, `npm run check:locale` (328 zh/en copy keys must match), `npm run check:manifest` (self-update list must stay inside the publish list), `npm run check:package` (manifest fields and every user-facing count), or `node scripts/verify.mjs --skip-size`.
+Part of the package self-proof is a family of **self-restraint assertions**: they do not check the outside world, only whether purge has quietly fattened itself - the gate count (whatever the README claims must match the code), publish manifest vs self-update manifest, tool count (the N stated in docs == the number of `purge_*` definitions in source), default injected body size (<= 33,000 chars), prompt-layer net delta (<= 2,000 chars; only this layer actually burns tokens, code-layer changes do not) and the bilingual copy-key count.
+
+To check one gate alone: `npm run check-size`, `npm run check:locale` (329 zh/en copy keys must match), `npm run check:manifest` (self-update list must stay inside the publish list), `npm run check:package` (manifest fields and every user-facing count), or `node scripts/verify.mjs --skip-size`.
 
 ---
 
