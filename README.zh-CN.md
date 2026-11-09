@@ -327,6 +327,8 @@ dsh-purge --uninstall
 ```sh
 # CLI
 dsh-purge --status
+
+另有一个手动入口：`node lib/reapply-cli.js` —— 不开宿主也能重刷已安装副本（它显式 `scheduleSwap: false`，不会替你安排重启）。**注意它的 `ok` 判据与 `--status` 不同源**（CLI 报 `applied=64` 时 `--status` 仍是 `74/76`，因为 reapply 在试验目录里自己验收并可能回滚），排障时两个都要看。
 dsh-purge --apply
 dsh-purge --align      # 对齐体检（只读）
 dsh-purge --tools      # 列出模型工具契约
@@ -443,6 +445,7 @@ npm run verify
 | `npm run scenario` | 端到端情景：串 drill 的 op 逐步断言回读 + 真机只读探针 |
 | `npm run probe:gates` | 闸门反向探针总表：逐关改坏即红（没咬过的门等于不知道真假的门） |
 | `npm run audit:skills` | 弹药层一致性：技能正文引用的 `redteam_*` 工具名、条令点名的技能，都必须真实存在 |
+| `npm run audit:graph` | 图谱孤儿审计：找零入边且无人提名的代码文件（有名分的手动 CLI 不算孤儿） |
 | `npm run verify` | 一条命令过八关 |
 | `npm run build:client` | 重打前端 bundle |
 | `npm run graphify` | 重建知识图谱（AST + 手写语义层） |
