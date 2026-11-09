@@ -116,7 +116,7 @@ if (gateCount) {
 
 // 9) 生态 tag 口径：这几个 tag 是目录站在用的主流 tag，且 purge 确实具备该能力（2026-11-09 用 /api/plugins 实测：
 //    deepseek-harness 36/50、cordis 6/50、mcp 5/50）。写进门禁是防止以后编辑 keywords 时被顺手删掉。
-const WANT_TAGS = ["deepseek-harness", "dsh-plugin", "mcp", "cordis"];
+const WANT_TAGS = ["deepseek-harness", "dsh-plugin", "mcp", "cordis", "skill"];
 const kw = Array.isArray(pkg.keywords) ? pkg.keywords : [];
 const lost = WANT_TAGS.filter((k) => !kw.includes(k));
 if (lost.length) problems.push(`keywords 丢了生态主流 tag：${lost.join(", ")}（目录站在用，且 purge 确实具备）`);
