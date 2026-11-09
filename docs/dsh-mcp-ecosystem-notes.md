@@ -67,6 +67,13 @@
    - `security:20` 是安全类里唯一有点量的英文 tag，purge 原本**没有** → 本轮补上（purge 的定位就是安全评测与进攻条令，事实成立）。
    - 据此把 `check-package` 第 9 项的 `WANT_TAGS` 扩到 7 个（`deepseek-harness / dsh-plugin / mcp / cordis / skill / skills / security`），全部满足"生态在用 + purge 真具备"。
 
+## 7b. 长尾抽样（补头部样本的盲区）
+
+按 star 排序只看过前 2000 条，所以补抽 `page=40/80/120/160/202`（163 条，**star 全为 0**，确为长尾）：
+补丁/优先级治理族仅 **2 条**，且都不做文件级补丁；提到 restart 的 3 条里与 patch 的交集仍为 0。
+→ **「无人做提示词优先级治理」在约 2163/10063（21%）的抽样下依然成立。**
+值得盯的哲学邻居是 `dsh-dialog-fence`：「对所有对话生效的通用规则 + 按对话追加专属规则，以固定顺序注入运行时上下文快照」——它管上下文注入顺序，purge 管 system prompt 与包文件补丁，层不同但思路同源。
+
 ## 8. 三级证据自查（借 dsh-plugin.net 的收录判据，落成 `check-package` 第 11 项）
 
 | 层级 | 目录站判据 | 本机实测 | purge |
