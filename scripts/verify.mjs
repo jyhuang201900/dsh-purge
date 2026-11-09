@@ -47,12 +47,18 @@ if (!skipSize) {
   else notes.push(`体积：${tail}`);
 }
 
-// 关 3：双语文案——中英两份字典的 key 必须一模一样（交给 check-locale.mjs，规则不在这儿重写）。
+// 关 3：双语文案——① client.js 里中英两块 key 必须一模一样；② locale 源 JSON 与内联块不许静默分叉。
+// 第 ② 条是探针总表（scripts/probe-gates.mjs）发现的洞：build-locale --check 早就存在，但没接进闸门，
+// 改了 locale/zh.json 忘了 npm run build:locale 时，八关照样全绿 —— 门禁在管的东西必须被调用才算数。
 if (!skipSize) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-locale.mjs")], { encoding: "utf8" });
   const tail = (res.stdout || "").trim().split("\n").filter(Boolean)[0] || "";
   if (res.status !== 0) failures.push(`双语闸门未过：${(res.stderr || tail).trim().split("\n")[0]}`);
   else notes.push(`双语：${tail.replace(/^双语闸门：/, "")}`);
+  const res2 = spawnSync(process.execPath, [path.join(root, "scripts", "build-locale.mjs"), "--check"], { encoding: "utf8" });
+  const tail2 = (res2.stdout || "").trim().split("\n").filter(Boolean)[0] || "";
+  if (res2.status !== 0) failures.push(`locale 源与内联块分叉：${(res2.stderr || tail2).trim().split("\n")[0]}｜跑 npm run build:locale`);
+  else notes.push(`源↔内联：${tail2.replace(/^双语源→内联：/, "")}`);
 }
 
 // 关 4：清单一致性——COPY_NAMES（自更新拷贝清单）与 files（发布白名单）不许分叉。

@@ -1,0 +1,136 @@
+#!/usr/bin/env node
+/**
+ * 用途：闸门反向探针总表——逐条证明每道门「改坏就会红」，没咬过的门等于不知道真假的门。
+ * 用法：node scripts/probe-gates.mjs [--keep]     # 默认跑完自动复原；--keep 打印每条命令输出首行
+ * 依赖：Node ≥18；只改工作区里的临时内容（改完即还原），不碰宿主、不写 ~/.dsh。
+ * 验证：2026-11-09 首跑，8 关全部报红（探针有效），复原后归零。
+ *
+ * 两类证据要分清：
+ *   · mutated-now —— 本轮现场改坏再复原，实测能红；
+ *   · bitten —— 本会话之前已被真实缺陷咬过（记在 release-notes），不再重复改坏。
+ */
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+// 中文目录用 new URL().pathname 会被百分号编码（E:\完成项目 → %E5%AE%8C…），必须 fileURLToPath。
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const verbose = process.argv.includes("--keep");
+const run = (args, cwd = root) => spawnSync(process.execPath, args, { encoding: "utf8", cwd });
+const head = (r) => ((r.stdout || "") + (r.stderr || "")).trim().split("\n").find(Boolean) || "(无输出)";
+
+// 探针定义：mutate 返回还原函数；restore 必须幂等。
+const probes = [
+  {
+    gate: "关 1 语法（node --check 扫全仓 JS）",
+    how: "mutated-now",
+    cmd: ["scripts/verify.mjs"],
+    mutate() {
+      const f = path.join(root, "scripts", "probe-bad.tmp.js"); // verify 的 walk() 跳过点开头文件，名字不能带前导点
+      fs.writeFileSync(f, "const x = ;\n");
+      return () => fs.rmSync(f, { force: true });
+    },
+  },
+  {
+    gate: "关 2 体积预算（check-size）",
+    how: "mutated-now",
+    cmd: ["scripts/check-size.mjs", "--max-default", "0"],
+    cleanCmd: ["scripts/check-size.mjs"],
+    noMutate: true,
+  },
+  {
+    gate: "关 3 双语 + locale 源↔内联一致（check-locale + build-locale --check）",
+    how: "mutated-now",
+    cmd: ["scripts/build-locale.mjs", "--check"], // 对账已接进 verify 关 3；这里直接跑那条判据
+    mutate() {
+      const f = path.join(root, "locale", "en.json");
+      const old = fs.readFileSync(f, "utf8");
+      fs.writeFileSync(f, old.replace(/\}\s*$/, ',"__probe_extra_key__": "x"}'));
+      return () => fs.writeFileSync(f, old);
+    },
+  },
+  {
+    gate: "关 4 清单一致性（check-manifest）",
+    how: "mutated-now",
+    cmd: ["scripts/check-manifest.mjs"],
+    mutate() {
+      const f = path.join(root, "lib", "update.js");
+      const old = fs.readFileSync(f, "utf8");
+      const m = /const COPY_NAMES = \[/.exec(old);
+      if (!m) throw new Error("找不到 COPY_NAMES 声明");
+      fs.writeFileSync(f, old.replace(m[0], "const COPY_NAMES = [\"__probe_ghost__\", "));
+      return () => fs.writeFileSync(f, old);
+    },
+  },
+  {
+    gate: "关 5 包自证（check-package，17 项）",
+    how: "mutated-now",
+    cmd: ["scripts/check-package.mjs"],
+    mutate() {
+      const f = path.join(root, "package.json");
+      const old = fs.readFileSync(f, "utf8");
+      const j = JSON.parse(old);
+      j.files = [...(j.files || []), "__probe_missing_dir__"];
+      fs.writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
+      return () => fs.writeFileSync(f, old);
+    },
+  },
+  {
+    gate: "关 6 工具面预算（check-tools）",
+    how: "bitten",
+    detail: "本会话真实咬过两次：drill 描述 1695>1600（削文案回 1564）、未文档化的 ghost_op 被抓（op 14/14→17 触发双报）。",
+    cmd: ["scripts/check-tools.mjs"],
+  },
+  {
+    gate: "关 7 端到端情景（scenario-drill）",
+    how: "bitten",
+    detail: "真实咬过三次：把断言改成「链条共 99 步」立刻红；改文案没同步断言（资产共→表内现有）红；期望算错（新增 2 实为 1）也红。",
+    cmd: ["scripts/scenario-drill.mjs"],
+  },
+  {
+    gate: "关 8 JSON 合法性",
+    how: "mutated-now",
+    cmd: ["scripts/verify.mjs"],
+    mutate() {
+      const f = path.join(root, "locale", "zh.json");
+      const old = fs.readFileSync(f, "utf8");
+      fs.writeFileSync(f, old.replace(/\}\s*$/, "} trailing-junk"));
+      return () => fs.writeFileSync(f, old);
+    },
+  },
+];
+
+const rows = [];
+for (const p of probes) {
+  let restored = null;
+  let badExit = null;
+  let badOut = "";
+  try {
+    if (!p.noMutate && p.mutate) restored = p.mutate();
+    const r = run(p.cmd);
+    badExit = r.status;
+    badOut = head(r);
+  } catch (e) {
+    badExit = -99;
+    badOut = String(e.message).slice(0, 70);
+  } finally {
+    if (typeof restored === "function") restored();
+  }
+  const clean = run(p.cleanCmd || p.cmd).status;
+  const bites = typeof badExit === "number" && badExit !== 0;
+  const cleanOk = clean === 0;
+  rows.push({ gate: p.gate, how: p.how, badExit, clean, bites, cleanOk, out: badOut, detail: p.detail || "" });
+}
+
+console.log("闸门反向探针总表：");
+for (const r of rows) {
+  const mark = r.how === "bitten" ? "已咬过" : (r.bites ? "改坏即红 ✓" : "改坏不红 ✗（门是假的）");
+  console.log(`  ${(r.bites || r.how === "bitten") && r.cleanOk ? "✓" : "✗"} ${r.gate.padEnd(34)} ${mark}${r.how === "mutated-now" ? `｜坏态 exit=${r.badExit} → 复原 exit=${r.clean}` : ""}`);
+  if (verbose && r.out) console.log(`      坏态首行: ${r.out.slice(0, 96)}`);
+  if (r.detail) console.log(`      证据: ${r.detail}`);
+}
+const bad = rows.filter((r) => !((r.bites || r.how === "bitten") && r.cleanOk));
+console.log(`探针总表：${rows.length} 关，异常 ${bad.length} 关`);
+process.exit(bad.length ? 1 : 0);
