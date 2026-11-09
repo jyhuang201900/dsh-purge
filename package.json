@@ -47,6 +47,7 @@
     "check:tools": "node scripts/check-tools.mjs",
     "scenario": "node scripts/scenario-drill.mjs",
     "probe:gates": "node scripts/probe-gates.mjs",
+    "audit:skills": "node scripts/audit-skills.mjs",
     "verify": "node scripts/verify.mjs",
     "build:client": "node scripts/build-client.mjs",
     "graphify": "node scripts/graphify-sync.mjs --cluster",

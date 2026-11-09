@@ -400,7 +400,7 @@ DSH 会按顺序执行同一批中的 Bash 调用。旧版 dsh-purge 把默认�
 
 ## 本地校验
 
-一条命令过八关（语法 / 体积预算 / 双语文案 / 清单一致性 / 包自证 / 工具面 / 端到端情景 / JSON 合法），未通过时退出码非 0：
+一条命令过九关（语法 / 体积预算 / 双语文案（含源↔内联）/ 清单一致性 / 包自证 / 工具面 / 端到端情景 / 弹药层审计 / JSON 合法），未通过时退出码非 0：
 
 ```sh
 npm run verify
@@ -442,6 +442,7 @@ npm run verify
 | `npm run check:tools` | 工具面预算：结构、描述成本、返回值、可发现性 |
 | `npm run scenario` | 端到端情景：串 drill 的 op 逐步断言回读 + 真机只读探针 |
 | `npm run probe:gates` | 闸门反向探针总表：逐关改坏即红（没咬过的门等于不知道真假的门） |
+| `npm run audit:skills` | 弹药层一致性：技能正文引用的 `redteam_*` 工具名、条令点名的技能，都必须真实存在 |
 | `npm run verify` | 一条命令过八关 |
 | `npm run build:client` | 重打前端 bundle |
 | `npm run graphify` | 重建知识图谱（AST + 手写语义层） |

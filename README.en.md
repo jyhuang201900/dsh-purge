@@ -392,7 +392,7 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 
 ## Local checks
 
-One command runs eight gates (syntax / size budget / bilingual copy / manifest parity / package self-proof / tool surface / end-to-end scenario / valid JSON); a non-zero exit means a gate failed:
+One command runs nine gates (syntax / size budget / bilingual copy incl. source-vs-inline / manifest parity / package self-proof / tool surface / end-to-end scenario / ammo-layer audit / valid JSON); a non-zero exit means a gate failed:
 
 ```sh
 npm run verify
@@ -434,6 +434,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run check:tools` | tool-surface budget: structure, description cost, return size, discoverability |
 | `npm run scenario` | end-to-end drill scenario with read-back assertions plus a live read-only probe |
 | `npm run probe:gates` | reverse-probe table: every gate must turn red when broken (an unprobed gate is an unknown gate) |
+| `npm run audit:skills` | ammo-layer consistency: every `redteam_*` tool name cited by skills and every skill named by the doctrine must actually exist |
 | `npm run verify` | one command, eight gates |
 | `npm run build:client` | rebuild the client bundle |
 | `npm run graphify` | rebuild the knowledge graph (AST + hand-written semantic layer) |

@@ -90,6 +90,12 @@ const probes = [
     cmd: ["scripts/scenario-drill.mjs"],
   },
   {
+    gate: "关 9 弹药层一致性（audit-skills）",
+    how: "bitten",
+    detail: "本轮两条现场探针：① 往 passive-recon.md 塞不存在的 redteam_asset_upsert（当年真踩过的错）→ 立刻报幽灵引用 exit=1；② 往注入源点一个假技能 recon-ghost → 条令点名缺失 exit=1。均复原归零。",
+    cmd: ["scripts/audit-skills.mjs"],
+  },
+  {
     gate: "关 8 JSON 合法性",
     how: "mutated-now",
     cmd: ["scripts/verify.mjs"],

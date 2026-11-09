@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 用途：发版前一键自检——语法、体积预算、双语文案、清单一致性、包自证、工具面、端到端情景、JSON 合法性八关一起过（替代 README 里那串手工 node --check）。
+ * 用途：发版前一键自检——语法、体积预算、双语文案、清单一致性、包自证、工具面、端到端情景、弹药层审计、JSON 合法性九关一起过（替代 README 里那串手工 node --check）。
  * 用法：node scripts/verify.mjs [--root PATH] [--skip-size]     # 默认跑全部三关
  * 依赖：Node ≥18；内部调用 node --check 与 scripts/check-size.mjs，零第三方包。
  * 验证：2026-11-09 在 dsh-purge 实跑通过（exit=0，五关全绿：语法 / 体积 / 双语 2×328 key 零漂移 / 清单 COPY_NAMES 全覆盖 / JSON 全合法）。各关计数以实跑输出为准，不写死在注释里。
@@ -93,6 +93,15 @@ if (!skipSize) {
     const bad = (res.stdout || "").split("\n").filter((l) => l.includes("✗")).slice(0, 3).join(" / ");
     failures.push(`情景测试未过：${bad || tail || (res.stderr || "").trim().split("\n")[0]}`);
   } else notes.push(`情景：${tail.replace(/^情景测试：/, "")}`);
+}
+
+// 关 9：弹药层一致性——技能正文引用的工具名、条令点名的技能，都必须真实存在（引用不存在的名字 = 模型照做就撞空）。
+if (!skipSize) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "audit-skills.mjs")], { encoding: "utf8" });
+  const out = ((res.stdout || "") + (res.stderr || "")).trim().split("\n");
+  if (res.status !== 0) {
+    failures.push(`弹药层审计未过：${out.slice(1, 3).map((l) => l.trim()).join(" / ").slice(0, 160) || out[0]}`);
+  } else notes.push(`弹药层：${(out[0] || "").replace(/^弹药层审计：/, "")}｜${(out[1] || "").trim()}｜${(out[2] || "").trim()}`);
 }
 
 // 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
