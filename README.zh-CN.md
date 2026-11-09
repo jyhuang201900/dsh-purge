@@ -530,7 +530,7 @@ purge 给模型的入口有三条，共用同一张契约表（`lib/model-tools.
 
 1. **dsh 会话内**：插件激活时直接 `ctx.tools.register`，模型看到 `purge_*`。
 2. **MCP over stdio**：`node bin/dsh-purge.js --mcp`，任何 MCP 客户端可连，不需要 dsh 在跑。
-3. **MCP over HTTP**：宿主内 `POST /dsh-purge/mcp`（JSON-RPC 2.0），可配到官方 `@deepseek-ai/dsh-mcp-client` 的 `streamable-http` 分支上，**不必再起子进程**：
+3. **MCP over HTTP**：宿主内 `POST /dsh-purge/mcp`（JSON-RPC 2.0），可配到官方 `@deepseek-ai/dsh-mcp-client` 的 `streamable-http` 分支上，**不必再起子进程**。自检一条命令：`dsh-purge --mcp-probe [baseUrl]`（缺省读 `DSH_WEB_URL`），会分别报 live / 待重启 / 宿主不可达 / 缺 baseUrl，并打出每步耗时：
 
    ```yaml
    transport: streamable-http

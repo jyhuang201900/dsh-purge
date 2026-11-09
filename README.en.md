@@ -518,7 +518,7 @@ Purge hands capabilities to models through three entrances, all built from one c
 
 1. **Inside a dsh session**: registered via `ctx.tools` on activation, so the model sees `purge_*`.
 2. **MCP over stdio**: `node bin/dsh-purge.js --mcp`, connectable by any MCP client, no running dsh required.
-3. **MCP over HTTP**: `POST /dsh-purge/mcp` inside the host (JSON-RPC 2.0), usable with the official `@deepseek-ai/dsh-mcp-client` `streamable-http` branch — **no extra child process**:
+3. **MCP over HTTP**: `POST /dsh-purge/mcp` inside the host (JSON-RPC 2.0), usable with the official `@deepseek-ai/dsh-mcp-client` `streamable-http` branch — **no extra child process**. Self-check: `dsh-purge --mcp-probe [baseUrl]` (defaults to `DSH_WEB_URL`); it reports live / restart-needed / unreachable / missing baseUrl, with per-step timing:
 
    ```yaml
    transport: streamable-http

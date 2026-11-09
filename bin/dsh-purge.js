@@ -51,7 +51,7 @@ function printStatus(state, update) {
 }
 
 async function main() {
-  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--drill", "--mcp", "--edit", "--help"].includes(a));
+  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--drill", "--mcp", "--mcp-probe", "--edit", "--help"].includes(a));
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`dsh-purge 用法:
@@ -64,11 +64,24 @@ async function main() {
   dsh-purge --tools      列出模型可见工具（契约表）
   dsh-purge --drill [op] 演练台聚合查询/写入（不切预设；op 如 chain_add）
   dsh-purge --mcp        以 MCP server 方式跑（stdio JSON-RPC）
+  dsh-purge --mcp-probe [url]  探测宿主内 POST /dsh-purge/mcp 是否已生效（缺省读 DSH_WEB_URL）
   dsh-purge --help       帮助`);
     return;
   }
 
   // MCP / 工具清单：只读契约，不进状态打印，避免污染 stdio 上的 JSON-RPC。
+  // MCP HTTP 探测：不依赖清洗状态，也不进 printStatus，直接给结论。
+  if (mode === "--mcp-probe") {
+    const { probeMcpEndpoint } = await import("../lib/mcp-probe.js");
+    const at = args.indexOf("--mcp-probe");
+    const next = at >= 0 ? args[at + 1] : undefined;
+    const baseUrl = next && !String(next).startsWith("--") ? String(next) : (process.env.DSH_WEB_URL || "");
+    const r = await probeMcpEndpoint({ baseUrl });
+    for (const l of r.lines) console.log(`  ${l}`);
+    console.log(`  结论：${r.state === "live" ? "HTTP MCP 通路已生效 ✓" : r.state === "not-live" ? "待重启（路由未加载）" : r.state === "unreachable" ? "宿主不可达" : "异常"}`);
+    process.exit(r.state === "live" || r.state === "not-live" ? 0 : 1);
+  }
+
   if (mode === "--mcp" || mode === "--tools" || mode === "--drill") {
     const [updMod, hostMod, rulesMod, mt, mcp] = await Promise.all([
       import("../lib/update.js"),
