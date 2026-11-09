@@ -99,6 +99,10 @@ const main = async () => {
   const saved = store.savePoc({ title: "scenario 演示 POC", content: "use: nmap -sV\nnmap -p80", kind: "poc", category: "rce", usage: "nmap -sV" });
   await run("pocs 读正文", { op: "pocs", name: saved.poc.code }, has("POC「"), has("用法：nmap -sV"), has("正文 2 行"));
   await run("pocs 读不存在的 code", { op: "pocs", name: "没这个码" }, has("没有 POC"));
+  // 10d) POC 改与用（op=update 的第 4 个写方法：name=code，kind/text 改列，只给 target 记一次使用）
+  await run("update poc 改列", { op: "update", entity: "poc", name: saved.poc.code, kind: "severity", text: "high" }, has("已改"), has("回读 severity=high"));
+  await run("update poc 错列名", { op: "update", entity: "poc", name: saved.poc.code, kind: "不存在的列", text: "x" }, has("不在白名单"), has("静默不改"));
+  await run("update poc 记使用", { op: "update", entity: "poc", name: saved.poc.code, target: "203.0.113.11" }, has("记一次使用"), has("hit_count=1"));
 
   // 10c) 截图与提示词写面（复用 target/name/kind/text，零新增参数；shot 要真实文件、prompt 的 role 只有六个合法值）
   const shotFile = path.join(root, "e2e-shot.png");
