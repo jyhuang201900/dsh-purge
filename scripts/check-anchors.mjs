@@ -299,9 +299,39 @@ const outOfScope = (keys) => {
   return null;
 };
 const structural = results.filter((r) => r.status === "notInEither" && outOfScope(r.files));
-const suspect = results.filter((r) => r.status === "notInEither" && !outOfScope(r.files));
-if (structural.length || suspect.length) {
-  console.log(`\n分类：notInEither ${structural.length + suspect.length} 条 = 结构性面外 ${structural.length}（${[...new Set(structural.map((r) => outOfScope(r.files)))].join(" / ")}，不算破损）+ 待人工判 ${suspect.length}${suspect.length ? `：${suspect.map((r) => `#${r.id}`).join(" ")}` : ""}`);
+// 剩下两支靠证据自动归类，别留给人肉：
+//   · 打后形态：锚点文本本身就是我们注入的那段话（特征串 dsh-purge/dshPurge/DSH_PURGE，
+//     以及 scope 段的自有句式 "ACTIVE and MANDATORY"）——pristine 里当然没有，不是破损。
+//     写新的注入句时如果没带这些特征，会落到「真待判」，这是有意的保守失败：宁可多报一条也不漏判。
+//   · 空白不同构：两侧折叠空白后能命中 —— 文本在，只是官方重排了缩进（#67 实测如此）。
+const OURS = /dsh-purge|dshPurge|DSH_PURGE|ACTIVE and MANDATORY/;
+const collapse = (s) => String(s).replace(/\s+/g, " ");
+let COLLAPSED = null;
+const collapsedIdx = () => {
+  if (COLLAPSED) return COLLAPSED;
+  // indexVersion 返回 Map（for...of 能过、.map 不能），所以先展开成数组再折叠空白。
+  const build = (idx) => [...idx].map(([n, list]) => [n, list.map((f) => ({ t: collapse(f.t) }))]);
+  COLLAPSED = { old: build(idxOld), new: build(idxNew) };
+  return COLLAPSED;
+};
+const presentLoose = (pat) => {
+  const needle = collapse(String(pat).replace(/^\/(.*)\/[a-z]*$/, "$1"));
+  if (needle.length < 12) return false;
+  const ci = collapsedIdx();
+  return ci.old.some(([, fs]) => fs.some((f) => f.t.includes(needle)))
+    || ci.new.some(([, fs]) => fs.some((f) => f.t.includes(needle)));
+};
+const postPatch = (r) => (r.patterns || []).some((p) => OURS.test(String(p)));
+const whitespaceOnly = (r) => !postPatch(r) && (r.patterns || []).some((p) => presentLoose(p));
+const asPostPatch = results.filter((r) => r.status === "notInEither" && !outOfScope(r.files) && postPatch(r));
+const asWhitespace = results.filter((r) => r.status === "notInEither" && !outOfScope(r.files) && !postPatch(r) && whitespaceOnly(r));
+const suspect = results.filter((r) => r.status === "notInEither"
+  && !outOfScope(r.files) && !postPatch(r) && !whitespaceOnly(r));
+if (structural.length || asPostPatch.length || asWhitespace.length || suspect.length) {
+  const seg = (label, list) => (list.length ? `${label} ${list.length}${list.length && list.length < 8 ? `（${list.map((r) => `#${r.id}`).join(" ")}）` : ""}` : null);
+  const parts = [seg("结构性面外", structural), seg("打后形态", asPostPatch), seg("空白不同构", asWhitespace)].filter(Boolean);
+  console.log(`\n分类：notInEither ${structural.length + asPostPatch.length + asWhitespace.length + suspect.length} 条 = ${parts.join(" + ") || "0"} + 真待判 ${suspect.length}${suspect.length ? `：${suspect.map((r) => `#${r.id}`).join(" ")}` : ""}`);
+  if (!suspect.length) console.log("  → 真待判为 0：这些 notInEither 全部有可复核的成因，不是升级破损。");
 }
 
 const tally = {};
