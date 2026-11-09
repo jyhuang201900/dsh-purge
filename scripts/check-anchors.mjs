@@ -35,9 +35,45 @@ const flag = (name, dflt) => {
 // ---------- 0) 版本 ----------
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
 const NEW = flag("new", pkg.dshTarget);
-const OLD = flag("old", process.env.DSH_PURGE_PREV_VERSION || "");
+const OLD_FLAG = flag("old", process.env.DSH_PURGE_PREV_VERSION || "");
 if (!NEW) { console.error("缺 --new 且 package.json 没有 dshTarget"); process.exit(2); }
-if (!OLD) { console.error("缺 --old（上一档版本号），例：--old 0.2.0-rc.2"); process.exit(2); }
+
+// 版本三元组比较（含预发布次序：alpha < rc < 正式版），用来从 npm 已发布版本里挑「上一档」。
+function verKey(v) {
+  const m = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?/.exec(String(v || ""));
+  if (!m) return null;
+  const pre = m[4];
+  // 无预发布 = 正式版，排在同版号所有预发布之后（用 999 顶格表示）
+  const preRank = pre === undefined ? 999 : (/^alpha/i.test(pre) ? 1 : /^beta/i.test(pre) ? 2 : /^rc/i.test(pre) ? 3 : 0);
+  const preNum = pre === undefined ? 0 : Number((/(\d+)/.exec(pre) || [0, "0"])[1]) || 0;
+  return [Number(m[1]), Number(m[2]), Number(m[3]), preRank, preNum];
+}
+const cmpVer = (a, b) => { for (let i = 0; i < 5; i += 1) { if (a[i] !== b[i]) return a[i] - b[i]; } return 0; };
+
+async function derivePrevVersion(target) {
+  const t = verKey(target);
+  if (!t) return null;
+  for (const ref of ["dsh-base", "dsh-tools", "dsh-web-app", "dsh-agent"]) {
+    const full = "@deepseek-ai/" + ref;
+    try {
+      const r = await fetch(`${REG}/${full.replace("/", "%2F")}`, { signal: AbortSignal.timeout(25000) });
+      if (!r.ok) continue;
+      const info = await r.json();
+      const cands = Object.keys(info.versions || {})
+        .map((v) => ({ v, k: verKey(v) }))
+        .filter((x) => x.k && cmpVer(x.k, t) < 0 && (x.k[0] !== t[0] || x.k[1] !== t[1] || x.k[2] !== t[2] || x.k[3] < t[3]))
+        .sort((a, b) => cmpVer(b.k, a.k));
+      if (cands.length) return { version: cands[0].v, from: full, pool: Object.keys(info.versions || {}).length };
+    } catch { /* 换下一个参考包 */ }
+  }
+  return null;
+}
+let OLD = OLD_FLAG;
+if (!OLD && flag("auto-old", true) !== false) {
+  const derived = await derivePrevVersion(NEW);
+  if (derived) { OLD = derived.version; console.log(`--old 自动推断：${OLD}（${derived.from} 共 ${derived.pool} 个已发布版本里小于 ${NEW} 的最大一档）`); }
+}
+if (!OLD) { console.error("缺 --old（上一档版本号），且自动推断失败（离线或参考包没取到）；例：--old 0.2.0-rc.2"); process.exit(2); }
 
 // ---------- 1) 包清单 ----------
 function discoverPkgs() {
@@ -227,6 +263,31 @@ for (const r of results) {
     console.log(`  #${String(r.id).padStart(2)} ${r.name}${f}  [${OLD} ${r.oldOk}/${r.total} → ${NEW} ${r.newOk}/${r.total}]`);
     for (const d of r.dead.slice(0, 3)) console.log(`        DEAD @ ${d.where}\n          ${JSON.stringify(d.text)}`);
   } else console.log(`  #${String(r.id).padStart(2)} ${r.name}${f}`);
+}
+
+// notInEither 有两种成因：补丁目标压根不在这个核对面内（桌面壳 main.js、YAML 预设、非 npm 包路径），
+// 或者锚点在哪一版都不存在（可疑，要人判）。分不清这两类，17 条噪音会淹没 5 条信号。
+// core 的 file 键→路径映射直接 import 来用（不 import 就会自己猜一套，猜错就误判面外）。
+const coreMod = await import("../lib/core.js").catch(() => null);
+const TF = (coreMod && coreMod.targetFiles(process.env.DSH_BASE || "E:/Program Files/harness/resources/app/dsh/node_modules/@deepseek-ai")) || {};
+const pathOf = (k) => {
+  const v = TF[k];
+  // 反斜杠路径统一成正斜杠，免得正则里再套转义。
+  return String(Array.isArray(v) ? v[0] : (v || "")).split(String.fromCharCode(92)).join("/");
+};
+const outOfScope = (keys) => {
+  const k0 = String((Array.isArray(keys) ? keys : [keys])[0] || "").trim();
+  if (!k0 || TF[k0] === undefined) return null;
+  const sp = pathOf(k0);
+  if (/main\.js$/.test(sp) && sp.includes("/lib/")) return "桌面壳 main.js";
+  if (/\.ya?ml$/i.test(sp)) return "YAML 预设";
+  if (!sp.includes("@deepseek-ai/")) return "非 npm 包路径";
+  return null;
+};
+const structural = results.filter((r) => r.status === "notInEither" && outOfScope(r.files));
+const suspect = results.filter((r) => r.status === "notInEither" && !outOfScope(r.files));
+if (structural.length || suspect.length) {
+  console.log(`\n分类：notInEither ${structural.length + suspect.length} 条 = 结构性面外 ${structural.length}（${[...new Set(structural.map((r) => outOfScope(r.files)))].join(" / ")}，不算破损）+ 待人工判 ${suspect.length}${suspect.length ? `：${suspect.map((r) => `#${r.id}`).join(" ")}` : ""}`);
 }
 
 const tally = {};
