@@ -514,7 +514,19 @@ Eight third-party dsh plugins are installed in this desktop profile; each owns o
 | `dsh-better-sidebar` | File tree / editor / changes / tasks / side chat | Sidebar shape reference |
 | `@panando/dsh-codex-harness`, `@xmanrui/dsh-im` | Coding harness, IM bridge | Orthogonal to purge |
 
-Purge exposes its own capabilities two ways: **9 `purge_*` tools** inside a dsh session (status / align / apply / revert / patch / update / rules / skills / drill), and `node bin/dsh-purge.js --mcp` (stdio JSON-RPC, same 9 tools for any MCP client). Offline self-checks: `dsh-purge --tools` and `dsh-purge --drill`.
+Purge hands capabilities to models through three entrances, all built from one contract table (`lib/model-tools.js`, 9 tools: status / align / apply / revert / patch / update / rules / skills / drill):
+
+1. **Inside a dsh session**: registered via `ctx.tools` on activation, so the model sees `purge_*`.
+2. **MCP over stdio**: `node bin/dsh-purge.js --mcp`, connectable by any MCP client, no running dsh required.
+3. **MCP over HTTP**: `POST /dsh-purge/mcp` inside the host (JSON-RPC 2.0), usable with the official `@deepseek-ai/dsh-mcp-client` `streamable-http` branch — **no extra child process**:
+
+   ```yaml
+   transport: streamable-http
+   serverName: dsh-purge
+   url: http://127.0.0.1:<your dsh port>/dsh-purge/mcp
+   ```
+
+   Once connected, model-facing names look like `mcp__dsh-purge__purge_drill` (`mcp__<serverName>__<rawName>`, verified in the host source). Note `dsh-mcp-client` is not in this profile's bundles yet, so enabling it is a separate step. Offline self-checks: `dsh-purge --tools` and `dsh-purge --drill`.
 
 ## Notes
 

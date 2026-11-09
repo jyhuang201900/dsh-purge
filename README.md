@@ -526,7 +526,19 @@ flowchart LR
 | `dsh-better-sidebar` | 文件树 / 编辑 / 变更 / 任务 / 侧聊合一 | 侧栏形态参考 |
 | `@panando/dsh-codex-harness`、`@xmanrui/dsh-im` | 编码 harness、IM 接入 | 与 purge 正交 |
 
-purge 自己给模型的入口有两条：dsh 会话内的 **9 个 `purge_*` 工具**（status / align / apply / revert / patch / update / rules / skills / drill），以及 `node bin/dsh-purge.js --mcp`（stdio JSON-RPC，任何 MCP 客户端可连，`tools/list` 同为这 9 个）。离线自查用 `dsh-purge --tools` 与 `dsh-purge --drill`。
+purge 给模型的入口有三条，共用同一张契约表（`lib/model-tools.js`，9 个工具：status / align / apply / revert / patch / update / rules / skills / drill）：
+
+1. **dsh 会话内**：插件激活时直接 `ctx.tools.register`，模型看到 `purge_*`。
+2. **MCP over stdio**：`node bin/dsh-purge.js --mcp`，任何 MCP 客户端可连，不需要 dsh 在跑。
+3. **MCP over HTTP**：宿主内 `POST /dsh-purge/mcp`（JSON-RPC 2.0），可配到官方 `@deepseek-ai/dsh-mcp-client` 的 `streamable-http` 分支上，**不必再起子进程**：
+
+   ```yaml
+   transport: streamable-http
+   serverName: dsh-purge
+   url: http://127.0.0.1:<你的 dsh 端口>/dsh-purge/mcp
+   ```
+
+   被连接后模型侧工具名形如 `mcp__dsh-purge__purge_drill`（`mcp__<serverName>__<rawName>`，已在宿主源码核实）。注意 `dsh-mcp-client` 目前不在本机 profile 的 bundles 里，要用得先启用它。离线自查用 `dsh-purge --tools` 与 `dsh-purge --drill`。
 
 ## 说明
 
