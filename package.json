@@ -63,7 +63,9 @@
     "instructions",
     "rules",
     "prompt-eval",
-    "agent"
+    "agent",
+    "mcp",
+    "cordis"
   ],
   "repository": {
     "type": "git",

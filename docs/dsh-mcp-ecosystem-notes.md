@@ -28,7 +28,18 @@
   purge 同样受这条约束（补丁只写盘，运行时生效要重启），所以 `purge_apply/revert/align` 的文案都明确写"需重启 dsh 完全生效"。
 - 备份/迁移是刚需类目：`dsh-config-manager`、`dsh-backup`（覆盖 settings/plugins/MCP/skills/会话，含升级前快照与进程外救援）。purge 的 `.bak` + `revert` 已在做同类事，但没有跨机迁移面。
 
-## 5. 结论（本轮据此动手的事）
+## 5. 目录站 JSON API 实测（2026-11-09 第二轮，用来定口径而不是照抄）
+
+- `GET https://dshmp.com/api/plugins` 顶层是 `{total,page,perPage,pages,plugins}`，**`total=10063`、每页 50、共 202 页**（`perPage` 参数被忽略，别指望一把取全量）。
+- 条目字段只有：`slug, npmName, name, description, version, license, homepage, totalStars, totalForks, hasWebUi, publishedAt, updatedAt, tags`。
+  **`compatibility` 出现率 0/50** —— 所以同机 `dsh-codex-harness` 那个 `dsh.compatibility` 数组不是市场准入门，purge **不照抄**（抄了就是没有消费方的元数据）。
+- 目录按 **`npmName`** 索引，而 **dsh-purge 不在目录里**：真正的门槛是"发不发 npm"，不是字段齐不齐（README 早就写了 npm 上没有这个包）。
+- 首页 tag 分布：`deepseek-harness:36、cordis:6、deepseek:6、mcp:5、memory:4、agent:4、cli:3、ocr:3`；
+  UI 类只有 `ui:2 / web-ui:1 / dsh-tui:1 / generative-ui:1` —— **没有统一的 UI tag 约定**，所以我先前设想的"补 `dsh-plugin-web-ui`"证据不足，放弃。
+- 反过来一个发现：**首页 50 条里安全/红队类 tag 一个都没有**，而 purge 带了 5 个安全类 tag（其中 `网络安全`、`红队评测` 还是中文）——我们的 tag 词表基本是自言自语。
+  据此只补两个"目录站在用、且 purge 现在真的具备"的：`mcp`（本轮刚做的 stdio server）与 `cordis`（它本来就是 Cordis bundle），并写进 `check-package` 第 9 项防被顺手删掉。
+
+## 6. 结论（本轮据此动手的事）
 
 1. 继续走聚合优先：能力增长优先加 op/参数，而不是加第 N 个工具。
 2. 补 `check-package` 包自证闸门，对标市场的 manifest 准入（purge 是 GitHub tarball 分发，manifest 校验只能自己做）。
