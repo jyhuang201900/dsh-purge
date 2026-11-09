@@ -62,7 +62,7 @@ async function main() {
   dsh-purge --uninstall  卸载插件（已应用则先还原）
   dsh-purge --edit       编辑注入文件 prompt-inject.md
   dsh-purge --tools      列出模型可见工具（契约表）
-  dsh-purge --drill      演练台聚合体检（只读，不切预设）
+  dsh-purge --drill [op] 演练台聚合查询/写入（不切预设；op 如 chain_add）
   dsh-purge --mcp        以 MCP server 方式跑（stdio JSON-RPC）
   dsh-purge --help       帮助`);
     return;
@@ -88,7 +88,9 @@ async function main() {
     });
     if (mode === "--drill") {
       const t9 = tools.find((x) => x.name === "purge_drill");
-      console.log((await t9.execute({ op: args.find((a) => /^--drill$/.test(a)) ? "summary" : "summary" })).text);
+      const at = args.indexOf("--drill");
+      const op = at >= 0 && args[at + 1] && !args[at + 1].startsWith("--") ? args[at + 1] : "summary";
+      console.log((await t9.execute({ op })).text);
       return;
     }
     if (mode === "--tools") {

@@ -330,6 +330,7 @@ dsh-purge --status
 dsh-purge --apply
 dsh-purge --align      # 对齐体检（只读）
 dsh-purge --tools      # 列出模型工具契约
+dsh-purge --drill ops  # 演练台聚合查询/写入（op 可省，缺省 summary）
 dsh-purge --mcp        # 以 MCP server 跑（stdio）
 dsh-purge --revert
 dsh-purge --uninstall

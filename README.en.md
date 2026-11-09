@@ -322,6 +322,7 @@ Runtime files live under `$DSH_HOME`: `prompt-inject.md`, `rules/`, `skills/`, `
 ```sh
 dsh-purge --status
 dsh-purge --apply
+dsh-purge --drill ops  # drill console read/write (op optional, defaults to summary)
 dsh-purge --align      # 对齐体检（只读）
 dsh-purge --tools      # 列出模型工具契约
 dsh-purge --mcp        # 以 MCP server 跑（stdio）

@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2f7e2e68`
+- Built from commit: `595cc067`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -382,7 +382,7 @@ Nodes (9): argv, id, name, outDir, outFile, rep, shotsDst, shotsSrc (+1 more)
 
 ### Community 58 - "dsh-purge.js"
 Cohesion: 0.27
-Nodes (5): args, main(), printStatus(), purge_drill：56 个 preset 平面工具收成一个只读聚合入口（接入而非堆叠）, lib/mcp-server.js：stdio 上的 JSON-RPC MCP server（initialize / tools/list / tools/call / ping）
+Nodes (5): args, main(), printStatus(), purge_drill：56 个 preset 平面工具收成一个聚合入口，7 读 + 3 写（接入而非堆叠）, lib/mcp-server.js：stdio 上的 JSON-RPC MCP server（initialize / tools/list / tools/call / ping）
 
 ### Community 59 - ".scoreReport"
 Cohesion: 0.38
@@ -441,7 +441,7 @@ Nodes (4): CTF CORE CONTRACT / SCOPE / EVIDENCE / WORKFLOW 四段, Little Code S
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `README.md（中文主文档）` connect `net-scope.js` to `update.js`, `default-prompt-inject.md（当前生效的注入正文）`, `rules.js`, `ref_node_fs`, `适配-0.2.1-rc.2-差异分析.md（宿主升级核对）`, `core.js`, `skills.js`, `client.js`, `check-locale.mjs`, `rewind.js`, `package.json`, `check-size.mjs`, `lib/index.js`, `注入方式改造方案-1.1.34化.md（注入前置）`, `dsh-purge.js`?**
-  _High betweenness centrality (0.163) - this node is a cross-community bridge._
+  _High betweenness centrality (0.147) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `default-prompt-inject.md（当前生效的注入正文）` (e.g. with `v1.1.34-prompt-inject.md（历史版本快照）` and `defaultOverrideText()`) actually correct?**
   _`default-prompt-inject.md（当前生效的注入正文）` has 7 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `BIN`, `RFC-3986`, `RFC-1918` to the rest of the system?**
