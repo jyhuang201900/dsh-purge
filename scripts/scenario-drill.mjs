@@ -95,6 +95,11 @@ const main = async () => {
   await run("report 目标汇总", { op: "report", kind: "targets" }, has("目标汇总"), has("203.0.113.11"));
   await run("report 得分", { op: "report", kind: "score", limit: 3 }, has("得分报告"), re(/加 limit=\d+/, "截断提示给的是可放宽到的行数"));
 
+  // 10b) POC 正文读取（op=pocs + name，零新增 op/参数）：库里只存元数据时也要说清楚
+  const saved = store.savePoc({ title: "scenario 演示 POC", content: "use: nmap -sV\nnmap -p80", kind: "poc", category: "rce", usage: "nmap -sV" });
+  await run("pocs 读正文", { op: "pocs", name: saved.poc.code }, has("POC「"), has("用法：nmap -sV"), has("正文 2 行"));
+  await run("pocs 读不存在的 code", { op: "pocs", name: "没这个码" }, has("没有 POC"));
+
   // 11) 汇总口径要与逐步回读一致（跨 op 的同一事实不许两个数）
   // 跨 op 一致性：同一个事实（记了 1 步链）在 chain / report / summary 三处必须是同一个数。
   const sum = await run("summary 复核", { op: "summary" }, has("靶标 1 个｜当前=示例靶"), has("chainSteps=1"));
