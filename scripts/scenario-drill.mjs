@@ -103,6 +103,8 @@ const main = async () => {
   await run("update poc 改列", { op: "update", entity: "poc", name: saved.poc.code, kind: "severity", text: "high" }, has("已改"), has("回读 severity=high"));
   await run("update poc 错列名", { op: "update", entity: "poc", name: saved.poc.code, kind: "不存在的列", text: "x" }, has("不在白名单"), has("静默不改"));
   await run("update poc 记使用", { op: "update", entity: "poc", name: saved.poc.code, target: "203.0.113.11" }, has("记一次使用"), has("hit_count=1"));
+  await run("entity_add poc 新建", { op: "entity_add", entity: "poc", name: "scenario 新建 POC", text: "nmap -sV" }, has("新建"), has("库总量 2"));
+  await run("entity_add poc 同标题覆盖", { op: "entity_add", entity: "poc", name: "scenario 新建 POC", text: "nmap -p80" }, has("覆盖"), has("不产生第二条"), has("库总量 2"));
 
   // 10c) 截图与提示词写面（复用 target/name/kind/text，零新增参数；shot 要真实文件、prompt 的 role 只有六个合法值）
   const shotFile = path.join(root, "e2e-shot.png");
