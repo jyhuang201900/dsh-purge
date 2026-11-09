@@ -199,6 +199,11 @@ function extractPatches() {
       }
       if (ok && parts.join("").length > 8) patterns.push(parts.join(""));
     }
+    // pRe 只吃字符串字面量：`pattern: /…/flags` 这种正则型锚点会被整支丢掉，
+    // 于是补丁的 patterns 变空、被误判成 runtimeBuilt。这里补一轮正则字面量扫描。
+    const rRe = /pattern:\s*(\/(?:\\.|[^\/\\\n])+\/[a-z]*)/g;
+    let rm;
+    while ((rm = rRe.exec(body))) patterns.push(rm[1]);
     out.push({ id: heads[i].id, name: heads[i].name, files, patterns });
   }
   return out;
@@ -206,8 +211,17 @@ function extractPatches() {
 
 // ---------- 4) 比对 ----------
 function where(idx, pat) {
+  // 有些锚点存的是正则字面量原文（如 /let renderedPrompt = renderPrompt\(assembly\);\r?\n…/），
+  // 对它做子串包含永远不命中，会被误报成「两版都不存在」。两种都认：子串 或 正则。
+  const s = String(pat);
+  let rx = null;
+  // 正则字面量可能是 `/src/` 或 `/src/gi`：按最后一段斜杠剥 flag，不能只判 endsWith("/")。
+  const rm = /^\/([\s\S]+)\/([a-z]*)$/.exec(s);
+  if (rm) {
+    try { rx = new RegExp(rm[1], rm[2]); } catch { rx = null; }
+  }
   const hits = [];
-  for (const [pkgName, files] of idx) for (const f of files) if (f.t.includes(pat)) hits.push(`${pkgName}/${f.rel}`);
+  for (const [pkgName, files] of idx) for (const f of files) if (f.t.includes(s) || (rx && rx.test(f.t))) hits.push(`${pkgName}/${f.rel}`);
   return hits;
 }
 
