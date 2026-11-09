@@ -56,7 +56,18 @@
   **`persona` 明确不加**：purge 只注入一个默认人设（小码酱），不是人设管理器，加了会以误导换 discoverability。
 - 复核：purge 仍不在目录里（未发 npm，目录按 `npmName` 索引）。若将来要上，缺的是**发布动作**，不是字段。
 
-## 7. 结论（本轮据此动手的事）
+## 7. 2000 条样本的三条结论（2026-11-09，40 页并发抓取）
+
+抓法：`page=1..40` 并发 6、每页 4 次重试，得到 **2000 条（去重后仍 2000）**，标称 total 10063，覆盖率约两成。
+
+1. **purge 独占「补丁 + 重启」这个组合。** 提到 restart 的 26 条、提到 patch 的 36 条，**同时提到两者的 = 0 条**。最接近的是 `dsh-setting-restart`（只管重启交互）与 `dsh-base`（官方第一层 patch layer，不谈重启）。所以"改文件级补丁 + 需重启生效"这套治理目前是我们独自承担的 UX，不是同路一片。
+2. **有 UI 不是差异点，tag 也不整齐。** `hasWebUi` 占 **72.5%（1450/2000）**，可 `web-ui` tag 只有 69 家在用 —— 说明指望 tag 换发现率本身就不可靠，tag 只当辅助。
+3. **tag 词形分裂，我上一轮的选择被更大样本纠正。** 全量 Top：`deepseek-harness:1606、deepseek:432、cordis:382、agent:138、mcp:124、harness:109、memory:91、skills:64、web-ui:69、codex:63、security:20、pentest:3、red-team:1`，而 **`injection:0`、`patch:0` 在两千条规模上依然为 0**。
+   - `skills`(64) 与 `skill`(41) **两个词形都有人用且都不占绝对多数** → 与 purge 已经并存的 `dsh-plugin`/`dsh-plugins` 同理，两个都留，不是堆叠而是"生态本身分裂"。
+   - `security:20` 是安全类里唯一有点量的英文 tag，purge 原本**没有** → 本轮补上（purge 的定位就是安全评测与进攻条令，事实成立）。
+   - 据此把 `check-package` 第 9 项的 `WANT_TAGS` 扩到 7 个（`deepseek-harness / dsh-plugin / mcp / cordis / skill / skills / security`），全部满足"生态在用 + purge 真具备"。
+
+## 8. 结论（本轮据此动手的事）
 
 1. 继续走聚合优先：能力增长优先加 op/参数，而不是加第 N 个工具。
 2. 补 `check-package` 包自证闸门，对标市场的 manifest 准入（purge 是 GitHub tarball 分发，manifest 校验只能自己做）。

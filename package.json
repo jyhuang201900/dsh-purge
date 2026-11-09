@@ -67,7 +67,9 @@
     "agent",
     "mcp",
     "cordis",
-    "skill"
+    "skill",
+    "skills",
+    "security"
   ],
   "repository": {
     "type": "git",

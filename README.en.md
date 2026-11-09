@@ -528,6 +528,8 @@ Purge hands capabilities to models through three entrances, all built from one c
 
    Once connected, model-facing names look like `mcp__dsh-purge__purge_drill` (`mcp__<serverName>__<rawName>`, verified in the host source). Note `dsh-mcp-client` is not in this profile's bundles yet, so enabling it is a separate step. Offline self-checks: `dsh-purge --tools` and `dsh-purge --drill`.
 
+**Positioning (measured over a 2000-plugin sample, 2026-11-09)**: 26 entries mention needing a restart and 36 mention patching, but **zero mention both** - file-level patching that requires a restart has no neighbour doing the same thing. Meanwhile 72.5% of plugins ship a Web UI, so having an interface is not a differentiator.
+
 ## Notes
 
 - The change surface is rendered copy, default policy and execution logic inside local `@deepseek-ai/*` packages, plus override files and rule sets under the harness home.
