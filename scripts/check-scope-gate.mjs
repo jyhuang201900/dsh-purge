@@ -260,6 +260,22 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
     check("解析率正常时不拦", good.ok === true, good.why.slice(0, 60));
     check("样本太小不做判断", judgeAliveRate({ sampled: 20, resolved: 0 }).level === "skip");
   }
+  // ★ nuclei 固定启动开销：实测不带 -duc 时 53.5s，带上 5.2s（快 10 倍）。
+  // 原因是它每次启动都查更新，而这台机器查不通（第 125 轮已证）——每条命令白等约 50 秒。
+  {
+    const { withNucleiFastFlags, NUCLEI_FAST_FLAGS } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+    check("★ nuclei 命令必带 -duc（否则白等约 50 秒）", NUCLEI_FAST_FLAGS.includes("-duc"), NUCLEI_FAST_FLAGS.join(" "));
+    const a = withNucleiFastFlags("-u x -severity high");
+    check("★ 缺标志时补上", /-duc/.test(a) && /-nc/.test(a), a);
+    const b = withNucleiFastFlags("-u x -duc -nc");
+    check("★ 已有标志不重复加（幂等）", (b.match(/-duc/g) || []).length === 1, b);
+    const c = withNucleiFastFlags("-u x -duc");
+    check("★ 部分缺失只补缺的那个", (c.match(/-duc/g) || []).length === 1 && /-nc/.test(c), c);
+    // 生成的命令里必须真的带上
+    const cv = commandsForStage({ stage: "vuln", target: "example.com" });
+    const nuc = cv.find((x) => /nuclei/.test(x.cmd));
+    check("★ 生成器产出的 nuclei 命令含 -duc", nuc && /-duc/.test(nuc.cmd), (nuc ? nuc.cmd : "无").slice(0, 100));
+  }
   // 阶段命令按阶段变
   {
     const recon = commandsForStage({ stage: "recon", target: "10.0.0.0/24" });
