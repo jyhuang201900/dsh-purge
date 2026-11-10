@@ -1,4 +1,33 @@
-# 1.1.84
+# 1.1.85
+
+## 中文
+
+对齐宿主 **dsh 0.2.2-rc.1**（EXE 实测版本，cordis 4.1.0；补丁 76 条、74 已清洗、2 条设计内 skipped）。这一版不铺新面积，做的是把前 40 轮攒下的东西**变得可核对**：
+
+- **能力面收口**：`purge_drill` 写到 18 op → 别名化后 17 op；写方法覆盖 **27/31（87%）**，POC 五面（增·查·改·用·删）与资产面（登记·评估·测试回写）全部闭环；剩余 4 个方法（`close`、`seedStages`、`seedScorePoints`、`writePromptManifest`）**明确豁免并写理由**。
+- **两条自造拒绝链被拆掉**：`op=scores`、`op=stages` 原先只印中文名，而 `score_add`/`chain_add` 要的是 code —— 现在每行都带 code（还顺带把分值与名字同屏），并固化成情景断言。
+- **门禁体系成型**：`verify` 从七关升到 **九关**（新增端到端情景、弹药层审计，并把 locale 源↔内联一致并入双语关）；`check-package` 涨到 **22 项**，其中一整套是**自我约束型断言**（注入体积 ≤33,000、提示词净增减 ≤2,000、工具数、文案组数、平面基线、入口清单、发版口径）。
+- **门本身也被审**：新增 `npm run probe:gates` **反向探针总表**（9 关全部有"改坏即红"的证据）与 `npm run audit:graph` 图谱审计（孤儿判红、导出级只报线索并如实给出 **79% 盲区率**）。
+- **减法轮**：删掉 6 个死导出（73 行），并用审计迭代到不动点；期间揪出 `name` 参数被写两遍导致**语义被静默覆盖**的 bug。
+- **成本口径立起来**：76 条补丁净 +13,128 字，但**只有提示词层 +904 字进上下文**；`--align` 现在直说默认注入 29,777 字、生效文件字数与状态，并给出 token 估算（≈11,688 / 7,842）。
+- **定位复查**：`restart ∩ patch = 0` 在同口径 2000 条采样下复现，且**把正则口径一起写进档案**（宽口径下交集 2–5，均非文件级补丁治理）。
+- **验收工具化**：新增 `dsh-purge --verify-live [url]`（契约表 / 补丁分桶 / 注入状态 / 路由 live 四查，只读）；实测对运行中宿主 `POST /dsh-purge/mcp` 得 **HTTP 405**，把"需要重启"从口头判断变成机器可验事实。注入 ⚠ 也按证据分四档，本机定性为**插件记录与磁盘脱节**。
+- **方法论五则**写进 README（按 104 次坑提及排序）：先量再写、回读不说谎、门要红得对、多点改动分步落盘、环境不是事实。
+
+## English
+
+Aligned with host **dsh 0.2.2-rc.1** (76 patches, 74 applied, 2 designed skips). This release stops adding surface and makes what exists verifiable:
+
+- **Capability line closed out**: `purge_drill` at 17 ops after aliasing `engagements`; write-method coverage **27 of 31 (87%)** with POC (create/read/update/mark-used/delete) and asset (register/assess/test-writeback) loops proven end to end; the remaining four methods are **exempted with written reasons**.
+- **Two self-inflicted dead ends removed**: `op=scores` and `op=stages` printed only Chinese names while `score_add`/`chain_add` need the code - both now expose it, locked in by scenario assertions.
+- **Gate system matured**: `verify` went seven -> **nine gates** (end-to-end scenario, ammo-layer audit, and locale source-vs-inline merged into the bilingual gate); `check-package` now runs **22 checks**, most of them self-restraint budgets.
+- **Gates audited too**: `npm run probe:gates` (every gate has red-when-broken evidence) and `npm run audit:graph` (orphans decide red; export health is a lead with a stated **79% blind rate**).
+- **Subtraction round**: six dead exports (73 lines) removed and iterated to a fixed point, which also exposed a silently clobbered duplicate `name` parameter.
+- **Cost made explicit**: only the prompt layer (+904 chars) actually enters context; `--align` states default vs effective injection size, status, and token estimates (~11,688 / ~7,842).
+- **Positioning re-verified with the instrument pinned**: `restart ∩ patch = 0` on the same 2000-entry sample (2-5 under wider word sets).
+- **`dsh-purge --verify-live [url]`** added: four read-only checks; a running host answers `POST /dsh-purge/mcp` with **HTTP 405**, turning "you need to restart" into a machine-checked fact.
+
+
 
 ## 中文
 

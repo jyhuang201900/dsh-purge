@@ -248,6 +248,21 @@ notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 $
   }
 }
 
+// 23) 发版守卫：README 三份里的 Version 行与 dsh:// 安装链接的 version= 必须等于 package.json 的 version。
+//     本轮发 1.1.85 之前实测：这条一致性此前没有门管（三处只是碰巧一致）—— 发版漏改正是最容易犯的那种错。
+{
+  for (const rel of ["README.md", "README.zh-CN.md", "README.en.md"]) {
+    const fp = path.join(root, rel);
+    if (!fs.existsSync(fp)) continue;
+    const body = fs.readFileSync(fp, "utf8");
+    const head = /Version (\d+\.\d+\.\d+)/.exec(body);
+    const link = /version=(\d+\.\d+\.\d+)/.exec(body);
+    if (!head || !link) { problems.push(`${rel} 找不到 Version 行或 dsh:// 的 version=（发版口径缺了）`); continue; }
+    if (head[1] !== pkg.version || link[1] !== pkg.version) problems.push(`${rel} 写 Version ${head[1]}、链接 version=${link[1]}，而 package.json 是 ${pkg.version}：发版要一起改`);
+  }
+  notes.push(`发版口径一致（${pkg.version}）`);
+}
+
 // 22) 「设计内 skipped」清单不许烂掉：每条 id 必须真实存在于补丁表、名字对得上；
 //     装了宿主的机器上还要求它当前确实是 skipped —— 一旦上游把这条补丁变成可打，清单就得重核（否则建议行会少喊一句）。
 {
