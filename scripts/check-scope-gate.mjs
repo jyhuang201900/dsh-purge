@@ -303,6 +303,34 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
   }
 }
 
+// ── ①h update / report 入口校验 ──
+// 实测缺口（第 123 轮）：update asset 的 stage/kind 拼错会**静默回落**（回读正确反而最危险，
+// 它让人确信改成功了）；report kind 拼错会**静默出战报**（人以为拿到的是得分报告）；
+// report limit 负数静默取默认；update row=-1/1.7 报「不存在」是**误报**（不是不存在，是行号非法）。
+{
+  const { validateUpdate, validateReport, validateRowId, renderIssues } = await import(toUrl(path.join(root, "lib", "redteam", "validate-input.js")));
+  const BAD = [
+    ["asset 状态拼错", () => validateUpdate("asset", { target: "10.0.0.5", stage: "testted" }), /stage/],
+    ["asset 优先级拼错", () => validateUpdate("asset", { target: "10.0.0.5", kind: "urgent" }), /kind/],
+    ["vuln 严重度拼错", () => validateUpdate("vuln", { row: 1, kind: "critcal" }), /kind/],
+    ["vuln 状态拼错", () => validateUpdate("vuln", { row: 1, stage: "exploitted" }), /stage/],
+    ["行号负数", () => validateUpdate("vuln", { row: -1, stage: "fixed" }), /row/],
+    ["行号小数", () => validateUpdate("vuln", { row: 1.7, stage: "fixed" }), /row/],
+    ["行号 0", () => validateRowId("row", 0), /row/],
+    ["report 类型拼错", () => validateReport({ kind: "scoer" }), /kind/],
+    ["report 负数 limit", () => validateReport({ limit: -5 }), /limit/],
+  ];
+  for (const [label, fn, re] of BAD) {
+    const xs = fn();
+    check(`★ update/report 校验抓住「${label}」`, xs.length > 0 && re.test(renderIssues(xs).join(" ")), renderIssues(xs).join(" / ").slice(0, 90));
+  }
+  // 合法输入零问题（不误拦）
+  check("★ update asset 合法入参零问题", validateUpdate("asset", { target: "10.0.0.5", stage: "tested", kind: "high" }).length === 0);
+  check("★ update vuln 合法入参零问题", validateUpdate("vuln", { row: 1, kind: "high", stage: "exploited" }).length === 0);
+  check("★ report 不写 kind 零问题", validateReport({}).length === 0);
+  check("★ 行号非法时说明「不是不存在」", /不是「行号不存在」/.test(renderIssues(validateRowId("row", -1)).join("")), renderIssues(validateRowId("row", -1)).join("").slice(0, 90));
+}
+
 // ── ② 端到端：拦截真的发生在写入路径上 ──
 const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "scopegate-"));
 const prevHome = process.env.REDTEAM_HOME;
@@ -360,6 +388,15 @@ try {
 
     const bad = await drill.execute({ op: "update", entity: "vuln", row: 2, status: "exploited" });
     check("★ 误用 status= 时给出纠正提示", /stage=状态/.test(bad.text), bad.text.slice(0, 100));
+  }
+  // 端到端：update / report 的写错必须**拒绝执行**，不是静默回落
+  {
+    const badAsset = await drill.execute({ op: "update", entity: "asset", target: "203.0.113.10", stage: "testted" });
+    check("★ 端到端：asset 状态拼错时拒绝写入", /未写入/.test(badAsset.text) && /stage/.test(badAsset.text), badAsset.text.slice(0, 100));
+    const badRep = await drill.execute({ op: "report", kind: "scoer" });
+    check("★ 端到端：report 类型拼错时拒绝生成", /未生成/.test(badRep.text) && /kind/.test(badRep.text), badRep.text.slice(0, 100));
+    const badRow = await drill.execute({ op: "update", entity: "vuln", row: -1, stage: "fixed" });
+    check("★ 端到端：行号非法时说「非法」而不是「不存在」", /未写入/.test(badRow.text) && /不合法/.test(badRow.text), badRow.text.slice(0, 100));
   }
   const insideUrl = await drill.execute({ op: "entity_add", entity: "vuln", name: "正常URL", target: "http://203.0.113.20/a", kind: "high", text: "p" });
   check("范围内 URL 放行", /已写入/.test(insideUrl.text) && !/范围闸拦下/.test(insideUrl.text), insideUrl.text.slice(0, 70));

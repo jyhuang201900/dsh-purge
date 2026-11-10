@@ -77,8 +77,10 @@ const main = async () => {
   if (!fs.existsSync(leafPath)) failures.push(`attackfile_add：磁盘上没有 attack-files 目录（${leafPath.replace(root, "<tmp>")}）`);
   else if (!fs.readdirSync(leafPath).length) failures.push("attackfile_add：attack-files 目录是空的（只写了库没写文件）");
 
-  // 7) 改：非法枚举要被提前拦下并说明，合法值要能回读出来
-  await run("update 错枚举", { op: "update", entity: "vuln", row: 1, kind: "超严重" }, has("不在枚举"), has("静默不改"));
+  // 7) 改：非法枚举要被**拦在写入之前**（不是"写进去再告诉你静默不改"）
+  // 第 123 轮改：以前 store 对非法枚举返回 updated:true 却什么都不改，回读正确反而是最危险的
+  // ——它让人确信操作成功了。现在入口校验直接拒绝写入，并给字段路径与合法值。
+  await run("update 错枚举", { op: "update", entity: "vuln", row: 1, kind: "超严重" }, has("未写入"), has("kind（严重度）"), has("critical | high"));
   const upd = await run("update 正改", { op: "update", entity: "vuln", row: 1, kind: "critical", stage: "exploited", text: "RCE 确认" },
     has("已改"), has("回读 severity=critical status=exploited"));
   if (!/status=exploited/.test(upd)) failures.push("update：回读没有把 status 变化说出来");
@@ -130,7 +132,9 @@ const main = async () => {
   await run("assets 空态引导", { op: "assets" }, has("共 0 条"), has("importBundle"));
   await run("entity_add asset", { op: "entity_add", entity: "asset", target: "203.0.113.20", name: "nas-20" }, has("已写入"), has("表内现有 1 条"), has("新增 1 条"));
   await run("entity_add asset 批量+去重", { op: "entity_add", entity: "asset", target: "203.0.113.20, 203.0.113.21, 203.0.113.20" }, has("提交 3 个"), has("新增 1 条（同 IP 走 upsert 不算新增）"), has("表内现有 2 条"));
-  await run("update asset 评估", { op: "update", entity: "asset", target: "203.0.113.20", kind: "超优先级", text: "值得打" }, has("已评估"), has("不在枚举"), has("priority=medium"));
+  // 第 123 轮改：asset 的优先级/状态拼错以前**静默回落**（medium/untested），回读还显示成功。
+  // 现在入口校验直接拒绝写入，并给出合法值与字段路径。
+  await run("update asset 评估", { op: "update", entity: "asset", target: "203.0.113.20", kind: "超优先级", text: "值得打" }, has("未写入"), has("kind（优先级）"), has("high | medium | low"));
   await run("update asset 合法评估", { op: "update", entity: "asset", target: "203.0.113.20", kind: "high", value: "还有 445" }, has("priority=high"), has("潜在面=还有 445"));
   await run("update asset 测试回写", { op: "update", entity: "asset", target: "203.0.113.20", stage: "tested", text: "跑完 spray" }, has("已回写测试"), has("test_status=tested"));
 
