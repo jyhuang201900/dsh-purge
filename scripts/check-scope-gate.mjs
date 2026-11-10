@@ -172,6 +172,43 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
   }
 }
 
+// ── ①e 可执行命令（进攻侧：可理解但打不出去等于零）──
+// 实测缺口：前几轮把「下一步」做成「点技能 + 说打法」，但它仍不是命令；而且本机实况是
+// PATH 里只有冒牌 httpx（Python 版）、toolkit 里只有 3 个真 .exe——给一条 nuclei 命令就是给一条打不出去的命令。
+{
+  const { probeTool, commandFor, commandsForStage } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+  // 冒牌同名必须挡住：PATH 里的 httpx 是 Python 版，不认
+  {
+    const h = probeTool("httpx");
+    check("★ 冒牌 httpx（Python 版）不被认成可用", !(h.ok && /pythoncore|Scripts/i.test(h.path)), h.ok ? h.path : "缺（正确）");
+  }
+  // 已装工具给绝对路径（防 PATH 撞同名异构）
+  {
+    const r = commandFor({ tool: "naabu", args: "-host X -top-ports 100" });
+    check("★ 已装工具给绝对路径", r.ok && /naabu/i.test(r.cmd) && (r.cmd.includes("/") || r.cmd.includes("\\")), r.cmd.slice(0, 80));
+  }
+  // 缺工具：有替代就用替代，没替代给安装命令
+  {
+    const r = commandFor({ tool: "不存在的工具xyz", args: "x", alt: { tool: "naabu", args: "-host Y" }, install: "install-cmd" });
+    check("★ 缺工具时改用已装的替代", r.ok && /naabu/i.test(r.cmd), r.cmd.slice(0, 80));
+    const r2 = commandFor({ tool: "不存在的工具xyz", args: "x", install: "npm run toolkit:windows -- --only xyz" });
+    check("★ 无替代时给安装命令并标未就绪", r2.ok === false && /toolkit:windows/.test(r2.cmd), r2.cmd.slice(0, 80));
+  }
+  // 命令必须跟下一步一致：Redis 漏洞给 redis-cli，不是 nuclei
+  {
+    const c = commandsForStage({ stage: "vuln", target: "10.0.0.5", vulnKind: "redis" });
+    const first = c[0] || {};
+    check("★ Redis 漏洞的第一条命令指向 redis-cli", /redis-cli|Redis\.RedisCLI/.test(first.cmd || ""), (first.cmd || "").slice(0, 80));
+  }
+  // 阶段命令按阶段变
+  {
+    const recon = commandsForStage({ stage: "recon", target: "10.0.0.0/24" });
+    check("recon 阶段第一条是探端口", /naabu|top-ports/.test((recon[0] || {}).cmd || ""), (recon[0] || {}).cmd?.slice(0, 60));
+    const tun = commandsForStage({ stage: "tunnel", target: "10.0.0.5" });
+    check("tunnel 阶段给隧道工具或装法", /suo5/.test((tun[0] || {}).cmd || ""), (tun[0] || {}).cmd?.slice(0, 60));
+  }
+}
+
 // ── ② 端到端：拦截真的发生在写入路径上 ──
 const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "scopegate-"));
 const prevHome = process.env.REDTEAM_HOME;
