@@ -107,6 +107,7 @@ const readAll = () => { const m = new Map(); for (const rel of rels) m.set(rel, 
 const out = { files: rels.length };
 const opts = { preserveClientBundles: false, forApply: true };
 const { createHash } = await import("node:crypto");
+const h2 = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
 const hashes = () => { const m = new Map(); for (const [rel, buf] of readAll()) m.set(rel, createHash("sha256").update(buf).digest("hex").slice(0, 16)); return m; };
 const expected = ${JSON.stringify(expected)};
 // 0) 先养一次备份：真机的第一次 apply 就是在这里生成旁侧 .dshpurge.bak；
@@ -139,6 +140,28 @@ out.residueDetail = out.residue.slice(0, 8).map((rel) => ({
   bytes: (() => { try { return fs.statSync(path.join(base, rel)).size; } catch { return -1; } })(),
 }));
 out.residue = out.residue.slice(0, 6);
+// 残差的来源诊断（永久保留）：报告「当前内容 == 哪个备份」，这样下次一眼看出污染的是 sidecar 还是保险柜，
+// 不用再靠猜——本会话已经被「照名字猜字段/猜形状」坑过七次。
+out.probe = out.residue.slice(0, 2).map((rel) => {
+  const full = path.join(base, rel);
+  const side = full + ".dshpurge.bak";
+  const cur = h2(fs.readFileSync(full));
+  const sideH = fs.existsSync(side) ? h2(fs.readFileSync(side)) : "无 sidecar";
+  let vaultH = "无保险柜条目";
+  try {
+    const vroot = path.join(process.env.DSH_HOME, "dsh-purge", "host-backups");
+    for (const f of fs.readdirSync(vroot).filter((n) => n.endsWith(".json"))) {
+      let j = null;
+      try { j = JSON.parse(fs.readFileSync(path.join(vroot, f), "utf8")); } catch { continue; }
+      if (String(j && j.path || "").replace(/\\\\/g, "/").toLowerCase() === full.replace(/\\\\/g, "/").toLowerCase()) {
+        const vb = path.join(vroot, f.replace(/\.json$/, ".bak"));
+        if (fs.existsSync(vb)) vaultH = h2(fs.readFileSync(vb));
+        break;
+      }
+    }
+  } catch { }
+  return { rel, cur, side: sideH, vault: vaultH, equalsOfficial: cur === expected[rel], equalsSidecar: cur === sideH, equalsVault: cur === vaultH };
+});
 // 收尾：子进程的 revert 会连真宿主一起还原（写入端不只认 DSH_BASE），所以最后补一次 apply 把状态推回去。
 await core.applyPatchesAllHosts(core.ALL_PATCHES, opts);
 process.stdout.write(JSON.stringify(out));
@@ -171,6 +194,9 @@ if (!r) {
   check("第二次 apply 幂等（无进一步改动）", r.driftOnSecondApply === 0, `漂移 ${r.driftOnSecondApply} 个`);
   const badResidue = (r.residueDetail || []).filter((x) => !x.equalsAfterFirstApply);
   check(`双次 apply 后偏离官方原文的 ${r.residueCount ?? (r.residueDetail || []).length} 个文件精确等于第一次 apply 之后的状态（双次 apply 污染了还原点，而不是把文件写坏）`, r.revert2Errors === 0 && badResidue.length === 0, (r.revert2Errors ? `revert errors ${r.revert2Errors}；` : "") + (badResidue.map((x) => `${x.rel.slice(0, 26)}=${x.bytes}B`).join(", ") || (r.residue || []).slice(0, 2).join(", ")));
+}
+for (const x of (r && r.probe) || []) {
+  console.log(`    残差来源：${x.rel}｜当前 ${String(x.cur).slice(0, 8)}｜sidecar ${String(x.side).slice(0, 8)}｜保险柜 ${String(x.vault).slice(0, 8)}｜等于 sidecar=${x.equalsSidecar} 等于保险柜=${x.equalsVault} 等于官方=${x.equalsOfficial}`);
 }
 // 真宿主没被动过：状态哈希（补丁计数）在冒烟前后应一致
 // 直接验隔离：真宿主里被 apply 触及的文件，前后哈希必须一字不差（只看 pending 会被自收尾掩盖）。
