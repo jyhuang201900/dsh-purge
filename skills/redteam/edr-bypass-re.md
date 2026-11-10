@@ -161,25 +161,6 @@ sysmon64.exe -i sysmonconfig.xml
   4. 配合 call stack spoof 让 RtlCaptureStackBackTrace 看不到信标地址
 ```
 
-## 按需自举（On-Demand Bootstrap）
-
-### 工具依赖
-
-| 工具 | 用途 | 可自动安装 |
-|------|------|-----------|
-| pe-sieve | 检测进程中的 hook / 注入 | ✓ |
-| API Monitor v2 | 动态观察 API 调用与 hook | 半自动（手动下载） |
-| SysWhispers3 | 生成直接 / 间接 syscall stub | ✓（git clone + python） |
-| Hell's Gate POC | 动态 SSN 解析参考实现 | ✓（git clone） |
-| windbg + IDA | 静态逆 EDR DLL / 内核 callback | ✗（自己装） |
-| Sysmon + olaf config | 本地验证环境 | ✓ |
-
-### 自举命令
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "&lt;SKILL_ROOT&gt;\skills\scripts\bootstrap-reverse.ps1" -Capability @('pe-sieve','syswhispers3','sysmon') -StartServices
-```
-
 ## 路由上下文
 
 **上游入口**：
@@ -191,13 +172,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "&lt;SKILL_ROOT&gt;\skills\s
 
 - `pentest-tools/network-attack-defense.md` — 内网横向时如何与本 skill 联动
 - `malware-analysis/` — 反向视角，看检测方怎么写规则
-- `field-journal/` — 每次实战后回写经验
+- `落地记录/` — 每次实战后回写经验
 
 **下游交付**：
 
 - 生成报告时引用 MITRE ATT&CK **T1562 (Impair Defenses)**、T1562.001 (Disable or Modify Tools)、T1562.006 (Indicator Blocking)、T1055 (Process Injection)、T1027 (Obfuscated Files or Information)
-
-## 法律边界声明
 
 - 仅限合法授权的红队 / 对抗演练 / 自有产品测试
 - 操作前必须取得书面授权（SoW / 测试合同 / SRC 范围说明）
@@ -215,17 +194,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "&lt;SKILL_ROOT&gt;\skills\s
 ## 任务完成自检（声称完成前 MUST 通过）
 
 - [ ] 我是否执行了工作流中的每一步（而不是只阅读）？
-- [ ] 我是否基于 `tool-index` 使用了真实工具路径？
+- [ ] 我是否基于 工具索引（本机无，以技能内「本机工具实况」为准） 使用了真实工具路径？
 - [ ] 我是否产出了可复现证据（命令/脚本/截图/报告）？
 - [ ] 我是否完成并回写了 RULES 要求的 Checklist 项？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |
 | `pe-sieve64` | ❌ 未装（用前先装，或改用等价工具） |
 | `sysmon64` | ❌ 未装（用前先装，或改用等价工具） |
 | `explorer` | ✓ 已装 |
-| `bootstrap-reverse` | ❌ 未装（用前先装，或改用等价工具） |
+| `（本机未装）` | ❌ 未装（用前先装，或改用等价工具） |
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
 | `windbg` | ❌ 未装（用前先装，或改用等价工具） |

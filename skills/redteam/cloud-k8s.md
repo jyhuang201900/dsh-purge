@@ -72,10 +72,10 @@ kubectl get clusterrolebindings
 | 工具 | 用途 | 自举 |
 |------|------|------|
 | kubectl | 集群交互 | 手动 |
-| trivy | 镜像/IaC | bootstrap `trivy` 若可用 |
+| trivy | 镜像/IaC | （本机未装）`trivy` 若可用 |
 | kube-bench / kubeaudit | CIS/配置 | 手动 |
 | pacu / scoutsuite | 云审计（授权） | 手动 |
-| nuclei | 已知云漏洞模板 | bootstrap nmap/nuclei 生态 |
+| nuclei | 已知云漏洞模板 | 若已装则用 nmap/nuclei 生态 |
 
 ## 参考
 
@@ -96,7 +96,7 @@ kubectl get clusterrolebindings
 - [ ] 是否避免破坏性操作？
 - [ ] 报告 / journal？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |

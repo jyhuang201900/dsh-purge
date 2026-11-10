@@ -110,43 +110,6 @@ Step 6: 远程稳定化
 
 完整模板参见 `references/kernel-pwn.md`。
 
-## 按需自举 (On-Demand Bootstrap)
-
-### 工具依赖
-
-| 工具 | 用途 | 安装方式 |
-|------|------|---------|
-| pwntools | exploit 编写框架 | `pip install pwntools` |
-| GEF | gdb 增强（推荐内核 + 用户态） | `git clone https://github.com/bata24/gef` (fork 维护活跃) |
-| pwndbg | gdb 增强（堆调试体验最好） | `git clone https://github.com/pwndbg/pwndbg && ./setup.sh` |
-| ROPgadget | gadget 搜索 | `pip install ropgadget` |
-| Ropper | gadget 搜索（备选，支持架构多） | `pip install ropper` |
-| one_gadget | libc magic gadget 查找 | `gem install one_gadget`（需 ruby） |
-| libc-database | libc 指纹反查 | `git clone https://github.com/niklasb/libc-database && ./get` |
-| qemu-system-x86_64 | 内核题调试 | `apt install qemu-system-x86` |
-| binwalk / cpio | initramfs 拆包 | `apt install binwalk cpio` |
-| patchelf | 切换 libc 版本 | `apt install patchelf` |
-
-### Bootstrap 检查脚本
-
-```bash
-# 一键检查 + 安装核心工具
-for t in pwntools ropgadget ropper; do
-  pip show $t >/dev/null 2>&1 || pip install $t
-done
-
-command -v one_gadget >/dev/null || gem install one_gadget
-
-[ -d ~/tools/libc-database ] || git clone https://github.com/niklasb/libc-database ~/tools/libc-database
-[ -d ~/tools/libc-database/db ] || (cd ~/tools/libc-database && ./get ubuntu debian)
-
-[ -d ~/tools/pwndbg ] || (git clone https://github.com/pwndbg/pwndbg ~/tools/pwndbg && cd ~/tools/pwndbg && ./setup.sh)
-```
-
-### 同一工具自动安装失败 2 次后
-
-停止重试，输出结构化手动安装步骤（pip 源 / gem 源 / git 国内镜像 / apt 源）让用户确认。
-
 ## 路由上下文
 
 **上游入口**: `skills/SKILL.md`（总控）、`routing.md`
@@ -177,11 +140,11 @@ command -v one_gadget >/dev/null || gem install one_gadget
 ## 任务完成自检（声称完成前 MUST 通过）
 
 - [ ] 我是否执行了工作流中的每一步（而不是只阅读）？
-- [ ] 我是否基于 `tool-index` 使用了真实工具路径？
+- [ ] 我是否基于 工具索引（本机无，以技能内「本机工具实况」为准） 使用了真实工具路径？
 - [ ] 我是否产出了可复现证据（命令/脚本/截图/报告）？
 - [ ] 我是否完成并回写了 RULES 要求的 Checklist 项？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |

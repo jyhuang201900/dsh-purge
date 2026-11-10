@@ -48,7 +48,7 @@ Windows 常见可执行文件：
 
 这个 skill 自带两个资源，优先复用，不要每次临时组织一套重复命令。
 
-### `scripts/recon.ps1`
+### `（本机未装）`
 
 标准侦察脚本，适合先做第一轮概况分析。会输出：
 
@@ -375,7 +375,7 @@ rax2 -s hello
 ## 参考资料
 
 - 命令速查：`references/cheatsheet.md`
-- 标准侦察脚本：`scripts/recon.ps1`
+- 标准侦察脚本：`（本机未装）`
 
 ## radare2-skills 生态
 
@@ -389,7 +389,7 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 
 **使用策略**：
 - 当用户提到 `r2xsql`、`r2mcp`、`r2http`、`radius2`、`r2pm`、`rabin2`、`rasm2`、`radiff2`、`rahash2`、`rax2` 时，优先路由到本 skill（radare2/SKILL.md）
-- 这些工具只是生态加速器，**不能绕过**：授权门禁、`tool-index` 校验、Evidence 导入、写模式确认
+- 这些工具只是生态加速器，**不能绕过**：授权前提、工具索引（本机无，以技能内「本机工具实况」为准） 校验、证据导入、写盘前确认
 - 给出最小可复现命令示例：
   - `r2xsql -s <file> -q "SELECT ..."`
   - `curl.exe -sS --data-binary 'aaa' http://127.0.0.1:9393/cmd`
@@ -411,41 +411,16 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 
 **同级关联模块**: `ida-reverse/`（互补：r2 侦察快，IDA 反编译深）
 
-## 按需自举（On-Demand Bootstrap）
-
-本 skill 的入口脚本已接入统一自举系统。缺少 radare2 时不会直接报错，而是自动尝试安装。
-
-### 自动化能力边界
-
-| 工具 | 可自动安装 | 安装方式 | 说明 |
-|------|-----------|---------|------|
-| r2 | ✓ | GitHub Release ZIP (w64) | 自动下载解压到 `%USERPROFILE%\Tools\radare2\` |
-| rabin2 | ✓ | 同上（包含在 radare2 发行包中） | — |
-| rasm2 | ✓ | 同上 | — |
-| radiff2 | ✓ | 同上 | — |
-| rahash2 | ✓ | 同上 | — |
-| rax2 | ✓ | 同上 | — |
-
-### 自举触发点
-
-- `scripts/recon.ps1`：缺 `rabin2` 或 `r2` 时自动调用 `bootstrap-reverse.ps1`
-
-### 自举失败时
-
-如果自动安装失败（网络不通、GitHub API 限流等），脚本会抛出明确错误并附带手动安装链接。
-
-手动安装：从 https://github.com/radareorg/radare2/releases 下载 `radare2-*-w64.zip`，解压到 `%USERPROFILE%\Tools\radare2\` 并确保 `bin\` 目录在 PATH 中。
-
 ## 任务完成自检（声称完成前 MUST 通过）
 
 - [ ] 我是否执行了工作流中的每一步（而不是只阅读）？
 - [ ] 导入表检查是否已执行且写入 Evidence（E-imports / E-triage-imports 或 .NET 等价）？DLL/SYS 是否含 E-exports？
 - [ ] IAT 修复失败是否记录 E-iat-repair-fail 并转动态？重做请求是否回到同一步？
-- [ ] 我是否基于 `tool-index` 使用了真实工具路径？
+- [ ] 我是否基于 工具索引（本机无，以技能内「本机工具实况」为准） 使用了真实工具路径？
 - [ ] 我是否产出了可复现证据（命令/脚本/截图/报告）？
 - [ ] 我是否完成并回写了 RULES 要求的 Checklist 项？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |
@@ -461,7 +436,7 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 | `old` | ❌ 未装（用前先装，或改用等价工具） |
 | `new` | ❌ 未装（用前先装，或改用等价工具） |
 | `curl` | ✓ 已装 |
-| `bootstrap-reverse` | ❌ 未装（用前先装，或改用等价工具） |
+| `（本机未装）` | ❌ 未装（用前先装，或改用等价工具） |
 | `r2` | ❌ 未装（用前先装，或改用等价工具） |
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
 | `frida` | ❌ 未装（用前先装，或改用等价工具） |

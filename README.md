@@ -7,7 +7,7 @@
 <p align="center"><strong>Version 1.1.85</strong></p>
 
 <p align="center">
-  <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 48 个演练技能（32 个进攻流程 + 16 个逆向与专项纵深）。</em>
+  <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 55 个演练技能（32 个进攻流程 + 16 个逆向与专项纵深）。</em>
 </p>
 
 <p align="center">
@@ -458,6 +458,7 @@ npm run verify
 | `npm run probe:gates` | 闸门反向探针总表：逐关改坏即红（没咬过的门等于不知道真假的门） |
 | `npm run audit:skills` | 弹药层一致性：技能正文引用的 `redteam_*` 工具名、条令点名的技能，都必须真实存在 |
 | `npm run sync:skills` | 把仓源 `skills/redteam` 同步到运行时 `~/.dsh/redteam/skills`（幂等，只补缺失；`--force` 全量覆盖、`--dry` 只报差异）。**仓源是 git 与闸门看的那份，运行时才是模型实际读的那份，两份不能各走各的** |
+| `npm run toolkit:windows` / `toolkit:check` | 红队工具链的 **Windows** 装配器与体检：走 GitHub 官方 API 取 `windows_amd64` 资产装到 `$DSH_HOME/redteam/toolkit`（仓里的 `setup.sh` 是 Linux 专用，Windows 上每个都报无匹配资产）；`--check` 只体检。已知 `ksubdomain` 无 Windows 构建 |
 | `npm run test:hygiene` | 磁盘卫生模块夹具：prev 保留上限、孤儿对计数、坏 JSON 不许静默跳过 |
 | `npm run smoke:cli` | CLI 冒烟：真跑 `bin` 的只读模式，验参数分发与输出标志（未知旗标须报错，不许静默当 status） |
 | `npm run smoke:write` | 写路径冒烟：在临时夹具上跑 revert→apply→apply→revert，逐文件字节对账（apply 幂等、revert 往返、跑完自收尾） |

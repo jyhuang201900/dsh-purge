@@ -148,7 +148,7 @@ jadx --deobf -d jadx_out app.apk
 边界：
 
 - JEB Pro 是商业软件，必须由用户自行取得并安装有效许可证；本包不会下载、破解或规避许可。
-- 仅在 `tool-index` 已确认本机 JEB 可用时调用；否则继续使用 `jadx`、`apktool`、Ghidra、IDA 或 radare2。
+- 仅在 工具索引（本机无，以技能内「本机工具实况」为准） 已确认本机 JEB 可用时调用；否则继续使用 `jadx`、`apktool`、Ghidra、IDA 或 radare2。
 - 第三方 JEB MCP bridge 不是本包依赖。安装前必须按 `../ops/skill-supply-chain.md` 审阅源码、权限、网络行为和版本，再由用户明确确认注册。
 
 ### `apktool`
@@ -369,44 +369,15 @@ frida -U -f com.example.app -l hook.js
 
 ---
 
-## 按需自举（On-Demand Bootstrap）
-
-本 skill 的入口脚本已接入统一自举系统。缺少工具时不会直接报错，而是自动尝试安装。
-
-### 自动化能力边界
-
-| 工具 | 可自动安装 | 安装方式 | 说明 |
-|------|-----------|---------|------|
-| jadx | ✓ | GitHub Release ZIP | 自动下载解压到 `%USERPROFILE%\Tools\jadx\` |
-| apktool | ✓ | GitHub Release JAR + wrapper | 自动下载 jar 并生成 bat 到 `%USERPROFILE%\Tools\apktool\` |
-| JEB Pro | ✗ | 用户手动安装并提供有效许可证 | 可选的 Android / ARM 交叉验证工具；第三方 MCP bridge 需单独审计 |
-| frida / frida-ps | ✓ | pip install frida-tools | 需要 Python 已安装 |
-| adb | ✓ | winget / fallback path | 自动安装 Android Platform-Tools |
-| zipalign | ✗ | 需手动安装 Android Build-Tools | `sdkmanager "build-tools;35.0.0"` |
-| apksigner | ✗ | 需手动安装 Android Build-Tools | 同上 |
-
-### 自举触发点
-
-- `scripts/decode.ps1`：缺 jadx 或 apktool 时自动调用 `bootstrap-reverse.ps1`
-- `scripts/rebuild-sign-install.ps1`：缺 adb 或 apktool 时自动调用 bootstrap
-- `scripts/frida-run.ps1`：当前仍为手动检查（frida 通常已通过 pip 安装）
-
-### 自举失败时
-
-如果自动安装失败，脚本会抛出明确错误并附带手动安装链接。常见原因：
-- 网络不通（GitHub API / PyPI 不可达）
-- winget 不可用（Windows 版本过低）
-- Java 未安装（apktool 依赖 JDK）
-
 ## 任务完成自检（声称完成前 MUST 通过）
 
 - [ ] 我是否执行了工作流中的每一步（而不是只阅读）？
-- [ ] 我是否基于 `tool-index` 使用了真实工具路径？
+- [ ] 我是否基于 工具索引（本机无，以技能内「本机工具实况」为准） 使用了真实工具路径？
 - [ ] 我是否产出了可复现证据（命令/脚本/截图/报告）？
 - [ ] 我是否完成并回写了 RULES 要求的 Checklist 项？
 - [ ] 若命中隐藏图标/格机/持久化线索：是否按 U–AV cookbook 记录 E-android-* Evidence（授权范围内）？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |
@@ -414,7 +385,7 @@ frida -U -f com.example.app -l hook.js
 | `frida-run` | ❌ 未装（用前先装，或改用等价工具） |
 | `rebuild-sign-install` | ❌ 未装（用前先装，或改用等价工具） |
 | `manifest-summary` | ❌ 未装（用前先装，或改用等价工具） |
-| `bootstrap-reverse` | ❌ 未装（用前先装，或改用等价工具） |
+| `（本机未装）` | ❌ 未装（用前先装，或改用等价工具） |
 | `frida` | ❌ 未装（用前先装，或改用等价工具） |
 | `jadx` | ❌ 未装（用前先装，或改用等价工具） |
 | `apktool` | ❌ 未装（用前先装，或改用等价工具） |

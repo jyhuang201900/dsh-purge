@@ -17,6 +17,22 @@ enabled: true
 
 ## 一、先确认你有没有"工具箱"（npm 版默认没有）
 
+### 平台差异（先读这条，Windows 上路径/资产名都不一样）
+
+本仓技能里的 toolkit 路径一律写成 POSIX 形式（`$DSH_HOME/redteam/toolkit/<tool>/<tool>`）。**在 Windows 上那对应的可执行文件是 `<tool>\<tool>.exe`**——照抄无后缀的路径会找不到。
+
+装法也不一样：仓里的 `$DSH_HOME/redteam/setup.sh` 是 **Linux/Kali 专用**（资产正则写死 `linux_amd64`，在 Windows 上每个都报「无匹配资产」）。Windows 用 `npm run toolkit:windows`——它走 GitHub 官方 API 取 **windows_amd64** 资产：
+
+```powershell
+npm run toolkit:windows                      # 装全部（官方 Windows 构建）
+npm run toolkit:windows -- --only subfinder,dnsx   # 只装指定
+npm run toolkit:check                        # 只体检不装（双探 PATH 与 toolkit）
+```
+
+已知差异：`ksubdomain` 上游**没有 Windows 构建**（实测 0 个资产），Windows 上用 `subfinder` 替代。
+
+**不要凭记忆判断工具在不在**：技能里的「本机工具实况」是导入时快照，会过期；真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核。
+
 npm 版 `dsh-redteam-mode` **不随包分发工具安装脚本与 9 份攻击链技能**（隧道 / 凭据 /
 WebShell / 反弹 Shell / 横向移动 / 未授权利用）。原因：npm 的发布期自动审查会把
 "包在安装后自动下载渗透二进制"判定为恶意行为特征，整包会被 Blocked。

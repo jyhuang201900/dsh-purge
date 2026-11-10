@@ -17,7 +17,7 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 1. **`idb_open`（旧名 `idalib_open`）不要直接靠部分 AI 客户端 MCP 调用**
    - 部分代码 AI 客户端 的 MCP 客户端对 open 类工具的 output schema 校验有 BUG
    - 报错：`Structured content does not match the tool's output schema`
-   - **解决办法**：使用 `scripts/open.ps1` 脚本通过 HTTP API 直调，绕过 MCP 校验层
+   - **解决办法**：使用 `（本机未装）` 脚本通过 HTTP API 直调，绕过 MCP 校验层
    - 当前 ida-pro-mcp 2.x 工具名为 `idb_open` / `idb_list` / `idb_save`（不再是 `idalib_*`）
    - 文件打开后返回 `session_id`（database），后续工具调用需带该 session
 
@@ -27,7 +27,7 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 
 3. **启动服务器命令阻塞对话**
    - `idalib-mcp` 启动后会持续输出 INFO 日志到控制台
-   - **解决办法**：使用 `scripts/start.ps1`（`-WindowStyle Hidden` 后台静默启动）
+   - **解决办法**：使用 `（本机未装）`（`-WindowStyle Hidden` 后台静默启动）
    - 脚本会等待服务就绪后自动退出，不阻塞对话
 
 4. **MCP 服务器名不能用横线**
@@ -67,8 +67,8 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 
 | 步骤 | 做什么 | 用什么 |
 |------|--------|--------|
-| 1 | 确保 HTTP 服务器在运行 | `scripts/start.ps1`（无参数） |
-| 2 | 打开目标二进制文件 | `scripts/open.ps1 -Path "xxx.exe"` |
+| 1 | 确保 HTTP 服务器在运行 | `（本机未装）`（无参数） |
+| 2 | 打开目标二进制文件 | `（本机未装） -Path "xxx.exe"` |
 | 3 | 使用 MCP 分析工具 | 直接调用 `idapro_*` / HTTP tools（约 65 个，视版本而定） |
 | 4 | 分析完毕 | 工具自动可用 |
 
@@ -76,7 +76,7 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 
 ### start.ps1 — 启动 MCP HTTP 服务器
 
-路径：`scripts/start.ps1`
+路径：`（本机未装）`
 
 - 自动解析 `IDADIR`（环境变量 / 便携版桌面路径 / 常见安装路径）
 - 优先用 IDA 自带 `Python314\python.exe -m ida_pro_mcp.idalib_supervisor`
@@ -101,7 +101,7 @@ powershell -File "<skill-root>\ida-reverse\scripts\start.ps1"
 
 ### open.ps1 — 打开二进制文件
 
-路径：`scripts/open.ps1`
+路径：`（本机未装）`
 
 - 通过 HTTP API 直调 `idb_open`，绕过 MCP schema 校验
 - 自动检测 System32 路径并复制到临时目录
@@ -234,7 +234,7 @@ ERR:open_timeout_600s
 
 **路径 A — Headless idalib（需要有效 license）**
 ```
-powershell -File "scripts/start.ps1"
+powershell -File "（本机未装）"
 ```
 输出 `OK:<工具数>`（当前约 65）表示就绪。
 
@@ -252,7 +252,7 @@ powershell -File "scripts/start-gui.ps1" -Path "C:\目标.exe"
 
 Headless：
 ```
-powershell -File "scripts/open.ps1" -Path "C:\目标.exe" -TimeoutSeconds 600
+powershell -File "（本机未装）" -Path "C:\目标.exe" -TimeoutSeconds 600
 ```
 输出 `OK:文件名:session_id` 表示成功（后带 `(temp copy)` 表示自动降级到临时副本）。
 
@@ -330,63 +330,16 @@ idapro_rename(batch={"func": [{"addr": "函数地址", "name": "有意义的名�
 
 ---
 
-## 按需自举（On-Demand Bootstrap）
-
-本 skill 的入口脚本已接入统一自举系统。
-
-### 自动化能力边界
-
-| 工具 | 可自动安装 | 安装方式 | 说明 |
-|------|-----------|---------|------|
-| idalib-mcp | ✓ | pip install (from GitHub) | `start.ps1` 缺失时自动安装 |
-| IDA Pro 本体 | ✗ | 商业软件，需手动安装 | 设置 `IDADIR` 环境变量指向安装目录 |
-
-### 安装步骤（已验证）
-
-```cmd
-# 1. 设置 IDA 路径（替换为你的实际 IDA 安装目录）
-setx IDADIR "<你的IDA安装目录>"
-
-# 2. 从 GitHub 安装 ida-pro-mcp（PyPI 上的 ida-mcp 是另一个项目，不要装错！）
-pip install git+https://github.com/mrexodia/ida-pro-mcp.git
-
-# 3. 安装 IDA 插件（选择 Streamable HTTP + Global + 全选客户端）
-ida-pro-mcp --install
-
-# 4. 重启 IDA Pro，打开目标文件
-# 插件自动监听 127.0.0.1:13337
-
-# 5. 验证
-ida-pro-mcp --config
-```
-
-> ⚠️ **注意**：PyPI 上的 `ida-mcp` 包（作者 jtsylve）是另一个项目，不是我们需要的。
-> 必须从 GitHub 安装 `mrexodia/ida-pro-mcp`。
-
-### 自举触发点
-
-- `scripts/start.ps1`：缺 `idalib-mcp` 时自动调用 `bootstrap-reverse.ps1`
-- MCP 注册：bootstrap 会自动把 `idapro` 写入 Claude MCP 配置
-
-### 前置条件
-
-- IDA Pro 已安装且 `IDADIR` 环境变量已设置（或脚本内默认路径正确）
-- 推荐使用 IDA 自带 Python314 中的 `ida-pro-mcp`（便携版已内置）
-- 常见本机配置：
-  - User env `IDADIR` → IDA 安装目录（含 `ida.exe`）
-  - 可选 `~\Tools\bin\idalib-mcp.cmd` / `ida-pro-mcp.cmd` 包装器
-  - 客户端 MCP 服务器名只留 `idapro` → `http://127.0.0.1:13337/mcp`
-
 ## 任务完成自检（声称完成前 MUST 通过）
 
 - [ ] 我是否执行了工作流中的每一步（而不是只阅读）？
 - [ ] survey/imports 是否已写入 Evidence（E-imports 或等价）？DLL/SYS 是否含 E-exports？IAT 失败是否记 E-iat-repair-fail？
 - [ ] 用户若要求重做导入表/IAT，是否重做了同一步？
-- [ ] 我是否基于 `tool-index` 使用了真实工具路径？
+- [ ] 我是否基于 工具索引（本机无，以技能内「本机工具实况」为准） 使用了真实工具路径？
 - [ ] 我是否产出了可复现证据（命令/脚本/截图/报告）？
 - [ ] 我是否完成并回写了 RULES 要求的 Checklist 项？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |
@@ -402,7 +355,7 @@ ida-pro-mcp --config
 | `sample` | ❌ 未装（用前先装，或改用等价工具） |
 | `snipaste` | ❌ 未装（用前先装，或改用等价工具） |
 | `start-gui` | ❌ 未装（用前先装，或改用等价工具） |
-| `bootstrap-reverse` | ❌ 未装（用前先装，或改用等价工具） |
+| `（本机未装）` | ❌ 未装（用前先装，或改用等价工具） |
 | `strings` | ❌ 未装（用前先装，或改用等价工具） |
 | `radare2` | ❌ 未装（用前先装，或改用等价工具） |
 | `r2` | ❌ 未装（用前先装，或改用等价工具） |

@@ -66,7 +66,7 @@ bloodhound-python -d domain.local -u user -p pass -c All -ns <DC>
 - `references/ad-attack-paths.md`
 - `../pentest-tools/references/network-attack-defense.md`
 - `../attack-chain/`
-- seeds: `field-journal/seed-005_ad-certipy-esc1.md` `seed-007_ntlm-relay-coercer.md` `seed-013_kerberoasting-spn.md`
+- seeds: `落地记录/seed-005_ad-certipy-esc1.md` `seed-007_ntlm-relay-coercer.md` `seed-013_kerberoasting-spn.md`
 
 ## 路由上下文
 
@@ -81,7 +81,7 @@ bloodhound-python -d domain.local -u user -p pass -c All -ns <DC>
 - [ ] 是否遵守 scope 禁止项？
 - [ ] Checklist？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |

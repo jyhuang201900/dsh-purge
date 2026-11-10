@@ -183,7 +183,7 @@ File → Save Module → 替换原文件
 - [ ] 产物（clean 样本 / 配置 / patch diff）是否落盘且可复现？
 - [ ] 是否提供了下一步菜单或报告出口？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |

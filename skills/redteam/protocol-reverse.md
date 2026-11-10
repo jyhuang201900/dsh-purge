@@ -92,9 +92,9 @@ MUST 产出：
 - [ ] 是否还原了消息布局或状态机（而非只贴 hex）？
 - [ ] 是否有可复现解码命令？
 - [ ] 是否遵守 scope / 脱敏？
-- [ ] 是否回写 field-journal / 报告 Checklist？
+- [ ] 是否回写 落地记录 / 报告 Checklist？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |
