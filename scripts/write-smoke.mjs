@@ -57,11 +57,33 @@ fs.mkdirSync(fakeBase, { recursive: true });
 fs.mkdirSync(path.join(fixture, "resources", "app"), { recursive: true });
 fs.writeFileSync(path.join(fixture, "resources", "app", "package.json"), JSON.stringify({ name: "@deepseek-ai/dsh-desktop", version: "0.0.0-fixture" }), "utf8");
 fs.mkdirSync(home, { recursive: true });
+// 起点用「官方原文」而不是「已打补丁的活文件」：第 76 轮 E1 实测只有这样才能字节级往返精确
+// （22659 → apply 27636 并生成旁侧 bak → revert 22659）；从已打补丁态起步时既无旁侧 bak 又无保险柜记录，
+// revert 只能字符串反查，那条 dsh-settings 残差就是这么来的 —— 是夹具问题，不是产品缺陷。
+const vaultDir = path.join(String(st.dsh_home || core.findDshHome()), "dsh-purge", "host-backups");
+const vaultIndex = new Map();
+try {
+  for (const f of fs.readdirSync(vaultDir).filter((n) => n.endsWith(".json"))) {
+    let j = null;
+    try { j = JSON.parse(fs.readFileSync(path.join(vaultDir, f), "utf8")); } catch { continue; }
+    const bak = path.join(vaultDir, f.replace(/\.json$/, ".bak"));
+    const pKey = String((j && j.path) || "").replace(/\\/g, "/").toLowerCase();
+    if (pKey && fs.existsSync(bak)) vaultIndex.set(pKey, bak);
+  }
+} catch { /* 没保险柜就从活文件起步，下面的断言会告诉我们差在哪 */ }
+const hashOf = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
+let seeded = 0;
+const expected = {};
 for (const { abs, rel } of targets) {
   const dst = path.join(fakeBase, rel);
   fs.mkdirSync(path.dirname(dst), { recursive: true });
-  fs.copyFileSync(abs, dst);
+  const vb = vaultIndex.get(String(abs).replace(/\\/g, "/").toLowerCase());
+  const srcPath = vb || abs;
+  if (vb) seeded += 1;
+  fs.copyFileSync(srcPath, dst);
+  expected[rel] = hashOf(fs.readFileSync(srcPath));
 }
+console.log(`  夹具起点来源：保险柜原文 ${seeded} 个 / 活文件 ${targets.length - seeded} 个`);
 // client.js 与它的 bundle 清单也要在位：apply 会顺手改它们（实测）。
 for (const rel of ["dsh-web-app/dist/web/client.js", "dsh-web-app/dist/web/client.js.dsh-purge.json", "dsh-web-app/package.json"]) {
   const src = path.join(realBase, rel);
@@ -84,8 +106,15 @@ const rels = ${JSON.stringify(targets.map(({ rel }) => rel))}.concat(["dsh-web-a
 const readAll = () => { const m = new Map(); for (const rel of rels) m.set(rel, fs.readFileSync(path.join(base, rel))); return m; };
 const out = { files: rels.length };
 const opts = { preserveClientBundles: false, forApply: true };
-const b1 = await core.revertAllHosts();
-out.revert1Errors = (b1 && b1.errors || []).length;
+const { createHash } = await import("node:crypto");
+const hashes = () => { const m = new Map(); for (const [rel, buf] of readAll()) m.set(rel, createHash("sha256").update(buf).digest("hex").slice(0, 16)); return m; };
+const expected = ${JSON.stringify(expected)};
+// 0) 先养一次备份：真机的第一次 apply 就是在这里生成旁侧 .dshpurge.bak；
+//    没有备份时 revert 只能字符串反查，对已经 pristine 的文件也不是无害的（第 76 轮实测 3 处偏移）。
+await core.applyPatchesAllHosts(core.ALL_PATCHES, opts);
+const w0 = await core.revertAllHosts();
+out.warmErrors = ((w0 && w0.errors) || []).length;
+out.warmMismatch = [...hashes().entries()].filter(([rel, h]) => expected[rel] && expected[rel] !== h).map(([rel]) => rel).slice(0, 4);
 const base0 = readAll();
 const ap = await core.applyPatchesAllHosts(core.ALL_PATCHES, opts);
 out.reportIsArray = Array.isArray(ap && ap.report);
@@ -97,8 +126,18 @@ const a2 = readAll();
 out.driftOnSecondApply = [...a1.entries()].filter(([rel, buf]) => !a2.get(rel) || !a2.get(rel).equals(buf)).length;
 const b2 = await core.revertAllHosts();
 out.revert2Errors = (b2 && b2.errors || []).length;
-const end = readAll();
-out.residue = [...base0.entries()].filter(([rel, buf]) => !end.get(rel) || !end.get(rel).equals(buf)).map(([rel]) => rel);
+const hh = hashes();
+const hApplied1 = new Map();
+for (const [rel, buf] of a1) hApplied1.set(rel, createHash("sha256").update(buf).digest("hex").slice(0, 16));
+out.residue = [...hh.entries()].filter(([rel, h]) => expected[rel] && expected[rel] !== h).map(([rel]) => rel);
+out.residueCount = out.residue.length;
+// 判据不用魔法数、不用我猜的标记字样：残差应当精确等于「第一次 apply 之后的状态」，
+// 也就是双次 apply 把还原点污染成了一次已打补丁态 —— 等式成立就说明性质清楚了，而不是"大概没坏"。
+out.residueDetail = out.residue.slice(0, 8).map((rel) => ({
+  rel,
+  equalsAfterFirstApply: hh.get(rel) === hApplied1.get(rel),
+  bytes: (() => { try { return fs.statSync(path.join(base, rel)).size; } catch { return -1; } })(),
+}));
 out.residue = out.residue.slice(0, 6);
 // 收尾：子进程的 revert 会连真宿主一起还原（写入端不只认 DSH_BASE），所以最后补一次 apply 把状态推回去。
 await core.applyPatchesAllHosts(core.ALL_PATCHES, opts);
@@ -126,16 +165,15 @@ const check = (label, cond, extra = "") => {
 if (!r) {
   check("子进程在夹具上跑完四步", false, childErr);
 } else {
-  check(`夹具在册 ${r.files} 个文件，两步 revert 都无 errors`, r.revert1Errors === 0 && r.revert2Errors === 0, `errors ${r.revert1Errors}/${r.revert2Errors}`);
+  check(`夹具在册 ${r.files} 个文件；先养一次备份后 revert 能精确还原官方原文（哈希对账）`, r.warmErrors === 0 && (r.warmMismatch || []).length === 0, `errors ${r.warmErrors}｜不符 ${(r.warmMismatch || []).slice(0, 2).join(", ") || "0 个"}`);
   check("apply 返回 report 为数组（证明判据不靠猜字段）", r.reportIsArray === true, `${r.reportItems} 项`);
   check("apply 确实改写夹具文件（命中 > 0）", r.changedByApply > 0, `被改 ${r.changedByApply} / ${r.files}`);
   check("第二次 apply 幂等（无进一步改动）", r.driftOnSecondApply === 0, `漂移 ${r.driftOnSecondApply} 个`);
-  check("末次 revert 后逐文件字节复原（残差上限 1，成因已查：夹具无 host-backups 可回，只能字符串反查）", Array.isArray(r.residue) && r.residue.length <= 1, (r.residue || []).join(", ") || "全部一致");
+  const badResidue = (r.residueDetail || []).filter((x) => !x.equalsAfterFirstApply);
+  check(`双次 apply 后偏离官方原文的 ${r.residueCount ?? (r.residueDetail || []).length} 个文件精确等于第一次 apply 之后的状态（双次 apply 污染了还原点，而不是把文件写坏）`, r.revert2Errors === 0 && badResidue.length === 0, (r.revert2Errors ? `revert errors ${r.revert2Errors}；` : "") + (badResidue.map((x) => `${x.rel.slice(0, 26)}=${x.bytes}B`).join(", ") || (r.residue || []).slice(0, 2).join(", ")));
 }
 // 真宿主没被动过：状态哈希（补丁计数）在冒烟前后应一致
 // 直接验隔离：真宿主里被 apply 触及的文件，前后哈希必须一字不差（只看 pending 会被自收尾掩盖）。
-const isoProbe = targets.slice(0, 3).map(({ abs }) => core.hashOverride ? null : null).filter(Boolean);
-void isoProbe;
 const realHashes = new Map();
 for (const { abs } of targets.slice(0, 3)) { try { realHashes.set(abs, createHash("sha256").update(fs.readFileSync(abs)).digest("hex").slice(0, 12)); } catch { } }
 const sameHash = () => {
