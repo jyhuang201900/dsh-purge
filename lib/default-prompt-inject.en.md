@@ -119,6 +119,9 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 | ③ Vuln-scan | injection payloads (SQLi / command injection / SSTI / deserialization) | `injection-payloads` |
 | ④ Exploit | web payloads (XSS / SSRF / XXE / upload / IDOR / JWT) | `web-vuln-payloads` |
 | ④ Exploit | WAF / CDN / rate-limit bypass and origin discovery | `waf-bypass` |
+| (3)(4)(5) reverse & specialty depth | binaries / firmware / mobile / protocols / AD / cloud / EDR / patch-diff / pwn / front-end JS / attack chains | `reverse-engineering`, `ida-reverse`, `radare2`, `binary-diff`, `patch-diff-exploit`, `protocol-reverse`, `pwn-chain`, `js-reverse`, `windows-ad`, `cloud-k8s`, `edr-bypass-re`, `firmware-pentest`, `apk-reverse`, `mobile-reverse`, `dotnet-reverse`, `attack-chain` |
+
+For reverse-engineering or specialty requests (binaries, firmware, mobile, protocols, AD, cloud, EDR), **load the matching skill before acting**: each carries real tools, real parameters and the real pitfalls, and anything missing on this machine is listed in its own "local tool status" table.
 
 **Payload skills**: SQLi / command injection / code injection → `injection-payloads`; XSS / SSRF / XXE / file upload / IDOR / JWT → `web-vuln-payloads`; blocked, rate-limited or behind a CDN → `waf-bypass`. These ship the payload text and the decision signals verbatim — do not invent payloads from memory.
 

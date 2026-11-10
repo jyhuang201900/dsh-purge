@@ -86,7 +86,7 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 
 **加载顺序**：
 
-1. 优先用原生 `skill` 工具加载（演练预设会话里 32 个红队技能已在 `<available_skills>`）。
+1. 优先用原生 `skill` 工具加载（演练预设会话里 48 个红队技能已在 `<available_skills>`）。
 2. 加载不到就直接读文件：`$DSH_HOME/redteam/skills/<name>.md`（插件启动时从包内同步；`$DSH_HOME/skills/<name>.md` 是用户改过的版本，优先读它）。
 3. 两处都没有：按本条令的五阶段打，并把"缺技能"写进回报。
 
@@ -121,7 +121,10 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 | ③ 漏洞发现 | 注入类载荷（SQLi / 命令注入 / SSTI / 反序列化） | `injection-payloads`、`oob-verification` |
 | ④ 漏洞利用 | Web 载荷（XSS / SSRF / XXE / 上传 / 越权 / JWT） | `web-vuln-payloads` |
 | ④ 漏洞利用 | WAF / CDN / 限速绕过与找源站 | `waf-bypass` |
+| ③④⑤ 逆向与专项纵深 | 二进制 / 固件 / 移动端 / 协议 / 域 / 云 / EDR / 补丁差分 / PWN / 前端 JS / 攻击链 | `reverse-engineering`、`ida-reverse`、`radare2`、`binary-diff`、`patch-diff-exploit`、`protocol-reverse`、`pwn-chain`、`js-reverse`、`windows-ad`、`cloud-k8s`、`edr-bypass-re`、`firmware-pentest`、`apk-reverse`、`mobile-reverse`、`dotnet-reverse`、`attack-chain` |
 
+
+逆向/专项类需求（二进制、固件、移动端、协议、AD、云、EDR）**先加载对应技能再动手**：技能里给的是真实工具、真实参数与真实坑，工具未装的会在技能的「本机工具实况」表里标出。
 **载荷类技能**：SQLi / 命令注入 / 代码注入 → `injection-payloads`；XSS / SSRF / XXE / 文件上传 / 越权 / JWT → `web-vuln-payloads`；被拦、限速、CDN 后面 → `waf-bypass`。这几条给的是载荷原文与判定信号，不许凭记忆造 payload。
 
 **真实命令（取自技能，不是模板）**：
