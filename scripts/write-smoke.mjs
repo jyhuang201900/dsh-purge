@@ -139,6 +139,7 @@ const a2 = readAll();
 out.driftOnSecondApply = [...a1.entries()].filter(([rel, buf]) => !a2.get(rel) || !a2.get(rel).equals(buf)).length;
 const b2 = await core.revertAllHosts();
 out.revert2Errors = (b2 && b2.errors || []).length;
+out.revert2ErrList = ((b2 && b2.errors) || []).slice(0, 3).map(([p, e]) => String(p).split(String.fromCharCode(92)).slice(-3).join("/") + ": " + String(e).slice(0, 40));
 const hh = hashes();
 const hApplied1 = new Map();
 for (const [rel, buf] of a1) hApplied1.set(rel, createHash("sha256").update(buf).digest("hex").slice(0, 16));
@@ -205,7 +206,7 @@ if (!r) {
   check("apply 确实改写夹具文件（命中 > 0）", r.changedByApply > 0, `被改 ${r.changedByApply} / ${r.files}`);
   check("第二次 apply 幂等（无进一步改动）", r.driftOnSecondApply === 0, `漂移 ${r.driftOnSecondApply} 个`);
   const badResidue = (r.residueDetail || []).filter((x) => !x.equalsAfterFirstApply);
-  check(`双次 apply 后偏离官方原文的 ${r.residueCount ?? (r.residueDetail || []).length} 个文件精确等于第一次 apply 之后的状态（双次 apply 污染了还原点，而不是把文件写坏）`, r.revert2Errors === 0 && badResidue.length === 0, (r.revert2Errors ? `revert errors ${r.revert2Errors}；` : "") + (badResidue.map((x) => `${x.rel.slice(0, 26)}=${x.bytes}B`).join(", ") || (r.residue || []).slice(0, 2).join(", ")));
+  check(`双次 apply 后偏离官方原文的 ${r.residueCount ?? (r.residueDetail || []).length} 个文件精确等于第一次 apply 之后的状态（双次 apply 污染了还原点，而不是把文件写坏）`, r.revert2Errors === 0 && badResidue.length === 0, (r.revert2Errors ? `revert errors ${r.revert2Errors}：${(r.revert2ErrList || []).join(" ; ")}；` : "") + (badResidue.map((x) => `${x.rel.slice(0, 26)}=${x.bytes}B`).join(", ") || (r.residue || []).slice(0, 2).join(", ")));
 }
 for (const x of (r && r.probe) || []) {
   console.log(`    残差来源：${x.rel}｜当前 ${String(x.cur).slice(0, 8)}｜sidecar ${String(x.side).slice(0, 8)}｜保险柜 ${String(x.vault).slice(0, 8)}｜等于 sidecar=${x.equalsSidecar} 等于保险柜=${x.equalsVault} 等于官方=${x.equalsOfficial}`);
