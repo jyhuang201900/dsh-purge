@@ -168,6 +168,17 @@ if (!skip("skillsbuild")) {
   else notes.push(out[out.length - 1].trim());
 }
 
+// 关 16：范围闸自测——越界打靶不是技术问题，是事故。
+//   实测缺口：靶标授权 203.0.113.0/24 时，落 198.51.100.9 的资产与漏洞都能静默写进去。
+//   这关同时钉两层：判定机制本身（排除项优先 / CIDR 不跨界 / 判不了即不过）
+//   与「拦截真的发生在写入路径上」（函数对但没接上，是这类改动最常见的假成功）。
+if (!skip("scopegate")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-scope-gate.mjs")], { encoding: "utf8", timeout: 120000 });
+  const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/).filter((l) => l.trim() && !/ExperimentalWarning|trace-warnings/.test(l));
+  if (res.status !== 0) failures.push(`范围闸未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 130)}`);
+  else notes.push(out[0].trim());
+}
+
 // 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
 const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json", "docs/debt-baseline.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))
