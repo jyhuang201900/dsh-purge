@@ -143,7 +143,23 @@ try {
   const tDestructive = await drill.execute({ op: "chain_add", stage: "exploit", tool: "competition-kernel-container-escape", text: "逃逸" });
   check("★ 排除手法被拦（排除优先）", /技法闸拦下/.test(tDestructive.text) && /被排除/.test(tDestructive.text), tDestructive.text.slice(0, 90));
 
+  // ── ④ 日常入口也要看得见边界：summary 与 purge_status settings ──
   // ── ③ 拦截必须可交付：战报要能证明「没打什么」，而不只是「打了什么」 ──
+  // 为什么算范围闸的一部分：边界只在报告里有 = 作业结束才知道；日常会话看 summary / settings
+  // 才是「人做决定时」看到的界面。这两个入口不报，等于平时瞎打。
+  {
+    const sum = await drill.execute({ op: "summary" });
+    check("summary 报授权边界（目标/技法/窗口）", /授权边界：.*目标.*技法.*窗口/.test(sum.text), sum.text.slice(0, 100));
+    check("★ summary 报越界拦截汇总", /越界拦截：共 \d+ 次/.test(sum.text), (sum.text.match(/越界拦截：[^\n]*/) || [""])[0].slice(0, 80));
+    // 判据要盯住「真的归了类」而不只是「出现了『最多：』三个字」：
+    // 归类失效时那一行仍会打印「最多：」但后面是空的，只查关键字会假绿（实测探针 D 咬不住）。
+    check("★ summary 汇总点出最多的那类（且真有类别名与计数）", /最多：[^\n]*[\u4e00-\u9fa5A-Za-z]+×\d+/.test(sum.text), (sum.text.match(/最多：[^\n]*/) || [""])[0].slice(0, 80));
+
+    const statusTool = tools.find((t) => t.name === "purge_status");
+    const st = await statusTool.execute({ settings: true });
+    check("★ purge_status settings 报靶标授权边界", /靶标 @\S+ 授权：目标/.test(st.text), st.text.slice(0, 110));
+    check("★ purge_status settings 报越界拦截", /越界拦截：(共 \d+ 次|0 次)/.test(st.text), (st.text.match(/越界拦截：[^\n]*/) || [""])[0].slice(0, 80));
+  }
   // 为什么这也是范围闸的一部分：边界拦住动作只是「没出事」，把拦截事实写进报告才是「可审计」。
   // 拦了不记，交出去的成品就只能自证清白，审计方无从复核。
   // 审计段是**按靶标**记录的，所以全套要在同一个靶标里做：新开一个三道边界齐全的靶标，
