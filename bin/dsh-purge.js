@@ -104,11 +104,22 @@ async function main() {
     push(st.surface ? "ok" : "warn", `宿主 surface=${st.surface || "未定位"}`, `补丁 ${tally.applied}/${tally.total} 已清洗｜待清洗 ${pending}｜未命中 ${skipped}`);
     if (pending > 0) push("bad", `还有 ${pending} 条待清洗`, "跑 dsh-purge --apply");
     if (skipped > 0) push("ok", `未命中 ${skipped} 条为设计内 skipped`, (tally.skipped || []).map((x) => `#${x.id ?? x}`).join(" "));
-    // 3) 注入正文状态（诚实标签：custom 说明 sync 不会覆盖，需要人决定）
+    // 3) 注入正文状态：⚠ 只给"需要动手"的情形，"用户自己选的稿"降级为信息。
+    //    判据全部来自实测：state.customized/explicitSave 表示有意自改；hash 对不上表示记录与磁盘脱节（本轮本机就是这种）。
     const defLen = String(core.defaultOverrideText() || "").length;
-    let liveLen = 0;
-    try { if (st.override_path && fs.existsSync(String(st.override_path))) liveLen = fs.readFileSync(String(st.override_path), "utf8").length; } catch { }
-    push(st.override_status === "default" ? "ok" : "warn", `注入状态 ${st.override_status}`, `默认 ${defLen} 字｜生效 ${liveLen || "—"} 字${st.override_status === "custom" ? "｜想要新条款：dsh-purge 面板或 purge_override reset" : ""}`);
+    let liveTxt = "";
+    try { if (st.override_path && fs.existsSync(String(st.override_path))) liveTxt = fs.readFileSync(String(st.override_path), "utf8"); } catch { }
+    let ovs = null;
+    try { ovs = core.readOverrideStateSync ? core.readOverrideStateSync(core.findDshHome()) : null; } catch { ovs = null; }
+    const stamp = liveTxt ? core.hashOverride(liveTxt) : "";
+    const deliberate = Boolean(ovs && (ovs.customized === true || ovs.explicitSave === true));
+    const bookkeepingGap = Boolean(liveTxt && ovs && ovs.hash && stamp !== ovs.hash);
+    const detail3 = `默认 ${defLen} 字｜生效 ${liveTxt.length || "—"} 字`;
+    if (!liveTxt) push("warn", "注入文件读不到", `状态 ${st.override_status || "?"}`);
+    else if (stamp === core.defaultOverrideHash()) push("ok", "注入正文 = 当前内置默认", detail3);
+    else if (deliberate && !bookkeepingGap) push("ok", "注入正文是你自己保存的稿（不算待办）", `${detail3}｜插件判为 ${st.override_status}，sync 不会覆盖它`);
+    else if (bookkeepingGap) push("warn", `注入状态 ${st.override_status}：磁盘内容与插件记录不一致`, `${detail3}｜跑一次面板「保存」或在 purge_override reset 之间选一个来对齐`);
+    else push("warn", `注入状态 ${st.override_status}：是我们的旧默认没跟上`, `${detail3}｜重启会自动升级到 ${defLen} 字，或 purge_override reset`);
     // 4) 路由是否 live（这是"重启有没有生效"的唯一硬证据）
     if (!baseUrl) {
       push("warn", "HTTP MCP 未探测", "给 --verify-live <url> 或设 DSH_WEB_URL");
