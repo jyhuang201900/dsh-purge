@@ -301,9 +301,31 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
     // 生成器产出的命令要体现这个区别
     const cv = commandsForStage({ stage: "recon", target: "example.com" });
     const nab = cv.find((c) => /naabu/.test(c.cmd));
-    const nuc = cv.find((c) => /nuclei/.test(c.cmd));
     check("★ 生成的 naabu 命令不含 -duc", nab && !/-duc/.test(nab.cmd), (nab ? nab.cmd : "无").slice(0, 90));
+    // nuclei 的断言放到 vuln 阶段：recon 已改用 httpx 认指纹（第 130 轮），那里不再有 nuclei 命令
+    const cvv = commandsForStage({ stage: "vuln", target: "example.com" });
+    const nuc = cvv.find((c) => /nuclei/.test(c.cmd));
     check("★ 生成的 nuclei 命令含 -duc", nuc && /-duc/.test(nuc.cmd), (nuc ? nuc.cmd : "无").slice(0, 90));
+  }
+  // ★ httpx 不读系统代理：直连会**静默 0 输出、退出码 0**（比报错更危险——看起来像"没发现什么"）。
+  // 实测设上代理后 https://example.com [200] [Example Domain] [Cloudflare,HTTP/3]，3.5 秒。
+  {
+    const { withProxyFlag, systemProxyUrl, NEEDS_PROXY, probeTool: pT } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+    check("★ httpx 被标为需要代理", NEEDS_PROXY.httpx === true, String(NEEDS_PROXY.httpx));
+    const px = systemProxyUrl();
+    const withP = withProxyFlag("httpx", "-u x -silent");
+    check("★ httpx 命令自动带 -http-proxy", !px || /-http-proxy/.test(withP), withP);
+    check("★ 代理补全幂等", (withProxyFlag("httpx", "-u x -http-proxy http://p:1").match(/-http-proxy/g) || []).length === 1, withProxyFlag("httpx", "-u x -http-proxy http://p:1"));
+    check("★ 其他工具不补代理（nuclei 自己有机制）", withProxyFlag("nuclei", "-u x") === "-u x", withProxyFlag("nuclei", "-u x"));
+    // 认指纹要用 httpx 而不是 nuclei（快一个量级）
+    const cv = commandsForStage({ stage: "recon", target: "example.com" });
+    const fp = cv.find((c) => /认指纹/.test(c.label));
+    if (pT("httpx").ok) {
+      check("★ 装了 httpx 时认指纹用 httpx", fp && /httpx/.test(fp.cmd) && !/nuclei/.test(fp.cmd), (fp ? fp.cmd : "无").slice(0, 100));
+      check("★ 认指纹命令带代理", fp && /-http-proxy/.test(fp.cmd), (fp ? fp.cmd : "无").slice(0, 100));
+    } else {
+      check("（本机无 httpx，跳过认指纹断言）", true);
+    }
   }
   // 阶段命令按阶段变
   {
