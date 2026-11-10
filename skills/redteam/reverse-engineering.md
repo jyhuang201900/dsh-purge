@@ -4,7 +4,6 @@ description: Provides reverse engineering techniques. Use when the main job is t
 whenToUse: Provides reverse engineering techniques. Use when the main job is to understand how a comp
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
-# reverse-engineering
 
 # Reverse Engineering
 
@@ -217,7 +216,7 @@ Use [field-notes.md](field-notes.md) after the first round of triage when you kn
 
 ## OLLVM 混淆还原（上游深度参考）
 
-# OLLVM 反混淆 / Obfuscator-LLVM Deobfuscation
+###### OLLVM 反混淆 / Obfuscator-LLVM Deobfuscation
 
 > 面向 APK .so、ELF 二进制和控制流平坦化场景的 OLLVM 脱密工作流。
 > 工具与变种信息基于 2026 年社区活跃项目调研，非训练记忆。
@@ -225,7 +224,7 @@ Use [field-notes.md](field-notes.md) after the first round of triage when you kn
 
 ---
 
-## 0. 快速决策：我该用哪个工具？
+###### 0. 快速决策：我该用哪个工具？
 
 根据你的环境和对目标混淆类型的判断，直接对号入座：
 
@@ -245,11 +244,11 @@ Use [field-notes.md](field-notes.md) after the first round of triage when you kn
 
 ---
 
-## 1. 现代 OLLVM 变种生态（2026 社区调研）
+###### 1. 现代 OLLVM 变种生态（2026 社区调研）
 
 OLLVM 早已不只是 2017 年那个原始仓库。以下是目前活跃的混淆器分支，**脱密前必须先判断目标是哪个变种**，因为不同变种的对抗手段差异很大：
 
-### 1.1 混淆器分支谱系
+###### 1.1 混淆器分支谱系
 
 | 变种 | 基准 LLVM | 相比原始 OLLVM 的新增特性 | 对抗要点 |
 |------|----------|----------------------|---------|
@@ -264,7 +263,7 @@ OLLVM 早已不只是 2017 年那个原始仓库。以下是目前活跃的混�
 | **amice** (Rust) | Rust 实现 | 全套 + VM Flatten、Instruction Virtualization、Delayed Offset Loading、Parameter Aggregation | 含 VM 化，需 VM handler 还原而非单纯 deflat |
 | **VMP 系** (SmallVmp/VMPilot/xVMP/VMPacker) | — | 指令虚拟化 | **不属于 OLLVM 范畴**，需 VM 逆向，参考 VM 专用工具 |
 
-### 1.2 关键判断线索
+###### 1.2 关键判断线索
 
 - **Trap Angr**（Pluto/Polaris）：如果 angr 跑着跑着爆炸或路径爆炸，怀疑目标用了 Trap Angr pass → 改用 d810-ng 或 Unicorn 动态方法
 - **Goron/Arkari 间接跳转**：如果分发器用间接跳转（BR x8 而非 switch），先尝试把相关数据段设为只读，间接跳转目标常变成可静态求解
@@ -273,11 +272,11 @@ OLLVM 早已不只是 2017 年那个原始仓库。以下是目前活跃的混�
 
 ---
 
-## 2. OLLVM 混淆类型检测
+###### 2. OLLVM 混淆类型检测
 
 OLLVM 三大核心 pass 的识别特征：
 
-### 2.1 控制流平坦化 (Control Flow Flattening / `fla`)
+###### 2.1 控制流平坦化 (Control Flow Flattening / `fla`)
 
 **IDA 视图特征：**
 - 函数入口先跳转到唯一的分发器（dispatcher）块
@@ -302,7 +301,7 @@ Original:             OLLVM flattened:
 - Hodur (PlugX)：嵌套 `while(1)` 状态机，`jnz state, #CONST`，**无 switch 分发器**
 - Approov：`while(v8 != C)`，状态常量集中在 `0xF6000–0xF6FFF`
 
-### 2.2 虚假控制流 (Bogus Control Flow / `bcf`)
+###### 2.2 虚假控制流 (Bogus Control Flow / `bcf`)
 
 - 每个真实分支间插入**不可达假分支**
 - 假分支用**不透明谓词**保护（条件恒真/恒假，但静态分析无法直接证明）
@@ -317,7 +316,7 @@ if (x * (x + 1) % 2 == 0) {
 }
 ```
 
-### 2.3 指令替换 (Instruction Substitution / `sub`) → MBA
+###### 2.3 指令替换 (Instruction Substitution / `sub`) → MBA
 
 - 简单算术/位运算替换为等价复杂表达式（MBA, Mixed Boolean-Arithmetic）
 
@@ -327,7 +326,7 @@ a ^ b  →  (a | b) - (a & b)
 a - b  →  a + (~b) + 1
 ```
 
-### 2.4 快速分类表
+###### 2.4 快速分类表
 
 | 混淆类型 | IDA 特征 | 主要对抗手段 |
 |---------|---------|------------|
@@ -338,9 +337,9 @@ a - b  →  a + (~b) + 1
 
 ---
 
-## 3. 主流工具详解（社区活跃项目）
+###### 3. 主流工具详解（社区活跃项目）
 
-### 3.1 obpo-plugin — 最强效果，云插件
+###### 3.1 obpo-plugin — 最强效果，云插件
 
 > [obpo-project/obpo-plugin](https://github.com/obpo-project/obpo-plugin) · 629⭐ · 2026-06 活跃
 
@@ -371,7 +370,7 @@ a - b  →  a + (~b) + 1
 - ⚠️ 服务器可能宕机，依赖作者维护
 - ❌ 不能解决所有混淆（作者明确声明）
 
-### 3.2 d810-ng — 本地一站式首选
+###### 3.2 d810-ng — 本地一站式首选
 
 > [w00tzenheimer/d810-ng](https://github.com/w00tzenheimer/d810-ng) · 223⭐ · 2026-06-26 更新
 
@@ -417,7 +416,7 @@ D-810 的现代维护/重构版（Next Generation）。本地运行、开源、�
 - d810-ng 有 CI 测试、重构代码、新增 Tigress/Hodur/Approov 专用 unflattener
 - 集成 Z3，模板匹配失败时回退到 SMT 求解，成功率更高
 
-### 3.3 ollvm-unflattener — Miasm 符号执行，纯脚本
+###### 3.3 ollvm-unflattener — Miasm 符号执行，纯脚本
 
 > [cdong1012/ollvm-unflattener](https://github.com/cdong1012/ollvm-unflattener) · 265⭐ · 2026-06 活跃
 
@@ -435,14 +434,14 @@ git clone https://github.com/cdong1012/ollvm-unflattener.git
 cd ollvm-unflattener
 pip install -r requirements.txt   # miasm, graphviz, keystone-engine
 
-# 基本用法
+###### 基本用法
 python unflattener -i <input.bin> -o <output.bin> -t <function_addr> -a
-# -a: 自动跟随调用做多层处理
+###### -a: 自动跟随调用做多层处理
 ```
 
 **适用：** 无 IDA、目标 x86/x64、需要批量脚本化处理。
 
-### 3.4 ollvm-breaker — Binary Ninja 实战
+###### 3.4 ollvm-breaker — Binary Ninja 实战
 
 > [amimo/ollvm-breaker](https://github.com/amimo/ollvm-breaker) · 441⭐
 
@@ -450,13 +449,13 @@ python unflattener -i <input.bin> -o <output.bin> -t <function_addr> -a
 
 **适用：** Binary Ninja 用户、Android .so 实战。
 
-### 3.5 deollvm — ARM64 Unicorn
+###### 3.5 deollvm — ARM64 Unicorn
 
 > [GeT1t/deollvm](https://github.com/GeT1t/deollvm) · 34⭐ · 2026-04
 
 基于 **Unicorn** 的 ARM64 OLLVM deflat。无 IDA 时处理 ARM64 .so 的备选。
 
-### 3.6 DeObfBR — BR 混淆专项
+###### 3.6 DeObfBR — BR 混淆专项
 
 > [Mrack/DeObfBR](https://github.com/Mrack/DeObfBR) · 96⭐ · 2026-06-25
 
@@ -464,7 +463,7 @@ python unflattener -i <input.bin> -o <output.bin> -t <function_addr> -a
 
 **⚠️ 简易对抗技巧（来自 awesome-ollvm）：** Goron/Arkari 风格的间接相关混淆，可以通过**设置数据段为只读**来简单对抗——间接跳转目标常依赖运行期可写的数据段，设只读后变成可静态求解。
 
-### 3.7 angr — 符号执行通用框架
+###### 3.7 angr — 符号执行通用框架
 
 ```python
 import angr
@@ -473,7 +472,7 @@ proj = angr.Project("target.so", auto_load_libs=False)
 cfg = proj.analyses.CFGFast()
 func = proj.kb.functions[0x12345]
 
-# 内置 Deobfuscator
+###### 内置 Deobfuscator
 deob = proj.analyses.Deobfuscator(func=func)
 deob.normalize()
 ```
@@ -482,9 +481,9 @@ deob.normalize()
 
 ---
 
-## 4. 完整脱密工作流（按场景）
+###### 4. 完整脱密工作流（按场景）
 
-### 4.1 通用决策树
+###### 4.1 通用决策树
 
 ```
 目标二进制
@@ -516,25 +515,25 @@ deob.normalize()
   └── Frida hook 关键函数验证逻辑正确？
 ```
 
-### 4.2 Android NDK .so 脱密专项
+###### 4.2 Android NDK .so 脱密专项
 
 Android NDK 编译的 .so 经 OLLVM 加固是 APK 逆向最常见的场景。
 
 **Step 1 — 提取 .so：**
 ```bash
 adb pull /data/app/~~/lib/arm64/libnative.so
-# 或从 APK 直接解压：unzip target.apk -d out/ ; find out -name "*.so"
+###### 或从 APK 直接解压：unzip target.apk -d out/ ; find out -name "*.so"
 ```
 
 **Step 2 — 识别 OLLVM 与变种：**
 ```bash
 readelf -a libnative.so | grep -E "Size|text"   # .text 异常大但函数少 → 大概率 OLLVM
-# IDA 打开看函数特征：
-#   巨大 switch → fla
-#   不可达分支 → bcf
-#   复杂算术 → sub/MBA
-#   间接跳转 BR x8 → Goron/Arkari，试数据段只读
-#   while(1) + jnz state → Hodur，用 d810-ng HodurUnflattener
+###### IDA 打开看函数特征：
+######   巨大 switch → fla
+######   不可达分支 → bcf
+######   复杂算术 → sub/MBA
+######   间接跳转 BR x8 → Goron/Arkari，试数据段只读
+######   while(1) + jnz state → Hodur，用 d810-ng HodurUnflattener
 ```
 
 **Step 3 — 脱密（分层）：**
@@ -559,7 +558,7 @@ Interceptor.attach(target.add(0x1234), {  // dispatcher offset
 });
 ```
 
-### 4.3 CTF 场景快速脱密
+###### 4.3 CTF 场景快速脱密
 
 CTF 通常时间紧，优先用最快路径：
 
@@ -571,7 +570,7 @@ import angr
 proj = angr.Project("challenge", auto_load_libs=False)
 cfg = proj.analyses.CFGFast()
 
-# 找最大的几个函数（最可能是被混淆的）
+###### 找最大的几个函数（最可能是被混淆的）
 funcs = sorted(cfg.functions.values(), key=lambda f: f.size, reverse=True)[:5]
 for func in funcs:
     print(f"[*] {func.name} @ {hex(func.addr)} size={hex(func.size)}")
@@ -586,12 +585,12 @@ for func in funcs:
 
 ---
 
-## 5. MBA 表达式简化
+###### 5. MBA 表达式简化
 
-### 5.1 常见 OLLVM MBA 模式
+###### 5.1 常见 OLLVM MBA 模式
 
 ```python
-# 这些等式是 OLLVM sub pass 生成表达式的化简目标
+###### 这些等式是 OLLVM sub pass 生成表达式的化简目标
 "(a | b) + (a & b)"        # → a + b
 "(a | b) - (a & b)"        # → a ^ b
 "(a ^ b) + 2*(a & b)"      # → a + b
@@ -599,7 +598,7 @@ for func in funcs:
 "~(~a & ~b)"               # → a | b (De Morgan)
 ```
 
-### 5.2 工具选择
+###### 5.2 工具选择
 
 | 工具 | 方式 | 适用 |
 |------|------|------|
@@ -609,7 +608,7 @@ for func in funcs:
 | **Z3 直接求解** | SMT | 最通用，模板匹配都失败时 |
 
 ```python
-# SiMBA 示例
+###### SiMBA 示例
 from simba import simplify_mba
 exprs = ["(a | b) + (a & b)", "(a ^ b) + 2*(a & b)"]
 for e in exprs:
@@ -618,12 +617,12 @@ for e in exprs:
 
 ---
 
-## 6. 完整脱密案例脚本
+###### 6. 完整脱密案例脚本
 
 ```bash
 #!/bin/bash
-# OLLVM deobfuscation pipeline (2026 community tools)
-# 适用标准 OLLVM / Hikari / O-MVLL 加固的 ELF/.so
+###### OLLVM deobfuscation pipeline (2026 community tools)
+###### 适用标准 OLLVM / Hikari / O-MVLL 加固的 ELF/.so
 
 BINARY=$1
 
@@ -653,7 +652,7 @@ echo "[+] Done. 在 IDA 中重新分析验证。"
 
 ---
 
-## 7. 常见陷坑（社区实战总结）
+###### 7. 常见陷坑（社区实战总结）
 
 | 问题 | 原因 | 解决办法 |
 |------|------|---------|
@@ -672,7 +671,7 @@ echo "[+] Done. 在 IDA 中重新分析验证。"
 
 ---
 
-## 8. 工具速查表（2026 社区活跃度）
+###### 8. 工具速查表（2026 社区活跃度）
 
 | 工具 | 平台 | 方式 | Stars/价 | 最近更新 | 开源 | 备注 |
 |------|------|------|---------|---------|------|------|
@@ -689,7 +688,7 @@ echo "[+] Done. 在 IDA 中重新分析验证。"
 
 ---
 
-## 9. 参考链接
+###### 9. 参考链接
 
 **混淆器（用于理解对抗目标）：**
 - [obfuscator-llvm/obfuscator](https://github.com/obfuscator-llvm/obfuscator) — 原始 OLLVM
@@ -736,6 +735,22 @@ echo "[+] Done. 在 IDA 中重新分析验证。"
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
+
+<!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
+
+## 第二发（主力打不出去时，按这个顺序换）
+
+1. **同类替代**（链路里的互补技能，手法最接近）：`pwn-chain`、`radare2`
+
+2. **前提没满足就先回去**：`binary-diff` —— 上一环没做实，本环再试也是空打
+
+3. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
+
+4. **目标比预期更深**：换到同主题的专项靶子面 `competition-reverse-pwn`、`mobile-reverse`、`competition-zip-archive`
+
+**纪律**：同一手法不许连打三次（第一次是验证、第二次换参数、第三次必须换手法）；换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
+
+second-shot:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 

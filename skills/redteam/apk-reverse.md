@@ -4,7 +4,6 @@ description: 在 CLI 环境下做 Android APK 逆向时使用。适用于 APK �
 whenToUse: 在 CLI 环境下做 Android APK 逆向时使用
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
-# apk-reverse
 
 ## 适用范围
 
@@ -397,16 +396,16 @@ frida -U -f com.example.app -l hook.js
 
 ## Frida 实战手册（上游深度参考）
 
-# Frida 实战脚本速查
+###### Frida 实战脚本速查
 
 > 精选自 [awesome-frida](https://github.com/dweinstein/awesome-frida)、[Frida-Mobile-Scripts](https://github.com/m0bilesecurity/Frida-Mobile-Scripts)、[frida-codeshare-scripts](https://github.com/zengfr/frida-codeshare-scripts) 等开源项目。
 > 按场景分类，直接复制使用。
 
 ---
 
-## 通用 Hook 模板
+###### 通用 Hook 模板
 
-### Hook 任意 Java 方法
+###### Hook 任意 Java 方法
 
 ```javascript
 Java.perform(function() {
@@ -430,7 +429,7 @@ Java.perform(function() {
 });
 ```
 
-### Hook 构造函数
+###### Hook 构造函数
 
 ```javascript
 Java.perform(function() {
@@ -442,7 +441,7 @@ Java.perform(function() {
 });
 ```
 
-### 枚举所有方法
+###### 枚举所有方法
 
 ```javascript
 Java.perform(function() {
@@ -456,9 +455,9 @@ Java.perform(function() {
 
 ---
 
-## 加密/签名 Hook
+###### 加密/签名 Hook
 
-### Hook AES 加解密
+###### Hook AES 加解密
 
 ```javascript
 Java.perform(function() {
@@ -497,7 +496,7 @@ function bytesToHex(bytes) {
 }
 ```
 
-### Hook MD5/SHA
+###### Hook MD5/SHA
 
 ```javascript
 Java.perform(function() {
@@ -520,7 +519,7 @@ Java.perform(function() {
 });
 ```
 
-### Hook HMAC
+###### Hook HMAC
 
 ```javascript
 Java.perform(function() {
@@ -544,9 +543,9 @@ Java.perform(function() {
 
 ---
 
-## 网络请求 Hook
+###### 网络请求 Hook
 
-### Hook OkHttp3 请求/响应
+###### Hook OkHttp3 请求/响应
 
 ```javascript
 Java.perform(function() {
@@ -569,7 +568,7 @@ Java.perform(function() {
 });
 ```
 
-### Hook URL 连接
+###### Hook URL 连接
 
 ```javascript
 Java.perform(function() {
@@ -581,7 +580,7 @@ Java.perform(function() {
 });
 ```
 
-### Hook WebView
+###### Hook WebView
 
 ```javascript
 Java.perform(function() {
@@ -600,9 +599,9 @@ Java.perform(function() {
 
 ---
 
-## 绕过类 Hook
+###### 绕过类 Hook
 
-### 通用 SSL Pinning 绕过
+###### 通用 SSL Pinning 绕过
 
 ```javascript
 Java.perform(function() {
@@ -645,7 +644,7 @@ Java.perform(function() {
 });
 ```
 
-### 通用 Root 检测绕过
+###### 通用 Root 检测绕过
 
 ```javascript
 Java.perform(function() {
@@ -682,7 +681,7 @@ Java.perform(function() {
 });
 ```
 
-### 反调试绕过
+###### 反调试绕过
 
 ```javascript
 Java.perform(function() {
@@ -708,7 +707,7 @@ Java.perform(function() {
 });
 ```
 
-### 模拟器检测绕过
+###### 模拟器检测绕过
 
 ```javascript
 Java.perform(function() {
@@ -731,9 +730,9 @@ Java.perform(function() {
 
 ---
 
-## 数据存储 Hook
+###### 数据存储 Hook
 
-### Hook SharedPreferences
+###### Hook SharedPreferences
 
 ```javascript
 Java.perform(function() {
@@ -753,7 +752,7 @@ Java.perform(function() {
 });
 ```
 
-### Hook SQLite
+###### Hook SQLite
 
 ```javascript
 Java.perform(function() {
@@ -774,9 +773,9 @@ Java.perform(function() {
 
 ---
 
-## 脱壳 Hook
+###### 脱壳 Hook
 
-### 通用 DEX Dump
+###### 通用 DEX Dump
 
 ```javascript
 Java.perform(function() {
@@ -799,7 +798,7 @@ Java.perform(function() {
 });
 ```
 
-### Hook ClassLoader.loadClass
+###### Hook ClassLoader.loadClass
 
 ```javascript
 Java.perform(function() {
@@ -815,7 +814,7 @@ Java.perform(function() {
 
 ---
 
-## 实用工具函数
+###### 实用工具函数
 
 ```javascript
 // 字节数组转十六进制
@@ -859,7 +858,7 @@ function findInstances(className) {
 
 ---
 
-## 参考资源
+###### 参考资源
 
 | 资源 | 说明 | 链接 |
 |------|------|------|
@@ -882,6 +881,22 @@ function findInstances(className) {
 - `jadx`：官方发 `jadx-gui-<ver>-win.zip`（Java 启动器，需 java）
 
 runnability:end -->
+
+<!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
+
+## 第二发（主力打不出去时，按这个顺序换）
+
+1. **同类替代**（链路里的互补技能，手法最接近）：`mobile-reverse`
+
+2. **前提没满足就先回去**：`mobile-reverse` —— 上一环没做实，本环再试也是空打
+
+3. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
+
+4. **目标比预期更深**：换到同主题的专项靶子面 `competition-android-hooking`
+
+**纪律**：同一手法不许连打三次（第一次是验证、第二次换参数、第三次必须换手法）；换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
+
+second-shot:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 

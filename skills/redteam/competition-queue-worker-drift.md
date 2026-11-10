@@ -54,15 +54,15 @@ Use this skill when the decisive effect happens after enqueue, inside a worker, 
 
 ### queue-worker-drift
 
-# Queue Worker Drift Checklist
+###### Queue Worker Drift Checklist
 
-## First Pass
+###### First Pass
 
 - Enqueue endpoint, queue or topic name, payload schema, worker process, schedule or delay, downstream store
 - Worker env, mounts, credentials, feature flags, config files, retry policy, dedupe behavior
 - Final effects: file write, cache mutation, email, report, artifact generation, privilege-bearing action
 
-## Async Chain To Reconstruct
+###### Async Chain To Reconstruct
 
 1. Request or cron enqueue occurs
 2. Payload stored or scheduled
@@ -70,13 +70,13 @@ Use this skill when the decisive effect happens after enqueue, inside a worker, 
 4. Retry, backoff, or failure path taken if relevant
 5. Side effect lands in file, DB, cache, email, or service
 
-## Evidence To Keep Together
+###### Evidence To Keep Together
 
 - Enqueue side: route, payload, queue name, task ID
 - Worker side: process, env, config, retry metadata, dedupe or lease state
 - Effect side: resulting artifact, downstream mutation, timestamps, and replay prerequisites
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Explaining only the request path and never proving the worker branch
 - Ignoring worker-only env or mount differences

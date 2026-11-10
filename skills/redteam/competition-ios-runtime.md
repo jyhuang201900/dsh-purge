@@ -54,15 +54,15 @@ Use this skill when the decisive path runs through live iOS trust boundaries rat
 
 ### ios-runtime
 
-# iOS Runtime Checklist
+###### iOS Runtime Checklist
 
-## Static Targets To Map First
+###### Static Targets To Map First
 
 - `Info.plist`, entitlements, URL schemes, universal links, embedded frameworks, provisioning clues
 - Keychain access groups, app groups, local plist files, SQLite DBs, cache directories
 - Certificate checks, jailbreak checks, request builders, crypto helpers, device-binding logic
 
-## Preferred Hook Boundaries
+###### Preferred Hook Boundaries
 
 1. Request builder input and final signed headers
 2. Crypto helper plaintext and ciphertext
@@ -70,13 +70,13 @@ Use this skill when the decisive path runs through live iOS trust boundaries rat
 4. Keychain read or write boundary
 5. Objective-C selector or Swift method that gates the accepted branch
 
-## Evidence To Keep Together
+###### Evidence To Keep Together
 
 - Static location: class, selector, framework, plist key, entitlement, or bundle path
 - Dynamic proof: hook log, returned value, header, request body, or accepted response
 - State dependency: Keychain item, plist value, DB row, nonce, device flag, or local token
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Hooking only UI handlers and missing the real signer or trust evaluator
 - Capturing a signed request without the plaintext or local state that generated it

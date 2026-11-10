@@ -116,7 +116,7 @@ for (const f of files) {
   const p = path.join(SKILLS, f);
   let t = fs.readFileSync(p, "utf8");
   const s = t.indexOf(START), e = t.indexOf(END);
-  const stripped = (s >= 0 && e > s) ? (t.slice(0, s).replace(/[ \t]+$/, "") + "\n\n" + t.slice(e + END.length).replace(/^[\r\n]+/, "")) : t;
+  const stripped = (s >= 0 && e > s) ? (t.slice(0, s).replace(/\s+$/, "") + "\n\n" + t.slice(e + END.length).replace(/^[\r\n]+/, "")).replace(/\s+$/, "") : t;
   const blocks = [...stripped.matchAll(/```(?:bash|sh|shell|powershell|ps1)?\r?\n([\s\S]*?)```/g)].map((m) => m[1]).join("\n");
   const block = render(blocks, stripped);
   if (checkOnly) {

@@ -55,9 +55,9 @@ Use this skill when the challenge is really about what the live container or pod
 
 ### container-runtime
 
-# Container Runtime Checklist
+###### Container Runtime Checklist
 
-## Compare Intent vs Reality
+###### Compare Intent vs Reality
 
 Inspect side by side:
 
@@ -69,14 +69,14 @@ Inspect side by side:
 - runtime env
 - live processes and listeners
 
-## Trace The Mount Chain
+###### Trace The Mount Chain
 
 - who writes the file
 - where it is mounted
 - which process reads it
 - which route or behavior depends on it
 
-## High-Value Runtime Deviations
+###### High-Value Runtime Deviations
 
 - rendered secrets written to shared volumes
 - init output consumed by the main container
@@ -84,13 +84,13 @@ Inspect side by side:
 - runtime-only env values not visible in checked-in manifests
 - reverse-proxy routing that exposes an internal path only after startup
 
-## Evidence To Keep
+###### Evidence To Keep
 
 - one compact block for manifest intent
 - one compact block for live mounts, processes, or rendered files
 - one compact block for the route or behavior reached only because of runtime state
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - treating checked-in manifests as deployment truth
 - stopping at “secret is mounted” without proving the consuming process

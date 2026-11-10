@@ -143,31 +143,31 @@ Use this order when sources conflict:
 
 ### agent-cloud
 
-# AI Agent, Prompt Injection, Cloud, And Supply Chain
+###### AI Agent, Prompt Injection, Cloud, And Supply Chain
 
 Use this reference for prompt-injection challenges, toolchain or MCP tasks, agent memory issues, containerized deployments, CI/CD, cloud control plane analysis, or supply-chain tracing.
 
-## Agent And Prompt Injection
+###### Agent And Prompt Injection
 
 1. Treat prompts, tool schemas, retrieved chunks, planner notes, memory files, and handoff messages as challenge artifacts.
 2. Map the control stack: instruction layers, retrieval layers, memory layers, tool gates, auth material, and side effects.
 3. Prove one minimal exploit chain from untrusted content to model-visible instruction to tool side effect or exposed secret.
 4. Distinguish claimed capability from observed capability.
 
-## Cloud, Containers, And CI/CD
+###### Cloud, Containers, And CI/CD
 
 1. Split build-time, deploy-time, and runtime.
 2. Reconcile checked-in manifests with live containers, mounted secrets, env, logs, and traffic.
 3. Trace provenance end-to-end: source -> dependency resolution -> build -> packaging/signing -> publish -> runtime consumer.
 4. Treat registries, metadata services, message buses, object stores, and IAM-looking identities as sandbox control surfaces when they appear in the challenge path.
 
-## Evidence To Keep
+###### Evidence To Keep
 
 - Exact prompts, retrieved chunks, planner/tool transitions, and final tool args
 - Compose/Kubernetes/Terraform snippets tied to live mounts or routes
 - Artifact hashes, version drift, registry pulls, CI steps, and resulting runtime hooks
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating a prompt string as authoritative without runtime confirmation
 - Confusing infrastructure intent with live deployment truth
@@ -175,11 +175,11 @@ Use this reference for prompt-injection challenges, toolchain or MCP tasks, agen
 
 ### crypto-mobile
 
-# Crypto, Stego, And Mobile
+###### Crypto, Stego, And Mobile
 
 Use this reference for ciphertexts, encoded blobs, steganography, APK/IPA analysis, request-signing chains, device state, and mobile trust-boundary work.
 
-## Crypto And Encoding
+###### Crypto And Encoding
 
 Recover the transform chain in order:
 
@@ -194,23 +194,23 @@ Record exact parameters whenever they matter: keys, IVs, nonces, salts, tags, pa
 
 For encrypted ZIP/PKZIP challenges, route to `$competition-zip-archive`. Confirm legacy ZipCrypto first and prefer a known-plaintext attack with `bkcrack`; do not start with blind password brute force. WinZip AES is outside that child skill's scope.
 
-## Steganography
+###### Steganography
 
 Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, appended trailers, and transcoding artifacts before assuming the payload is absent.
 
-## Mobile
+###### Mobile
 
 1. Start with manifest/plist structure, exported components, deeplinks, native libs, bundled web assets, local DBs, shared prefs, and configs.
 2. Map how trust and state are derived: token storage, SSL pinning, device checks, feature flags, protobuf/RPC boundaries, and local caches.
 3. When hooking is required, instrument the narrowest boundary that proves the behavior: signer, crypto helper, protobuf edge, native bridge, keystore access, or WebView message channel.
 
-## Evidence To Keep
+###### Evidence To Keep
 
 - Decode stages and the bytes proving each stage
 - Magic bytes, trailer offsets, channel-specific outputs, or recovered payload names
 - Hook points, function names, signed strings, request headers, and local storage paths
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Naming an algorithm without reproducing the actual plaintext or downstream artifact
 - Brute-forcing every transform with no evidence ordering
@@ -218,14 +218,14 @@ Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, append
 
 ### ctf-resources-digest
 
-# CTF 资源精华速查
+###### CTF 资源精华速查
 
 > 精选自 [awesome-ctf-resources](https://github.com/devploit/awesome-ctf-resources) 和 [awesome-ctf](https://github.com/apsdehal/awesome-ctf)
 > 按 CTF 题目类型分类，只保留最实用的工具和资源。
 
 ---
 
-## 综合框架
+###### 综合框架
 
 | 工具 | 用途 | 链接 |
 |------|------|------|
@@ -236,9 +236,9 @@ Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, append
 
 ---
 
-## Web 类
+###### Web 类
 
-### 工具
+###### 工具
 | 工具 | 用途 |
 |------|------|
 | Burp Suite | HTTP 拦截/重放/扫描 |
@@ -248,7 +248,7 @@ Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, append
 | JWT_Tool | JWT 攻击 |
 | SSRFmap | SSRF 利用 |
 
-### 常见考点
+###### 常见考点
 - SQL 注入（联合查询/盲注/时间盲注/堆叠）
 - XSS（反射/存储/DOM）
 - SSRF（内网探测/云元数据）
@@ -257,15 +257,15 @@ Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, append
 - 模板注入（SSTI）
 - JWT 伪造/密钥混淆
 
-### Payload 参考
+###### Payload 参考
 - https://github.com/swisskyrepo/PayloadsAllTheThings
 - https://book.hacktricks.wiki/
 
 ---
 
-## Reverse 类
+###### Reverse 类
 
-### 工具
+###### 工具
 | 工具 | 用途 |
 |------|------|
 | IDA Pro / Ghidra | 反编译 |
@@ -277,7 +277,7 @@ Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, append
 | jadx | Android 反编译 |
 | dnSpy | .NET 反编译 |
 
-### 常见考点
+###### 常见考点
 - 算法还原（加密/编码/自定义）
 - 反调试/反虚拟机绕过
 - 壳/混淆（UPX/VMProtect/OLLVM）
@@ -287,9 +287,9 @@ Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, append
 
 ---
 
-## Pwn 类
+###### Pwn 类
 
-### 工具
+###### 工具
 | 工具 | 用途 |
 |------|------|
 | Pwntools | Exploit 编写 |
@@ -299,7 +299,7 @@ Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, append
 | checksec | 保护检测 |
 | LibcSearcher | libc 版本识别 |
 
-### 常见考点
+###### 常见考点
 - 栈溢出（ret2text/ret2libc/ret2shellcode/ROP）
 - 堆利用（UAF/double free/tcache/fastbin）
 - 格式化字符串（任意读写）
@@ -307,21 +307,21 @@ Inspect metadata, chunk layout, palettes, alpha planes, LSBs, thumbnails, append
 - 内核 Pwn（提权/条件竞争）
 - 沙箱逃逸（seccomp bypass）
 
-### 常用 payload 模式
+###### 常用 payload 模式
 ```python
-# ret2libc 模板
+###### ret2libc 模板
 from pwn import *
 elf = ELF('./vuln')
 libc = ELF('./libc.so.6')
 p = process('./vuln')
-# leak libc base → calculate system/binsh → overwrite ret
+###### leak libc base → calculate system/binsh → overwrite ret
 ```
 
 ---
 
-## Crypto 类
+###### Crypto 类
 
-### 工具
+###### 工具
 | 工具 | 用途 |
 |------|------|
 | SageMath | 数学计算 |
@@ -330,7 +330,7 @@ p = process('./vuln')
 | CyberChef | 编解码 |
 | z3 (SMT solver) | 约束求解 |
 
-### 常见考点
+###### 常见考点
 - RSA（小公钥指数/共模/Wiener/Coppersmith）
 - AES（ECB/CBC padding oracle/bit flipping）
 - 古典密码（Caesar/Vigenere/置换）
@@ -340,9 +340,9 @@ p = process('./vuln')
 
 ---
 
-## Forensics 类
+###### Forensics 类
 
-### 工具
+###### 工具
 | 工具 | 用途 |
 |------|------|
 | Volatility | 内存取证 |
@@ -352,7 +352,7 @@ p = process('./vuln')
 | foremost | 文件恢复 |
 | exiftool | 元数据提取 |
 
-### 常见考点
+###### 常见考点
 - 内存 dump 分析（进程/密码/恶意代码）
 - PCAP 流量分析（HTTP/DNS/TCP 重组）
 - 文件系统分析（删除文件恢复/隐藏分区）
@@ -361,9 +361,9 @@ p = process('./vuln')
 
 ---
 
-## Misc/Stego 类
+###### Misc/Stego 类
 
-### 工具
+###### 工具
 | 工具 | 用途 |
 |------|------|
 | StegSolve | 图片隐写分析 |
@@ -373,7 +373,7 @@ p = process('./vuln')
 | strings/xxd | 基础分析 |
 | file/binwalk | 文件类型识别 |
 
-### 常见考点
+###### 常见考点
 - LSB 隐写（图片最低有效位）
 - 文件头修复/拼接
 - 二维码/条形码
@@ -383,7 +383,7 @@ p = process('./vuln')
 
 ---
 
-## 在线平台
+###### 在线平台
 
 | 平台 | 特点 | 链接 |
 |------|------|------|
@@ -398,7 +398,7 @@ p = process('./vuln')
 
 ---
 
-## Writeup 资源
+###### Writeup 资源
 
 | 资源 | 链接 |
 |------|------|
@@ -410,17 +410,17 @@ p = process('./vuln')
 
 ### identity-windows
 
-# Identity, Windows, AD, And Enterprise Messaging
+###### Identity, Windows, AD, And Enterprise Messaging
 
 Use this reference for Kerberos, LDAP, NTLM, WinRM, RDP, SMB, OAuth, SAML/OIDC, Exchange, mailbox rules, Windows host forensics, credential material, and lateral movement.
 
-## Identity Flow
+###### Identity Flow
 
 1. Map principal origin, sync or enrollment path, token/ticket minting, claims transformation, group resolution, and final consumer.
 2. Separate credential material from usable privilege.
 3. Express movement as a concrete chain: host -> recovered artifact -> replay path -> pivot host -> resulting capability.
 
-## Windows Host And Lateral Movement
+###### Windows Host And Lateral Movement
 
 Inspect the active path across:
 
@@ -432,17 +432,17 @@ When Kerberos matters, record ticket type, SPN, delegation mode, PAC/group data,
 
 When AD privilege edges matter, inspect ACLs, GPO links, SIDHistory, delegation, certificate templates, service accounts, and replication rights.
 
-## Enterprise Messaging
+###### Enterprise Messaging
 
 Correlate phishing lures, attachment chains, consent logs, login traces, message-trace logs, and mailbox-rule changes so the mail path and identity path stay connected.
 
-## Evidence To Keep
+###### Evidence To Keep
 
 - SIDs, group names, event IDs, logon IDs, ticket caches, SPNs, delegation flags
 - Mail headers, consent records, mailbox-rule changes, and downstream forwarding effects
 - Exact replay point showing where the credential or ticket becomes effective
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating possession of a hash or ticket as proof of resulting privilege
 - Describing "domain compromise" without a reproducible edge-by-edge chain
@@ -450,25 +450,25 @@ Correlate phishing lures, attachment chains, consent logs, login traces, message
 
 ### reporting
 
-# Reporting And Output Style
+###### Reporting And Output Style
 
 Use this reference when the user wants progress updates, findings, reviews, or recovery notes.
 
-## Default Style
+###### Default Style
 
 - Write in concise Simplified Chinese unless the user asks for English.
 - Sound like a strong technical teammate, not a telemetry appliance.
 - Prefer: outcome -> key evidence -> verification -> next step.
 - Do not force rigid field-template reports unless the user explicitly asks for them.
 
-## Structure By Task Type
+###### Structure By Task Type
 
 - Web/API/debug: conclusion -> local status -> upstream deviation -> decisive request/response or code location -> next step
 - Reverse/DFIR/pwn: verdict -> decisive artifact or primitive -> supporting offsets/files/logs -> verification or next step
 - Crypto/stego/mobile: verdict -> transform or trust chain -> decisive bytes/hooks/components -> verification or next step
 - Agent/cloud/identity/windows: verdict -> trust/deployment/pivot chain -> decisive evidence block -> verification or next step
 
-## Evidence Packaging
+###### Evidence Packaging
 
 Group related evidence instead of scattering it:
 
@@ -478,7 +478,7 @@ Group related evidence instead of scattering it:
 
 Summarize long command output. Extract only the decisive lines unless the user explicitly asks for raw logs.
 
-## Avoid
+###### Avoid
 
 - Mechanical shells like `[TARGET PARAMETER/ASSET]`
 - One giant paragraph mixing conclusion, evidence, and next steps
@@ -486,32 +486,32 @@ Summarize long command output. Extract only the decisive lines unless the user e
 
 ### reverse-native
 
-# Reverse, Malware, DFIR, And Native
+###### Reverse, Malware, DFIR, And Native
 
 Use this reference for binaries, shellcode, firmware, documents with embedded payloads, memory dumps, PCAPs, malware configs, pwnables, and native exploit chains.
 
-## Reverse And DFIR Workflow
+###### Reverse And DFIR Workflow
 
 1. Start with passive triage: file type, headers, sections, imports, exports, strings, entropy, resources, and embedded archives.
 2. Preserve original artifacts; derive unpacked, decrypted, or instrumented layers separately.
 3. Correlate process trees, filesystem writes, registry changes, services, tasks, IPC, and network beacons as one execution graph.
 4. Explain where each recovered value comes from and when it becomes plaintext.
 
-## Native And Pwn Workflow
+###### Native And Pwn Workflow
 
 1. Map mitigations, loader behavior, libc/runtime, syscall surface, IPC surface, and protocol framing.
 2. Separate primitive from proof: controllable bytes, leak source, target object, mitigation bypass, and final artifact.
 3. Tie crash offsets, register state, allocator layout, and protocol steps to observable state transitions.
 4. Keep PoCs, debugger scripts, core dumps, and recovered symbols separate from the pristine path.
 
-## High-Value Evidence
+###### High-Value Evidence
 
 - Offsets, section names, import tables, string-decode helpers, config blobs
 - Mutexes, named pipes, startup keys, services, tasks, WMI, persistence traces
 - Packet captures matched against process or config evidence
 - Leak addresses, heap layout, stack shape, allocator metadata, accepted ticket or hook target
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating one string hit as proof of the full behavior
 - Mixing original and modified artifacts
@@ -520,25 +520,25 @@ Use this reference for binaries, shellcode, firmware, documents with embedded pa
 
 ### router-matrix
 
-# Competition Sandbox Router Matrix
+###### Competition Sandbox Router Matrix
 
 Use this file after the sandbox model is active and one dominant evidence type or blocker is visible.
 
-## Default Rule
+###### Default Rule
 
 Start in `ctf-sandbox-orchestrator`. Route to a child skill only when the decisive unknown is narrower than the generic sandbox workflow.
 All child `competition-*` skills are downstream-only modules. They should not be entered implicitly before `ctf-sandbox-orchestrator` has already established sandbox assumptions.
 
-## Stay In Competition Sandbox When
+###### Stay In Competition Sandbox When
 
 - The task is still ambiguous across domains.
 - You are only building the first node map or the first minimal path.
 - Several domains are involved but none dominates yet.
 - The main blocker is deciding which evidence matters first.
 
-## Route By Dominant Surface
+###### Route By Dominant Surface
 
-### Web And Runtime
+###### Web And Runtime
 
 - General site, API, auth, session, upload, worker, or hidden route behavior -> `$competition-web-runtime`
 - Browser storage, service workers, Cache Storage, IndexedDB -> `$competition-browser-persistence`
@@ -555,7 +555,7 @@ All child `competition-*` skills are downstream-only modules. They should not be
 - Race windows, ordering bugs, idempotency failures, timing-dependent state drift -> `$competition-race-condition-state-drift`
 - Proxy/backend parse differentials, path normalization drift, framing ambiguity, smuggling -> `$competition-request-normalization-smuggling`
 
-### Reverse, Exploit, DFIR, Binary
+###### Reverse, Exploit, DFIR, Binary
 
 - Binary triage, exploit primitives, crash behavior, native reversing -> `$competition-reverse-pwn`
 - Malware config, staged payload, beacon parameters, IOC decoding -> `$competition-malware-config`
@@ -564,7 +564,7 @@ All child `competition-*` skills are downstream-only modules. They should not be
 - Custom protocol replay, state machine, checksums, accepted session reproduction -> `$competition-custom-protocol-replay`
 - Timeline reconstruction across disk, logs, PCAP, registry, mailbox -> `$competition-forensic-timeline`
 
-### Crypto, Stego, Mobile
+###### Crypto, Stego, Mobile
 
 - Encoding chain, crypto boundary, stego media, mobile trust boundary -> `$competition-crypto-mobile`
 - Encrypted ZIP/PKZIP, legacy ZipCrypto, known plaintext, `bkcrack` -> `$competition-zip-archive`
@@ -572,7 +572,7 @@ All child `competition-*` skills are downstream-only modules. They should not be
 - Android APK, Frida, signer logic, SSL pinning, native bridge -> `$competition-android-hooking`
 - iOS IPA, Objective-C or Swift runtime, Keychain, pinning, deeplink -> `$competition-ios-runtime`
 
-### Agent, Cloud, Container, Supply Chain
+###### Agent, Cloud, Container, Supply Chain
 
 - Prompt injection, retrieval poisoning, planner drift, tool misuse -> `$competition-prompt-injection`
 - Agent, cloud, CI/CD, container, supply-chain as a broad cluster -> `$competition-agent-cloud`
@@ -582,7 +582,7 @@ All child `competition-*` skills are downstream-only modules. They should not be
 - Metadata service, workload identity, link-local credential path -> `$competition-cloud-metadata-path`
 - Container-to-host boundary crossing, kernel preconditions, namespace or cgroup escape proof -> `$competition-kernel-container-escape`
 
-### Identity And Windows
+###### Identity And Windows
 
 - Identity chain, Windows host evidence, enterprise messaging, mixed AD task -> `$competition-identity-windows`
 - Host-to-host pivot, WinRM, SMB, RDP, accepted replay edge -> `$competition-windows-pivot`
@@ -594,7 +594,7 @@ All child `competition-*` skills are downstream-only modules. They should not be
 - Mailbox rules, forwarding, OAuth consent, delegate abuse -> `$competition-mailbox-abuse`
 - Linux secret replay, socket trust edges, SSH or token pivots, host-to-host Linux movement -> `$competition-linux-credential-pivot`
 
-## Re-Route Rules
+###### Re-Route Rules
 
 - If the current child skill stops matching the dominant blocker, return to `ctf-sandbox-orchestrator` and pick a narrower path.
 - If the path broadens from a narrow child skill into a mixed-domain chain, return to `ctf-sandbox-orchestrator` and rebuild the route from the earliest uncertain step.
@@ -602,11 +602,11 @@ All child `competition-*` skills are downstream-only modules. They should not be
 
 ### web-api
 
-# Web, API, And Runtime
+###### Web, API, And Runtime
 
 Use this reference for web challenges, API challenges, SSR/frontend issues, queue-backed app flows, or any case where browser state and request order matter.
 
-## Default Ladder
+###### Default Ladder
 
 1. Inspect entry HTML, boot scripts, route registration, hydration data, and runtime config.
 2. Inspect browser persistence: cookies, localStorage, sessionStorage, IndexedDB, Cache Storage, service workers, and transient globals.
@@ -614,7 +614,7 @@ Use this reference for web challenges, API challenges, SSR/frontend issues, queu
 4. Map backend entrypoints, middleware order, handlers, workers, retries, and downstream state changes.
 5. Re-run the smallest flow with one variable changed.
 
-## High-Value Targets
+###### High-Value Targets
 
 - Hidden routes, debug pages, preview modes, experiment toggles, alternate hostnames
 - Auth and session flow: minting, refresh, header injection, role derivation, cookie scope
@@ -622,14 +622,14 @@ Use this reference for web challenges, API challenges, SSR/frontend issues, queu
 - Background jobs, queues, cron tasks, and event consumers
 - Host-header handling, base-URL derivation, proxy headers, path-prefix routing
 
-## Evidence To Keep
+###### Evidence To Keep
 
 - Exact requests: host, path, query, headers, cookies, and body
 - Exact responses or failures that reveal parser behavior or hidden branches
 - Storage keys, feature flags, worker names, and queue payloads
 - Concrete file paths, function names, route names, or runtime hook points
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating UI gating as backend enforcement
 - Trusting checked-in source over actively served assets

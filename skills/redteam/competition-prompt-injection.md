@@ -53,9 +53,9 @@ Use this skill when the challenge is primarily about trust boundaries inside an 
 
 ### prompt-injection
 
-# Prompt Injection And Tool Boundary Checklist
+###### Prompt Injection And Tool Boundary Checklist
 
-## Map These Layers Explicitly
+###### Map These Layers Explicitly
 
 - System and developer instructions
 - User request
@@ -65,7 +65,7 @@ Use this skill when the challenge is primarily about trust boundaries inside an 
 - Executor or tool adapter
 - Final tool invocation and side effect
 
-## Minimal Proof Chain
+###### Minimal Proof Chain
 
 Use the smallest chain that proves the bug:
 
@@ -75,13 +75,13 @@ Use the smallest chain that proves the bug:
 4. Tool call or secret access changes
 5. Side effect becomes observable
 
-## Evidence To Keep
+###### Evidence To Keep
 
 - One compact block for the malicious chunk or prompt
 - One compact block for planner drift or intermediate rewrite
 - One compact block for final tool args and side effect
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating a malicious string as proof without a side effect
 - Mixing several injection variants before one minimal chain is proven

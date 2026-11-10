@@ -51,9 +51,9 @@ Use this skill when the hard part is not "is there Kerberos here," but which del
 
 ### kerberos-delegation
 
-# Kerberos Delegation Checklist
+###### Kerberos Delegation Checklist
 
-## Write The Chain Explicitly
+###### Write The Chain Explicitly
 
 - source principal
 - delegation edge
@@ -62,7 +62,7 @@ Use this skill when the hard part is not "is there Kerberos here," but which del
 - accepting service
 - resulting privilege
 
-## Ticket Fields To Preserve
+###### Ticket Fields To Preserve
 
 - TGT or TGS type
 - SPN
@@ -73,7 +73,7 @@ Use this skill when the hard part is not "is there Kerberos here," but which del
 - cache location
 - accepting service
 
-## Trust Edges To Inspect
+###### Trust Edges To Inspect
 
 - constrained delegation
 - unconstrained delegation
@@ -81,7 +81,7 @@ Use this skill when the hard part is not "is there Kerberos here," but which del
 - protocol transition
 - SIDHistory or ACL-based privilege edges when they affect ticket usability
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating a minted ticket as proof of accepted privilege
 - Reporting the delegation mode without naming the accepting service

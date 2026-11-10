@@ -56,9 +56,9 @@ Use this skill when the challenge path is dominated by host-to-host movement, re
 
 ### windows-pivot
 
-# Windows Pivot And Kerberos Checklist
+###### Windows Pivot And Kerberos Checklist
 
-## Pivot Chain
+###### Pivot Chain
 
 Write the chain explicitly:
 
@@ -68,7 +68,7 @@ Write the chain explicitly:
 - destination host
 - resulting capability
 
-## Kerberos Fields To Keep
+###### Kerberos Fields To Keep
 
 - Ticket type
 - SPN
@@ -78,13 +78,13 @@ Write the chain explicitly:
 - Cache location
 - Accepting service
 
-## Host Evidence To Keep
+###### Host Evidence To Keep
 
 - Event IDs, logon IDs, process creation, service creation, task creation
 - WinRM, SMB, RDP, WMI, admin-share, and remote-registry traces
 - Group membership or token changes on the destination host
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating possession of a ticket as proof of accepted privilege
 - Saying a pivot worked without showing the destination-side effect

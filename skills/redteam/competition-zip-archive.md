@@ -112,9 +112,9 @@ Read `references/zip-archive.md` for the decision table and evidence checklist.
 
 ### zip-archive
 
-# ZIP Archive Challenge Reference
+###### ZIP Archive Challenge Reference
 
-## Route Decision
+###### Route Decision
 
 | Observation | Next step |
 |---|---|
@@ -125,7 +125,7 @@ Read `references/zip-archive.md` for the decision table and evidence checklist.
 | Upload reaches an application parser or extractor | Use `competition-file-parser-chain` |
 | Archive is only a carrier for hidden media data | Use `competition-stego-media` |
 
-## Minimal Inspection
+###### Minimal Inspection
 
 ```text
 file challenge.zip
@@ -135,7 +135,7 @@ bkcrack -L challenge.zip
 
 Record the entry name, compression method, encrypted flag, compressed size, uncompressed size, CRC, and any duplicate entries. The ZIP local-file and central-directory signatures are archive metadata; seeing `PK` in the container does not disclose the plaintext of an encrypted member.
 
-## Known-Plaintext Requirements
+###### Known-Plaintext Requirements
 
 Legacy ZipCrypto key recovery needs at least 12 known plaintext bytes. At least 8 bytes should be contiguous; more contiguous bytes improve speed and reliability. Good sources include:
 
@@ -146,7 +146,7 @@ Legacy ZipCrypto key recovery needs at least 12 known plaintext bytes. At least 
 
 For compressed entries, the bytes must correspond to the encrypted data representation. A plaintext ZIP fixture is useful because `bkcrack -P`/`-p` lets the tool read the matching entry representation.
 
-## Command Forms
+###### Command Forms
 
 Archive entry to archive entry:
 
@@ -175,7 +175,7 @@ bkcrack -c cipherfile -k 12345678 23456789 34567890 -d decipheredfile
 
 Do not publish a command with placeholder keys as if it were a successful solve. Replace them with the values from the actual recovery output and record the source evidence.
 
-## Evidence Checklist
+###### Evidence Checklist
 
 - [ ] Original archive hash recorded before any extraction
 - [ ] Archive type and encryption mode confirmed

@@ -212,6 +212,24 @@ _共 4 份 HackerOne 已披露 High/Critical 报告命中本类，按 (赏金 + 
 - Time-of-check Time-of-use (TOCTOU) Race Condition：3 条
 - Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition')：1 条
 
+
+
+<!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
+
+## 第二发（主力打不出去时，按这个顺序换）
+
+1. **同类替代**（链路里的互补技能，手法最接近）：`nuclei-scan`、`oob-verification`、`unauth-exploit`、`waf-bypass`
+
+2. **前提没满足就先回去**：`nuclei-scan` —— 上一环没做实，本环再试也是空打
+
+3. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
+
+4. **目标比预期更深**：换到同主题的专项靶子面 `competition-race-condition-state-drift`
+
+**纪律**：同一手法不许连打三次（第一次是验证、第二次换参数、第三次必须换手法）；换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
+
+second-shot:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）

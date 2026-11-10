@@ -54,15 +54,15 @@ Use this skill when the hard part is matching declared contracts with live handl
 
 ### graphql-rpc-drift
 
-# Graphql And Rpc Drift Checklist
+###### Graphql And Rpc Drift Checklist
 
-## First Pass
+###### First Pass
 
 - GraphQL schema, introspection output, persisted query ids, RPC manifest, generated client, OpenAPI doc
 - Operation names, fields, variables, method, path, version headers, auth context
 - Live handlers, fallback routes, hidden operations, stale fields, client-only guards
 
-## Chain To Reconstruct
+###### Chain To Reconstruct
 
 1. Declared contract is identified
 2. Real request shape is captured
@@ -70,13 +70,13 @@ Use this skill when the hard part is matching declared contracts with live handl
 4. Contract drift or hidden operation is confirmed
 5. Resulting capability or artifact is reproduced
 
-## Evidence To Keep Together
+###### Evidence To Keep Together
 
 - Contract side: schema, manifest, generated client, version marker, persisted query id
 - Request side: operation name, variables, method, path, headers, cookies
 - Effect side: hidden data, accepted action, privilege, or backend state change
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating generated clients as proof of the only supported operations
 - Looking at GraphQL schema or OpenAPI docs without capturing real requests

@@ -4,7 +4,6 @@ description: Use for authorized email security review including phishing analysi
 whenToUse: Use for authorized email security review including phishing analysis, header authenticatio
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
-# email-security
 
 # Email Security & Phishing Analysis
 
@@ -50,6 +49,22 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 - [ ] 头认证结论是否完整？
 - [ ] IOC 是否可检测化（联合 threat-hunting）？
 - [ ] Checklist？
+
+
+
+<!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
+
+## 第二发（主力打不出去时，按这个顺序换）
+
+1. **同类替代**（链路里的互补技能，手法最接近）：`code-audit`、`database-security`、`llm-security`、`supply-chain-security`
+
+2. **前提没满足就先回去**：`recon-pipeline` —— 上一环没做实，本环再试也是空打
+
+3. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
+
+**纪律**：同一手法不许连打三次（第一次是验证、第二次换参数、第三次必须换手法）；换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
+
+second-shot:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 

@@ -54,15 +54,15 @@ Use this skill when the decisive path runs through server-side request capabilit
 
 ### ssrf-metadata-pivot
 
-# SSRF Metadata Pivot Checklist
+###### SSRF Metadata Pivot Checklist
 
-## First Pass
+###### First Pass
 
 - SSRF source parameter, URL builder, method, headers, redirect handling
 - Host allowlist or denylist logic, DNS behavior, scheme checks, proxy layers
 - Reachable internal services, metadata endpoints, token responses
 
-## Chain To Reconstruct
+###### Chain To Reconstruct
 
 1. Server-side fetch primitive is confirmed
 2. Internal or metadata endpoint is reachable
@@ -70,13 +70,13 @@ Use this skill when the decisive path runs through server-side request capabilit
 4. Downstream service accepts the recovered material
 5. Resulting capability is reproduced
 
-## Evidence To Keep Together
+###### Evidence To Keep Together
 
 - Source side: endpoint, parameter, URL construction, normalization rules
 - Pivot side: target host, metadata path, token fields, scope, expiry
 - Acceptance side: target API or service, replay method, resulting privilege
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Treating metadata reachability as equivalent to privilege without acceptance proof
 - Ignoring redirects, host normalization, or proxy-injected headers

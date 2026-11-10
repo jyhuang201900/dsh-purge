@@ -156,6 +156,18 @@ if (!skip("runnable")) {
   else notes.push((out[out.length - 1] || "").trim());
 }
 
+// 关 15：技能构建流水线自检——标题层级 / 本机可执行性 / 第二发 三项一起校验。
+//   为什么成关：技能「厚」不等于「能打」也不等于「结构清楚」。第 111 轮实测三条落差：
+//   77 个技能有多个 H1（结构被压平）、33 个引用了本机没装的工具（其中 9 个一字未提）、
+//   只有 9 个同时具备失败分支小节与 ≥2 条分支。这三项都得有人看着，否则会慢慢退回去。
+//   （链路层的产物一致性不在这儿管，由 audit-skills 的链路层那一关负责。）
+if (!skip("skillsbuild")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "build-skills.mjs"), "--check"], { encoding: "utf8", timeout: 180000 });
+  const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/).filter((l) => l.trim());
+  if (res.status !== 0) failures.push(`技能流水线未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 130)}`);
+  else notes.push(out[out.length - 1].trim());
+}
+
 // 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
 const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json", "docs/debt-baseline.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))

@@ -4,9 +4,6 @@ description: Use this skill whenever the user wants to analyze binaries with rad
 whenToUse: Use this skill whenever the user wants to analyze binaries with radare2/r2 from the comman
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
-# radare2
-
-# radare2
 
 面向 `radare2` CLI 的二进制分析技能。重点是直接用命令行完成侦察、分析、定位、导出和轻量修改，不依赖 GUI。
 

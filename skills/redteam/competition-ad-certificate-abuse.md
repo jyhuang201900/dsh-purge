@@ -54,15 +54,15 @@ Use this skill when the decisive identity edge is certificate-based and the hard
 
 ### ad-certificate-abuse
 
-# AD Certificate Abuse Checklist
+###### AD Certificate Abuse Checklist
 
-## Core Surfaces
+###### Core Surfaces
 
 - Enterprise CA configuration, issuance policy, enrollment permissions, manager approval, authorized signatures
 - Template flags, EKUs, subject or SAN controls, enrollment agent settings, superseded templates
 - PKINIT, smartcard logon, Schannel, certificate mapping, relay paths, accepting services
 
-## Abuse Chain To Reconstruct
+###### Abuse Chain To Reconstruct
 
 1. Principal with enrollment or relay path identified
 2. Template or CA weakness established
@@ -70,13 +70,13 @@ Use this skill when the decisive identity edge is certificate-based and the hard
 4. Service or logon path accepts the cert
 5. Resulting privilege or account effect confirmed
 
-## Evidence To Keep Together
+###### Evidence To Keep Together
 
 - Template side: name, rights, EKUs, flags, SAN controls, issuance requirements
 - Cert side: subject, SAN, serial, validity, issuer, thumbprint
 - Acceptance side: PKINIT or service mapping, target account, resulting privilege
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Stopping at template misconfiguration without proving cert issuance
 - Proving issuance without proving where the cert is actually accepted

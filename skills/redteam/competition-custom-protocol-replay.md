@@ -54,15 +54,15 @@ Use this skill when the hard part is not merely naming the protocol, but reprodu
 
 ### custom-protocol-replay
 
-# Custom Protocol Replay Checklist
+###### Custom Protocol Replay Checklist
 
-## Transcript First
+###### Transcript First
 
 - Establish roles, stream IDs, ports, session resets, handshake boundaries, and successful transcript examples
 - Separate transport segmentation from application messages
 - Record retransmits or duplicate messages so they do not pollute the protocol model
 
-## Recovery Order
+###### Recovery Order
 
 1. Framing and message boundaries
 2. Direction and sequence state
@@ -70,13 +70,13 @@ Use this skill when the hard part is not merely naming the protocol, but reprodu
 4. Compression, encoding, or crypto boundary
 5. Accepted vs rejected transcript deltas
 
-## Evidence To Keep Together
+###### Evidence To Keep Together
 
 - Message identity: type, offset, length, direction, sequence, or delimiter
 - Acceptance state: prior message dependency, negotiated value, checksum, or nonce source
 - Replay proof: minimal transcript, harness input, and server response or side effect
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Trying broad replay before framing and state dependencies are understood
 - Mixing messages from separate sessions into one replay model

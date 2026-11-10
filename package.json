@@ -54,6 +54,8 @@
     "runnable:inject": "node scripts/inject-runnability.mjs",
     "runnable:check": "node scripts/check-skill-runnable.mjs",
     "build:skills-graph": "node scripts/build-skill-graph.mjs",
+    "build:skills": "node scripts/build-skills.mjs",
+    "quality:second-shot": "node scripts/check-second-shot.mjs",
     "sync:skills": "node scripts/sync-bundled.mjs",
     "toolkit:windows": "node scripts/toolkit-windows.mjs",
     "toolkit:check": "node scripts/toolkit-windows.mjs --check",

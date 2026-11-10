@@ -54,16 +54,16 @@ Use this skill when the hard part is proving the full chain from forced authenti
 
 ### relay-coercion-chain
 
-# Relay Coercion Checklist
+###### Relay Coercion Checklist
 
-## Chain Segments
+###### Chain Segments
 
 - Coercion source and trigger
 - Captured or forwarded authentication
 - Relay target and protocol
 - Acceptance point and resulting effect
 
-## Reconstruction Order
+###### Reconstruction Order
 
 1. What triggers the source to authenticate
 2. Which identity leaves the source
@@ -71,13 +71,13 @@ Use this skill when the hard part is proving the full chain from forced authenti
 4. Which service actually accepts it
 5. What privilege, enrollment, or artifact results
 
-## Evidence To Keep Together
+###### Evidence To Keep Together
 
 - Source side: host, service, trigger, protocol, coerced principal
 - Relay side: listener, transcript, target host, protocol, response
 - Effect side: accepted service, resulting account effect, privilege, or issued artifact
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Stopping at “forced auth happened” without proving relay acceptance
 - Proving relay acceptance without showing what capability it produced

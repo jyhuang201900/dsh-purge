@@ -4,7 +4,6 @@ description: 跨版本符号迁移与二进制差分。当你有旧版本的符�
 whenToUse: 跨版本符号迁移与二进制差分
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
-# binary-diff
 
 # 跨版本符号迁移 (Binary Diff)
 

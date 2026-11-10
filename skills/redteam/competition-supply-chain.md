@@ -52,9 +52,9 @@ Use this skill when the challenge is really about provenance, dependency drift, 
 
 ### supply-chain
 
-# Supply Chain And CI Checklist
+###### Supply Chain And CI Checklist
 
-## Provenance Chain
+###### Provenance Chain
 
 Track this order explicitly:
 
@@ -66,14 +66,14 @@ Track this order explicitly:
 6. Publish target
 7. Runtime consumer
 
-## High-Value Evidence
+###### High-Value Evidence
 
 - Version drift between source, lockfile, and fetched artifact
 - Registry or mirror pulls that differ from expected origin
 - Build scripts with preinstall, prepare, postinstall, or codegen steps
 - Signed or packaged artifact hash compared to runtime-loaded artifact
 
-## Common Pitfalls
+###### Common Pitfalls
 
 - Stopping at lockfile drift without proving runtime consumption
 - Treating checked-in manifests as equivalent to live pipeline behavior
