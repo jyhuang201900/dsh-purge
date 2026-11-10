@@ -162,9 +162,17 @@ async function main() {
     console.log("dsh-purge 实时验收（只读探测）：");
     for (const x of rows) console.log(`  ${x.level === "ok" ? "✓" : x.level === "warn" ? "⚠" : "✗"} ${x.label}${x.detail ? `｜${x.detail}` : ""}`);
     const bad = rows.filter((x) => x.level === "bad").length;
-    const warn = rows.filter((x) => x.level === "warn").length;
-    console.log(`  → ${bad ? `${bad} 项不通过` : warn ? `${warn} 项待处理（通常是"还没重启"或没给 URL）` : "全部通过 ✓"}`);
-    process.exit(bad || warn ? 1 : 0);
+    const warnRows = rows.filter((x) => x.level === "warn");
+    const warn = warnRows.length;
+    // 只有 bad 判失败。warn 最典型的是「注入正文等你三选一」——那是用户的选择，不是缺陷；
+    // 判成 exit 1 会让 --verify-live 永远非 0、report 里也就永远挂一眼红，
+    // 与 check-upstream（越界才红）和 sweep:market（交集>0 才红）的口径也不一致。
+    // 第 96 轮实测触发点：路由转 live 之后唯一剩下的就是注入那条 ⚠，而旧文案还写着「通常是还没重启」。
+    const warnWhat = warnRows.map((x) => String(x.label).split("：")[0]).join("、");
+    if (bad) console.log(`  → ${bad} 项不通过${warn ? `｜另有 ${warn} 项待你处理：${warnWhat}` : ""}`);
+    else if (warn) console.log(`  → 探测全部通过 ✓｜${warn} 项待你处理：${warnWhat}`);
+    else console.log("  → 全部通过 ✓");
+    process.exit(bad ? 1 : 0);
   }
 
   if (mode === "--mcp" || mode === "--tools" || mode === "--drill") {
