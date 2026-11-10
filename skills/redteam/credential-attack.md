@@ -2,8 +2,6 @@
 name: credential-attack
 description: 凭据攻击：在线弱口令爆破（hydra）与离线哈希破解（hashcat/john），覆盖 SSH/FTP/RDP/SMB/数据库/Web 后台
 whenToUse: 发现登录入口（Web 后台/SSH/FTP/RDP/SMB/MySQL/MSSQL/Redis）需要试口令；或已拿到哈希/密文需要还原明文
-role: exploit
-enabled: true
 ---
 
 # 凭据攻击（在线爆破 + 离线破解）

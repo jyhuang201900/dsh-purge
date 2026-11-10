@@ -2,8 +2,6 @@
 name: redteam-setup
 description: 首次使用引导：引导提供 FOFA_KEY 与 VPS 登录方式、验证通道可用、给出降级口径（工具链由工具箱附件按需获取）
 whenToUse: 用户第一次使用红队模式时；或 redteam_preflight 报出 onboarding.incomplete / 有技能 broken 时；或用户说"环境没配好""工具装一下"
-role: plan
-enabled: true
 ---
 
 # 首次使用引导（把环境一次配齐）

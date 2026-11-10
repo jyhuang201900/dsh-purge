@@ -2,8 +2,6 @@
 name: subdomain-bruteforce
 description: 爆破类重活：子域爆破（ksubdomain/OneForAll/dnsx）、全端口与大网段扫描（naabu/masscan），含限速与泛解析过滤
 whenToUse: 被动源收不全、或需要把全端口/大网段扫干净时——这类活噪声大，先确认在授权范围内
-role: recon
-enabled: true
 ---
 
 # 子域爆破与全端口扫描（重活，先确认范围）

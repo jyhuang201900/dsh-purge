@@ -2,8 +2,6 @@
 name: wifi-wireless
 description: Use for authorized wireless security assessment including Wi-Fi capture, WPA handshake analysis, rogue AP detection research, and lab-only deauth testing.
 whenToUse: Use for authorized wireless security assessment including Wi-Fi capture, WPA handshake ana
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # wifi-wireless

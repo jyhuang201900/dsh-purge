@@ -2,8 +2,6 @@
 name: radare2
 description: Use this skill whenever the user wants to analyze binaries with radare2/r2 from the command line, including reverse engineering, disassembly, function analysis, strings/import inspection, patching, bi
 whenToUse: Use this skill whenever the user wants to analyze binaries with radare2/r2 from the comman
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # radare2

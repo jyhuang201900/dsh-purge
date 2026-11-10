@@ -2,8 +2,6 @@
 name: active-scan
 description: 主动端口与服务扫描（nmap/masscan/naabu），严格遵守授权范围与限速
 whenToUse: 需要确认资产存活、开放端口与服务版本时
-role: recon
-enabled: true
 ---
 
 # 主动端口与服务扫描（nmap / masscan / naabu）

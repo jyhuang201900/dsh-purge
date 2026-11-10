@@ -119,7 +119,10 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 | ③ Vuln-scan | injection payloads (SQLi / command injection / SSTI / deserialization) | `injection-payloads` |
 | ④ Exploit | web payloads (XSS / SSRF / XXE / upload / IDOR / JWT) | `web-vuln-payloads` |
 | ④ Exploit | WAF / CDN / rate-limit bypass and origin discovery | `waf-bypass` |
-| (3)(4)(5) reverse & specialty depth | binaries / firmware / mobile / protocols / AD / cloud / EDR / patch-diff / pwn / front-end JS / attack chains | `reverse-engineering`, `ida-reverse`, `radare2`, `binary-diff`, `patch-diff-exploit`, `protocol-reverse`, `pwn-chain`, `js-reverse`, `windows-ad`, `cloud-k8s`, `edr-bypass-re`, `firmware-pentest`, `apk-reverse`, `mobile-reverse`, `dotnet-reverse`, `attack-chain` |
+| (3)(4)(5) reverse / binaries | decompilation, unpacking, patch diff, pwn, modern-language artefacts, browser extensions | `reverse-engineering`, `ida-reverse`, `ghidra-reverse`, `radare2`, `binary-diff`, `patch-diff-exploit`, `pwn-chain`, `go-rust-reverse`, `dotnet-reverse`, `js-reverse`, `browser-extension-reverse` |
+| (3)(4)(5) domain depth | AD / identity federation / cloud / OT-ICS / firmware / hardware / radio / mobile / protocols / thick clients | `windows-ad`, `identity-federation`, `cloud-k8s`, `ot-ics`, `firmware-pentest`, `hardware-security`, `radio-sdr`, `mobile-reverse`, `apk-reverse`, `protocol-reverse`, `thick-client` |
+| (3)(4)(5) evasion / forensics / security domains | EDR bypass, threat hunting, samples and forensics, supply chain / LLM / database / email / wireless / API / code audit | `edr-bypass-re`, `threat-hunting`, `digital-forensics`, `malware-analysis`, `supply-chain-security`, `llm-security`, `database-security`, `email-security`, `wifi-wireless`, `api-security`, `code-audit` |
+| (1)-(5) flow / tooling | attack chains, tool index, case review, CTF sandbox | `attack-chain`, `pentest-tools`, `case-review`, `ctf-sandbox` |
 
 For reverse-engineering or specialty requests (binaries, firmware, mobile, protocols, AD, cloud, EDR), **load the matching skill before acting**: each carries real tools, real parameters and the real pitfalls, and anything missing on this machine is listed in its own "local tool status" table.
 

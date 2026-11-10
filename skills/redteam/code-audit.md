@@ -2,8 +2,6 @@
 name: code-audit
 description: Use for authorized source-code security review and SAST workflows including Semgrep, CodeQL patterns, dangerous API hunting, and fix verification.
 whenToUse: Use for authorized source-code security review and SAST workflows including Semgrep, CodeQ
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # code-audit

@@ -2,8 +2,6 @@
 name: iot-iiot-netdev
 description: 物联网/工控/网络设备得分面：摄像头与 NVR 默认口令与未授权、ONVIF 探测、Modbus/S7 工控端口、路由器交换机 SNMP 枚举与默认口令、iot-platform/iiot/netdev 三类得分的取法
 whenToUse: 资产里出现 RTSP/ONVIF 端口（554/8000/10554）、工控端口（502/102/5000/4840/9600）、网络设备管理口（23/161/2601）、或靶标含园区/工厂/楼宇时
-role: exploit
-enabled: true
 ---
 
 # 物联网 / 工控 / 网络设备（三个冷门但确定的得分点）

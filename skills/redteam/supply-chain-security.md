@@ -2,8 +2,6 @@
 name: supply-chain-security
 description: Use for software supply-chain security assessment covering SBOM, SCA, CI/CD pipelines, container images, build integrity, dependency provenance, and vulnerability reachability.
 whenToUse: Use for software supply-chain security assessment covering SBOM, SCA, CI/CD pipelines, con
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # supply-chain-security

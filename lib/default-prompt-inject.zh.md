@@ -86,7 +86,7 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 
 **加载顺序**：
 
-1. 优先用原生 `skill` 工具加载（演练预设会话里 48 个红队技能已在 `<available_skills>`）。
+1. 优先用原生 `skill` 工具加载（演练预设会话里 69 个红队技能已在 `<available_skills>`）。
 2. 加载不到就直接读文件：`$DSH_HOME/redteam/skills/<name>.md`（插件启动时从包内同步；`$DSH_HOME/skills/<name>.md` 是用户改过的版本，优先读它）。
 3. 两处都没有：按本条令的五阶段打，并把"缺技能"写进回报。
 
@@ -121,7 +121,10 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 | ③ 漏洞发现 | 注入类载荷（SQLi / 命令注入 / SSTI / 反序列化） | `injection-payloads`、`oob-verification` |
 | ④ 漏洞利用 | Web 载荷（XSS / SSRF / XXE / 上传 / 越权 / JWT） | `web-vuln-payloads` |
 | ④ 漏洞利用 | WAF / CDN / 限速绕过与找源站 | `waf-bypass` |
-| ③④⑤ 逆向与专项纵深 | 二进制 / 固件 / 移动端 / 协议 / 域 / 云 / EDR / 补丁差分 / PWN / 前端 JS / 攻击链 | `reverse-engineering`、`ida-reverse`、`radare2`、`binary-diff`、`patch-diff-exploit`、`protocol-reverse`、`pwn-chain`、`js-reverse`、`windows-ad`、`cloud-k8s`、`edr-bypass-re`、`firmware-pentest`、`apk-reverse`、`mobile-reverse`、`dotnet-reverse`、`attack-chain` |
+| ③④⑤ 逆向 / 二进制 | 反编译、脱壳、补丁差分、PWN、现代语言产物、浏览器扩展 | `reverse-engineering`、`ida-reverse`、`ghidra-reverse`、`radare2`、`binary-diff`、`patch-diff-exploit`、`pwn-chain`、`go-rust-reverse`、`dotnet-reverse`、`js-reverse`、`browser-extension-reverse` |
+| ③④⑤ 领域纵深 | 域 / 身份联邦 / 云 / 工控 / 固件 / 硬件 / 无线电 / 移动端 / 协议 / 厚客户端 | `windows-ad`、`identity-federation`、`cloud-k8s`、`ot-ics`、`firmware-pentest`、`hardware-security`、`radio-sdr`、`mobile-reverse`、`apk-reverse`、`protocol-reverse`、`thick-client` |
+| ③④⑤ 对抗 / 取证 / 安全域 | EDR 绕过、威胁狩猎、样本与取证、供应链 / LLM / 数据库 / 邮件 / 无线 / API / 代码审计 | `edr-bypass-re`、`threat-hunting`、`digital-forensics`、`malware-analysis`、`supply-chain-security`、`llm-security`、`database-security`、`email-security`、`wifi-wireless`、`api-security`、`code-audit` |
+| ①-⑤ 流程 / 工具集 | 攻击链编排、工具集索引、案例复盘、CTF 沙箱 | `attack-chain`、`pentest-tools`、`case-review`、`ctf-sandbox` |
 
 
 逆向/专项类需求（二进制、固件、移动端、协议、AD、云、EDR）**先加载对应技能再动手**：技能里给的是真实工具、真实参数与真实坑，工具未装的会在技能的「本机工具实况」表里标出。

@@ -2,8 +2,6 @@
 name: attack-chain
 description: Use for authorized multi-stage attack-path planning and orchestration when a task spans reconnaissance, initial access, privilege escalation, lateral movement, or impact assessment. Route single-stage
 whenToUse: Use for authorized multi-stage attack-path planning and orchestration when a task spans re
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # attack-chain

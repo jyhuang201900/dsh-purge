@@ -2,8 +2,6 @@
 name: waf-bypass
 description: WAF / CDN / 限速绕过：先定指纹再选绕过法，含分块、参数污染、编码与出网伪装
 whenToUse: 载荷被拦（403/406/JS 挑战/连接重置）或目标在 CDN 后面时
-role: exploit
-enabled: true
 ---
 
 # WAF / CDN / 限速绕过与找源站

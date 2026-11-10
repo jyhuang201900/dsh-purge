@@ -2,8 +2,6 @@
 name: asset-correlation
 description: 资产关联：域名↔IP↔C 段↔证书↔主体的图谱化，产出"先打谁"
 whenToUse: 信息收集阶段性收口，需要形成资产关系视图并排序时
-role: assess
-enabled: true
 ---
 
 # 资产关联与易打性排序（图谱化）

@@ -2,8 +2,6 @@
 name: windows-ad
 description: Use for authorized Active Directory and Windows identity attacks including Kerberos, AD CS, BloodHound paths, NTLM relay, and domain privilege escalation research.
 whenToUse: Use for authorized Active Directory and Windows identity attacks including Kerberos, AD CS
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # windows-ad

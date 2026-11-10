@@ -2,8 +2,6 @@
 name: injection-payloads
 description: 注入类载荷库：SQLi / 命令注入 / 代码注入，含判定信号、绕过与无回显外带
 whenToUse: 已找到参数或拼接点，需要确认注入并拿到数据 / RCE 时
-role: vuln-scan
-enabled: true
 ---
 
 # 注入类载荷库（SQLi / 命令注入 / SSTI / 反序列化）

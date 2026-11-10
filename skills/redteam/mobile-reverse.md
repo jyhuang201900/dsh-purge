@@ -2,8 +2,6 @@
 name: mobile-reverse
 description: Use for authorized Android or iOS application reverse engineering and security testing, including APK or IPA analysis, runtime instrumentation, SSL pinning, and platform protection checks.
 whenToUse: Use for authorized Android or iOS application reverse engineering and security testing, in
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # mobile-reverse

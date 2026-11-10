@@ -2,8 +2,6 @@
 name: llm-security
 description: Use for authorized security assessment of LLM applications and AI agents, including prompt injection, tool abuse, RAG exposure, memory poisoning, and model supply-chain risks.
 whenToUse: Use for authorized security assessment of LLM applications and AI agents, including prompt
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # llm-security

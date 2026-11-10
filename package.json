@@ -1,7 +1,7 @@
 {
   "name": "dsh-purge",
   "version": "1.1.85",
-  "description": "DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。Jailbreak for every model — swap prompts per model. Built-in red-team attack doctrine and 55 drill skills (32 offense-flow + 16 reverse/specialty).",
+  "description": "DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。Jailbreak for every model — swap prompts per model. Built-in red-team attack doctrine and 69 drill skills (32 offense-flow + 16 reverse/specialty).",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -50,7 +50,8 @@
     "scenario": "node scripts/scenario-drill.mjs",
     "probe:gates": "node scripts/probe-gates.mjs",
     "audit:skills": "node scripts/audit-skills.mjs",
-    "sync:skills": "node scripts/sync-skills.mjs",
+    "sync:bundled": "node scripts/sync-bundled.mjs",
+    "sync:skills": "node scripts/sync-bundled.mjs",
     "toolkit:windows": "node scripts/toolkit-windows.mjs",
     "toolkit:check": "node scripts/toolkit-windows.mjs --check",
     "test:hygiene": "node scripts/hygiene-selftest.mjs",

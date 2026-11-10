@@ -2,8 +2,6 @@
 name: protocol-reverse
 description: Use for authorized reverse engineering of custom binary protocols, Protobuf/gRPC, WebSocket frames, and PCAP-driven protocol recovery.
 whenToUse: Use for authorized reverse engineering of custom binary protocols, Protobuf/gRPC, WebSocke
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # protocol-reverse

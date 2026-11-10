@@ -2,8 +2,6 @@
 name: privesc-persistence
 description: 拿到 shell 后站稳三件套：权限鉴定与提权枚举（Linux SUID/capabilities/计划任务/内核、Windows 服务/UAC/令牌）、权限维持（计划任务/服务/SSH key/注册表/内存马）、凭据收割（哈希/密钥/配置/浏览器与内存提取）
 whenToUse: 漏洞利用拿到命令执行/WebShell 之后立刻用；隧道或马被踢、重启后入口消失说明没做维持；内网横向前需要先在本机榨干凭据
-role: exploit
-enabled: true
 ---
 
 # 提权 + 权限维持 + 凭据收割（拿到 shell 先站稳）

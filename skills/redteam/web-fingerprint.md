@@ -2,8 +2,6 @@
 name: web-fingerprint
 description: Web 服务指纹识别：框架、中间件、CMS、组件版本，为漏洞检测准备弹药
 whenToUse: 已发现 HTTP/HTTPS 服务，需要识别技术栈时
-role: assess
-enabled: true
 ---
 
 # Web 指纹识别（框架 / 中间件 / CMS / 组件版本）

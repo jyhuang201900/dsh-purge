@@ -2,8 +2,6 @@
 name: database-security
 description: Use for authorized database security assessment covering PostgreSQL/MySQL/MSSQL/Mongo/Redis exposure, authz, UDF/command paths, and misconfiguration review.
 whenToUse: Use for authorized database security assessment covering PostgreSQL/MySQL/MSSQL/Mongo/Redi
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # database-security

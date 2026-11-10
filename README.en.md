@@ -7,7 +7,7 @@
 <p align="center"><strong>Version 1.1.85</strong></p>
 
 <p align="center">
-  <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 55 drill skills (32 offense-flow plus 16 reverse/specialty).</em>
+  <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 69 drill skills (32 offense-flow plus 16 reverse/specialty).</em>
 </p>
 
 <p align="center">
@@ -449,7 +449,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run scenario` | end-to-end drill scenario with read-back assertions plus a live read-only probe |
 | `npm run probe:gates` | reverse-probe table: every gate must turn red when broken (an unprobed gate is an unknown gate) |
 | `npm run audit:skills` | ammo-layer consistency: every `redteam_*` tool name cited by skills and every skill named by the doctrine must actually exist |
-| `npm run sync:skills` | Syncs the repo source `skills/redteam` into the runtime `~/.dsh/redteam/skills` (idempotent, fills gaps only; `--force` overwrites all, `--dry` reports the diff). **The repo copy is what git and the gates see; the runtime copy is what the model actually reads - the two must not drift apart** |
+| `npm run sync:bundled` | Syncs bundled sources into the runtime: **skills** (`skills/redteam` -> `~/.dsh/redteam/skills`, discovered via the preset's `customSkillDirs`) and the **red-team preset** (`presets/redteam` -> `~/.dsh/.agent-presets/redteam`, the only path `core.js` reads). Idempotent; preset content differences are only reported by default, `--force` overwrites. Alias: `sync:skills` |
 | `npm run toolkit:windows` / `toolkit:check` | **Windows** installer and checker for the red-team toolchain: pulls official `windows_amd64` assets from the GitHub API into `$DSH_HOME/redteam/toolkit` (the repo's `setup.sh` is Linux-only and reports "no matching asset" for every tool on Windows); `--check` inspects without installing. `ksubdomain` has no Windows build |
 | `npm run test:hygiene` | hygiene-module fixtures: the prev keep-limit, orphan pair counting, and a bad JSON that must not be skipped silently |
 | `npm run smoke:cli` | CLI smoke: actually runs the read-only modes of `bin` to check argument dispatch and output markers (an unknown flag must error, not quietly print status) |

@@ -2,8 +2,6 @@
 name: reverse-engineering
 description: Provides reverse engineering techniques. Use when the main job is to understand how a compiled, obfuscated, packed, or virtualized target works before exploiting or solving it, including binaries, APK
 whenToUse: Provides reverse engineering techniques. Use when the main job is to understand how a comp
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # reverse-engineering

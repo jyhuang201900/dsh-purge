@@ -2,8 +2,6 @@
 name: oob-verification
 description: 带外（OOB）验证全家桶：盲注/盲 SSRF/无回显 RCE/盲 XXE 的命中判定——interactsh、dnslog.cn、自建 DNS+HTTP 服务器，外带域名生成、命中回读、误报排除
 whenToUse: 目标无回显、被 WAF 拦得看不见响应差异、盲注类漏洞需要证明"真的执行了"时；命令注入/SSRF/XXE/SSTI/反序列化判定命中
-role: exploit
-enabled: true
 ---
 
 # OOB 外带验证（盲打的判定之眼）

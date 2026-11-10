@@ -2,8 +2,6 @@
 name: dir-bruteforce
 description: 目录与文件爆破：后台入口、备份文件、配置泄露、源码与版本库暴露（ffuf/feroxbuster/dirsearch/gobuster）
 whenToUse: 已确认 Web 存活但指纹无直接 Nday 线索；需要找后台入口、备份、配置、源码、上传点等隐藏路径
-role: vuln-scan
-enabled: true
 ---
 
 # 目录与文件爆破（找入口的主力）

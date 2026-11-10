@@ -2,8 +2,6 @@
 name: netexec-scan
 description: netexec（crackmapexec 后继）v1.4+ 凭据验证与协议横扫：SMB/LDAP/WinRM/MSSQL/HTTP 一把梭、凭据有效性判定、签名与空会话枚举、域内信任与共享扫描
 whenToUse: 内网拿到任何一组凭据后要立刻验证并横扫；或没有凭据要做密码喷洒与空会话枚举时
-role: internal
-enabled: true
 ---
 
 # netexec（凭据验证与协议横扫）

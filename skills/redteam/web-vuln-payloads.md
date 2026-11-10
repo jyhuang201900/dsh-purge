@@ -2,8 +2,6 @@
 name: web-vuln-payloads
 description: Web 载荷库：XSS / SSRF / XXE / 文件上传 / 越权 / JWT / 逻辑，含判定与绕过
 whenToUse: 确认了输入点，需要按漏洞类别上载荷并拿到可复现证据时
-role: exploit
-enabled: true
 ---
 
 # Web 载荷库（XSS / SSRF / XXE / 上传 / 越权 / JWT）

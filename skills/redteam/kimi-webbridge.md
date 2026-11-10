@@ -2,8 +2,6 @@
 name: kimi-webbridge
 description: 用月之暗面 Kimi 浏览器扩展（WebBridge）驱动用户真实 Chrome/Chromium：导航、读取页面、点击、填表、执行 JS、截图
 whenToUse: 需要复用浏览器登录态访问后台/需要 JS 渲染的页面/需要真实浏览器指纹时
-role: recon
-enabled: true
 ---
 
 # Kimi WebBridge（浏览器扩展 + 本地守护进程）

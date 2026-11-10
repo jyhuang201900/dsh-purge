@@ -2,8 +2,6 @@
 name: api-security
 description: Use for authorized security assessment of REST, GraphQL, WebSocket, or SOAP APIs, including discovery, authentication, authorization, rate-limit, and CI/CD testing.
 whenToUse: Use for authorized security assessment of REST, GraphQL, WebSocket, or SOAP APIs, includin
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # api-security

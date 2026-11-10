@@ -2,8 +2,6 @@
 name: cloud-k8s
 description: Use for authorized cloud, container, and Kubernetes security assessment including metadata SSRF, IAM misconfig, container escape paths, and cluster RBAC review.
 whenToUse: Use for authorized cloud, container, and Kubernetes security assessment including metadata
-role: offense
-enabled: true
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 # cloud-k8s
