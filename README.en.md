@@ -454,7 +454,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run smoke:write` | write-path smoke: revert -> apply -> apply -> revert over a temporary fixture, compared byte-by-byte (apply idempotence, revert round-trip, self-restoring) |
 | `npm run smoke:tools` | tool-layer smoke: actually runs `purge_apply` / `purge_revert`, asserting the reported hosts count and that a single apply->revert round trip restores the official bytes |
 | `npm run audit:graph` | graph orphan audit: finds code files with zero inbound edges and no mention in docs/manifest (a named manual CLI is not an orphan) |
-| `npm run report` | Health report: runs the existing thirteen gates and probes in order and emits a markdown table (`.cache/report-<date>.md`); `--no-net` skips the three external checks. Elapsed time is self-measured (125 s here); before a restart the `--verify-live` row legitimately exits 1 |
+| `npm run report` | Health report: runs the existing thirteen gates and probes in order and emits a markdown table (`.cache/report-<date>.md`); `--no-net` skips the three external checks, and `npm run report -- --check-debt` appends an open-items review (route revived by a restart, injection size, this run's residue, real-host sidecar forensics, the four things deliberately not done). Elapsed time is self-measured; before a restart the `--verify-live` row legitimately exits 1 |
 | `npm run verify` | one command, eight gates |
 | `npm run build:client` | rebuild the client bundle |
 | `npm run graphify` | rebuild the knowledge graph (AST + hand-written semantic layer) |

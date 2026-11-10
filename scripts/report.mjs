@@ -70,6 +70,58 @@ const want = ["补丁 ", "宿主版本", "宿主枚举", "注入状态", "宿主
 const liveLines = st.text.split(/\r?\n/).map((l) => l.trim()).filter((l) => want.some((w) => l.startsWith(w) || l.includes(w)));
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+// 挂账复查（--check-debt）：验收单第六节那些「还挂着的事」不该只靠我记着，能机器判的就当场判一次。
+// 每条都必须带数字或形状，不写形容词——「仍待重启」要能指出是哪条路由回了什么，「偶发」要给出本轮实测。
+const checkDebt = argv.includes("--check-debt");
+const debtLines = [];
+if (checkDebt) {
+  // ① 路由是否接上（未重启时 in-host HTTP 面对 GET 回 400 非 JSON）
+  const webUrl = String(process.env.DSH_WEB_URL || "").trim();
+  if (!webUrl) debtLines.push("- 路由：未设 `DSH_WEB_URL` → **未查到**（不是已了）");
+  else {
+    try {
+      const r = await fetch(webUrl + "/dsh-purge/mcp", { signal: AbortSignal.timeout(15000) });
+      const t = await r.text();
+      let isJson = false;
+      try { JSON.parse(t); isJson = true; } catch { isJson = false; }
+      debtLines.push(`- 路由：HTTP ${r.status}｜响应${isJson ? "是 JSON → **已接上（说明重启过了）**" : `非 JSON（前 24 字：${JSON.stringify(t.slice(0, 24))}）→ **仍待重启**`}`);
+    } catch (e) { debtLines.push(`- 路由：探测失败 ${String((e && e.message) || e).slice(0, 40)} → 未查到`); }
+  }
+  // ② 注入正文的选择
+  const inj = liveLines.find((l) => l.includes("注入状态")) || "";
+  let diskChars = 0;
+  // 路径从 --status 输出里取真值；靠 DSH_HOME 拼会在这个 env 没设时静默变成 0 字（假数据比没数据更坏）。
+  const injPath = /([A-Za-z]:[^\s|]*prompt-inject\.md)/.exec(st.text || "");
+  try { if (injPath) diskChars = fs.readFileSync(injPath[1], "utf8").length; } catch { }
+  debtLines.push(`- 注入正文：${inj.replace(/^注入状态\s*/, "") || "读不到"}｜磁盘 ${diskChars} 字${injPath ? "" : "（未取到文件路径）"} → 仍等你三选一（adopt / 面板保存 / reset）`);
+  // ③ 关 12 本轮实测（残差数 + 是否幂等），与账上历史率并列
+  const ws = run(["scripts/write-smoke.mjs"]);
+  const res = /偏离官方原文的 (\d+) 个/.exec(ws.text);
+  debtLines.push(`- 关 12：本轮残差 ${res ? res[1] : "?"} 个｜write-smoke exit=${ws.exit}（账上历史红率 1/18 ≈6%，修前约 1/3 带 EPERM）`);
+  // ④ 双次 apply 污染在真宿主的现状（sidecar 取证）
+  try {
+    const m = /([A-Za-z]:[\\/][^\r\n]*@deepseek-ai)/.exec(st.text || "");
+    const base = m ? m[1] : "";
+    let side = 0, polluted = 0;
+    const walk = (dir, depth) => {
+      if (depth > 4) return;
+      let es = [];
+      try { es = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+      for (const e of es) {
+        const fp = path.join(dir, e.name);
+        if (e.isDirectory()) { walk(fp, depth + 1); continue; }
+        if (!e.name.endsWith(".dshpurge.bak")) continue;
+        side += 1;
+        try { if (fs.readFileSync(fp, "utf8").includes("dsh-purge")) polluted += 1; } catch { }
+      }
+    };
+    if (base) walk(base, 0);
+    debtLines.push(`- 双次 apply 污染：真宿主 sidecar ${side} 份，其中被污染 ${polluted} 份（已定级为一次性不累积，故意不改产品代码）${base ? "" : "｜注意：没取到插件根，这两个 0 不算数"}`);
+  } catch { debtLines.push("- 双次 apply 污染：取证未跑成（从 `--status` 输出里取不到插件根路径）"); }
+  // ⑤ 刻意没做的四项（非缺陷，列出来防止被当成漏做）
+  debtLines.push(`- 刻意没做：\`dsh.compatibility\`${pkg["dsh.compatibility"] ? "已接" : "未接"}、按组件导出、locale 分文件、市场发布（未上架，见生态笔记 9c）`);
+}
+
 const failures = rows.filter((x) => typeof x.exit === "number" && x.exit !== 0);
 const skipped = rows.filter((x) => x.exit === "-").length;
 
@@ -88,6 +140,7 @@ const md = [
 "",
 ...liveLines.map((l) => `- ${l}`),
 "",
+...(debtLines.length ? ["", "## 挂账复查（--check-debt）", "", ...debtLines] : []),
 `> 报告本身不是闸门：它复用现有十三关与探测器。本次耗时 ${Math.round((Date.now() - tStart) / 1000)} 秒${noNet ? "（--no-net，跳过外网三项）" : "（含外网项）"}。`,
 "",
 ].join("\n");

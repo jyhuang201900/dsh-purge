@@ -462,7 +462,7 @@ npm run verify
 | `npm run smoke:write` | 写路径冒烟：在临时夹具上跑 revert→apply→apply→revert，逐文件字节对账（apply 幂等、revert 往返、跑完自收尾） |
 | `npm run smoke:tools` | 工具层冒烟：真执行 `purge_apply` / `purge_revert`，断言返回的 hosts 数与「单次往返逐文件回到官方原文」 |
 | `npm run audit:graph` | 图谱孤儿审计：找零入边且无人提名的代码文件（有名分的手动 CLI 不算孤儿） |
-| `npm run report` | 体检报告：按顺序复用十三关与探测器，产出 markdown 汇总表（`.cache/report-<日期>.md`）；`--no-net` 跳过三条外网项。耗时由脚本自测；未重启时 `--verify-live` 那一行为 exit=1 属常态，不是新缺陷 |
+| `npm run report` | 体检报告：按顺序复用十三关与探测器，产出 markdown 汇总表（`.cache/report-<日期>.md`）；`--no-net` 跳过三条外网项，`npm run report -- --check-debt` 追加「挂账复查」段（逐条复查验收单第六节：路由是否随重启转绿、注入字数、本轮残差、真宿主 sidecar 取证、刻意没做的四项）。耗时由脚本自测；未重启时 `--verify-live` 那一行为 exit=1 属常态，不是新缺陷 |
 | `npm run verify` | 一条命令过八关 |
 | `npm run build:client` | 重打前端 bundle |
 | `npm run graphify` | 重建知识图谱（AST + 手写语义层） |
