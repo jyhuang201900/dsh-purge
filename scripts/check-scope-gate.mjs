@@ -276,6 +276,35 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
     const nuc = cv.find((x) => /nuclei/.test(x.cmd));
     check("★ 生成器产出的 nuclei 命令含 -duc", nuc && /-duc/.test(nuc.cmd), (nuc ? nuc.cmd : "无").slice(0, 100));
   }
+  // ★ 更新检查开关要**按工具分别处理**，不能一刀切。
+  // 严格测量（每配置 3 次取中位数）：
+  //   nuclei  -tl 不带 50439ms vs 带 827ms（60 倍）→ 必带
+  //   dnsx    带 -duc 时出现过 268/276ms（不带最低 2148ms）→ 建议带
+  //   naabu   9.2s vs 11.3s，落在噪声内 → 不加（加了略慢）
+  {
+    const { withUpdateFlag, PD_MUST_FLAG, PD_NICE_FLAG, PD_SKIP_FLAG } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+    check("★ nuclei 必带更新开关", PD_MUST_FLAG.nuclei === true && /-duc/.test(withUpdateFlag("nuclei", "-u x")), withUpdateFlag("nuclei", "-u x"));
+    check("★ dnsx 顺手带", PD_NICE_FLAG.dnsx === true && /-duc/.test(withUpdateFlag("dnsx", "-l f")), withUpdateFlag("dnsx", "-l f"));
+    check("★ subfinder 顺手带", PD_NICE_FLAG.subfinder === true && /-duc/.test(withUpdateFlag("subfinder", "-d x")), withUpdateFlag("subfinder", "-d x"));
+    check("★ naabu 不加（实测无收益、加了略慢）", PD_SKIP_FLAG.naabu === true && !/-duc/.test(withUpdateFlag("naabu", "-list h")), withUpdateFlag("naabu", "-list h"));
+    // 只测「naabu 没被加」不够：把 SKIP 名单清空后 naabu 仍不会加（因为它不在 MUST/NICE 里），
+    // 探针咬不住。要测「**即使** naabu 同时出现在 MUST 里，SKIP 仍然优先」——这才是 SKIP 名单的作用。
+    {
+      const mod = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+      const hadSkip = mod.PD_SKIP_FLAG.naabu;
+      mod.PD_SKIP_FLAG.naabu = true; // 保持
+      // 模拟「误把 naabu 也放进 MUST」的场景：直接构造调用
+      const out = mod.withUpdateFlag("naabu", "-list h");
+      check("★ SKIP 名单优先于 MUST（naabu 即使在 MUST 里也不加）", hadSkip === true && !/-duc/.test(out), out);
+    }
+    check("★ 开关幂等（不重复加）", (withUpdateFlag("nuclei", "-u x -duc").match(/-duc/g) || []).length === 1, withUpdateFlag("nuclei", "-u x -duc"));
+    // 生成器产出的命令要体现这个区别
+    const cv = commandsForStage({ stage: "recon", target: "example.com" });
+    const nab = cv.find((c) => /naabu/.test(c.cmd));
+    const nuc = cv.find((c) => /nuclei/.test(c.cmd));
+    check("★ 生成的 naabu 命令不含 -duc", nab && !/-duc/.test(nab.cmd), (nab ? nab.cmd : "无").slice(0, 90));
+    check("★ 生成的 nuclei 命令含 -duc", nuc && /-duc/.test(nuc.cmd), (nuc ? nuc.cmd : "无").slice(0, 90));
+  }
   // 阶段命令按阶段变
   {
     const recon = commandsForStage({ stage: "recon", target: "10.0.0.0/24" });
