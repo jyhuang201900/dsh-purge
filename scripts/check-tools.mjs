@@ -104,6 +104,16 @@ const entDesc = drillTool?.parameters?.properties?.entity?.description || "";
 const hiddenEnt = [...ents, ...writes].filter((e) => !entDesc.includes(e));
 if (hiddenEnt.length) problems.push(`entity 已实现但没写进描述：${hiddenEnt.join(", ")}`);
 notes.push(`可发现性：op ${known.length - hidden.length}/${known.length}、entity ${(ents.length + writes.length) - hiddenEnt.length}/${ents.length + writes.length}（读 ${ents.length} + 写 ${writes.length}）已写进描述`);
+// 5b) 参数表里不许有重复键：JS 对象后写覆盖前写、JSON.stringify 也照不出来（本轮人工审描述才发现 name 写了两遍）。
+const mtSrc = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");
+const blocks = [...mtSrc.matchAll(/name: "(purge_[a-z_]+)"/g)].map((m, i, a) => ({ name: m[1], from: m.index, to: a[i + 1] ? a[i + 1].index : mtSrc.length }));
+for (const b of blocks) {
+  const src = mtSrc.slice(b.from, b.to);
+  const keys = [...src.matchAll(/^ {8}([a-z][a-z0-9_]*): \{ type/gm)].map((m) => m[1]);
+  const seen = new Set(); const dup = new Set();
+  for (const k of keys) { if (seen.has(k)) dup.add(k); seen.add(k); }
+  if (dup.size) problems.push(`${b.name} 参数表有重复键 ${[...dup].join("/")}：后写会把前写的说明盖掉`);
+}
 // 6) 反堆叠：op 数是聚合入口退化的先行指标。规则（2026-11-09 定）：新增 op 必须至少收纳 3 个 store 方法
 //    或一整条流程，否则折进 kind/entity —— 据此抬到 18（op=update 一个 op 收 updateVuln/updateWebshell/updateTunnel 三个方法）。
 //    新面优先折进 kind/entity（如 report kind=targets 零新增参数只涨 109 字符），而不是再加 op。
