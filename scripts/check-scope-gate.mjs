@@ -63,6 +63,30 @@ check("空授权范围必须拒绝", checkTarget("1.2.3.4", {}).ok === false);
 check("ipInCidr 基本正确", ipInCidr("10.0.0.5", "10.0.0.0/24") && !ipInCidr("10.0.1.5", "10.0.0.0/24"));
 check("cidrInsideCidr 拒绝跨界", cidrInsideCidr("10.0.0.0/25", "10.0.0.0/24") && !cidrInsideCidr("10.0.0.0/23", "10.0.0.0/24"));
 
+// ── ①b 技法与时间窗（第二、三道边界）──
+const { techClassOf, checkTechnique, checkAction } = await import(toUrl(path.join(root, "lib", "redteam", "scope.js")));
+const NOW = Date.parse("2026-11-11T12:00:00");
+const TECHS = [
+  ["nuclei-scan", "noisy"], ["dir-bruteforce", "noisy"], ["passive-recon", "passive"],
+  ["webshell-toolkit", "exploit"], ["competition-kernel-container-escape", "destructive"],
+  ["api-security", "appsec"], ["windows-ad", "specialty"], ["competition-jwt-claim-confusion", "surface"],
+  ["nonsense-xyz", "unknown"],
+];
+for (const [n, want] of TECHS) check(`技法归类 ${n}`, techClassOf(n) === want, `得到 ${techClassOf(n)}`);
+
+check("授权清单空 = 不限制技法", checkTechnique("nuclei-scan", { now: NOW }).ok === true);
+check("★ 授权 [passive] 时 noisy 被拒", checkTechnique("nuclei-scan", { authorizedTechniques: ["passive"], now: NOW }).ok === false);
+check("授权 [noisy] 时 nuclei-scan 通过", checkTechnique("nuclei-scan", { authorizedTechniques: ["noisy"], now: NOW }).ok === true);
+check("授权可写具体技能名", checkTechnique("nuclei-scan", { authorizedTechniques: ["nuclei-scan"], now: NOW }).ok === true);
+check("★ 排除 [destructive] 命中即拒", checkTechnique("competition-kernel-container-escape", { excludedTechniques: ["destructive"], now: NOW }).ok === false);
+check("★ 排除优先于授权", checkTechnique("nuclei-scan", { authorizedTechniques: ["noisy"], excludedTechniques: ["nuclei-scan"], now: NOW }).ok === false);
+check("窗口内通过", checkTechnique("nuclei-scan", { window: { from: "2026-11-11 00:00", to: "2026-11-12 00:00" }, now: NOW }).ok === true);
+check("★ 过窗被拒", checkTechnique("nuclei-scan", { window: { to: "2026-11-11 06:00" }, now: NOW }).ok === false);
+check("★ 未到起点也拒（提前开工同样是区间外）", checkTechnique("nuclei-scan", { window: { from: "2026-11-11 18:00" }, now: NOW }).ok === false);
+check("三边界：目标外先报", checkAction({ targets: ["198.51.100.9"], technique: "nuclei-scan", scope: { allow: ["203.0.113.0/24"] }, now: NOW }).layer === "target");
+check("三边界：目标内技法外报技法", checkAction({ targets: ["203.0.113.5"], technique: "webshell-toolkit", scope: { allow: ["203.0.113.0/24"], authorizedTechniques: ["noisy"] }, now: NOW }).layer === "technique");
+check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique: "nuclei-scan", scope: { allow: ["203.0.113.0/24"], authorizedTechniques: ["noisy"] }, now: NOW }).ok === true);
+
 // ── ② 端到端：拦截真的发生在写入路径上 ──
 const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "scopegate-"));
 const prevHome = process.env.REDTEAM_HOME;
@@ -98,6 +122,26 @@ try {
   check("★ 批量里一个越界就整条拦下", /范围闸拦下/.test(batchBad.text), batchBad.text.slice(0, 90));
   const insideUrl = await drill.execute({ op: "entity_add", entity: "vuln", name: "正常URL", target: "http://203.0.113.20/a", text: "p" });
   check("范围内 URL 放行", /已写入/.test(insideUrl.text) && !/范围闸拦下/.test(insideUrl.text), insideUrl.text.slice(0, 70));
+
+  // 技法闸 + 时间窗端到端：开一个「只授权 noisy、排除 destructive、窗口已过」的靶标
+  const techOpen = await drill.execute({
+    op: "open", name: "scopegate-tech", target: "203.0.113.0/24",
+    // 参数是 scope 串（k=v 逗号分隔）——四个独立参数会顶破工具面预算，合并后仍表达同样三件事
+    scope: "tech=noisy,passive,deny=destructive,from=2020-01-01T00:00,to=2020-01-02T00:00",
+  });
+  check("技法/窗口靶标已建立", /已建靶/.test(techOpen.text), techOpen.text.slice(0, 60));
+
+  const techOk = await drill.execute({ op: "chain_add", stage: "recon", tool: "nuclei-scan", text: "窗口外" });
+  check("★ 过窗时 chain_add 被拦", /技法闸拦下/.test(techOk.text) && /已过授权窗口/.test(techOk.text), techOk.text.slice(0, 90));
+
+  // 换一个不限时间的靶标，验技法
+  await drill.execute({ op: "open", name: "scopegate-tech2", target: "203.0.113.0/24", scope: "tech=noisy,passive,deny=destructive" });
+  const tNoisy = await drill.execute({ op: "chain_add", stage: "recon", tool: "nuclei-scan", text: "扫一遍" });
+  check("授权内手法 chain_add 放行", /已写入/.test(tNoisy.text) && !/技法闸拦下/.test(tNoisy.text), tNoisy.text.slice(0, 80));
+  const tExploit = await drill.execute({ op: "chain_add", stage: "exploit", tool: "webshell-toolkit", text: "落马" });
+  check("★ 未授权手法 chain_add 被拦", /技法闸拦下/.test(tExploit.text) && /未被授权/.test(tExploit.text), tExploit.text.slice(0, 90));
+  const tDestructive = await drill.execute({ op: "chain_add", stage: "exploit", tool: "competition-kernel-container-escape", text: "逃逸" });
+  check("★ 排除手法被拦（排除优先）", /技法闸拦下/.test(tDestructive.text) && /被排除/.test(tDestructive.text), tDestructive.text.slice(0, 90));
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 } finally {
