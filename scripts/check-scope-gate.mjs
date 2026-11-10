@@ -331,6 +331,39 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
   check("★ 行号非法时说明「不是不存在」", /不是「行号不存在」/.test(renderIssues(validateRowId("row", -1)).join("")), renderIssues(validateRowId("row", -1)).join("").slice(0, 90));
 }
 
+// ── ①i 越界压力 → 行动（闭环：检测到失控要知道「该停」）──
+// 实测缺口（第 124 轮）：趋势做进了 summary 与战报，但它只是**一行数**，完全没影响「下一步」——
+// 越界越频繁，next 照样指「继续打这一发」。检测到了却不据此改行动，等于心电图画出来没人看。
+{
+  const { judgeScopePressure, renderPressure, pressureNext } = await import(toUrl(path.join(root, "lib", "redteam", "pressure.js")));
+  const CASES = [
+    ["无拦截不停", { total: 0 }, false, ""],
+    ["加速且高频 → stop", { total: 12, trend: "在加速（后半段每桶 4.0 次 vs 前半段 1.0 次）", byReason: [{ reason: "技法未授权", n: 8 }], byBucket: [{ at: "10:00", n: 1 }, { at: "10:10", n: 4 }, { at: "10:15", n: 4 }] }, true, "stop"],
+    ["加速但低频 → caution", { total: 3, trend: "在加速（后半段每桶 1.0 次 vs 前半段 0.2 次）", byReason: [{ reason: "x", n: 2 }], byBucket: [{ at: "10:00", n: 0 }, { at: "10:10", n: 1 }] }, true, "caution"],
+    ["同一理由 80%+ → stop", { total: 10, trend: "平稳", byReason: [{ reason: "目标不在授权网段内", n: 9 }], byBucket: [{ at: "10:00", n: 3 }, { at: "10:10", n: 4 }] }, true, "stop"],
+    ["单桶 10+ → stop（报撞线太密）", { total: 10, trend: "集中在同一个 5 分钟桶内（10 次）", byReason: [{ reason: "目标不在授权网段内", n: 10 }], byBucket: [{ at: "10:00", n: 10 }] }, true, "stop"],
+    ["在收敛 → 不该停", { total: 9, trend: "在收敛（后半段每桶 0.5 次 vs 前半段 4.0 次）", byReason: [{ reason: "x", n: 5 }], byBucket: [{ at: "10:00", n: 4 }, { at: "10:10", n: 1 }] }, false, ""],
+    ["少量拦截 → caution", { total: 3, trend: "平稳", byReason: [{ reason: "技法被排除", n: 2 }], byBucket: [{ at: "10:00", n: 1 }, { at: "10:10", n: 1 }] }, true, "caution"],
+  ];
+  for (const [label, s, wantMust, wantLevel] of CASES) {
+    const j = judgeScopePressure(s);
+    check(`★ 压力判定「${label}」`, j.must === wantMust && j.level === wantLevel, `must=${j.must} level=${j.level || "-"}`);
+  }
+  // 单桶撞线要报更具体的那个（不是被「同一理由」抢先）
+  {
+    const j = judgeScopePressure({ total: 10, trend: "集中在同一个 5 分钟桶内（10 次）", byReason: [{ reason: "x", n: 10 }], byBucket: [{ at: "10:00", n: 10 }] });
+    check("★ 单桶撞线报「撞线太密」（比理由占比更具体）", /撞线太密/.test(j.why), j.why.slice(0, 80));
+  }
+  // stop 场景两行不重复（一行为什么、一行做什么）
+  {
+    const j = judgeScopePressure({ total: 8, trend: "平稳", byReason: [{ reason: "目标不在授权网段内", n: 8 }], byBucket: [{ at: "10:00", n: 4 }, { at: "10:10", n: 4 }] });
+    const short = renderPressure(j, { short: true });
+    const next = pressureNext(j);
+    check("★ stop 时「原因行」不含行动、行动只在下一步", short.length > 0 && !short.includes(j.todo) && next.includes(j.todo), `short=${short.slice(0, 50)}`);
+  }
+  check("caution 不覆盖下一步（只有 stop 才接管）", pressureNext({ must: true, level: "caution", todo: "x" }) === "");
+}
+
 // ── ② 端到端：拦截真的发生在写入路径上 ──
 const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "scopegate-"));
 const prevHome = process.env.REDTEAM_HOME;
@@ -398,6 +431,7 @@ try {
     const badRow = await drill.execute({ op: "update", entity: "vuln", row: -1, stage: "fixed" });
     check("★ 端到端：行号非法时说「非法」而不是「不存在」", /未写入/.test(badRow.text) && /不合法/.test(badRow.text), badRow.text.slice(0, 100));
   }
+
   const insideUrl = await drill.execute({ op: "entity_add", entity: "vuln", name: "正常URL", target: "http://203.0.113.20/a", kind: "high", text: "p" });
   check("范围内 URL 放行", /已写入/.test(insideUrl.text) && !/范围闸拦下/.test(insideUrl.text), insideUrl.text.slice(0, 70));
 
@@ -498,6 +532,16 @@ try {
     const iAudit = rep.text.indexOf("## 零、授权边界");
     const iOne = rep.text.indexOf("## 一、成果漏洞");
     check("审计段排在成果段之前", iAudit >= 0 && iOne > iAudit, `audit@${iAudit} one@${iOne}`);
+
+  // 端到端：同一理由撞满 8 次后，summary 的「下一步」必须被改写成「先核对授权」
+  {
+    await drill.execute({ op: "open", name: "scopegate-pressure", target: "10.0.0.0/24" });
+    for (let i = 1; i <= 8; i += 1) await drill.execute({ op: "entity_add", entity: "asset", name: `198.51.100.${i}`, target: `198.51.100.${i}` });
+    const sp = await drill.execute({ op: "summary" });
+    check("★ 端到端：失控时下一步被改写成先核对授权", /先核对授权再动手/.test(sp.text), (sp.text.match(/→ 下一步：[^\n]*/) || [""])[0].slice(0, 90));
+    check("★ 端到端：先停手提示出现", /先停手/.test(sp.text), (sp.text.match(/先停手[^\n]*/) || [""])[0].slice(0, 90));
+    check("★ 端到端：失控后不再提示「继续打」的阶段指引", !/→ 下一步：阶段[①③④⑤]/.test(sp.text), (sp.text.match(/→ 下一步：[^\n]*/) || [""])[0].slice(0, 60));
+  }
 
     // 阶段分流必须**真的接在 summary 上**，不是只有函数正确。
     // 首版只测了 routeRecon 等函数本身，于是「summary 不接分流」的探针咬不住（失败 0）——
