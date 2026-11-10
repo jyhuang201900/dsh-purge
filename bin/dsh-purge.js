@@ -120,13 +120,17 @@ async function main() {
     else if (deliberate && !bookkeepingGap) push("ok", "注入正文是你自己保存的稿（不算待办）", `${detail3}｜插件判为 ${st.override_status}，sync 不会覆盖它`);
     else if (bookkeepingGap) push("warn", `注入状态 ${st.override_status}：磁盘内容与插件记录不一致`, `${detail3}｜对齐办法三选一：purge_override mode=adopt（只对齐记录、不动文件）/ 面板「保存」/ purge_override reset（换成当前默认）`);
     else push("warn", `注入状态 ${st.override_status}：是我们的旧默认没跟上`, `${detail3}｜重启会自动升级到 ${defLen} 字，或 purge_override reset`);
-    // 4) 路由是否 live（这是"重启有没有生效"的唯一硬证据）
+    // 4) 路由是否 live：三态要分开说，「宿主没在跑」和「等你重启」是完全不同的两件事。
     if (!baseUrl) {
       push("warn", "HTTP MCP 未探测", "给 --verify-live <url> 或设 DSH_WEB_URL");
     } else {
       const { probeMcpEndpoint } = await import("../lib/mcp-probe.js");
       const r = await probeMcpEndpoint({ baseUrl });
-      push(r.state === "live" ? "ok" : "warn", `路由 ${baseUrl} → ${r.state}`, (r.lines || []).slice(-1)[0] || "");
+      const tail = (r.lines || []).slice(-1)[0] || "";
+      if (r.state === "live") push("ok", `路由 ${baseUrl} → live`, tail);
+      else if (r.state === "not-live") push("warn", `路由 ${baseUrl} → 未加载（待重启）`, `${tail}｜下一步：重启 dsh 再跑本命令`);
+      else if (r.state === "unreachable") push("warn", `路由 ${baseUrl} 连不上`, "这是「宿主没在跑 / 端口不对」，不是待重启——先确认 dsh 已启动或换个 URL");
+      else push("bad", `路由 ${baseUrl} 探测异常`, tail || "见 --mcp-probe 分步输出");
     }
     console.log("dsh-purge 实时验收（只读探测）：");
     for (const x of rows) console.log(`  ${x.level === "ok" ? "✓" : x.level === "warn" ? "⚠" : "✗"} ${x.label}${x.detail ? `｜${x.detail}` : ""}`);
