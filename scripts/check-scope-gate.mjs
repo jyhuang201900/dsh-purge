@@ -142,6 +142,35 @@ try {
   check("★ 未授权手法 chain_add 被拦", /技法闸拦下/.test(tExploit.text) && /未被授权/.test(tExploit.text), tExploit.text.slice(0, 90));
   const tDestructive = await drill.execute({ op: "chain_add", stage: "exploit", tool: "competition-kernel-container-escape", text: "逃逸" });
   check("★ 排除手法被拦（排除优先）", /技法闸拦下/.test(tDestructive.text) && /被排除/.test(tDestructive.text), tDestructive.text.slice(0, 90));
+
+  // ── ③ 拦截必须可交付：战报要能证明「没打什么」，而不只是「打了什么」 ──
+  // 为什么这也是范围闸的一部分：边界拦住动作只是「没出事」，把拦截事实写进报告才是「可审计」。
+  // 拦了不记，交出去的成品就只能自证清白，审计方无从复核。
+  // 审计段是**按靶标**记录的，所以全套要在同一个靶标里做：新开一个三道边界齐全的靶标，
+  // 在里面各制造一次目标越界与技法越权，再读战报——这样才验证得了「同一份报告把两类都列出来」。
+  await drill.execute({ op: "open", name: "scopegate-audit", target: "203.0.113.0/24", scope: "tech=noisy,passive,deny=destructive" });
+  await drill.execute({ op: "entity_add", entity: "asset", name: "198.51.100.77", target: "198.51.100.77" });
+  await drill.execute({ op: "chain_add", stage: "exploit", tool: "webshell-toolkit", text: "越权补记" });
+  const rep = await drill.execute({ op: "report", limit: 200 });
+  check("战报含审计段「授权边界与越界尝试」", /##\s*零、授权边界与越界尝试/.test(rep.text), rep.text.slice(0, 80));
+  check("★ 战报列出被拦的目标越界", /目标越界/.test(rep.text), rep.text.slice(0, 90));
+  check("★ 战报列出被拦的技法越权", /技法\/时间越权/.test(rep.text), rep.text.slice(0, 90));
+  check("战报报出授权技法（多值不被切碎）", /授权技法：.*noisy.*passive/.test(rep.text), (rep.text.match(/授权技法：[^\n]*/) || [""])[0].slice(0, 60));
+  check("战报报出排除技法", /排除技法：.*destructive/.test(rep.text), (rep.text.match(/排除技法：[^\n]*/) || [""])[0].slice(0, 60));
+  // ★ 审计段不能被 limit 截断：用一个很小的 limit 读，审计段仍必须完整出现。
+  // 没有这条用例时，「把审计段也交给 limit 管」的探针咬不住（实测失败 0）——
+  // 因为默认 limit=14 恰好够显示这段短报告，问题只在长报告上暴露。用例要按**最坏情形**设计。
+  {
+    const tight = await drill.execute({ op: "report", limit: 3 });
+    check("★ 极小 limit 下审计段仍完整（不被截断）", /##\s*零、授权边界与越界尝试/.test(tight.text) && /目标越界/.test(tight.text), tight.text.slice(0, 90));
+    check("极小 limit 下确实截了正文（证明 limit 生效）", /…另 \d+ 行/.test(tight.text), (tight.text.match(/…另 [^\n]*/) || [""])[0].slice(0, 40));
+  }
+  // 审计段必须排在「一、成果漏洞」之前（标题是「零、」，位置就该在前）
+  {
+    const iAudit = rep.text.indexOf("## 零、授权边界");
+    const iOne = rep.text.indexOf("## 一、成果漏洞");
+    check("审计段排在成果段之前", iAudit >= 0 && iOne > iAudit, `audit@${iAudit} one@${iOne}`);
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 } finally {
