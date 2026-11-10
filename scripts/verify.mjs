@@ -15,6 +15,14 @@ const argv = process.argv.slice(2);
 const rootIdx = argv.indexOf("--root");
 const root = rootIdx >= 0 ? path.resolve(argv[rootIdx + 1]) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const skipSize = argv.includes("--skip-size");
+// 按名点跳：--skip write,cli（名字取自下面各关的短名）。
+// 为什么需要它：实测 22.1 秒里 write-smoke 一门占 14.4 秒（65%），迭代时想只看其余关就得有这个旋钮；
+// 而旧参数 --skip-size 其实是「除语法外全跳」，名字说一件事、做另一件 —— 保留兼容，但新用法以 --skip 为准。
+const skipSet = new Set((argv[argv.indexOf("--skip") + 1] || process.env.DSH_VERIFY_SKIP || "").split(",").map((x) => String(x).trim().toLowerCase()).filter(Boolean));
+const skip = (name) => skipSize || skipSet.has(name);
+if (argv.includes("--skip") && !argv[argv.indexOf("--skip") + 1]) {
+  console.log("--skip 需要名单，例如：node scripts/verify.mjs --skip write,cli（可用：size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json）");
+}
 
 function walk(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -40,7 +48,7 @@ for (const file of files) {
 notes.push(`语法：${files.length} 个文件，失败 ${failures.length}`);
 
 // 关 2：体积预算（交给 check-size.mjs，单一来源，不在这儿重写规则）。
-if (!skipSize) {
+if (!skip("size")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-size.mjs")], { encoding: "utf8" });
   const tail = (res.stdout || "").trim().split("\n").pop() || "";
   if (res.status !== 0) failures.push(`体积闸门未过：${tail}`);
@@ -50,7 +58,7 @@ if (!skipSize) {
 // 关 3：双语文案——① client.js 里中英两块 key 必须一模一样；② locale 源 JSON 与内联块不许静默分叉。
 // 第 ② 条是探针总表（scripts/probe-gates.mjs）发现的洞：build-locale --check 早就存在，但没接进闸门，
 // 改了 locale/zh.json 忘了 npm run build:locale 时，八关照样全绿 —— 门禁在管的东西必须被调用才算数。
-if (!skipSize) {
+if (!skip("locale")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-locale.mjs")], { encoding: "utf8" });
   const tail = (res.stdout || "").trim().split("\n").filter(Boolean)[0] || "";
   if (res.status !== 0) failures.push(`双语闸门未过：${(res.stderr || tail).trim().split("\n")[0]}`);
@@ -62,7 +70,7 @@ if (!skipSize) {
 }
 
 // 关 4：清单一致性——COPY_NAMES（自更新拷贝清单）与 files（发布白名单）不许分叉。
-if (!skipSize) {
+if (!skip("manifest")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-manifest.mjs")], { encoding: "utf8" });
   const head = (res.stdout || "").trim().split("\n").filter(Boolean)[0] || "";
   if (res.status !== 0) failures.push(`清单闸门未过：${(res.stderr || head).trim().split("\n")[0]}`);
@@ -70,7 +78,7 @@ if (!skipSize) {
 }
 
 // 关 5：包自证——manifest 口径与全仓数量声明（交给 check-package.mjs，真相取自 lib/core.js）。
-if (!skipSize) {
+if (!skip("package")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-package.mjs")], { encoding: "utf8" });
   const head = (res.stdout || "").trim().split("\n").filter(Boolean)[0] || "";
   if (res.status !== 0) failures.push(`包自证未过：${(res.stderr || head).trim().split("\n").slice(-1)[0]}`);
@@ -78,7 +86,7 @@ if (!skipSize) {
 }
 
 // 关 6：工具面闸门——结构 + 描述成本 + 返回值成本 + op/entity 可发现性。
-if (!skipSize) {
+if (!skip("tools")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-tools.mjs")], { encoding: "utf8" });
   const head = (res.stdout || "").trim().split("\n").filter(Boolean)[0] || "";
   if (res.status !== 0) failures.push(`工具面闸门未过：${(res.stderr || head).trim().split("\n").slice(-1)[0]}`);
@@ -86,7 +94,7 @@ if (!skipSize) {
 }
 
 // 关 7：端到端情景——把 drill 的 18 个 op 串成一条真实流程逐步断言回读（组合期最容易出「说谎的回读」）。
-if (!skipSize) {
+if (!skip("scenario")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "scenario-drill.mjs")], { encoding: "utf8" });
   const tail = (res.stdout || "").trim().split("\n").filter(Boolean).slice(-1)[0] || "";
   if (res.status !== 0) {
@@ -96,7 +104,7 @@ if (!skipSize) {
 }
 
 // 关 9：弹药层一致性——技能正文引用的工具名、条令点名的技能，都必须真实存在（引用不存在的名字 = 模型照做就撞空）。
-if (!skipSize) {
+if (!skip("ammo")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "audit-skills.mjs")], { encoding: "utf8" });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split("\n");
   if (res.status !== 0) {
@@ -105,7 +113,7 @@ if (!skipSize) {
 }
 
 // 关 10：磁盘卫生模块的夹具自测（阈值边界得有人看着：保留 2 份、孤儿 >5、坏 JSON 不许静默跳过）。
-if (!skipSize) {
+if (!skip("hygiene")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "hygiene-selftest.mjs")], { encoding: "utf8" });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split("\n");
   if (res.status !== 0) {
@@ -114,7 +122,7 @@ if (!skipSize) {
 }
 
 // 关 11：CLI 冒烟——真跑 bin 的只读模式（此前十关没有一关执行过 CLI 分发，改坏 bin 也可能全绿）。
-if (!skipSize) {
+if (!skip("cli")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "cli-smoke.mjs")], { encoding: "utf8" });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
   if (res.status !== 0) {
@@ -122,7 +130,7 @@ if (!skipSize) {
   } else notes.push((out[out.length - 1] || "").trim());
 }
 // 关 12：写路径冒烟——apply/revert 往返（此前没有任何一关执行过写路径；它也是唯一能抓到 revert 不对称的关）。
-if (!skipSize) {
+if (!skip("write")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "write-smoke.mjs")], { encoding: "utf8", timeout: 180000 });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
   if (res.status !== 0) {

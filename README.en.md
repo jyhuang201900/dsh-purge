@@ -396,6 +396,8 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 
 One command runs twelve gates (syntax / size budget / bilingual copy incl. source-vs-inline / manifest parity / package self-proof / tool surface / end-to-end scenario / ammo-layer audit / hygiene fixtures / CLI smoke / write-path smoke / valid JSON); a non-zero exit means a gate failed:
 
+While iterating, skip the heavy ones: `node scripts/verify.mjs --skip write,cli` (or `DSH_VERIFY_SKIP=write,cli`). Measured: 12 gates 22.3 s -> skip `write` 7.6 s -> also skip `cli` 5.1 s. The legacy `--skip-size` really means "skip everything but syntax" (2.4 s); its name does not match its behaviour, so it stays only for compatibility and `--skip` is the new way. Valid short names: `size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json`.
+
 ```sh
 npm run verify
 ```

@@ -404,6 +404,8 @@ DSH 会按顺序执行同一批中的 Bash 调用。旧版 dsh-purge 把默认�
 
 一条命令过十二关（语法 / 体积预算 / 双语文案（含源↔内联）/ 清单一致性 / 包自证 / 工具面 / 端到端情景 / 弹药层审计 / 磁盘卫生夹具 / CLI 冒烟 / 写路径冒烟 / JSON 合法），未通过时退出码非 0：
 
+迭代时可以点跳重活：`node scripts/verify.mjs --skip write,cli`（或 `DSH_VERIFY_SKIP=write,cli`）。实测三档耗时：全量 12 关 22.3 秒 → 跳 `write` 7.6 秒 → 再跳 `cli` 5.1 秒（旧参数 `--skip-size` 实为「除语法外全跳」，2.4 秒；名字与行为不一致，保留兼容但新用法以 `--skip` 为准）。可用短名：`size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json`。
+
 ```sh
 npm run verify
 ```
