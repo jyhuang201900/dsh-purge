@@ -390,7 +390,7 @@ notes.push(`生态 tag ${WANT_TAGS.length - lost.length}/${WANT_TAGS.length} 在
 
 if (asJson) process.stdout.write(`${JSON.stringify({ real: REAL, claims, problems, notes }, null, 2)}\n`);
 else {
-  process.stdout.write(`包自证：实况 补丁 ${REAL.patches} 条 / 技能 ${REAL.skills} 个｜${notes.length} 项核对，问题 ${problems.length}\n`);
+  process.stdout.write(`包自证：实况 补丁 ${REAL.patches} 条 / 技能 ${REAL.skills} 个｜绿项 ${notes.length} 条（条数随实况增减，不是固定项数），问题 ${problems.length}\n`);
   for (const n of notes) process.stdout.write(`  · ${n}\n`);
   for (const p of problems) process.stdout.write(`  ✗ ${p}\n`);
 }
