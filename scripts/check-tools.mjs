@@ -101,9 +101,23 @@ const writeBlock = /export const DRILL_WRITE_ENTITIES = \{([\s\S]*?)\n};/.exec(s
 const writes = writeBlock ? [...writeBlock[1].matchAll(/^\s*([a-z]+):\s*\{/gm)].map((m) => m[1]) : [];
 if (!writes.length) problems.push("读不到 DRILL_WRITE_ENTITIES 的键");
 const entDesc = drillTool?.parameters?.properties?.entity?.description || "";
-const hiddenEnt = [...ents, ...writes].filter((e) => !entDesc.includes(e));
-if (hiddenEnt.length) problems.push(`entity 已实现但没写进描述：${hiddenEnt.join(", ")}`);
-notes.push(`可发现性：op ${known.length - hidden.length}/${known.length}、entity ${(ents.length + writes.length) - hiddenEnt.length}/${ents.length + writes.length}（读 ${ents.length} + 写 ${writes.length}）已写进描述`);
+// 上下文版（本轮升级）：子串匹配会让键"出现在错误语境里"就蒙混过关 —— poc 当初就是被「删：」段顺带救了一次，
+// 而它其实从没进过「写：」列表。所以改成按分节校验：读键必须在「读：」段、写键必须在「写：」段。
+const entSections = {};
+for (const part of entDesc.split("；")) {
+  const m = /^(读|写|删)[：](.*)$/.exec(part.trim());
+  if (m) entSections[m[1]] = m[2];
+}
+const secProblems = [];
+if (!entSections["读"]) secProblems.push("entity 描述缺「读：」段");
+if (!entSections["写"]) secProblems.push("entity 描述缺「写：」段");
+const hiddenRead = entSections["读"] ? ents.filter((e) => !entSections["读"].includes(e)) : ents;
+const hiddenWrite = entSections["写"] ? writes.filter((e) => !entSections["写"].includes(e)) : writes;
+if (hiddenRead.length) secProblems.push(`读面实体没在「读：」段列出：${hiddenRead.join(", ")}`);
+if (hiddenWrite.length) secProblems.push(`写面实体没在「写：」段列出：${hiddenWrite.join(", ")}`);
+for (const s of secProblems) problems.push(s);
+const hiddenEnt = [...new Set([...hiddenRead, ...hiddenWrite])];
+notes.push(`可发现性：op ${known.length - hidden.length}/${known.length}、entity ${(ents.length + writes.length) - hiddenEnt.length}/${ents.length + writes.length}（读 ${ents.length} + 写 ${writes.length}）已按「读：/写：」分节核对`);
 // 5b) 参数表里不许有重复键：JS 对象后写覆盖前写、JSON.stringify 也照不出来（本轮人工审描述才发现 name 写了两遍）。
 const mtSrc = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");
 const blocks = [...mtSrc.matchAll(/name: "(purge_[a-z_]+)"/g)].map((m, i, a) => ({ name: m[1], from: m.index, to: a[i + 1] ? a[i + 1].index : mtSrc.length }));
