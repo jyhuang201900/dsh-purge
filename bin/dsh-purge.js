@@ -118,7 +118,7 @@ async function main() {
     if (!liveTxt) push("warn", "注入文件读不到", `状态 ${st.override_status || "?"}`);
     else if (stamp === core.defaultOverrideHash()) push("ok", "注入正文 = 当前内置默认", detail3);
     else if (deliberate && !bookkeepingGap) push("ok", "注入正文是你自己保存的稿（不算待办）", `${detail3}｜插件判为 ${st.override_status}，sync 不会覆盖它`);
-    else if (bookkeepingGap) push("warn", `注入状态 ${st.override_status}：磁盘内容与插件记录不一致`, `${detail3}｜跑一次面板「保存」或在 purge_override reset 之间选一个来对齐`);
+    else if (bookkeepingGap) push("warn", `注入状态 ${st.override_status}：磁盘内容与插件记录不一致`, `${detail3}｜对齐办法三选一：purge_override mode=adopt（只对齐记录、不动文件）/ 面板「保存」/ purge_override reset（换成当前默认）`);
     else push("warn", `注入状态 ${st.override_status}：是我们的旧默认没跟上`, `${detail3}｜重启会自动升级到 ${defLen} 字，或 purge_override reset`);
     // 4) 路由是否 live（这是"重启有没有生效"的唯一硬证据）
     if (!baseUrl) {
