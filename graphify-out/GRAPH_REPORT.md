@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2671 nodes · 6619 edges · 104 communities (99 shown, 5 thin omitted)
+- 2671 nodes · 6620 edges · 104 communities (99 shown, 5 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 241 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4cfdf5bb`
+- Built from commit: `d3c8df91`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -48,11 +48,11 @@
 - ref_node_path
 - platform-config.js
 - inject-second-shot.mjs
+- .openEngagement
 - revertAll
 - gatherState
 - defaultOverrideText
 - ref_node_url
-- .openEngagement
 - .scoreReport
 - applyPatches
 - model-tools.js
@@ -225,7 +225,7 @@ Cohesion: 0.08
 Nodes (46): AgentsTab(), applyDrillParts(), AssetsTab(), AttackFilesTab(), bothInjectEmpty(), ChainTab(), clampRtGeom(), Clip() (+38 more)
 
 ### Community 10 - "RedteamStore"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (5): nowIso(), scopeOfIp(), tunnelIsLegit(), normGained(), RedteamStore
 
 ### Community 11 - "rewind.js"
@@ -320,25 +320,25 @@ Nodes (26): adaptInDir(), assignToolkitFolder(), configPathOf(), defaultToolkitD
 Cohesion: 0.08
 Nodes (25): asJson, files, minIdx, noSection, qualified, root, rows, SKILLS (+17 more)
 
-### Community 34 - "revertAll"
+### Community 34 - ".openEngagement"
+Cohesion: 0.14
+Nodes (6): 真 bug：openEngagement 把 scope 串直接存进 scope_cidrs，导致 report() 的 .join 抛错, op=report：战报 / kind=score 得分报告 / kind=targets 目标汇总（零新增参数收纳，输出 2-16 行有界）, slugTarget(), cidrList(), readMeta(), writeMeta()
+
+### Community 35 - "revertAll"
 Cohesion: 0.17
 Nodes (27): backupAll(), collectRevertTargets(), dropStaleUserProfilePatchBackups(), ensureOfficialSnapshot(), flattenTargetPaths(), hasBackup(), hostBakDigest(), hostBakVaultRoot() (+19 more)
 
-### Community 35 - "gatherState"
+### Community 36 - "gatherState"
 Cohesion: 0.16
 Nodes (27): collectDirs(), desktopAsarStillSealed(), dirHasDshLauncher(), execFileText(), findAiBase(), findDesktopShimDir(), findNpmPrefix(), findShimDir() (+19 more)
 
-### Community 36 - "defaultOverrideText"
+### Community 37 - "defaultOverrideText"
 Cohesion: 0.21
 Nodes (26): commitOverrideOnApply(), defaultOverrideHash(), defaultOverrideText(), editOverride(), findOverrideFile(), hashOverride(), installOverride(), isKeepableUserOverride() (+18 more)
 
-### Community 37 - "ref_node_url"
+### Community 38 - "ref_node_url"
 Cohesion: 0.13
 Nodes (22): bundledSkillSummaries(), checkSkill(), dshHomeCandidates(), existsUnderAnyHome(), expandSkillPath(), pathCountsOnThisHost(), readSkillFromRoot(), redteamSummariesForCheck() (+14 more)
-
-### Community 38 - ".openEngagement"
-Cohesion: 0.15
-Nodes (6): 真 bug：openEngagement 把 scope 串直接存进 scope_cidrs，导致 report() 的 .join 抛错, op=report：战报 / kind=score 得分报告 / kind=targets 目标汇总（零新增参数收纳，输出 2-16 行有界）, slugTarget(), cidrList(), readMeta(), writeMeta()
 
 ### Community 39 - ".scoreReport"
 Cohesion: 0.19
@@ -585,7 +585,7 @@ Nodes (3): repository, type, url
   docs/preview/settings.png · relation: references
 
 ## Knowledge Gaps
-- **3 isolated node(s):** `RFC-1918`, `RFC-3986`, `BIN`
+- **3 isolated node(s):** `RFC-3986`, `BIN`, `RFC-1918`
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 722 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -593,15 +593,15 @@ Nodes (3): repository, type, url
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `README.md（中文主文档）` connect `README.md（中文主文档）` to `ctf-sandbox-orchestrator（流程/编排 / flow）`, `update.js`, `core.js`, `preset.yml`, `skills.js`, `client.js`, `package.json`, `rewind.js`, `rules.js`, `lib/index.js`, `net-scope.js`, `注入方式改造方案-1.1.34化.md（注入前置）`, `restart-desktop.js`, `dsh-purge.js`, `verify.mjs`, `适配-0.2.1-rc.2-差异分析.md（宿主升级核对）`, `check-locale.mjs`?**
-  _High betweenness centrality (0.112) - this node is a cross-community bridge._
+  _High betweenness centrality (0.170) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `default-prompt-inject.md（当前生效的注入正文）` (e.g. with `v1.1.34-prompt-inject.md（历史版本快照）` and `defaultOverrideText()`) actually correct?**
   _`default-prompt-inject.md（当前生效的注入正文）` has 7 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `RFC-1918`, `RFC-3986`, `BIN` to the rest of the system?**
+- **What connects `RFC-3986`, `BIN`, `RFC-1918` to the rest of the system?**
   _3 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ctf-sandbox-orchestrator（流程/编排 / flow）` be split into smaller, more focused modules?**
   _Cohesion score 0.05478948336091193 - nodes in this community are weakly interconnected._
-- **Why does `RedteamStore` connect `RedteamStore` to `platform-config.js`, `.openEngagement`, `store-core.js`, `.scoreReport`, `model-tools.js`, `scenario-drill.mjs`, `.dirOf`, `.kb`, `export-engagement-report.mjs`, `模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）`, `.promptsDirOf`, `store.js`?**
-  _High betweenness centrality (0.098) - this node is a cross-community bridge._
+- **Why does `release-notes.md（1.1.72 → 1.1.83 演化史）` connect `ctf-sandbox-orchestrator（流程/编排 / flow）` to `update.js`, `store-core.js`, `host.js`, `client.js`, `identity.js`, `模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）`, `README.md（中文主文档）`, `reapply.js`, `适配-0.2.1-rc.2-差异分析.md（宿主升级核对）`, `check-locale.mjs`?**
+  _High betweenness centrality (0.108) - this node is a cross-community bridge._
 - **Should `desktop.js` be split into smaller, more focused modules?**
   _Cohesion score 0.051111111111111114 - nodes in this community are weakly interconnected._
 

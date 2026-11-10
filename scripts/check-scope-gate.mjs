@@ -384,6 +384,40 @@ try {
   const tDestructive = await drill.execute({ op: "chain_add", stage: "exploit", tool: "competition-kernel-container-escape", text: "逃逸" });
   check("★ 排除手法被拦（排除优先）", /技法闸拦下/.test(tDestructive.text) && /被排除/.test(tDestructive.text), tDestructive.text.slice(0, 90));
 
+  // ── ⑤ 越界趋势（时间维度：连续被拦是正常探测，激增才是失控）──
+  // 实测缺口：原先只有总数与 Top3，看不出「是不是在失控地乱打」。
+  {
+    const { RedteamStore } = await import(toUrl(path.join(root, "lib", "redteam", "store-core.js")));
+    const sTre = new RedteamStore(tmpHome);
+    const seedTrend = (id, times) => {
+      sTre.openEngagement(id, "10.0.0.0/24");
+      const db = sTre.db(id);
+      for (const t of times) db.prepare("INSERT INTO scope_block (layer,target,detail,action,at) VALUES (?,?,?,?,?)").run("target", "10.9.9.9", "不在任何授权网段内", "entity_add asset", t);
+    };
+    const B = "2026-11-11T10:";
+    // 加速：前半段 1 次/桶，后半段 4 次/桶
+    seedTrend("trend-accel", [B+"00:00", B+"05:00", B+"10:00", B+"10:01", B+"10:02", B+"10:03", B+"15:00", B+"15:01", B+"15:02", B+"15:03"]);
+    // 收敛：前半段 4 次/桶，后半段稀疏
+    seedTrend("trend-converge", [B+"00:00", B+"00:01", B+"00:02", B+"00:03", B+"05:00", B+"05:01", B+"05:02", B+"05:03", B+"15:00"]);
+    // 一次性撞线
+    seedTrend("trend-burst", [B+"00:00", B+"00:01", B+"00:02", B+"00:03", B+"00:04"]);
+
+    const ra = sTre.scopeBlockSummary("trend-accel");
+    check("★ 趋势识别「在加速」", /在加速/.test(ra.trend), ra.trend.slice(0, 90));
+    const rc = sTre.scopeBlockSummary("trend-converge");
+    check("★ 趋势识别「在收敛」", /在收敛/.test(rc.trend), rc.trend.slice(0, 90));
+    const rb = sTre.scopeBlockSummary("trend-burst");
+    check("★ 趋势识别「一次性撞线」", /集中在同一个/.test(rb.trend), rb.trend.slice(0, 90));
+
+    // 时间基准必须与明细一致（明细 at 是本地时间，用 toISOString 会差 8 小时）
+    check("★ 时间窗口用本地基准（与明细 at 一致）", /^2026-11-11 10:0/.test(ra.window.from), `${ra.window.from} → ${ra.window.to}`);
+    check("★ 桶标签也是本地时间", ra.byBucket[0] && /^10:|^0[2-9]:/.test(ra.byBucket[0].at) && /^10:/.test(ra.byBucket[0].at), ra.byBucket.map((x) => x.at).join(","));
+    // 空桶必须出现（否则看不出「安静一段又爆」）
+    check("★ 空桶不被跳过", rc.byBucket.some((b) => b.n === 0), rc.byBucket.map((b) => b.at + "=" + b.n).join(" "));
+  }
+
+  // ── ③ 拦截必须可交付：战报要能证明「没打什么」，而不只是「打了什么」 ──
+
   // ── ④ 日常入口也要看得见边界：summary 与 purge_status settings ──
   // ── ③ 拦截必须可交付：战报要能证明「没打什么」，而不只是「打了什么」 ──
   // 为什么算范围闸的一部分：边界只在报告里有 = 作业结束才知道；日常会话看 summary / settings
