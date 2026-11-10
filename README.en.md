@@ -46,6 +46,22 @@
 ---
 
 ## What this is
+## What works in a daily session vs. what needs the drill preset
+
+The plugin registers **ten tools globally** (`ctx.tools.register` in `lib/index.js`, with no preset gate), so **they work in a daily session without switching to the red-team preset**:
+
+| Capability | Daily session | Drill preset | Note |
+| --- | --- | --- | --- |
+| The ten `purge_*` tools | yes | yes | patch state, acceptance, injection editing, skill health checks |
+| **Drill ledger** (open target / record findings / score / report) | yes | yes | `purge_drill op=open` opens a target in place; the tool itself says no preset switch is needed |
+| **Browse the skill library / read a skill body** | yes | yes | `purge_skills` lists and checks the whole library; `purge_skills id=<name>` returns **chain position + body head + full path** - the only way to read a skill in a daily session, since red-team skills are absent from its `<available_skills>` |
+| **Loading those 114 skills via the `skill` tool** | no | yes | Skills are discovered through the drill preset's `customSkillDirs`; daily sessions do not see them, which keeps 114 descriptions out of the standing context |
+| **The injected doctrine** (five phases / rules / chain discipline) | no | yes | Gated by `isRedteamSession(context)`, injected only in drill sessions |
+
+**Why the split**: putting 114 skills into every daily session means reading 114 skill descriptions before each conversation - the preset comment says exactly this, and `includeDefaultRoots: false` is deliberate.
+
+**Two ways to use red-team capability in a daily session**: call the tools directly (including the drill ledger - open a target and go), or read a skill body on demand with `purge_skills id=<name>`. Switch to the drill preset only when you want the model-facing skill catalog and the doctrine constraints.
+
 
 A local network-security red-team evaluation plugin for the official [DeepSeek Harness](https://www.deepseek.com/harness/) installed on your machine. Both the official **Web** (`dsh web`) and the official **desktop EXE** are supported; install and Apply them separately.
 
