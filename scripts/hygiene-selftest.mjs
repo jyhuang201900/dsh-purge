@@ -11,7 +11,8 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { resolveResources, scanSwapBackups, scanSnapshotPairs } from "../lib/hygiene.js";
+import { resolveResources, scanSwapBackups, scanSnapshotPairs, scanRouteMatrix, ROUTE_PROBES } from "../lib/hygiene.js";
+import http from "node:http";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const base = fs.mkdtempSync(path.join(os.tmpdir(), "hyg-"));
@@ -67,6 +68,34 @@ check("F 无快照目录 → null（少报一行而不是编造）", scanSnapsho
 // --- G) resolveResources：从 ai_base 推 resources
 const rr = resolveResources({ ai_base: "E:\\somewhere\\harness\\resources\\app\\dsh\\node_modules\\@deepseek-ai" });
 check("G resolveResources 从 ai_base 推出 resources 目录", /resources$/i.test(rr.replace(/[\\/]+$/, "")), rr);
+
+// --- H) 反腐蚀：ROUTE_PROBES 里每条路径都必须真的在 lib/index.js 注册过（改了路由忘改这张表，这里就红）
+const idxSrc = fs.readFileSync(path.join(root, "lib", "index.js"), "utf8");
+const missing = ROUTE_PROBES.filter((p) => !idxSrc.includes(`"${p}"`));
+check("H ROUTE_PROBES 每条都在 index.js 注册表里", missing.length === 0, missing.join(", ") || `${ROUTE_PROBES.length} 条`);
+
+// --- I~L) scanRouteMatrix 的四种形状（全 200 JSON／200 非 JSON 兜底／一条 404／端口没人听）
+let mode = "json";
+const stub = http.createServer((req, res) => {
+  if (mode === "html") { res.writeHead(200, { "content-type": "text/html" }); res.end("<!doctype html>"); return; }
+  if (mode === "mixed" && String(req.url).includes("own-servers")) { res.writeHead(404); res.end(""); return; }
+  res.writeHead(200, { "content-type": "application/json" });
+  res.end(`{"ok":true,"url":"${req.url}"}`);
+});
+await new Promise((r) => stub.listen(0, "127.0.0.1", r));
+const sb = `http://127.0.0.1:${stub.address().port}`;
+mode = "json";
+const m1 = await scanRouteMatrix(sb, { timeoutMs: 3000 });
+check("I 全 200 JSON → ok 且 9/9", m1.level === "ok" && m1.live === ROUTE_PROBES.length, `${m1.live}/${m1.total}`);
+mode = "html";
+const m2 = await scanRouteMatrix(sb, { timeoutMs: 3000 });
+check("J 200 但非 JSON（SPA 兜底）→ 不算存活并判 bad", m2.level === "bad" && m2.live === 0, m2.detail.slice(0, 62));
+mode = "mixed";
+const m3 = await scanRouteMatrix(sb, { timeoutMs: 3000 });
+check("K 有一条 404 → bad", m3.level === "bad" && m3.live === ROUTE_PROBES.length - 1, `${m3.live}/${m3.total}`);
+stub.close();
+const m4 = await scanRouteMatrix("http://127.0.0.1:1", { timeoutMs: 3000 });
+check("L 端口没人听 → warn「全部连不上」，不是 404 堆积", m4.level === "warn" && m4.detail.includes("不是待重启"), m4.label);
 
 fs.rmSync(base, { recursive: true, force: true });
 console.log(`卫生夹具：${fails === 0 ? "全部通过 ✓" : `${fails} 项失败 ✗`}`);

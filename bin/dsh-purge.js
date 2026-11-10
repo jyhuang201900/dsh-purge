@@ -2,7 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { resolveResources, scanSwapBackups, scanSnapshotPairs } from "../lib/hygiene.js";
+import { resolveResources, scanSwapBackups, scanSnapshotPairs, scanRouteMatrix } from "../lib/hygiene.js";
 
 import * as core from "../lib/core.js";
 import * as rules from "../lib/rules.js";
@@ -133,6 +133,13 @@ async function main() {
       else if (r.state === "not-live") push("warn", `路由 ${baseUrl} → 未加载（待重启）`, `${tail}｜下一步：重启 dsh 再跑本命令`);
       else if (r.state === "unreachable") push("warn", `路由 ${baseUrl} 连不上`, "这是「宿主没在跑 / 端口不对」，不是待重启——先确认 dsh 已启动或换个 URL");
       else push("bad", `路由 ${baseUrl} 探测异常`, tail || "见 --mcp-probe 分步输出");
+    }
+    // 4b) 面板路由存活矩阵：把「重启后要人工点一遍」的清单变成一条命令的判定（只探 GET 安全的 9 条）。
+    if (baseUrl) {
+      try {
+        const rm = await scanRouteMatrix(baseUrl);
+        push(rm.level, rm.label, rm.detail);
+      } catch (e) { push("warn", "面板路由：探测异常", String((e && e.message) || e).slice(0, 70)); }
     }
     // 5 / 5b) 磁盘卫生：第 70 轮抽成 lib/hygiene.js —— bin 只负责打印，扫描是纯函数、可夹具测。
     try {
