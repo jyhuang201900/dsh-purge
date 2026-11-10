@@ -94,6 +94,6 @@ bloodhound-python -d domain.local -u user -p pass -c All -ns <DC>
 - **上游**（先做完这些再进来）：`lateral-movement`、`netexec-scan`
 - **下游**（产出交给谁）：`identity-federation`、`edr-bypass-re`、`competition-kerberos-delegation`
 - **专项下游**（同主题更深的靶子面）：`competition-ad-certificate-abuse`、`competition-kerberos-delegation`、`competition-lsass-ticket-material`、`competition-windows-pivot`
-- **互补**（同类场景一起用）：`threat-hunting`、`wifi-wireless`
+- **互补**（同类场景一起用）：`identity-federation`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`credential`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

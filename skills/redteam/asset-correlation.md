@@ -70,5 +70,6 @@ grep -oE 'https?://[a-z0-9.-]+\.(example\.com|内网域)' runs/*.js | sort -u
 - **阶段**：2 资产梳理｜**角色**：`assess`
 - **上游**（先做完这些再进来）：`fofa-recon`、`web-fingerprint`
 - **下游**（产出交给谁）：`dir-bruteforce`、`nuclei-scan`
+- **互补**（同类场景一起用）：`web-fingerprint`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

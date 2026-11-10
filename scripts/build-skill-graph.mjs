@@ -161,6 +161,27 @@ const TRUNK = {
 /** 演练台合法实体（真值取自 purge_drill 的 entity 参数；写侧） */
 const LEDGER_ENTITIES = new Set(["vuln", "credential", "access", "webshell", "tunnel", "http", "shot", "prompt", "scorepoint", "stage", "asset", "poc"]);
 
+/** 技能域：链路用。默认全落到 misc 就等于没分类（第 108 轮实测 57/114 是 misc），所以逐组显式列。 */
+const DOMAIN_RULES = [
+  [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation)$/, "recon"],
+  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification)$/, "web"],
+  [/^(credential-attack)$/, "credential"],
+  [/^(webshell-toolkit|shell-handler|vps-reverse-shell|privesc-persistence)$/, "payload"],
+  [/tunnel$/, "tunnel"],
+  [/^(netexec-scan|lateral-movement|fscan-intranet|gogo-intranet)$/, "intranet"],
+  [/^(windows-ad|identity-federation)$/, "identity"],
+  [/^(cloud-k8s)$/, "cloud"],
+  [/^(ot-ics|iot-iiot-netdev|firmware-pentest|hardware-security|radio-sdr|wifi-wireless)$/, "ot-hardware"],
+  [/^(apk-reverse|mobile-reverse)$/, "mobile"],
+  [/^(reverse-engineering|ida-reverse|ghidra-reverse|radare2|binary-diff|patch-diff-exploit|pwn-chain|go-rust-reverse|dotnet-reverse|protocol-reverse)$/, "reverse"],
+  [/^(js-reverse|browser-extension-reverse|thick-client)$/, "client"],
+  [/^(edr-bypass-re|threat-hunting|digital-forensics|malware-analysis)$/, "defense"],
+  [/^(api-security|code-audit|database-security|email-security|llm-security|supply-chain-security)$/, "appsec"],
+  [/^(secdev-boundary)$/, "boundary"],
+  [/^(attack-chain|pentest-tools|case-review|ctf-sandbox|ctf-sandbox-orchestrator|redteam-setup|browser-automation|kimi-webbridge|cn-proxy-pool)$/, "flow"],
+  [/^competition-/, "surface"],
+];
+
 /** 3) 落库工具映射：技能产出该落到哪个演练台实体（值必须 ∈ LEDGER_ENTITIES，否则模型照做就撞空） */
 const RECORD_RULES = [
   [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation|netexec-scan|gogo-intranet|fscan-intranet)$/, ["asset"]],
@@ -206,8 +227,9 @@ for (const f of files) {
   const up = (t.up || []).filter((x) => skillNames.has(x));
   const down = (t.down || []).filter((x) => skillNames.has(x));
 
-  // 相关：同阶段的其他技能（同域互补）
-  const domain = id.startsWith("competition-") ? "attack-surface" : (id.match(/^(recon|web|intranet|reverse|cloud|mobile|firmware|wireless|ot|llm|api|code|database|email|supply)/) || ["misc"])[0];
+  // 相关：按域分组（同域同阶段即互补）；域由 DOMAIN_RULES 显式给出，不再靠前缀猜
+  let domain = "misc";
+  for (const [re, d] of DOMAIN_RULES) { if (re.test(id)) { domain = d; break; } }
 
   skills.push({
     id, summary: desc.slice(0, 180), whenToUse: when.slice(0, 200),

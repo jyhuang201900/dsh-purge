@@ -177,5 +177,6 @@ cosign verify --key cosign.pub myimage:tag
 - **上游**（先做完这些再进来）：`code-audit`
 - **下游**（产出交给谁）：`code-audit`
 - **专项下游**（同主题更深的靶子面）：`competition-supply-chain`
+- **互补**（同类场景一起用）：`email-security`、`llm-security`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

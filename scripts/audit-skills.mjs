@@ -34,21 +34,34 @@ for (const s of skills) {
   }
 }
 
-// 4) 条令（AGENTS.md 的「进攻技能路由」+ 注入正文）点名的技能，必须都在 skills/redteam 里
-const doctrineFiles = ["AGENTS.md", "lib/default-prompt-inject.md", "lib/default-prompt-inject.zh.md", "lib/default-prompt-inject.en.md"];
+// 4) 条令（AGENTS.md 的「进攻技能路由」+ 注入正文）点名的技能，必须都在 skills/redteam 里。
+//    lib/model-tools.js 也纳入：drill summary 的「下一步」会点名该加载哪个技能，
+//    那些名字同样必须真实存在（否则日常会话照着调就撞空），纳入后才不会漂。
+const doctrineFiles = ["AGENTS.md", "lib/default-prompt-inject.md", "lib/default-prompt-inject.zh.md", "lib/default-prompt-inject.en.md", "lib/model-tools.js"];
 const skillSet = new Set(skills);
 const missingSkills = [];
 for (const rel of doctrineFiles) {
   const fp = path.join(root, rel);
   if (!fs.existsSync(fp)) continue; // 注入源在 gitignore 里，缺失不算错
   const text = fs.readFileSync(fp, "utf8");
-  // 只认「反引号包裹 + 出现在技能语境」的名字：形如 `subdomain-bruteforce` 且同段提到 skill/技能
+  // 4a) 代码里的显式标记 SK("name")：函数名即契约——SK 只用于技能名，所以这里必须是真技能，
+  //     且不受前缀白名单限制。（第 108 轮踩到两点：① 技能名走函数拼接，源码里没有字面反引号，
+  //      只扫反引号的写法对这个文件完全失效（实测「反引号名 0」）；② 先用通用 S() 扫，
+  //      结果 S("asset") 这类实体名被误判成缺失技能——所以专门分出 SK()。）
+  for (const m of text.matchAll(/\bSK\(\s*["']([a-z][a-z0-9-]{2,40})["']\s*\)/g)) {
+    const name = m[1];
+    if (skillSet.has(name)) continue;
+    if (!missingSkills.includes(`${rel} → ${name}`)) missingSkills.push(`${rel} → ${name}（SK() 声明为技能）`);
+  }
+  // 4b) 文档里的反引号形式：只认「反引号包裹 + 出现在技能语境」的名字
   for (const m of text.matchAll(/`([a-z][a-z0-9]+(?:-[a-z0-9]+){1,4})`/g)) {
     const name = m[1];
     const around = text.slice(Math.max(0, m.index - 220), m.index + 220);
     if (!/技能|skill/i.test(around)) continue;
     if (skillSet.has(name)) continue;
-    if (!/^(fofa|passive|recon|active|subdomain|web|asset|dir|nuclei|unauth|credential|webshell|shell|vps|suo5|chisel|frp|gogo|fscan|lateral|browser|kimi|cn-proxy|redteam|secdev|iot|injection|waf|web-vuln)/.test(name)) continue;
+    // 前缀白名单：只查「看起来像技能名」的。第 108 轮补全过一次——原来的名单漏了
+    // netexec / windows / ctf / identity / cloud / ot / edr 等开头，导致「点名了但不存在」漏检。
+    if (!/^(fofa|passive|recon|active|subdomain|web|asset|dir|nuclei|unauth|credential|webshell|shell|vps|suo5|chisel|frp|gogo|fscan|netexec|lateral|windows|identity|cloud|ot|iot|edr|threat|digital|malware|hardware|radio|wifi|reverse|ida|ghidra|radare|pwn|patch|binary|protocol|dotnet|js|apk|mobile|browser|kimi|cn-proxy|redteam|secdev|injection|waf|web-vuln|api|code|database|email|llm|supply|privesc|oob|thick|competition|ctf|case|pentest|attack|go-rust)/.test(name)) continue;
     // 排除已知的非技能名（工具/包名/宿主名），只留疑似技能引用
     if (/-\d|\.md|\.js|\.yml|v\d/i.test(name)) continue;
     if (!missingSkills.includes(`${rel} → ${name}`)) missingSkills.push(`${rel} → ${name}`);

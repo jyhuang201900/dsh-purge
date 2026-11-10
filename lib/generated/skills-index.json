@@ -18,7 +18,7 @@
       "stage": "1",
       "stageName": "信息收集",
       "role": "recon",
-      "domain": "misc",
+      "domain": "recon",
       "targetTypes": [],
       "records": [
         "asset"
@@ -38,7 +38,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "api",
+      "domain": "appsec",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -59,7 +59,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "mobile",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -76,7 +76,7 @@
       "stage": "2",
       "stageName": "资产梳理",
       "role": "assess",
-      "domain": "misc",
+      "domain": "recon",
       "targetTypes": [],
       "records": [
         "asset"
@@ -97,7 +97,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "flow",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [
         "stage"
@@ -114,7 +114,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -131,7 +131,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "aux",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -148,7 +148,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "client",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -165,7 +165,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "flow",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [
         "stage"
@@ -183,7 +183,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "tunnel",
       "targetTypes": [],
       "records": [
         "tunnel"
@@ -221,7 +221,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "aux",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -239,7 +239,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "code",
+      "domain": "appsec",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -260,7 +260,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -275,7 +275,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -290,7 +290,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -305,7 +305,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -320,7 +320,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -335,7 +335,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -350,7 +350,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -365,7 +365,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -380,7 +380,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -395,7 +395,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -410,7 +410,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -425,7 +425,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -440,7 +440,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -455,7 +455,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -470,7 +470,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -485,7 +485,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -500,7 +500,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -515,7 +515,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -530,7 +530,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -545,7 +545,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -560,7 +560,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -575,7 +575,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -590,7 +590,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -605,7 +605,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -620,7 +620,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -635,7 +635,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -650,7 +650,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -665,7 +665,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -680,7 +680,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -695,7 +695,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -710,7 +710,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -725,7 +725,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -740,7 +740,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -755,7 +755,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -770,7 +770,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -785,7 +785,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -800,7 +800,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -815,7 +815,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -830,7 +830,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -845,7 +845,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -860,7 +860,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": null,
-      "domain": "attack-surface",
+      "domain": "surface",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -875,7 +875,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "credential",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -896,7 +896,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "flow",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [],
       "upstream": [],
@@ -951,7 +951,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "flow",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [],
       "upstream": [],
@@ -966,7 +966,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "database",
+      "domain": "appsec",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -985,7 +985,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "defense",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1003,7 +1003,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1024,7 +1024,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1041,7 +1041,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "defense",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1060,7 +1060,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "email",
+      "domain": "appsec",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1079,7 +1079,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "firmware",
+      "domain": "ot-hardware",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1097,7 +1097,7 @@
       "stage": "1",
       "stageName": "信息收集",
       "role": "recon",
-      "domain": "misc",
+      "domain": "recon",
       "targetTypes": [],
       "records": [
         "asset"
@@ -1115,7 +1115,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "tunnel",
       "targetTypes": [],
       "records": [
         "tunnel"
@@ -1135,7 +1135,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "intranet",
       "targetTypes": [],
       "records": [
         "asset"
@@ -1155,7 +1155,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1172,7 +1172,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [],
@@ -1185,7 +1185,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "intranet",
       "targetTypes": [],
       "records": [
         "asset"
@@ -1206,7 +1206,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1226,7 +1226,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "ot-hardware",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1243,7 +1243,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1263,7 +1263,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1281,7 +1281,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "identity",
       "targetTypes": [],
       "records": [
         "credential",
@@ -1302,7 +1302,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1322,7 +1322,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "ot-hardware",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1341,7 +1341,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "client",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1359,7 +1359,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "aux",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1376,7 +1376,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "intranet",
       "targetTypes": [],
       "records": [
         "credential",
@@ -1397,7 +1397,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "llm",
+      "domain": "appsec",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1416,7 +1416,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "defense",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1450,7 +1450,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "intranet",
       "targetTypes": [],
       "records": [
         "asset"
@@ -1471,7 +1471,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1493,7 +1493,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1513,7 +1513,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "ot",
+      "domain": "ot-hardware",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1531,7 +1531,7 @@
       "stage": "1",
       "stageName": "信息收集",
       "role": "recon",
-      "domain": "misc",
+      "domain": "recon",
       "targetTypes": [],
       "records": [
         "asset"
@@ -1549,7 +1549,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1567,7 +1567,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "flow",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [],
       "upstream": [],
@@ -1583,7 +1583,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "payload",
       "targetTypes": [],
       "records": [
         "credential",
@@ -1605,7 +1605,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1622,7 +1622,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1640,7 +1640,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1659,7 +1659,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "reverse",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1676,7 +1676,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "ot-hardware",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1711,7 +1711,7 @@
       "stage": "flow",
       "stageName": "流程/编排",
       "role": "flow",
-      "domain": "misc",
+      "domain": "flow",
       "targetTypes": [],
       "records": [],
       "upstream": [],
@@ -1745,7 +1745,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "boundary",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1765,7 +1765,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "payload",
       "targetTypes": [],
       "records": [
         "webshell",
@@ -1787,7 +1787,7 @@
       "stage": "1",
       "stageName": "信息收集",
       "role": "recon",
-      "domain": "misc",
+      "domain": "recon",
       "targetTypes": [],
       "records": [
         "asset"
@@ -1806,7 +1806,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "tunnel",
       "targetTypes": [],
       "records": [
         "tunnel"
@@ -1826,7 +1826,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "supply",
+      "domain": "appsec",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1843,7 +1843,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "client",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1861,7 +1861,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "defense",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -1878,7 +1878,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1899,7 +1899,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "misc",
+      "domain": "payload",
       "targetTypes": [],
       "records": [
         "webshell",
@@ -1920,7 +1920,7 @@
       "stage": "3",
       "stageName": "漏洞发现",
       "role": "vuln-scan",
-      "domain": "misc",
+      "domain": "web",
       "targetTypes": [],
       "records": [
         "vuln"
@@ -1941,7 +1941,7 @@
       "stage": "2",
       "stageName": "资产梳理",
       "role": "assess",
-      "domain": "web",
+      "domain": "recon",
       "targetTypes": [],
       "records": [
         "asset"
@@ -1983,7 +1983,7 @@
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
-      "domain": "web",
+      "domain": "payload",
       "targetTypes": [],
       "records": [
         "webshell",
@@ -2006,7 +2006,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "ot-hardware",
       "targetTypes": [],
       "records": [],
       "upstream": [
@@ -2023,7 +2023,7 @@
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
-      "domain": "misc",
+      "domain": "identity",
       "targetTypes": [],
       "records": [
         "credential",

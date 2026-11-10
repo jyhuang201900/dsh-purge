@@ -184,6 +184,6 @@ python3 runs/fofa_client.py 'org="示例科技有限公司"' --pages 2 --interva
 
 - **阶段**：1 信息收集｜**角色**：`recon`
 - **下游**（产出交给谁）：`asset-correlation`、`web-fingerprint`
-- **互补**（同类场景一起用）：`active-scan`、`passive-recon`、`subdomain-bruteforce`
+- **互补**（同类场景一起用）：`active-scan`、`passive-recon`、`recon-pipeline`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

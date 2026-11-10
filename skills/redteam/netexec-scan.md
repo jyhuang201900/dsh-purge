@@ -98,6 +98,6 @@ netexec ldap 10.0.0.5 -u user -p 'pass' --adcs # ADCS 证书服务检查（ESC1 
 - **阶段**：5 内网渗透｜**角色**：`internal`
 - **上游**（先做完这些再进来）：`fscan-intranet`、`credential-attack`
 - **下游**（产出交给谁）：`lateral-movement`、`windows-ad`
-- **互补**（同类场景一起用）：`identity-federation`、`lateral-movement`、`radio-sdr`、`threat-hunting`
+- **互补**（同类场景一起用）：`gogo-intranet`、`lateral-movement`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

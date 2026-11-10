@@ -240,6 +240,6 @@ redteam_vuln_add       { engagement, target, name, severity, evidence_ref }   # 
 - **阶段**：5 内网渗透｜**角色**：`internal`
 - **上游**（先做完这些再进来）：`suo5-tunnel`、`chisel-tunnel`
 - **下游**（产出交给谁）：`fscan-intranet`、`netexec-scan`
-- **互补**（同类场景一起用）：`edr-bypass-re`、`fscan-intranet`、`hardware-security`、`identity-federation`
+- **互补**（同类场景一起用）：`fscan-intranet`、`lateral-movement`、`netexec-scan`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

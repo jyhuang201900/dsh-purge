@@ -55,6 +55,8 @@
 | --- | --- | --- | --- |
 | 十个 `purge_*` 工具 | ✓ | ✓ | 查补丁、验收、改注入、技能体检都在 |
 | **演练台**（开靶标 / 落库 / 得分 / 战报） | ✓ | ✓ | `purge_drill op=open` 就地开靶标，工具自己会提示「不必切红队预设，也不必去界面」 |
+| **下一步该干什么** | ✓ | ✓ | `purge_drill`（不带参数=summary）按事实库状态给**一句**针对性指引并点名该加载的技能：无资产 → ①`recon-pipeline`；有资产 → ③`asset-correlation`+`nuclei-scan`；有漏洞 → ④`injection-payloads`/`webshell-toolkit`；有权限 → 建隧道 `suo5-tunnel`；有隧道无内网 → ⑤`gogo-intranet`；有内网 → `fscan-intranet` 打点。**日常会话不开演练预设也有五阶段纪律** |
+| **按阶段找技能** | ✓ | ✓ | `purge_skills all=1..5` 或 `all=flow`，按信息收集/资产梳理/漏洞发现/漏洞利用/内网渗透列该段技能 |
 | **查技能库 / 读技能正文** | ✓ | ✓ | `purge_skills` 列全库与体检；`purge_skills id=<技能名>` 回**链路位置 + 正文头部 + 完整路径**——日常读技能的**唯一入口**（红队技能不在日常的 `<available_skills>` 里） |
 | **用 `skill` 工具加载这 114 个技能** | ✗ | ✓ | 技能由演练预设的 `customSkillDirs` 发现；日常会话看不到它们，避免 114 条描述常驻上下文 |
 | **注入条令**（五阶段 / 军规 / 链路纪律） | ✗ | ✓ | `isRedteamSession(context)` 判定，只在演练会话注入 |

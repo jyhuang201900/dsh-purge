@@ -878,6 +878,6 @@ function findInstances(className) {
 - **上游**（先做完这些再进来）：`mobile-reverse`
 - **下游**（产出交给谁）：`competition-android-hooking`
 - **专项下游**（同主题更深的靶子面）：`competition-android-hooking`
-- **互补**（同类场景一起用）：`binary-diff`、`browser-extension-reverse`
+- **互补**（同类场景一起用）：`mobile-reverse`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "total": 387,
+  "total": 380,
   "relations": [
     {
       "source": "active-scan",
@@ -1094,7 +1094,12 @@
     },
     {
       "source": "fofa-recon",
-      "target": "subdomain-bruteforce",
+      "target": "recon-pipeline",
+      "relationship": "complementary"
+    },
+    {
+      "source": "passive-recon",
+      "target": "recon-pipeline",
       "relationship": "complementary"
     },
     {
@@ -1103,198 +1108,63 @@
       "relationship": "complementary"
     },
     {
-      "source": "apk-reverse",
-      "target": "binary-diff",
+      "source": "recon-pipeline",
+      "target": "subdomain-bruteforce",
+      "relationship": "complementary"
+    },
+    {
+      "source": "api-security",
+      "target": "code-audit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "api-security",
+      "target": "database-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "code-audit",
+      "target": "database-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "code-audit",
+      "target": "email-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "database-security",
+      "target": "email-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "database-security",
+      "target": "llm-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "email-security",
+      "target": "llm-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "email-security",
+      "target": "supply-chain-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "llm-security",
+      "target": "supply-chain-security",
       "relationship": "complementary"
     },
     {
       "source": "apk-reverse",
-      "target": "browser-extension-reverse",
+      "target": "mobile-reverse",
       "relationship": "complementary"
     },
     {
-      "source": "binary-diff",
-      "target": "browser-extension-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "binary-diff",
-      "target": "chisel-tunnel",
-      "relationship": "complementary"
-    },
-    {
-      "source": "browser-extension-reverse",
-      "target": "chisel-tunnel",
-      "relationship": "complementary"
-    },
-    {
-      "source": "browser-extension-reverse",
-      "target": "dotnet-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "chisel-tunnel",
-      "target": "dotnet-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "chisel-tunnel",
-      "target": "frp-tunnel",
-      "relationship": "complementary"
-    },
-    {
-      "source": "dotnet-reverse",
-      "target": "frp-tunnel",
-      "relationship": "complementary"
-    },
-    {
-      "source": "dotnet-reverse",
-      "target": "ghidra-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "frp-tunnel",
-      "target": "ghidra-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "frp-tunnel",
-      "target": "go-rust-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "ghidra-reverse",
-      "target": "go-rust-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "ghidra-reverse",
-      "target": "ida-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "go-rust-reverse",
-      "target": "ida-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "go-rust-reverse",
-      "target": "iot-iiot-netdev",
-      "relationship": "complementary"
-    },
-    {
-      "source": "ida-reverse",
-      "target": "iot-iiot-netdev",
-      "relationship": "complementary"
-    },
-    {
-      "source": "ida-reverse",
-      "target": "js-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "iot-iiot-netdev",
-      "target": "js-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "iot-iiot-netdev",
-      "target": "patch-diff-exploit",
-      "relationship": "complementary"
-    },
-    {
-      "source": "js-reverse",
-      "target": "patch-diff-exploit",
-      "relationship": "complementary"
-    },
-    {
-      "source": "js-reverse",
-      "target": "privesc-persistence",
-      "relationship": "complementary"
-    },
-    {
-      "source": "patch-diff-exploit",
-      "target": "privesc-persistence",
-      "relationship": "complementary"
-    },
-    {
-      "source": "patch-diff-exploit",
-      "target": "protocol-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "privesc-persistence",
-      "target": "protocol-reverse",
-      "relationship": "complementary"
-    },
-    {
-      "source": "privesc-persistence",
-      "target": "pwn-chain",
-      "relationship": "complementary"
-    },
-    {
-      "source": "protocol-reverse",
-      "target": "pwn-chain",
-      "relationship": "complementary"
-    },
-    {
-      "source": "protocol-reverse",
-      "target": "radare2",
-      "relationship": "complementary"
-    },
-    {
-      "source": "pwn-chain",
-      "target": "radare2",
-      "relationship": "complementary"
-    },
-    {
-      "source": "pwn-chain",
-      "target": "secdev-boundary",
-      "relationship": "complementary"
-    },
-    {
-      "source": "radare2",
-      "target": "secdev-boundary",
-      "relationship": "complementary"
-    },
-    {
-      "source": "radare2",
-      "target": "shell-handler",
-      "relationship": "complementary"
-    },
-    {
-      "source": "secdev-boundary",
-      "target": "shell-handler",
-      "relationship": "complementary"
-    },
-    {
-      "source": "secdev-boundary",
-      "target": "suo5-tunnel",
-      "relationship": "complementary"
-    },
-    {
-      "source": "shell-handler",
-      "target": "suo5-tunnel",
-      "relationship": "complementary"
-    },
-    {
-      "source": "shell-handler",
-      "target": "thick-client",
-      "relationship": "complementary"
-    },
-    {
-      "source": "suo5-tunnel",
-      "target": "thick-client",
-      "relationship": "complementary"
-    },
-    {
-      "source": "suo5-tunnel",
-      "target": "vps-reverse-shell",
-      "relationship": "complementary"
-    },
-    {
-      "source": "thick-client",
-      "target": "vps-reverse-shell",
+      "source": "asset-correlation",
+      "target": "web-fingerprint",
       "relationship": "complementary"
     },
     {
@@ -1370,6 +1240,121 @@
     {
       "source": "pentest-tools",
       "target": "redteam-setup",
+      "relationship": "complementary"
+    },
+    {
+      "source": "binary-diff",
+      "target": "dotnet-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "binary-diff",
+      "target": "ghidra-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "dotnet-reverse",
+      "target": "ghidra-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "dotnet-reverse",
+      "target": "go-rust-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ghidra-reverse",
+      "target": "go-rust-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ghidra-reverse",
+      "target": "ida-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "go-rust-reverse",
+      "target": "ida-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "go-rust-reverse",
+      "target": "patch-diff-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ida-reverse",
+      "target": "patch-diff-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ida-reverse",
+      "target": "protocol-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "patch-diff-exploit",
+      "target": "protocol-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "patch-diff-exploit",
+      "target": "pwn-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "protocol-reverse",
+      "target": "pwn-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "protocol-reverse",
+      "target": "radare2",
+      "relationship": "complementary"
+    },
+    {
+      "source": "pwn-chain",
+      "target": "radare2",
+      "relationship": "complementary"
+    },
+    {
+      "source": "pwn-chain",
+      "target": "reverse-engineering",
+      "relationship": "complementary"
+    },
+    {
+      "source": "radare2",
+      "target": "reverse-engineering",
+      "relationship": "complementary"
+    },
+    {
+      "source": "browser-extension-reverse",
+      "target": "js-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "browser-extension-reverse",
+      "target": "thick-client",
+      "relationship": "complementary"
+    },
+    {
+      "source": "js-reverse",
+      "target": "thick-client",
+      "relationship": "complementary"
+    },
+    {
+      "source": "chisel-tunnel",
+      "target": "frp-tunnel",
+      "relationship": "complementary"
+    },
+    {
+      "source": "chisel-tunnel",
+      "target": "suo5-tunnel",
+      "relationship": "complementary"
+    },
+    {
+      "source": "frp-tunnel",
+      "target": "suo5-tunnel",
       "relationship": "complementary"
     },
     {
@@ -1738,23 +1723,8 @@
       "relationship": "complementary"
     },
     {
-      "source": "credential-attack",
-      "target": "digital-forensics",
-      "relationship": "complementary"
-    },
-    {
-      "source": "credential-attack",
-      "target": "dir-bruteforce",
-      "relationship": "complementary"
-    },
-    {
       "source": "digital-forensics",
-      "target": "dir-bruteforce",
-      "relationship": "complementary"
-    },
-    {
-      "source": "digital-forensics",
-      "target": "graphql-testing",
+      "target": "malware-analysis",
       "relationship": "complementary"
     },
     {
@@ -1784,12 +1754,7 @@
     },
     {
       "source": "http-smuggling",
-      "target": "malware-analysis",
-      "relationship": "complementary"
-    },
-    {
-      "source": "injection-payloads",
-      "target": "malware-analysis",
+      "target": "nuclei-scan",
       "relationship": "complementary"
     },
     {
@@ -1798,12 +1763,7 @@
       "relationship": "complementary"
     },
     {
-      "source": "malware-analysis",
-      "target": "nuclei-scan",
-      "relationship": "complementary"
-    },
-    {
-      "source": "malware-analysis",
+      "source": "injection-payloads",
       "target": "oob-verification",
       "relationship": "complementary"
     },
@@ -1843,13 +1803,23 @@
       "relationship": "complementary"
     },
     {
-      "source": "edr-bypass-re",
-      "target": "fscan-intranet",
+      "source": "unauth-exploit",
+      "target": "web-vuln-payloads",
+      "relationship": "complementary"
+    },
+    {
+      "source": "waf-bypass",
+      "target": "web-vuln-payloads",
       "relationship": "complementary"
     },
     {
       "source": "edr-bypass-re",
-      "target": "gogo-intranet",
+      "target": "threat-hunting",
+      "relationship": "complementary"
+    },
+    {
+      "source": "firmware-pentest",
+      "target": "iot-iiot-netdev",
       "relationship": "complementary"
     },
     {
@@ -1859,36 +1829,16 @@
     },
     {
       "source": "fscan-intranet",
-      "target": "hardware-security",
-      "relationship": "complementary"
-    },
-    {
-      "source": "gogo-intranet",
-      "target": "hardware-security",
-      "relationship": "complementary"
-    },
-    {
-      "source": "gogo-intranet",
-      "target": "identity-federation",
-      "relationship": "complementary"
-    },
-    {
-      "source": "hardware-security",
-      "target": "identity-federation",
-      "relationship": "complementary"
-    },
-    {
-      "source": "hardware-security",
       "target": "lateral-movement",
       "relationship": "complementary"
     },
     {
-      "source": "identity-federation",
+      "source": "gogo-intranet",
       "target": "lateral-movement",
       "relationship": "complementary"
     },
     {
-      "source": "identity-federation",
+      "source": "gogo-intranet",
       "target": "netexec-scan",
       "relationship": "complementary"
     },
@@ -1898,23 +1848,23 @@
       "relationship": "complementary"
     },
     {
-      "source": "lateral-movement",
+      "source": "hardware-security",
+      "target": "ot-ics",
+      "relationship": "complementary"
+    },
+    {
+      "source": "hardware-security",
       "target": "radio-sdr",
       "relationship": "complementary"
     },
     {
-      "source": "netexec-scan",
+      "source": "ot-ics",
       "target": "radio-sdr",
       "relationship": "complementary"
     },
     {
-      "source": "netexec-scan",
-      "target": "threat-hunting",
-      "relationship": "complementary"
-    },
-    {
-      "source": "radio-sdr",
-      "target": "threat-hunting",
+      "source": "ot-ics",
+      "target": "wifi-wireless",
       "relationship": "complementary"
     },
     {
@@ -1923,18 +1873,33 @@
       "relationship": "complementary"
     },
     {
-      "source": "threat-hunting",
-      "target": "wifi-wireless",
-      "relationship": "complementary"
-    },
-    {
-      "source": "threat-hunting",
+      "source": "identity-federation",
       "target": "windows-ad",
       "relationship": "complementary"
     },
     {
-      "source": "wifi-wireless",
-      "target": "windows-ad",
+      "source": "privesc-persistence",
+      "target": "shell-handler",
+      "relationship": "complementary"
+    },
+    {
+      "source": "privesc-persistence",
+      "target": "vps-reverse-shell",
+      "relationship": "complementary"
+    },
+    {
+      "source": "shell-handler",
+      "target": "vps-reverse-shell",
+      "relationship": "complementary"
+    },
+    {
+      "source": "shell-handler",
+      "target": "webshell-toolkit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "vps-reverse-shell",
+      "target": "webshell-toolkit",
       "relationship": "complementary"
     }
   ]

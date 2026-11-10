@@ -447,6 +447,6 @@ def edit(idx, data):
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **上游**（先做完这些再进来）：`ida-reverse`、`radare2`
 - **下游**（产出交给谁）：`competition-reverse-pwn`
-- **互补**（同类场景一起用）：`privesc-persistence`、`protocol-reverse`、`radare2`、`secdev-boundary`
+- **互补**（同类场景一起用）：`patch-diff-exploit`、`protocol-reverse`、`radare2`、`reverse-engineering`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

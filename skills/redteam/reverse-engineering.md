@@ -727,5 +727,6 @@ echo "[+] Done. 在 IDA 中重新分析验证。"
 - **上游**（先做完这些再进来）：`binary-diff`
 - **下游**（产出交给谁）：`ida-reverse`、`ghidra-reverse`、`radare2`
 - **专项下游**（同主题更深的靶子面）：`competition-reverse-pwn`、`mobile-reverse`、`competition-zip-archive`
+- **互补**（同类场景一起用）：`pwn-chain`、`radare2`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

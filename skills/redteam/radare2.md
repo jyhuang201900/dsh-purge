@@ -446,6 +446,6 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **上游**（先做完这些再进来）：`reverse-engineering`
 - **下游**（产出交给谁）：`pwn-chain`
-- **互补**（同类场景一起用）：`protocol-reverse`、`pwn-chain`、`secdev-boundary`、`shell-handler`
+- **互补**（同类场景一起用）：`protocol-reverse`、`pwn-chain`、`reverse-engineering`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

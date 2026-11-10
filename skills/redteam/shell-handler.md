@@ -150,6 +150,6 @@ msf6 > exploit -j
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **上游**（先做完这些再进来）：`unauth-exploit`、`web-vuln-payloads`
 - **下游**（产出交给谁）：`vps-reverse-shell`、`privesc-persistence`
-- **互补**（同类场景一起用）：`radare2`、`secdev-boundary`、`suo5-tunnel`、`thick-client`
+- **互补**（同类场景一起用）：`privesc-persistence`、`vps-reverse-shell`、`webshell-toolkit`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`webshell`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

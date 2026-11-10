@@ -211,5 +211,6 @@ Interceptor.attach(Module.findExportByName("libcommonCrypto.dylib", "CCCrypt"), 
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **下游**（产出交给谁）：`apk-reverse`、`competition-ios-runtime`
 - **专项下游**（同主题更深的靶子面）：`competition-ios-runtime`
+- **互补**（同类场景一起用）：`apk-reverse`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

@@ -64,6 +64,6 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 - **阶段**：5 内网渗透｜**角色**：`internal`
 - **上游**（先做完这些再进来）：`firmware-pentest`
 - **下游**（产出交给谁）：`radio-sdr`
-- **互补**（同类场景一起用）：`fscan-intranet`、`gogo-intranet`、`identity-federation`、`lateral-movement`
+- **互补**（同类场景一起用）：`ot-ics`、`radio-sdr`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

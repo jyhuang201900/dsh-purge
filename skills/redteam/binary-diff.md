@@ -299,6 +299,6 @@ found_struct_offset → idapro_set_comments(addr=insn_va, comment="{struct_name}
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **上游**（先做完这些再进来）：`patch-diff-exploit`
 - **下游**（产出交给谁）：`reverse-engineering`
-- **互补**（同类场景一起用）：`apk-reverse`、`browser-extension-reverse`、`chisel-tunnel`
+- **互补**（同类场景一起用）：`dotnet-reverse`、`ghidra-reverse`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

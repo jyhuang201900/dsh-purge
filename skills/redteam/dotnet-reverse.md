@@ -200,6 +200,6 @@ File → Save Module → 替换原文件
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **上游**（先做完这些再进来）：`reverse-engineering`
 - **下游**（产出交给谁）：`thick-client`
-- **互补**（同类场景一起用）：`browser-extension-reverse`、`chisel-tunnel`、`frp-tunnel`、`ghidra-reverse`
+- **互补**（同类场景一起用）：`binary-diff`、`ghidra-reverse`、`go-rust-reverse`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

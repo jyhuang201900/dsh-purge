@@ -83,5 +83,6 @@ Finding：位置 + 数据流 + PoC + 修复建议
 - **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
 - **上游**（先做完这些再进来）：`api-security`、`supply-chain-security`
 - **下游**（产出交给谁）：`injection-payloads`、`webshell-toolkit`
+- **互补**（同类场景一起用）：`api-security`、`database-security`、`email-security`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

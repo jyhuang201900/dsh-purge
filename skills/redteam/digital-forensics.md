@@ -92,6 +92,6 @@ vol -f mem.dmp windows.cmdline
 - **上游**（先做完这些再进来）：`threat-hunting`、`malware-analysis`
 - **下游**（产出交给谁）：`case-review`
 - **专项下游**（同主题更深的靶子面）：`competition-forensic-timeline`
-- **互补**（同类场景一起用）：`credential-attack`、`dir-bruteforce`、`graphql-testing`
+- **互补**（同类场景一起用）：`malware-analysis`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

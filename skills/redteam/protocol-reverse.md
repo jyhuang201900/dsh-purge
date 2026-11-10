@@ -110,6 +110,6 @@ MUST 产出：
 - **上游**（先做完这些再进来）：`reverse-engineering`
 - **下游**（产出交给谁）：`competition-custom-protocol-replay`
 - **专项下游**（同主题更深的靶子面）：`competition-custom-protocol-replay`
-- **互补**（同类场景一起用）：`patch-diff-exploit`、`privesc-persistence`、`pwn-chain`、`radare2`
+- **互补**（同类场景一起用）：`ida-reverse`、`patch-diff-exploit`、`pwn-chain`、`radare2`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

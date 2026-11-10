@@ -3648,7 +3648,17 @@
     },
     {
       "source": "skills_redteam_fofa_recon",
-      "target": "skills_redteam_subdomain_bruteforce",
+      "target": "skills_redteam_recon_pipeline",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_passive_recon",
+      "target": "skills_redteam_recon_pipeline",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -3667,8 +3677,98 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_apk_reverse",
-      "target": "skills_redteam_binary_diff",
+      "source": "skills_redteam_recon_pipeline",
+      "target": "skills_redteam_subdomain_bruteforce",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_api_security",
+      "target": "skills_redteam_code_audit",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_api_security",
+      "target": "skills_redteam_database_security",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_code_audit",
+      "target": "skills_redteam_database_security",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_code_audit",
+      "target": "skills_redteam_email_security",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_database_security",
+      "target": "skills_redteam_email_security",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_database_security",
+      "target": "skills_redteam_llm_security",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_email_security",
+      "target": "skills_redteam_llm_security",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_email_security",
+      "target": "skills_redteam_supply_chain_security",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_llm_security",
+      "target": "skills_redteam_supply_chain_security",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -3678,7 +3778,7 @@
     },
     {
       "source": "skills_redteam_apk_reverse",
-      "target": "skills_redteam_browser_extension_reverse",
+      "target": "skills_redteam_mobile_reverse",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -3687,368 +3787,8 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_binary_diff",
-      "target": "skills_redteam_browser_extension_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_binary_diff",
-      "target": "skills_redteam_chisel_tunnel",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_browser_extension_reverse",
-      "target": "skills_redteam_chisel_tunnel",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_browser_extension_reverse",
-      "target": "skills_redteam_dotnet_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_chisel_tunnel",
-      "target": "skills_redteam_dotnet_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_chisel_tunnel",
-      "target": "skills_redteam_frp_tunnel",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_dotnet_reverse",
-      "target": "skills_redteam_frp_tunnel",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_dotnet_reverse",
-      "target": "skills_redteam_ghidra_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_frp_tunnel",
-      "target": "skills_redteam_ghidra_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_frp_tunnel",
-      "target": "skills_redteam_go_rust_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_ghidra_reverse",
-      "target": "skills_redteam_go_rust_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_ghidra_reverse",
-      "target": "skills_redteam_ida_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_go_rust_reverse",
-      "target": "skills_redteam_ida_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_go_rust_reverse",
-      "target": "skills_redteam_iot_iiot_netdev",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_ida_reverse",
-      "target": "skills_redteam_iot_iiot_netdev",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_ida_reverse",
-      "target": "skills_redteam_js_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_iot_iiot_netdev",
-      "target": "skills_redteam_js_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_iot_iiot_netdev",
-      "target": "skills_redteam_patch_diff_exploit",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_js_reverse",
-      "target": "skills_redteam_patch_diff_exploit",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_js_reverse",
-      "target": "skills_redteam_privesc_persistence",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_patch_diff_exploit",
-      "target": "skills_redteam_privesc_persistence",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_patch_diff_exploit",
-      "target": "skills_redteam_protocol_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_privesc_persistence",
-      "target": "skills_redteam_protocol_reverse",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_privesc_persistence",
-      "target": "skills_redteam_pwn_chain",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_protocol_reverse",
-      "target": "skills_redteam_pwn_chain",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_protocol_reverse",
-      "target": "skills_redteam_radare2",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_pwn_chain",
-      "target": "skills_redteam_radare2",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_pwn_chain",
-      "target": "skills_redteam_secdev_boundary",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_radare2",
-      "target": "skills_redteam_secdev_boundary",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_radare2",
-      "target": "skills_redteam_shell_handler",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_secdev_boundary",
-      "target": "skills_redteam_shell_handler",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_secdev_boundary",
-      "target": "skills_redteam_suo5_tunnel",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_shell_handler",
-      "target": "skills_redteam_suo5_tunnel",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_shell_handler",
-      "target": "skills_redteam_thick_client",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_suo5_tunnel",
-      "target": "skills_redteam_thick_client",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_suo5_tunnel",
-      "target": "skills_redteam_vps_reverse_shell",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_thick_client",
-      "target": "skills_redteam_vps_reverse_shell",
+      "source": "skills_redteam_asset_correlation",
+      "target": "skills_redteam_web_fingerprint",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -4199,6 +3939,236 @@
     {
       "source": "skills_redteam_pentest_tools",
       "target": "skills_redteam_redteam_setup",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_binary_diff",
+      "target": "skills_redteam_dotnet_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_binary_diff",
+      "target": "skills_redteam_ghidra_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_dotnet_reverse",
+      "target": "skills_redteam_ghidra_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_dotnet_reverse",
+      "target": "skills_redteam_go_rust_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_ghidra_reverse",
+      "target": "skills_redteam_go_rust_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_ghidra_reverse",
+      "target": "skills_redteam_ida_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_go_rust_reverse",
+      "target": "skills_redteam_ida_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_go_rust_reverse",
+      "target": "skills_redteam_patch_diff_exploit",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_ida_reverse",
+      "target": "skills_redteam_patch_diff_exploit",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_ida_reverse",
+      "target": "skills_redteam_protocol_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_patch_diff_exploit",
+      "target": "skills_redteam_protocol_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_patch_diff_exploit",
+      "target": "skills_redteam_pwn_chain",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_protocol_reverse",
+      "target": "skills_redteam_pwn_chain",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_protocol_reverse",
+      "target": "skills_redteam_radare2",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_pwn_chain",
+      "target": "skills_redteam_radare2",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_pwn_chain",
+      "target": "skills_redteam_reverse_engineering",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_radare2",
+      "target": "skills_redteam_reverse_engineering",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_browser_extension_reverse",
+      "target": "skills_redteam_js_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_browser_extension_reverse",
+      "target": "skills_redteam_thick_client",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_js_reverse",
+      "target": "skills_redteam_thick_client",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_chisel_tunnel",
+      "target": "skills_redteam_frp_tunnel",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_chisel_tunnel",
+      "target": "skills_redteam_suo5_tunnel",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_frp_tunnel",
+      "target": "skills_redteam_suo5_tunnel",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -4937,38 +4907,8 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_credential_attack",
-      "target": "skills_redteam_digital_forensics",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_credential_attack",
-      "target": "skills_redteam_dir_bruteforce",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
       "source": "skills_redteam_digital_forensics",
-      "target": "skills_redteam_dir_bruteforce",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_digital_forensics",
-      "target": "skills_redteam_graphql_testing",
+      "target": "skills_redteam_malware_analysis",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5028,17 +4968,7 @@
     },
     {
       "source": "skills_redteam_http_smuggling",
-      "target": "skills_redteam_malware_analysis",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_injection_payloads",
-      "target": "skills_redteam_malware_analysis",
+      "target": "skills_redteam_nuclei_scan",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5057,17 +4987,7 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_malware_analysis",
-      "target": "skills_redteam_nuclei_scan",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_malware_analysis",
+      "source": "skills_redteam_injection_payloads",
       "target": "skills_redteam_oob_verification",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5147,8 +5067,18 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_edr_bypass_re",
-      "target": "skills_redteam_fscan_intranet",
+      "source": "skills_redteam_unauth_exploit",
+      "target": "skills_redteam_web_vuln_payloads",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_waf_bypass",
+      "target": "skills_redteam_web_vuln_payloads",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5158,7 +5088,17 @@
     },
     {
       "source": "skills_redteam_edr_bypass_re",
-      "target": "skills_redteam_gogo_intranet",
+      "target": "skills_redteam_threat_hunting",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_firmware_pentest",
+      "target": "skills_redteam_iot_iiot_netdev",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5178,46 +5118,6 @@
     },
     {
       "source": "skills_redteam_fscan_intranet",
-      "target": "skills_redteam_hardware_security",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_gogo_intranet",
-      "target": "skills_redteam_hardware_security",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_gogo_intranet",
-      "target": "skills_redteam_identity_federation",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_hardware_security",
-      "target": "skills_redteam_identity_federation",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_hardware_security",
       "target": "skills_redteam_lateral_movement",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5227,7 +5127,7 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_identity_federation",
+      "source": "skills_redteam_gogo_intranet",
       "target": "skills_redteam_lateral_movement",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5237,7 +5137,7 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_identity_federation",
+      "source": "skills_redteam_gogo_intranet",
       "target": "skills_redteam_netexec_scan",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5257,7 +5157,17 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_lateral_movement",
+      "source": "skills_redteam_hardware_security",
+      "target": "skills_redteam_ot_ics",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_hardware_security",
       "target": "skills_redteam_radio_sdr",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5267,7 +5177,7 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_netexec_scan",
+      "source": "skills_redteam_ot_ics",
       "target": "skills_redteam_radio_sdr",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5277,18 +5187,8 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_netexec_scan",
-      "target": "skills_redteam_threat_hunting",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_radio_sdr",
-      "target": "skills_redteam_threat_hunting",
+      "source": "skills_redteam_ot_ics",
+      "target": "skills_redteam_wifi_wireless",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5307,17 +5207,7 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_threat_hunting",
-      "target": "skills_redteam_wifi_wireless",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_threat_hunting",
+      "source": "skills_redteam_identity_federation",
       "target": "skills_redteam_windows_ad",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5327,8 +5217,48 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_wifi_wireless",
-      "target": "skills_redteam_windows_ad",
+      "source": "skills_redteam_privesc_persistence",
+      "target": "skills_redteam_shell_handler",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_privesc_persistence",
+      "target": "skills_redteam_vps_reverse_shell",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_shell_handler",
+      "target": "skills_redteam_vps_reverse_shell",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_shell_handler",
+      "target": "skills_redteam_webshell_toolkit",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_vps_reverse_shell",
+      "target": "skills_redteam_webshell_toolkit",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -6482,7 +6412,7 @@
   "output_tokens": 0,
   "coverage": {
     "skills": 114,
-    "relations": 387,
+    "relations": 380,
     "roles": 8
   }
 }

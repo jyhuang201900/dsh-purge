@@ -107,6 +107,6 @@ wc -l runs/final.txt
 - **阶段**：1 信息收集｜**角色**：`recon`
 - **上游**（先做完这些再进来）：`passive-recon`
 - **下游**（产出交给谁）：`active-scan`
-- **互补**（同类场景一起用）：`fofa-recon`、`passive-recon`
+- **互补**（同类场景一起用）：`passive-recon`、`recon-pipeline`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

@@ -84,5 +84,6 @@ curl -s http://TARGET/<bundle>.js | grep -oE '(angular|vue|react|webpack)[^"]{0,
 - **上游**（先做完这些再进来）：`recon-pipeline`、`active-scan`
 - **下游**（产出交给谁）：`asset-correlation`、`dir-bruteforce`、`nuclei-scan`
 - **专项下游**（同主题更深的靶子面）：`competition-browser-persistence`
+- **互补**（同类场景一起用）：`asset-correlation`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

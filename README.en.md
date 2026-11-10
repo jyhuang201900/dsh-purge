@@ -54,6 +54,8 @@ The plugin registers **ten tools globally** (`ctx.tools.register` in `lib/index.
 | --- | --- | --- | --- |
 | The ten `purge_*` tools | yes | yes | patch state, acceptance, injection editing, skill health checks |
 | **Drill ledger** (open target / record findings / score / report) | yes | yes | `purge_drill op=open` opens a target in place; the tool itself says no preset switch is needed |
+| **What to do next** | yes | yes | `purge_drill` (no args = summary) reads the ledger state and returns **one** targeted next action naming the skill to load: no assets -> (1) `recon-pipeline`; assets -> (3) `asset-correlation` + `nuclei-scan`; vulns -> (4) `injection-payloads` / `webshell-toolkit`; access -> build a tunnel with `suo5-tunnel`; tunnel but no internal -> (5) `gogo-intranet`; internal assets -> `fscan-intranet`. **Daily sessions get the five-phase discipline without the preset** |
+| **Find skills by stage** | yes | yes | `purge_skills all=1..5` or `all=flow` lists the skills for that phase |
 | **Browse the skill library / read a skill body** | yes | yes | `purge_skills` lists and checks the whole library; `purge_skills id=<name>` returns **chain position + body head + full path** - the only way to read a skill in a daily session, since red-team skills are absent from its `<available_skills>` |
 | **Loading those 114 skills via the `skill` tool** | no | yes | Skills are discovered through the drill preset's `customSkillDirs`; daily sessions do not see them, which keeps 114 descriptions out of the standing context |
 | **The injected doctrine** (five phases / rules / chain discipline) | no | yes | Gated by `isRedteamSession(context)`, injected only in drill sessions |

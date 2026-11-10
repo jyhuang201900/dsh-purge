@@ -365,6 +365,6 @@ idapro_rename(batch={"func": [{"addr": "函数地址", "name": "有意义的名�
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **上游**（先做完这些再进来）：`reverse-engineering`
 - **下游**（产出交给谁）：`patch-diff-exploit`、`pwn-chain`
-- **互补**（同类场景一起用）：`ghidra-reverse`、`go-rust-reverse`、`iot-iiot-netdev`、`js-reverse`
+- **互补**（同类场景一起用）：`ghidra-reverse`、`go-rust-reverse`、`patch-diff-exploit`、`protocol-reverse`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

@@ -317,5 +317,6 @@ Source: OWASP API Top 10 (API2: Broken Authentication), jwt_tool, PortSwigger OA
 - **上游**（先做完这些再进来）：`graphql-testing`、`web-fingerprint`
 - **下游**（产出交给谁）：`code-audit`、`injection-payloads`
 - **专项下游**（同主题更深的靶子面）：`competition-jwt-claim-confusion`、`competition-graphql-rpc-drift`
+- **互补**（同类场景一起用）：`code-audit`、`database-security`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

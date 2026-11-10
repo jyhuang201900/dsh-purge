@@ -115,5 +115,6 @@ $TK/naabu/naabu -host 1.2.3.4 -p - -rate 1000 -silent
 - **阶段**：1 信息收集｜**角色**：`recon`
 - **上游**（先做完这些再进来）：`fofa-recon`
 - **下游**（产出交给谁）：`web-fingerprint`、`active-scan`
+- **互补**（同类场景一起用）：`fofa-recon`、`passive-recon`、`subdomain-bruteforce`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

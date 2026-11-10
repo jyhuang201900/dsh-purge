@@ -103,5 +103,6 @@ MUST NOT 在未明确允许时：
 - **阶段**：5 内网渗透｜**角色**：`internal`
 - **上游**（先做完这些再进来）：`fscan-intranet`
 - **下游**（产出交给谁）：`iot-iiot-netdev`、`competition-kernel-container-escape`
+- **互补**（同类场景一起用）：`hardware-security`、`radio-sdr`、`wifi-wireless`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

@@ -99,6 +99,6 @@ analyzeHeadless /path/to/project Proj -import sample.bin -postScript ExportDecom
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **上游**（先做完这些再进来）：`reverse-engineering`
 - **下游**（产出交给谁）：`patch-diff-exploit`
-- **互补**（同类场景一起用）：`dotnet-reverse`、`frp-tunnel`、`go-rust-reverse`、`ida-reverse`
+- **互补**（同类场景一起用）：`binary-diff`、`dotnet-reverse`、`go-rust-reverse`、`ida-reverse`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 

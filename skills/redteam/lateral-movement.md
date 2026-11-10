@@ -152,6 +152,6 @@ proxychains4 -f runs/proxychains-1080.conf enum4linux -a 10.0.0.6
 - **阶段**：5 内网渗透｜**角色**：`internal`
 - **上游**（先做完这些再进来）：`netexec-scan`
 - **下游**（产出交给谁）：`windows-ad`、`identity-federation`
-- **互补**（同类场景一起用）：`hardware-security`、`identity-federation`、`netexec-scan`、`radio-sdr`
+- **互补**（同类场景一起用）：`fscan-intranet`、`gogo-intranet`、`netexec-scan`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`credential`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

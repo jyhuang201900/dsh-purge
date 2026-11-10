@@ -119,6 +119,6 @@ proxychains4 -f runs/proxychains-1080.conf \
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
 - **上游**（先做完这些再进来）：`privesc-persistence`
 - **下游**（产出交给谁）：`gogo-intranet`、`fscan-intranet`
-- **互补**（同类场景一起用）：`binary-diff`、`browser-extension-reverse`、`dotnet-reverse`、`frp-tunnel`
+- **互补**（同类场景一起用）：`frp-tunnel`、`suo5-tunnel`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`tunnel` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

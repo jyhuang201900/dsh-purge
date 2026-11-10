@@ -83,6 +83,6 @@ gh search code --owner=<org> --match file --filename .env 2>/dev/null \
 
 - **阶段**：1 信息收集｜**角色**：`recon`
 - **下游**（产出交给谁）：`fofa-recon`、`recon-pipeline`
-- **互补**（同类场景一起用）：`active-scan`、`fofa-recon`、`subdomain-bruteforce`
+- **互补**（同类场景一起用）：`active-scan`、`fofa-recon`、`recon-pipeline`、`subdomain-bruteforce`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

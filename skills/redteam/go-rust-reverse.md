@@ -81,6 +81,6 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
 
 - **阶段**：4 漏洞利用｜**角色**：`exploit`
-- **互补**（同类场景一起用）：`frp-tunnel`、`ghidra-reverse`、`ida-reverse`、`iot-iiot-netdev`
+- **互补**（同类场景一起用）：`dotnet-reverse`、`ghidra-reverse`、`ida-reverse`、`patch-diff-exploit`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
