@@ -7,7 +7,7 @@
 <p align="center"><strong>Version 1.1.85</strong></p>
 
 <p align="center">
-  <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 72 drill skills (32 offense-flow plus 16 reverse/specialty).</em>
+  <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 114 drill skills (32 offense-flow plus 16 reverse/specialty).</em>
 </p>
 
 <p align="center">

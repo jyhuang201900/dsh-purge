@@ -7,7 +7,7 @@
 <p align="center"><strong>Version 1.1.85</strong></p>
 
 <p align="center">
-  <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 72 个演练技能（32 个进攻流程 + 16 个逆向与专项纵深）。</em>
+  <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 114 个演练技能（32 个进攻流程 + 16 个逆向与专项纵深）。</em>
 </p>
 
 <p align="center">

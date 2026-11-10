@@ -86,7 +86,7 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 
 **加载顺序**：
 
-1. 优先用原生 `skill` 工具加载（演练预设会话里 72 个红队技能已在 `<available_skills>`）。
+1. 优先用原生 `skill` 工具加载（演练预设会话里 114 个红队技能已在 `<available_skills>`）。
 2. 加载不到就直接读文件：`$DSH_HOME/redteam/skills/<name>.md`（插件启动时从包内同步；`$DSH_HOME/skills/<name>.md` 是用户改过的版本，优先读它）。
 3. 两处都没有：按本条令的五阶段打，并把"缺技能"写进回报。
 
@@ -125,6 +125,7 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 | ③④⑤ 逆向 / 二进制 | 反编译、脱壳、补丁差分、PWN、现代语言产物、浏览器扩展 | `reverse-engineering`、`ida-reverse`、`ghidra-reverse`、`radare2`、`binary-diff`、`patch-diff-exploit`、`pwn-chain`、`go-rust-reverse`、`dotnet-reverse`、`js-reverse`、`browser-extension-reverse` |
 | ③④⑤ 领域纵深 | 域 / 身份联邦 / 云 / 工控 / 固件 / 硬件 / 无线电 / 移动端 / 协议 / 厚客户端 | `windows-ad`、`identity-federation`、`cloud-k8s`、`ot-ics`、`firmware-pentest`、`hardware-security`、`radio-sdr`、`mobile-reverse`、`apk-reverse`、`protocol-reverse`、`thick-client` |
 | ③④⑤ 对抗 / 取证 / 安全域 | EDR 绕过、威胁狩猎、样本与取证、供应链 / LLM / 数据库 / 邮件 / 无线 / API / 代码审计 | `edr-bypass-re`、`threat-hunting`、`digital-forensics`、`malware-analysis`、`supply-chain-security`、`llm-security`、`database-security`、`email-security`、`wifi-wireless`、`api-security`、`code-audit` |
+| ③④⑤ 攻击面专项 | AD 证书 / Kerberos 委派 / DPAPI / LSASS / 中继 / 容器逃逸 / 云元数据 / JWT / OAuth / WebSocket / 队列漂移 / 竞态 / 模板渲染 / GraphQL / 固件 / 移动端 / 隐写 / PCAP / 供应链（共 41 项） | `ctf-sandbox-orchestrator` 为总入口，按靶子内部路由到对应 `competition-*` |
 | ①-⑤ 流程 / 工具集 | 攻击链编排、工具集索引、案例复盘、CTF 沙箱 | `attack-chain`、`pentest-tools`、`case-review`、`ctf-sandbox` |
 
 

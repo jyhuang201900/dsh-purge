@@ -1,0 +1,80 @@
+---
+name: competition-supply-chain
+description: 供应链专项：追踪依赖漂移、CI 产出与交付产物来源
+whenToUse: 要追「这个产物是谁在哪一步构建的」或依赖被投毒时加载
+---
+
+> 主题：供应链与产物溯源（上游 `@dhicoc/dsh-reverse-skill` 的 CTF-Sandbox-Orchestrator 系列，MIT；已按本仓格式改写）
+
+# Competition Supply Chain
+
+Use this skill when the challenge is really about provenance, dependency drift, build output, release flow, or what runtime artifact actually got shipped.
+
+## Quick Start
+
+1. Split the problem into source, dependency resolution, build, packaging, publish, and runtime consumption.
+2. Decide where the first divergence occurs between intended artifact and runtime artifact.
+3. Keep provenance as a compact chain, not a scattered set of observations.
+4. Reproduce the smallest possible build or package path that still shows the issue.
+5. Separate checked-in intent from what the pipeline actually emitted.
+
+## Workflow
+
+### 1. Trace Provenance End-To-End
+
+- Map source checkout, lockfiles, dependency fetch, pre/post-install steps, build scripts, packaging, publish target, and runtime consumer.
+- Compare declared version, resolved version, and shipped artifact.
+- Note registry, cache, mirror, or CI environment differences.
+
+### 2. Reconcile Build-Time And Runtime
+
+- Compare manifests with image layers, mounted secrets, generated files, and runtime hooks.
+- Identify whether the decisive mutation happens in dependency install, build step, publish step, or runtime bootstrap.
+
+### 3. Report The Break Point
+
+- State the earliest point where provenance diverges.
+- Keep evidence in one short chain from source to runtime consumer.
+
+## Read This Reference
+
+- Load `references/supply-chain.md` for the provenance checklist, evidence packaging, and common pipeline failure modes.
+
+## What To Preserve
+
+- Declared dependency, resolved dependency, and runtime artifact versions
+- CI step names, registry pulls, artifact hashes, and image or package layers
+- The runtime consumer that actually accepts or executes the artifact
+
+---
+
+## 检查清单与常见坑（上游参考并入）
+
+### supply-chain
+
+# Supply Chain And CI Checklist
+
+## Provenance Chain
+
+Track this order explicitly:
+
+1. Source checkout
+2. Dependency declaration
+3. Lockfile or resolver result
+4. Build step
+5. Packaging or signing step
+6. Publish target
+7. Runtime consumer
+
+## High-Value Evidence
+
+- Version drift between source, lockfile, and fetched artifact
+- Registry or mirror pulls that differ from expected origin
+- Build scripts with preinstall, prepare, postinstall, or codegen steps
+- Signed or packaged artifact hash compared to runtime-loaded artifact
+
+## Common Pitfalls
+
+- Stopping at lockfile drift without proving runtime consumption
+- Treating checked-in manifests as equivalent to live pipeline behavior
+- Losing the earliest divergence point inside a wall of CI logs
