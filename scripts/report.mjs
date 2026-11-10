@@ -43,6 +43,53 @@ const pick = (text, marks) => {
   return (lines[lines.length - 1] || "（无输出）").slice(0, 150);
 };
 
+// pick() 的自测：第 92 轮真出过事——摘要取到表头行与「明细: …json」路径行，都是「形状完好的胡说」。
+// 这四条用例钉住的是当时的具体错法，不是抽象覆盖率；默认随每次 report 一起跑（约 0 秒），
+// 也可单独跑：node scripts/report.mjs --self-test。
+const SELFTEST = [
+  {
+    name: "表头不许压过判决行",
+    text: ["闸门反向探针总表：", "  ✓ 关 1 x", "探针总表：13 关，异常 0 关", ""].join("\n"),
+    marks: ["关，异常", "探针总表"],
+    want: "探针总表：13 关，异常 0 关",
+  },
+  {
+    name: "路径行不许压过判决行",
+    text: ["补丁条数：76", "", "汇总: {\"ok\":50}", "明细: E:/x/.cache/anchor-report.json", ""].join("\n"),
+    marks: ["汇总", "补丁条数"],
+    want: "汇总: {\"ok\":50}",
+  },
+  {
+    name: "无标志时退回最后一条非空行",
+    text: ["第一行", "第二行", "", "   "].join("\n"),
+    marks: ["根本不存在"],
+    want: "第二行",
+  },
+  {
+    name: "空输出必须明说而不是空串",
+    text: "   \n  ",
+    marks: ["任意"],
+    want: "（无输出）",
+  },
+];
+
+function runSelfTest() {
+  const bad = [];
+  for (const c of SELFTEST) {
+    const got = pick(c.text, c.marks);
+    if (got !== c.want) bad.push(`${c.name}：取到 ${JSON.stringify(got.slice(0, 40))}，要 ${JSON.stringify(c.want.slice(0, 40))}`);
+  }
+  return bad;
+}
+
+if (argv.includes("--self-test")) {
+  const bad = runSelfTest();
+  console.log(`report 自测：${SELFTEST.length - bad.length}/${SELFTEST.length} 过`);
+  for (const b of bad) console.log(`  ✗ ${b}`);
+  process.exit(bad.length ? 1 : 0);
+}
+const selfTestBad = runSelfTest();
+
 const steps = [
   { name: "十三关闸门", args: ["scripts/verify.mjs"], marks: ["[verify]", "未通过"], net: false },
   { name: "闸门反向探针", args: ["scripts/probe-gates.mjs"], marks: ["关，异常", "探针总表"], net: false },
@@ -141,6 +188,7 @@ const md = [
 ...liveLines.map((l) => `- ${l}`),
 "",
 ...(debtLines.length ? ["", "## 挂账复查（--check-debt）", "", ...debtLines] : []),
+`摘要器自测（pick）：${SELFTEST.length - selfTestBad.length}/${SELFTEST.length} 过${selfTestBad.length ? " —— " + selfTestBad.join(" ; ") : ""}`,
 `> 报告本身不是闸门：它复用现有十三关与探测器。本次耗时 ${Math.round((Date.now() - tStart) / 1000)} 秒${noNet ? "（--no-net，跳过外网三项）" : "（含外网项）"}。`,
 "",
 ].join("\n");
@@ -150,4 +198,4 @@ fs.writeFileSync(outFile, md, "utf8");
 console.log(md.replace(/^/gm, "  ").replace(/\n {2}$/g, ""));
 console.log(`  报告已写入：${path.relative(root, outFile)}`);
 // 只有真失败才非 0；跳过联网项不算失败。
-process.exit(failures.length ? 1 : 0);
+process.exit(failures.length + selfTestBad.length ? 1 : 0);
