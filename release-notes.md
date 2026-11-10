@@ -4,7 +4,7 @@
 
 对齐宿主 **dsh 0.2.2-rc.1**（EXE 实测版本，cordis 4.1.0；补丁 76 条、74 已清洗、2 条设计内 skipped）。这一版不铺新面积，做的是把前 40 轮攒下的东西**变得可核对**：
 
-- **tarball 对账过关，但侧头一看撞见一个真泄漏：`host-sync` 的换装备份攒了 16 个目录 / 7.1 GB。** 包内容本身没问题：`npm pack --dry-run` 实测 141 个文件 / 3,935 KB，`skills/redteam` 32 个齐全、`presets` 3、`locale` 2、`scripts` 20、`docs` 17，必需单文件（`client.js`/`package.json`/`cordis.patch.yml`/`screenshots.json`/`lib/index.js`/`lib/redteam/tools.js`）全在包里，`lib/default-prompt-inject.md` 正确排除，也没有 `graphify-out`/`.cache` 夹带 —— **结论：值得报，不值得再加一道门**（要跑 npm，不是每次都有）。
+- **tarball 对账过关，但侧头一看撞见一个真泄漏：换装备份攒了 16 个目录 / 7.1 GB。** 包内容本身没问题：`npm pack --dry-run` 实测 141 个文件 / 3,935 KB，`skills/redteam` 32 个齐全、`presets` 3、`locale` 2、`scripts` 20、`docs` 17，必需单文件（`client.js`/`package.json`/`cordis.patch.yml`/`screenshots.json`/`lib/index.js`/`lib/redteam/tools.js`）全在包里，`lib/default-prompt-inject.md` 正确排除，也没有 `graphify-out`/`.cache` 夹带 —— **结论：值得报，不值得再加一道门**（要跑 npm，不是每次都有）。
   泄漏的根因很具体：`commitExtractedDir()` 挪旧目录时，若 `app.dshpurge-prev` 名字被占就**改写带时间戳的名字**，于是每次换装都多留一份约 440MB 的备份；而唯一的清理 `clearStaleExtractedApps()` **只挂在"官方更新"那条路径**上，我这几百轮走的是 host-sync/reapply，**没人剪**。修法按"谁制造谁收尾"：新增 `prunePreservedDirs(destDir, keep=2)` 并在 `commitExtractedDir` 成功路径调用。夹具实测 `{"kept":2,"removed":3}` 且活目录 `app` 无损；真机用它把 **16 个 / 7,106 MB 剪成 2 个 / 886 MB（释放约 6.2 GB，耗时 33.8 秒）**，留下的正是最近两份。
   再把它做成看得见的信息项：`--verify-live` 新增第 5 查 `换装遗留：2 个 prev 备份目录 / 886 MB`（>2 份转 ⚠），反向探针临时造 3 个目录后立刻变 `⚠ …5 个 / 886 MB｜跑一次换装即可自动清理`。**这一条比任何新功能都更像"工程化链"该有的样子：先看见，再自动收敛。**
   两条自纠照记：本轮我又把 `DSH_BASE` 少写一层（`resources\app\node_modules` 而不是 `resources\app\dsh\node_modules`）导致 `映射 1 vs 基线 56` 假红；还拿一个**我发明的文件名** `scripts/check-json.mjs` 去跑（JSON 关其实是 verify 内联实现的），于是白白追了一轮"check-json 抛错"。**"红"先分诊：是产品的，还是我脚手架的。**
@@ -26,6 +26,11 @@
 
 - **方法论五则**写进 README（按 104 次坑提及排序）：先量再写、回读不说谎、门要红得对、多点改动分步落盘、环境不是事实。
 
+- **`host-backups` 量下来不是泄漏，但顺手抓出一个"静默跳过"的隐性行为。** 60 对快照的 stem **全不重复** → 命名按目标哈希覆盖式，增长只跟"被看的文件数"走、不跟 apply 次数走；整个状态目录才 3.38 MB。**所以我没加清理代码**——上一轮说过"有界就不改"，这条守着。唯一那个孤儿（`ptc.js`，39 KB）恰好印证第 25/26 轮记录的宿主搬家（PTC 执行器被拆进 `dsh-tool-executor-ptc`）——**证据链自己咬上了，这种巧合比刻意找的证据更可信。**
+  更值钱的是探针逼出来的东西：我给 `--verify-live` 加"原文快照/孤儿"第 5b 查之后，塞 6 对假孤儿却**数不到**，原因是 fixture 里写了 `E:\不存在\探针目录\1.js` —— **反斜杠在 JSON 里是转义符**，`JSON.parse` 抛错，而我的代码 `catch { continue; }` **静默跳过**。**"静默跳过"正是 0 问题的制造机**，于是改成单独计数并显示 `不可解析 N 个（别当 0）`；两个方向的探针都实测转 ⚠（6 对合法孤儿 → 孤儿 7 对；1 个坏 JSON → 不可解析 1 个），删掉探针后归 ✓。
+
+
+
 - **`--verify-live` 的路由判级按真实三态分开说，不再把「宿主没在跑」误报成「等你重启」。** 先读 `mcp-probe` 源码确认状态字面量（`live | not-live | unreachable | error`）再逐分支实测：`live` → `✓ 路由 … → live`（用本地 stub 跑完整协议矩阵，含 `tools/call` 回显，实测通过）；`not-live` → `⚠ 未加载（待重启）｜下一步：重启 dsh 再跑本命令`（打真宿主 57116 得 405）；`unreachable` → `⚠ 连不上｜这是「宿主没在跑 / 端口不对」，不是待重启`（打 `127.0.0.1:1`）；`error` → `✗ 探测异常`（判不通过）。
   **又一次装置自纠值得单记**：`live` 分支首跑报「连不上」，我差点去改探测器 —— 真因是**我的测试脚手架自锁**：stub 开在父进程，而我用 `execFileSync` 同步等子命令，**父进程事件循环被阻塞，stub 无法应答**；换成异步 `execFile` 后立刻通过。**测试装置的假失败同样会污染结论，先怀疑自己的脚手架，再怀疑被测物。**（第四个分支 `error` 本轮也补了活体证据：stub 返 200 但正文非 JSON → `✗ 路由 … 探测异常｜HTTP 200 但不是 JSON`、`→ 1 项不通过`、exit=1 ✓ **四个分支全部有跑过的证据，没有一个是死码。**）
 
@@ -36,6 +41,8 @@
 ## English
 
 Aligned with host **dsh 0.2.2-rc.1** (76 patches, 74 applied, 2 designed skips). This release stops adding surface and makes what exists verifiable:
+
+- **`host-backups` measured bounded - no leak, but it exposed a silent-skip habit.** All 60 snapshot pairs have distinct stems, i.e. the naming is a hash of the target path (overwrite-style), so growth tracks "how many files are watched", not "how many times I applied"; the whole state directory is 3.38 MB, and per my own rule from last round ("bounded means no code change") **I added no pruning**. The single orphan (`ptc.js`, 39 KB) happens to corroborate the host package move recorded in rounds 25/26 (the PTC executor split into `dsh-tool-executor-ptc`) - evidence that lines up by accident is more convincing than evidence you go looking for. The better catch came from a probe: after adding the snapshot/orphan check to `--verify-live`, my six fake orphans were not counted, because the fixture wrote `E:\不存在\探针目录\1.js` - **backslashes are escapes inside JSON**, `JSON.parse` threw, and my `catch { continue; }` swallowed it. Silent skips are exactly how "0 problems" gets manufactured, so unparseable entries are now counted and shown as `不可解析 N 个（别当 0）`; both probes verified it turns ⚠ (6 valid orphans → 7; 1 bad JSON → unreadable 1) and returns to ✓ after cleanup.
 
 - **Tarball reconciliation passed; a sideways glance caught a real leak: the swap backups had grown to 16 directories / 7.1 GB.** Package contents were fine - `npm pack --dry-run` lists 141 files / 3,935 KB, all 32 `skills/redteam`, required single files present, `lib/default-prompt-inject.md` correctly excluded, no `graphify-out`/`.cache` baggage - so the honest verdict is: worth reporting, **not worth another gate** (it needs npm). Root cause is concrete: `commitExtractedDir()` falls back to a timestamped `app.dshpurge-prev-<ts>` when the plain name is taken, so every swap leaves another ~440 MB copy, while the only cleanup (`clearStaleExtractedApps`) sits on the official-update path that host-sync/reapply never walks. Fixed on the "creator cleans up" principle: `prunePreservedDirs(destDir, keep = 2)` now runs in the success path. Fixture: `{"kept":2,"removed":3}` with the live `app` untouched; real machine: 16 dirs / 7,106 MB -> 2 / 886 MB (~6.2 GB freed, 33.8 s). `--verify-live` gained a fifth check that makes the pile visible (⚠ above 2 directories), proven by temporarily adding three. Two self-corrections: I set `DSH_BASE` one level too shallow (a false `映射 1 vs 56` red) and ran a filename I had invented (`scripts/check-json.mjs` - that gate is inline in `verify`). **Triage a red as "the product, or my rig?" before chasing it.**
 
@@ -53,6 +60,8 @@ Aligned with host **dsh 0.2.2-rc.1** (76 patches, 74 applied, 2 designed skips).
 - **`--verify-live` now classifies the route probe by its real states** instead of blaming everything on a missing restart. The literals (`live | not-live | unreachable | error`) were read out of `mcp-probe` first, then each branch was exercised: `live` -> `✓ route … → live` (proved against a local stub answering the full protocol matrix, `tools/call` included); `not-live` -> `⚠ not loaded (restart pending)` (real host answers 405); `unreachable` -> `⚠ cannot connect - the host is not running / wrong port, not a pending restart` (`127.0.0.1:1`); `error` -> `✗ probe failed`, which counts as a failure. One more harness self-correction: the live branch first reported "cannot connect" and I nearly went debugging the probe - the real cause was **my own scaffolding deadlocking**: the stub lived in the parent process while `execFileSync` blocked its event loop, so nothing answered. Switching to async `execFile` fixed it instantly. A false failure in the test rig pollutes the conclusion just as much as one in the code.
 
 
+
+# 1.1.84
 
 ## 中文
 
