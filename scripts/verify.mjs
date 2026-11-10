@@ -137,6 +137,15 @@ if (!skip("write")) {
     failures.push(`写路径冒烟未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
   } else notes.push((out[out.length - 1] || "").trim());
 }
+// 关 13：工具层冒烟——真跑 purge_apply / purge_revert（mutating 的工具分支此前没有一关执行过）。
+if (!skip("tools")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "tools-smoke.mjs")], { encoding: "utf8", timeout: 180000 });
+  const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
+  if (res.status !== 0) {
+    failures.push(`工具层冒烟未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
+  } else notes.push((out[out.length - 1] || "").trim());
+}
+
 // 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
 const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))

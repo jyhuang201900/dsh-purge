@@ -402,7 +402,7 @@ DSH 会按顺序执行同一批中的 Bash 调用。旧版 dsh-purge 把默认�
 
 ## 本地校验
 
-一条命令过十二关（语法 / 体积预算 / 双语文案（含源↔内联）/ 清单一致性 / 包自证 / 工具面 / 端到端情景 / 弹药层审计 / 磁盘卫生夹具 / CLI 冒烟 / 写路径冒烟 / JSON 合法），未通过时退出码非 0：
+一条命令过十三关（语法 / 体积预算 / 双语文案（含源↔内联）/ 清单一致性 / 包自证 / 工具面 / 端到端情景 / 弹药层审计 / 磁盘卫生夹具 / CLI 冒烟 / 写路径冒烟 / 工具层冒烟 / JSON 合法），未通过时退出码非 0：
 
 迭代时可以点跳重活：`node scripts/verify.mjs --skip write,cli`（或 `DSH_VERIFY_SKIP=write,cli`）。实测三档耗时：全量 12 关 22.3 秒 → 跳 `write` 7.6 秒 → 再跳 `cli` 5.1 秒（旧参数 `--skip-size` 实为「除语法外全跳」，2.4 秒；名字与行为不一致，保留兼容但新用法以 `--skip` 为准）。可用短名：`size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json`。
 
@@ -460,6 +460,7 @@ npm run verify
 | `npm run test:hygiene` | 磁盘卫生模块夹具：prev 保留上限、孤儿对计数、坏 JSON 不许静默跳过 |
 | `npm run smoke:cli` | CLI 冒烟：真跑 `bin` 的只读模式，验参数分发与输出标志（未知旗标须报错，不许静默当 status） |
 | `npm run smoke:write` | 写路径冒烟：在临时夹具上跑 revert→apply→apply→revert，逐文件字节对账（apply 幂等、revert 往返、跑完自收尾） |
+| `npm run smoke:tools` | 工具层冒烟：真执行 `purge_apply` / `purge_revert`，断言返回的 hosts 数与「单次往返逐文件回到官方原文」 |
 | `npm run audit:graph` | 图谱孤儿审计：找零入边且无人提名的代码文件（有名分的手动 CLI 不算孤儿） |
 | `npm run verify` | 一条命令过八关 |
 | `npm run build:client` | 重打前端 bundle |

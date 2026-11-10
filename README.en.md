@@ -394,7 +394,7 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 
 ## Local checks
 
-One command runs twelve gates (syntax / size budget / bilingual copy incl. source-vs-inline / manifest parity / package self-proof / tool surface / end-to-end scenario / ammo-layer audit / hygiene fixtures / CLI smoke / write-path smoke / valid JSON); a non-zero exit means a gate failed:
+One command runs thirteen gates (syntax / size budget / bilingual copy incl. source-vs-inline / manifest parity / package self-proof / tool surface / end-to-end scenario / ammo-layer audit / hygiene fixtures / CLI smoke / write-path smoke / tool-layer smoke / valid JSON); a non-zero exit means a gate failed:
 
 While iterating, skip the heavy ones: `node scripts/verify.mjs --skip write,cli` (or `DSH_VERIFY_SKIP=write,cli`). Measured: 12 gates 22.3 s -> skip `write` 7.6 s -> also skip `cli` 5.1 s. The legacy `--skip-size` really means "skip everything but syntax" (2.4 s); its name does not match its behaviour, so it stays only for compatibility and `--skip` is the new way. Valid short names: `size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json`.
 
@@ -452,6 +452,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run test:hygiene` | hygiene-module fixtures: the prev keep-limit, orphan pair counting, and a bad JSON that must not be skipped silently |
 | `npm run smoke:cli` | CLI smoke: actually runs the read-only modes of `bin` to check argument dispatch and output markers (an unknown flag must error, not quietly print status) |
 | `npm run smoke:write` | write-path smoke: revert -> apply -> apply -> revert over a temporary fixture, compared byte-by-byte (apply idempotence, revert round-trip, self-restoring) |
+| `npm run smoke:tools` | tool-layer smoke: actually runs `purge_apply` / `purge_revert`, asserting the reported hosts count and that a single apply->revert round trip restores the official bytes |
 | `npm run audit:graph` | graph orphan audit: finds code files with zero inbound edges and no mention in docs/manifest (a named manual CLI is not an orphan) |
 | `npm run verify` | one command, eight gates |
 | `npm run build:client` | rebuild the client bundle |

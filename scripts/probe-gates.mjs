@@ -114,6 +114,13 @@ const probes = [
     cmd: ["scripts/write-smoke.mjs"],
   },
   {
+    gate: "关 13 工具层冒烟（tools-smoke）",
+    how: "bitten",
+    detail: "本轮突变验证：把 purge_apply 文案里的 hosts= 改成 h=（模拟返回字段漂移），tools-smoke 立刻报 ✗ purge_apply 报 hosts=1 且 applied>0 并退出非 0；复原后转绿。它还顺带证明了单次 apply→revert 逐文件回到官方原文（残差 0），与第 79 轮「双次 apply 才污染」的结论一致。",
+    cmd: ["scripts/tools-smoke.mjs"],
+  },
+
+  {
     gate: "关 8 JSON 合法性",
     how: "mutated-now",
     cmd: ["scripts/verify.mjs"],
