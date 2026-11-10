@@ -158,17 +158,22 @@ const TRUNK = {
   "cn-proxy-pool": { up: ["recon-pipeline"], down: ["active-scan", "dir-bruteforce"] },
 };
 
-/** 3) 落库工具映射：技能产出该落到哪个演练台实体 */
+/** 演练台合法实体（真值取自 purge_drill 的 entity 参数；写侧） */
+const LEDGER_ENTITIES = new Set(["vuln", "credential", "access", "webshell", "tunnel", "http", "shot", "prompt", "scorepoint", "stage", "asset", "poc"]);
+
+/** 3) 落库工具映射：技能产出该落到哪个演练台实体（值必须 ∈ LEDGER_ENTITIES，否则模型照做就撞空） */
 const RECORD_RULES = [
   [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation|netexec-scan|gogo-intranet|fscan-intranet)$/, ["asset"]],
   [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|api-security|code-audit|database-security|email-security|llm-security|secdev-boundary|iot-iiot-netdev|competition-.*)$/, ["vuln"]],
   [/^(credential-attack|privesc-persistence|netexec-scan|lateral-movement|windows-ad|identity-federation)$/, ["credential", "access"]],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell)$/, ["webshell", "access"]],
   [/^(suo5-tunnel|chisel-tunnel|frp-tunnel)$/, ["tunnel"]],
-  [/^(attack-chain|case-review)$/, ["chain"]],
+  // 攻击链/复盘产出的是「阶段推进记录」，演练台的对应实体是 stage（不是 chain——没有 chain 这个实体）
+  [/^(attack-chain|case-review)$/, ["stage"]],
 ];
 
 /* ── 构建 ── */
+const problems = [];
 const files = fs.readdirSync(SKILLS).filter((f) => f.endsWith(".md"));
 const skills = [];
 const skillNames = new Set(files.map((f) => f.replace(/\.md$/, "")));
@@ -193,6 +198,8 @@ for (const f of files) {
   for (const [re, recs] of RECORD_RULES) {
     if (re.test(id)) { records.push(...recs); break; }
   }
+  const badEntity = records.filter((r) => !LEDGER_ENTITIES.has(r));
+  if (badEntity.length) problems.push(`落库实体不存在于演练台: ${id} → ${badEntity.join(", ")}`);
 
   // 上下游（只保留真实存在的技能名）
   const t = TRUNK[id] || {};
@@ -273,7 +280,6 @@ for (const [rid, r] of Object.entries(ROLES)) {
 agents["surface"] = { id: "surface", name: "攻击面专项（由 ctf-sandbox-orchestrator 路由）", stage: "surface", skills: skills.filter((s) => s.id.startsWith("competition-")).map((s) => s.id) };
 
 // 校验
-const problems = [];
 const ids = new Set(skills.map((s) => s.id));
 for (const r of relations) {
   if (!ids.has(r.source)) problems.push(`关系源不存在: ${r.source}`);

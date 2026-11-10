@@ -117,6 +117,20 @@ async function main() {
     push(st.surface ? "ok" : "warn", `宿主 surface=${st.surface || "未定位"}`, `补丁 ${tally.applied}/${tally.total} 已清洗｜待清洗 ${pending}｜未命中 ${skipped}`);
     if (pending > 0) push("bad", `还有 ${pending} 条待清洗`, "跑 dsh-purge --apply");
     if (skipped > 0) push("ok", `未命中 ${skipped} 条为设计内 skipped`, (tally.skipped || []).map((x) => `#${x.id ?? x}`).join(" "));
+    // 2b) 适配声明 ↔ 宿主实况。dshTarget 是元数据、宿主版本是事实，两者必须当面对齐——
+    //     否则「兼容最新版」只是一句话：check-package 只核对声明之间一致，核不到实际宿主。
+    try {
+      const hv = hostM.dshHostVersion ? (hostM.dshHostVersion() || {}) : {};
+      // 就地读 package.json：外层 `const pkg` 在本块之后才声明，这里用它会撞 TDZ
+      // （node --check 抓不到，只有实跑才暴露——所以这条检查也必须真跑一次）。
+      const selfPkg = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+      const al = hostM.hostAlignment(selfPkg.dshTarget, hv.app || hv.runtime || "");
+      if (al && al.aligned === true) push("ok", `适配声明 dshTarget=${al.want} ↔ 宿主 ${al.got}`, "版本对齐是核对过的，不是声明");
+      else if (al && al.aligned === false) push("warn", `适配声明 dshTarget=${al.want} ↔ 宿主 ${al.got}（不一致）`, "宿主可能已升级：先跑 npm run check:anchors 看补丁锚点命中率，再决定是否更新 dshTarget 与 engines.dsh");
+      else push("warn", "宿主版本读不到，无法核对适配声明", "在宿主进程外跑本命令时属正常；重启后在宿主内跑即可读到");
+    } catch (e) {
+      push("warn", "版本对齐检查异常", String((e && e.message) || e).slice(0, 70));
+    }
     // 3) 注入正文状态：⚠ 只给"需要动手"的情形，"用户自己选的稿"降级为信息。
     //    判据全部来自实测：state.customized/explicitSave 表示有意自改；hash 对不上表示记录与磁盘脱节（本轮本机就是这种）。
     const defLen = String(core.defaultOverrideText() || "").length;

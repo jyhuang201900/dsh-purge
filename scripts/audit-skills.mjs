@@ -82,6 +82,11 @@ try {
     const assigned = new Set(Object.values(agt.roles).flatMap((r) => r.skills));
     const unassigned = ids.filter((x) => !assigned.has(x));
     if (unassigned.length) linkProblems.push(`未被任何角色挂载 ${unassigned.length} 个：${unassigned.slice(0, 3).join(", ")}`);
+    // 落库实体必须 ∈ 演练台合法值（真值取自 purge_drill 的 entity 参数）：
+    // 技能里写一个演练台不认的实体名，模型照着调就撞空——第 106 轮实测抓到一个 `chain`（应为 `stage`）。
+    const LEDGER = new Set(["vuln", "credential", "access", "webshell", "tunnel", "http", "shot", "prompt", "scorepoint", "stage", "asset", "poc"]);
+    const badRec = idx.skills.flatMap((s) => (s.records || []).filter((r) => !LEDGER.has(r)).map((r) => `${s.id}→${r}`));
+    if (badRec.length) linkProblems.push(`落库实体不在演练台：${badRec.slice(0, 3).join(", ")}`);
   }
 } catch (e) {
   linkProblems.push(`链路校验异常：${String((e && e.message) || e).slice(0, 50)}`);
