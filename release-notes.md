@@ -17,6 +17,9 @@
 
 - **方法论五则**写进 README（按 104 次坑提及排序）：先量再写、回读不说谎、门要红得对、多点改动分步落盘、环境不是事实。
 
+- **`--verify-live` 的路由判级按真实三态分开说，不再把「宿主没在跑」误报成「等你重启」。** 先读 `mcp-probe` 源码确认状态字面量（`live | not-live | unreachable | error`）再逐分支实测：`live` → `✓ 路由 … → live`（用本地 stub 跑完整协议矩阵，含 `tools/call` 回显，实测通过）；`not-live` → `⚠ 未加载（待重启）｜下一步：重启 dsh 再跑本命令`（打真宿主 57116 得 405）；`unreachable` → `⚠ 连不上｜这是「宿主没在跑 / 端口不对」，不是待重启`（打 `127.0.0.1:1`）；`error` → `✗ 探测异常`（判不通过）。
+  **又一次装置自纠值得单记**：`live` 分支首跑报「连不上」，我差点去改探测器 —— 真因是**我的测试脚手架自锁**：stub 开在父进程，而我用 `execFileSync` 同步等子命令，**父进程事件循环被阻塞，stub 无法应答**；换成异步 `execFile` 后立刻通过。**测试装置的假失败同样会污染结论，先怀疑自己的脚手架，再怀疑被测物。**
+
 ## English
 
 Aligned with host **dsh 0.2.2-rc.1** (76 patches, 74 applied, 2 designed skips). This release stops adding surface and makes what exists verifiable:
@@ -30,6 +33,7 @@ Aligned with host **dsh 0.2.2-rc.1** (76 patches, 74 applied, 2 designed skips).
 - **Positioning re-verified with the instrument pinned**: `restart ∩ patch = 0` on the same 2000-entry sample (2-5 under wider word sets).
 - **`dsh-purge --verify-live [url]`** added: four read-only checks; a running host answers `POST /dsh-purge/mcp` with **HTTP 405**, turning "you need to restart" into a machine-checked fact.
 - **`purge_override` gained a third mode, `adopt`** (re-align `override-state.json` to what is on disk, never rewriting the file). The obvious call `markOverrideCustomized(home, true, live)` was rejected by measurement: it flipped the status to `stale-default` and made `isKeepableUserOverride` false - i.e. the next boot would overwrite the user's draft, the opposite of adopting it. With `{ explicitSave: true }` the status stays `custom`, the file is untouched, repeat calls are idempotent, and the `--verify-live` warning drops to informational. Honest cost note: the first end-to-end run forgot to set `DSH_HOME`, so `adopt` wrote the real state file; it was restored. The new check-package item 23 (release guard) shipped in the same round and was used immediately for 1.1.85.
+- **`--verify-live` now classifies the route probe by its real states** instead of blaming everything on a missing restart. The literals (`live | not-live | unreachable | error`) were read out of `mcp-probe` first, then each branch was exercised: `live` -> `✓ route … → live` (proved against a local stub answering the full protocol matrix, `tools/call` included); `not-live` -> `⚠ not loaded (restart pending)` (real host answers 405); `unreachable` -> `⚠ cannot connect - the host is not running / wrong port, not a pending restart` (`127.0.0.1:1`); `error` -> `✗ probe failed`, which counts as a failure. One more harness self-correction: the live branch first reported "cannot connect" and I nearly went debugging the probe - the real cause was **my own scaffolding deadlocking**: the stub lived in the parent process while `execFileSync` blocked its event loop, so nothing answered. Switching to async `execFile` fixed it instantly. A false failure in the test rig pollutes the conclusion just as much as one in the code.
 
 
 
