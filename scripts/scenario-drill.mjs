@@ -122,6 +122,10 @@ const main = async () => {
   const codeFromOut = /\b([a-z][a-z0-9-]+)（/.exec(scTxt);
   if (!codeFromOut) failures.push("scores：没能从输出里解析出 code，说明渲染又退化了");
 
+  // 10g) 读面必须暴露写面要用的键（第 54 轮闭环扫面的教训：pocs 只印 title、stages 只印中文，模型取不到 code）
+  await run("stages 暴露 code", { op: "stages" }, has("recon（"));
+  await run("pocs 暴露 code", { op: "pocs" }, has("｜"), has(saved.poc.code));
+
   // 10e) 资产面：登记（importBundle 包成单条）→ 评估（枚举静默回落要如实报）→ 测试回写
   await run("assets 空态引导", { op: "assets" }, has("共 0 条"), has("importBundle"));
   await run("entity_add asset", { op: "entity_add", entity: "asset", target: "203.0.113.20", name: "nas-20" }, has("已写入"), has("表内现有 1 条"), has("新增 1 条"));
