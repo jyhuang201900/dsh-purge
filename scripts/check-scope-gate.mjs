@@ -87,6 +87,33 @@ check("三边界：目标外先报", checkAction({ targets: ["198.51.100.9"], te
 check("三边界：目标内技法外报技法", checkAction({ targets: ["203.0.113.5"], technique: "webshell-toolkit", scope: { allow: ["203.0.113.0/24"], authorizedTechniques: ["noisy"] }, now: NOW }).layer === "technique");
 check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique: "nuclei-scan", scope: { allow: ["203.0.113.0/24"], authorizedTechniques: ["noisy"] }, now: NOW }).ok === true);
 
+// ── ①c 漏洞 → 打法分流（进攻侧：指引必须看手里的漏洞，不是给一句通用正确的话）──
+// 实测缺口：库里有 Fastjson、Redis、Struts2 三条漏洞时，「下一步」给的是一模一样的
+// 「按漏洞类型选 injection-payloads / web-vuln-payloads」——等于把最该帮模型判断的那一步推回给它。
+{
+  const { routeVulns, describeVulnRoute } = await import(toUrl(path.join(root, "lib", "redteam", "vuln-route.js")));
+  const ROUTE_CASES = [
+    ["Fastjson 反序列化", "fastjson"], ["Redis 未授权", "redis"], ["Struts2 S2-045", "struts2"],
+    ["Log4Shell", "log4j"], ["SQL 注入", "sql"], ["文件上传绕过", "upload"], ["SSRF", "ssrf"],
+    ["Shiro 反序列化", "shiro"], ["WebLogic T3", "weblogic"], ["Linux 提权", "privesc"], ["MS17-010", "smb"],
+  ];
+  for (const [title, want] of ROUTE_CASES) {
+    const { hit } = routeVulns([{ title, severity: "high" }]);
+    check(`分流 ${title}`, (hit && hit.rule.id) === want, `得到 ${hit ? hit.rule.id : "null"}`);
+  }
+  check("分流：认不出的漏洞不硬套", routeVulns([{ title: "某个低危信息泄露", severity: "low" }]).hit === null);
+  {
+    const r = routeVulns([
+      { title: "Redis 未授权", severity: "high" },
+      { title: "Fastjson", severity: "critical" },
+      { title: "SQL 注入", severity: "medium" },
+    ]);
+    check("★ 分流按严重度排序（critical 先）", r.ranked.length === 3 && r.ranked[0].rule.id === "fastjson", r.ranked.map((x) => x.rule.id).join(","));
+    const one = describeVulnRoute(r.ranked);
+    check("★ 一句话建议含技能名与第一发", /加载 `[a-z-]+`/.test(one) && /第一发：/.test(one), one.slice(0, 80));
+  }
+}
+
 // ── ② 端到端：拦截真的发生在写入路径上 ──
 const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "scopegate-"));
 const prevHome = process.env.REDTEAM_HOME;
@@ -120,6 +147,22 @@ try {
   check("合法的批量目标放行（不应误拦）", !/范围闸拦下/.test(batchOk.text), batchOk.text.slice(0, 80));
   const batchBad = await drill.execute({ op: "entity_add", entity: "asset", name: "203.0.113.30, 198.51.100.99", target: "203.0.113.30, 198.51.100.99" });
   check("★ 批量里一个越界就整条拦下", /范围闸拦下/.test(batchBad.text), batchBad.text.slice(0, 90));
+  // 进攻侧端到端：三条漏洞 → 下一步给具体打法 → 标为已利用后**自动推进到下一条**
+  {
+    await drill.execute({ op: "open", name: "scopegate-route", target: "203.0.113.0/24" });
+    await drill.execute({ op: "entity_add", entity: "asset", name: "203.0.113.5", target: "203.0.113.5" });
+    await drill.execute({ op: "entity_add", entity: "asset", name: "203.0.113.6", target: "203.0.113.6" });
+    await drill.execute({ op: "entity_add", entity: "vuln", name: "Fastjson 反序列化", target: "203.0.113.5", kind: "critical", text: "x" });
+    await drill.execute({ op: "entity_add", entity: "vuln", name: "Redis 未授权", target: "203.0.113.6", kind: "high", text: "y" });
+    const s1 = await drill.execute({ op: "summary" });
+    check("★ 下一步点名具体打法（Fastjson 优先）", /Fastjson/.test(s1.text) && /injection-payloads/.test(s1.text), (s1.text.match(/→ 下一步：[^\n]*/) || [""])[0].slice(0, 90));
+    const up = await drill.execute({ op: "update", entity: "vuln", row: 1, stage: "exploited" });
+    check("漏洞状态可用 stage=exploited 标记", /回读 status=exploited/.test(up.text), up.text.slice(0, 80));
+    const s2 = await drill.execute({ op: "summary" });
+    check("★ 标为已利用后自动推进到下一条（Redis）", /Redis/.test(s2.text) && /unauth-exploit/.test(s2.text), (s2.text.match(/→ 下一步：[^\n]*/) || [""])[0].slice(0, 90));
+    const bad = await drill.execute({ op: "update", entity: "vuln", row: 2, status: "exploited" });
+    check("★ 误用 status= 时给出纠正提示", /stage=状态/.test(bad.text), bad.text.slice(0, 100));
+  }
   const insideUrl = await drill.execute({ op: "entity_add", entity: "vuln", name: "正常URL", target: "http://203.0.113.20/a", text: "p" });
   check("范围内 URL 放行", /已写入/.test(insideUrl.text) && !/范围闸拦下/.test(insideUrl.text), insideUrl.text.slice(0, 70));
 
