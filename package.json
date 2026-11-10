@@ -59,6 +59,7 @@
     "scope:check": "node scripts/check-scope-gate.mjs",
     "sync:skills": "node scripts/sync-bundled.mjs",
     "toolkit:windows": "node scripts/toolkit-windows.mjs",
+    "wordlists:windows": "node scripts/wordlists-windows.mjs",
     "toolkit:check": "node scripts/toolkit-windows.mjs --check",
     "test:hygiene": "node scripts/hygiene-selftest.mjs",
     "smoke:cli": "node scripts/cli-smoke.mjs",

@@ -176,7 +176,7 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
 // 实测缺口：前几轮把「下一步」做成「点技能 + 说打法」，但它仍不是命令；而且本机实况是
 // PATH 里只有冒牌 httpx（Python 版）、toolkit 里只有 3 个真 .exe——给一条 nuclei 命令就是给一条打不出去的命令。
 {
-  const { probeTool, commandFor, commandsForStage, nucleiReady } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+  const { probeTool, commandFor, commandsForStage, nucleiReady, listWordlists, pickDirWordlist } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
   // 冒牌同名必须挡住：PATH 里的 httpx 是 Python 版，不认
   {
     const h = probeTool("httpx");
@@ -225,6 +225,21 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
       check("★ 模板齐时 nuclei 命令标「可跑」且带模板数", nuc && nuc.ok && /模板 \d+ 个/.test(nuc.note), (nuc ? nuc.note : "无 nuclei 命令").slice(0, 70));
     } else {
       check("★ 模板缺时改给「补模板」而不是去扫", nuc && !nuc.ok && /补/.test(nuc.label + nuc.note), (nuc ? nuc.label + "｜" + nuc.note : "无").slice(0, 80));
+    }
+  }
+  // ★ 字典：技能里写的是 /usr/share/seclists/...，Windows 会当相对路径拼到盘符后
+  // （实测 ffuf 报 E:\usr\share\seclists\... 找不到）。所以命令必须用本机字典。
+  {
+    const all = listWordlists();
+    check("★ 能列出本机字典", Array.isArray(all), `${all.length} 个`);
+    const d = pickDirWordlist();
+    if (all.length) {
+      check("★ 目录爆破字典指向本机真实文件", d && fs.existsSync(d.path) && !d.path.includes("/usr/share"), d ? d.path.slice(0, 80) : "无");
+      const cv = commandsForStage({ stage: "recon", target: "example.com" });
+      const brute = cv.find((c) => /目录爆破/.test(c.label));
+      check("★ recon 命令带目录爆破且用本机字典", brute && /-w /.test(brute.cmd) && !/usr\/share/.test(brute.cmd), (brute ? brute.cmd : "无").slice(0, 100));
+    } else {
+      check("★ 无字典时明确说要先装字典", (() => { const cv = commandsForStage({ stage: "recon", target: "x" }); const b = cv.find((c) => /目录爆破/.test(c.label)); return b && !b.ok && /字典/.test(b.note); })(), "无字典");
     }
   }
   // 阶段命令按阶段变

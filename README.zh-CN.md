@@ -482,6 +482,7 @@ npm run verify
 | `npm run scope:check` | **范围闸自测**：靶标授权范围内才许落库。机制借自 `@integsec/agentic-pentest-proxy` 的 scope manifest——每个目标都校验、一个越界就整条拦下、**排除项优先**、CIDR 必须完全落在授权内、判不了（DNS/IPv6/乱串）也算不过。同时钉「拦截真的发生在写入路径上」而不只是函数正确 |
 | 三道授权边界 | **目标 / 技法 / 时间窗**，缺一条就等于没有边界。开靶标时一并给：`purge_drill op=open name=X target=203.0.113.0/24 scope="tech=noisy,passive,deny=destructive,from=2026-11-11T00:00,to=2026-11-12T00:00"`。`tech`=授权技法（noisy/passive/exploit/destructive/reverse/appsec/specialty/surface）、`deny`=排除技法（**优先于授权**）、`from`/`to`=时间窗（**过窗与未到起点都拦**）。落库时按 `entity_add` 的 target 判目标范围；写攻击步骤时按 `chain_add` 的 `tool` 判技法与时间 |
 | `npm run toolkit:windows` / `toolkit:check` | 红队工具链的 **Windows** 装配器与体检：走 GitHub 官方 API 取 `windows_amd64` 资产装到 `$DSH_HOME/redteam/toolkit`（仓里的 `setup.sh` 是 Linux 专用，Windows 上每个都报无匹配资产）；`--check` 只体检。已知 `ksubdomain` 无 Windows 构建 |
+| `npm run wordlists:windows` | **字典装配**：把技能里引用的 SecLists 字典在 Windows 上落地（`$DSH_HOME/redteam/wordlists`）。技能里写的是 `/usr/share/seclists/...`，而 Windows 会把它当**相对路径**拼到盘符后面（实测 ffuf 报 `E:\usr\share\seclists\...` 找不到）——所以不装字典，`ffuf`/`feroxbuster` 的命令**必然失败**。`--check` 只看状态；下载走 curl 代理回退（与 `toolkit:windows` 同一条路） |
 | `npm run test:hygiene` | 磁盘卫生模块夹具：prev 保留上限、孤儿对计数、坏 JSON 不许静默跳过 |
 | `npm run smoke:cli` | CLI 冒烟：真跑 `bin` 的只读模式，验参数分发与输出标志（未知旗标须报错，不许静默当 status） |
 | `npm run smoke:write` | 写路径冒烟：在临时夹具上跑 revert→apply→apply→revert，逐文件字节对账（apply 幂等、revert 往返、跑完自收尾） |
