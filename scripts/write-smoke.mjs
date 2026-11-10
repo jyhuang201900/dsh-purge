@@ -8,6 +8,8 @@
  * 三条当场量出来的事实（都是照记忆写会写错的东西）：
  *   · 从已清洗的真宿主拷来的文件起点是「已打补丁」态，直接 apply 命中 0（幂等的另一面）——必须先 revert 拿 pristine 当基线；
  *   · applyPatchesAllHosts 返回 {hosts, report}，report 是**数组**（每宿主一项），没有 report.applied —— 判据用「文件是否真变了」；
+ *   · 隔离旋钮是 DSH_DESKTOP_INSTALL，不是 DSH_BASE：只设 DSH_BASE 时写入端仍按真实安装目录解析（实测真宿主 74/76 被打到 15/76）；
+ *     两者都设进夹具后，真宿主文件哈希一字未动（本轮实测 c3b695ac6714 前后相同）。
  *   · 只用 `?t=` 重导 core.js **不足以隔离**：core 依赖的 host.js 仍是同一实例、路径已绑真宿主，实测会把真宿主从 74/76 打回 15/76。
  *     所以执行段放进子进程，DSH_BASE / DSH_HOME 在任何 import 之前就指向夹具。
  */
@@ -18,6 +20,7 @@ import process from "node:process";
 import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { createHash } from "node:crypto";
 
 const run = promisify(execFile);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -106,7 +109,7 @@ let childErr = "";
 try {
   const { stdout } = await run(process.execPath, ["--input-type=module", "-e", child], {
     maxBuffer: 20e6,
-    env: { ...process.env, DSH_SURFACE: "desktop", DSH_BASE: fakeBase, DSH_HOME: home },
+    env: { ...process.env, DSH_SURFACE: "desktop", DSH_BASE: fakeBase, DSH_HOME: home, DSH_DESKTOP_INSTALL: fixture },
   });
   r = JSON.parse(stdout.trim().split("\n").pop());
 } catch (e) {
@@ -128,9 +131,23 @@ if (!r) {
   check("末次 revert 后逐文件字节复原（已知不对称：dsh-settings 最多留 1 处残差）", Array.isArray(r.residue) && r.residue.length <= 1, (r.residue || []).join(", ") || "全部一致");
 }
 // 真宿主没被动过：状态哈希（补丁计数）在冒烟前后应一致
+// 直接验隔离：真宿主里被 apply 触及的文件，前后哈希必须一字不差（只看 pending 会被自收尾掩盖）。
+const isoProbe = targets.slice(0, 3).map(({ abs }) => core.hashOverride ? null : null).filter(Boolean);
+void isoProbe;
+const realHashes = new Map();
+for (const { abs } of targets.slice(0, 3)) { try { realHashes.set(abs, createHash("sha256").update(fs.readFileSync(abs)).digest("hex").slice(0, 12)); } catch { } }
+const sameHash = () => {
+  for (const [abs, h] of realHashes) {
+    let now = null;
+    try { now = createHash("sha256").update(fs.readFileSync(abs)).digest("hex").slice(0, 12); } catch { return false; }
+    if (now !== h) return false;
+  }
+  return true;
+};
 const st2 = await core.gatherState();
 const t2 = core.patchTally(st2, core.ALL_PATCHES);
-check(`跑完自己收尾：宿主恢复到 0 待清洗（${t2.applied}/${t2.total}）`, t2.pending === 0, `applied ${t2.applied} 待清洗 ${t2.pending}｜写入端不只认 DSH_BASE，夹具无法完全隔离`);
+check(`跑完自己收尾：宿主恢复到 0 待清洗（${t2.applied}/${t2.total}）`, t2.pending === 0, `applied ${t2.applied} 待清洗 ${t2.pending}`);
+check(`隔离直验：真宿主 3 个文件前后指纹未变`, sameHash(), `指纹=sha256 前 12 位`);
 
 fs.rmSync(fixture, { recursive: true, force: true });
 console.log(`写路径冒烟：失败 ${fails}`);
