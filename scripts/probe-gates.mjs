@@ -96,6 +96,12 @@ const probes = [
     cmd: ["scripts/audit-skills.mjs"],
   },
   {
+    gate: "关 10 磁盘卫生夹具（hygiene-selftest）",
+    how: "bitten",
+    detail: "抽出 lib/hygiene.js 时的验收标准是「--verify-live 输出逐行等值」（实测 0 差异）。夹具本身咬过真问题：fixture 写 E:\\... 时反斜杠在 JSON 里是转义符 → JSON.parse 抛错 → 原本 catch{continue} 静默跳过，孤儿数看着正常其实是假绿；改成单独计数并显示「不可解析 N 个（别当 0）」后才转 warn。",
+    cmd: ["scripts/hygiene-selftest.mjs"],
+  },
+  {
     gate: "关 8 JSON 合法性",
     how: "mutated-now",
     cmd: ["scripts/verify.mjs"],

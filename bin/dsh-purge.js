@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { resolveResources, scanSwapBackups, scanSnapshotPairs } from "../lib/hygiene.js";
 
 import * as core from "../lib/core.js";
 import * as rules from "../lib/rules.js";
@@ -133,47 +134,13 @@ async function main() {
       else if (r.state === "unreachable") push("warn", `路由 ${baseUrl} 连不上`, "这是「宿主没在跑 / 端口不对」，不是待重启——先确认 dsh 已启动或换个 URL");
       else push("bad", `路由 ${baseUrl} 探测异常`, tail || "见 --mcp-probe 分步输出");
     }
-    // 5) 换装遗留：prev 备份目录不该无限堆（实测 60 多轮 host-sync 攒出 16 个 / 7.1 GB）。
+    // 5 / 5b) 磁盘卫生：第 70 轮抽成 lib/hygiene.js —— bin 只负责打印，扫描是纯函数、可夹具测。
     try {
-      const sample = Object.values(st.files || {})[0] || `${String(st.ai_base || "")}\\x`;
-      const cut2 = String(sample).split(/[\\/]app[\\/]/)[0];
-      const resources = cut2 && cut2 !== String(sample) ? cut2 : "";
-      if (!resources || !fs.existsSync(resources)) {
-        push("warn", "换装遗留未定位", "读不到宿主 resources 目录，不据此判失败");
-      } else {
-        const prevs = fs.readdirSync(resources).filter((n) => String(n).startsWith("app.dshpurge-prev"));
-        let mb = 0;
-        const stack = prevs.map((n) => path.join(resources, n));
-        while (stack.length) {
-          const cur = stack.pop();
-          let es = [];
-          try { es = fs.readdirSync(cur, { withFileTypes: true }); } catch { continue; }
-          for (const e of es) { const f = path.join(cur, e.name); if (e.isDirectory()) stack.push(f); else { try { mb += fs.statSync(f).size / 1024 / 1024; } catch { } } }
-        }
-        push(prevs.length <= 2 ? "ok" : "warn", `换装遗留：${prevs.length} 个 prev 备份目录 / ${mb.toFixed(0)} MB`, prevs.length <= 2 ? "在保留上限内（新代码已在换装后自动剪到 2 份）" : "升级脚本或官方更新路径未剪；跑一次换装即可自动清理，或手工删旧的");
-      }
-      // 5b) 官方原文快照的孤儿对（原件已消失 → revert 也救不回来，纯占位）。实测有界：命名按目标哈希覆盖，不随 apply 次数增长。
-      try {
-        const hb = path.join(String(st.dsh_home || core.findDshHome()), "dsh-purge", "host-backups");
-        if (fs.existsSync(hb)) {
-          const jsons = fs.readdirSync(hb).filter((n) => n.endsWith(".json"));
-          let orphan = 0;
-          let unreadable = 0; // 静默跳过会把问题读成 0，所以单独计数报出来
-          let orphanBytes = 0;
-          for (const n of jsons) {
-            let j = null;
-            try { j = JSON.parse(fs.readFileSync(path.join(hb, n), "utf8")); } catch { unreadable += 1; continue; }
-            const orig = String((j && j.path) || "");
-            if (!orig) { unreadable += 1; continue; }
-            if (fs.existsSync(orig)) continue;
-            orphan += 1;
-            const bak = path.join(hb, n.replace(/\.json$/, ".bak"));
-            for (const f of [bak, path.join(hb, n)]) { try { if (fs.existsSync(f)) orphanBytes += fs.statSync(f).size; } catch { } }
-          }
-          push((orphan > 5 || unreadable > 0) ? "warn" : "ok", `原文快照：${jsons.length} 对（覆盖式命名，有界）｜孤儿 ${orphan} 对 / ${(orphanBytes / 1024).toFixed(0)} KB${unreadable ? `｜不可解析 ${unreadable} 个（别当 0）` : ""}`, orphan ? "原件已被宿主挪走，revert 也救不回；留着只为追溯，删了不心疼" : "全部对应现存原件");
-        }
-      } catch { /* 读不到就少报一行，不编造 */ }
-    } catch { push("warn", "换装遗留：读目录失败", "不据此判失败"); }
+      const sw = scanSwapBackups(resolveResources(st));
+      push(sw.level, sw.label, sw.detail);
+      const sn = scanSnapshotPairs(String(st.dsh_home || core.findDshHome()));
+      if (sn) push(sn.level, sn.label, sn.detail);
+    } catch (e) { push("换装遗留：读目录失败", "不据此判失败"); }
     console.log("dsh-purge 实时验收（只读探测）：");
     for (const x of rows) console.log(`  ${x.level === "ok" ? "✓" : x.level === "warn" ? "⚠" : "✗"} ${x.label}${x.detail ? `｜${x.detail}` : ""}`);
     const bad = rows.filter((x) => x.level === "bad").length;

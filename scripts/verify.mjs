@@ -104,6 +104,15 @@ if (!skipSize) {
   } else notes.push(`弹药层：${(out[0] || "").replace(/^弹药层审计：/, "")}｜${(out[1] || "").trim()}｜${(out[2] || "").trim()}`);
 }
 
+// 关 10：磁盘卫生模块的夹具自测（阈值边界得有人看着：保留 2 份、孤儿 >5、坏 JSON 不许静默跳过）。
+if (!skipSize) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "hygiene-selftest.mjs")], { encoding: "utf8" });
+  const out = ((res.stdout || "") + (res.stderr || "")).trim().split("\n");
+  if (res.status !== 0) {
+    failures.push(`卫生夹具未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
+  } else notes.push((out[out.length - 1] || "").trim());
+}
+
 // 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
 const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))

@@ -49,6 +49,7 @@
     "scenario": "node scripts/scenario-drill.mjs",
     "probe:gates": "node scripts/probe-gates.mjs",
     "audit:skills": "node scripts/audit-skills.mjs",
+    "test:hygiene": "node scripts/hygiene-selftest.mjs",
     "audit:graph": "node scripts/graph-audit.mjs",
     "verify": "node scripts/verify.mjs",
     "build:client": "node scripts/build-client.mjs",
