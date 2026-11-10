@@ -230,5 +230,43 @@ for (const t of picks) {
     fail += 1;
   }
 }
+// ── nuclei 模板补全 ──
+// 模板是**独立资产**，不在 exe 里。第 125 轮实测：exe 装好了但模板目录空，
+// `nuclei -u ...` 直接 `[FTL] no templates provided for scan`——**装好工具 ≠ 能用**，
+// 而「下一步」还会一直给这条命令。更麻烦的是 `nuclei -update-templates` 在这台机器上
+// **拉不动**（只报 outdated、目录仍空），但 curl 走系统代理直下模板仓库 zip 可以（18.62MB/138s）。
+// 所以：先用它自带的 -ut，不行再用 curl 拉仓库 zip 解压到位。
+if (picks.some((t) => t.name === "nuclei") && !checkOnly) {
+  const tplDir = path.join(os.homedir(), "nuclei-templates");
+  const countYaml = () => { try { return fs.readdirSync(tplDir, { recursive: true }).filter((f) => String(f).endsWith(".yaml")).length; } catch { return 0; } };
+  if (countYaml() < 100) {
+    console.log("  · nuclei 模板缺失，补模板（exe 在但没模板时 nuclei 会直接 FTL 退出）");
+    const nucleus = path.join(toolkit, "nuclei", "nuclei.exe");
+    if (exists(nucleus)) spawnSync(nucleus, ["-update-templates", "-silent"], { encoding: "utf8", timeout: 300000 });
+    if (countYaml() < 100) {
+      const zip = path.join(os.tmpdir(), "nuclei-templates.zip");
+      const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY || systemProxy();
+      const url = "https://github.com/projectdiscovery/nuclei-templates/archive/refs/heads/main.zip";
+      const ACC = ["-H", "user-agent: dsh-purge-toolkit"];
+      const tryCurl = (extra) => {
+        try { fs.rmSync(zip, { force: true }); } catch { /* 忽略 */ }
+        const r = spawnSync("curl", ["-sS", "-L", ...extra, "--ssl-no-revoke", "-m", "400", ...ACC, "-o", zip, "-w", "%{http_code}", url], { encoding: "utf8", timeout: 430000 });
+        return r.status === 0 && String(r.stdout || "").trim().startsWith("2") && exists(zip) && fs.statSync(zip).size > 1048576;
+      };
+      const okZip = (proxy ? tryCurl(["--proxy", proxy]) : false) || tryCurl([]);
+      if (okZip) {
+        const tmpU = fs.mkdtempSync(path.join(os.tmpdir(), "ntpl-"));
+        spawnSync("tar", ["-xf", zip, "-C", tmpU], { encoding: "utf8", timeout: 180000 });
+        const inner = fs.readdirSync(tmpU, { withFileTypes: true }).find((e) => e.isDirectory());
+        if (inner) spawnSync("cmd", ["/c", "xcopy", path.join(tmpU, inner.name), tplDir, "/E", "/I", "/Q", "/Y"], { encoding: "utf8", timeout: 300000 });
+        try { fs.rmSync(tmpU, { recursive: true, force: true }); } catch { /* 忽略 */ }
+        try { fs.rmSync(zip, { force: true }); } catch { /* 忽略 */ }
+      }
+    }
+    const n = countYaml();
+    console.log(n >= 100 ? `  ✓ nuclei 模板 ${n} 个（${tplDir}）` : `  ✗ nuclei 模板仍为 ${n} 个——nuclei 会报 no templates，跑扫描前必须先解决`);
+  }
+}
+
 console.log(`  装好 ${ok}｜已存 ${skip}｜失败 ${fail}｜toolkit=${toolkit}`);
 process.exit(fail ? 1 : 0);
