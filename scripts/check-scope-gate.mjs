@@ -257,6 +257,52 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
   }
 }
 
+// ── ①g 实体与阶段枚举校验（严重度拼错会静默降级，而 info 在报告里会整个消失）──
+// 实测缺口（第 121 轮）：`entity_add vuln kind=critcal` 与「不给 kind」都静默降级成 info；
+// `chain_add stage=reconn` 静默落成 recon。严重度是报告里最核心的字段，降级等于把高危说成信息泄露。
+{
+  const V = await import(toUrl(path.join(root, "lib", "redteam", "validate-input.js")));
+  const { validateEntityAdd, validateChainAdd, validateEnum, renderIssues, SEVERITIES, STAGES, LEGACY_STAGES } = V;
+
+  // ★ 枚举必须与 store 的真实常量逐字一致——这条用例存在的理由：
+  // 第 120 轮我在校验器里把阶段码写成 ROLE_ORDER 的角色名（recon/assess/vuln-scan/exploit/internal），
+  // 而 store 真正认识的是 recon/internet/boundary/internal/target。判据抄错源，
+  // 就会把 store 本来支持的合法用法拦下来。所以每次都去 store 源码里读真值来比。
+  {
+    const storeSrc = fs.readFileSync(path.join(root, "lib", "redteam", "store-core.js"), "utf8");
+    const m = /VALID_STAGE_CODES\s*=\s*\[([^\]]*)\]/.exec(storeSrc);
+    const real = m ? m[1].split(",").map((x) => x.trim().replace(/^['"]|['"]$/g, "")).filter(Boolean) : [];
+    check("★ 阶段枚举与 store 的 VALID_STAGE_CODES 逐字一致", real.length > 0 && real.every((x) => STAGES.includes(x)) && STAGES.every((x) => real.includes(x)), `store=[${real.join(",")}] 校验器=[${STAGES.join(",")}]`);
+    const m2 = /LEGACY_STAGE_MAP\s*=\s*\{([\s\S]{0,400}?)\}/.exec(storeSrc);
+    const legacy = m2 ? [...m2[1].matchAll(/(\w+)\s*:/g)].map((x) => x[1]) : [];
+    // store 的 LEGACY_STAGE_MAP 里 recon 也当 key（recon→recon），它本来就在新码里，所以比对时要排除
+    const legacyOnly = legacy.filter((x) => !STAGES.includes(x));
+    check("★ 旧阶段名也被接受（store 有 LEGACY_STAGE_MAP）", legacyOnly.every((x) => LEGACY_STAGES.includes(x)), `store 旧名=[${legacyOnly.join(",")}]`);
+    const m3 = /SEVERITIES\s*=\s*\[([^\]]*)\]/.exec(storeSrc);
+    const sev = m3 ? m3[1].split(",").map((x) => x.trim().replace(/^['"]|['"]$/g, "")).filter(Boolean) : [];
+    check("★ 严重度枚举与 store 的 SEVERITIES 逐字一致", sev.length > 0 && sev.every((x) => SEVERITIES.includes(x)) && SEVERITIES.every((x) => sev.includes(x)), `store=[${sev.join(",")}]`);
+  }
+
+  // 严重度：拼错与缺失都必须拦（不给就是 info，而报告只收中危以上 → 这条漏洞会整个消失）
+  {
+    const bad = validateEntityAdd("vuln", { kind: "critcal" });
+    check("★ 严重度拼错被拦且给建议", bad.length === 1 && /critical/.test(renderIssues(bad).join("")), renderIssues(bad).join("").slice(0, 90));
+    const miss = validateEntityAdd("vuln", {});
+    check("★ 严重度缺失被拦（说明会整个消失在报告里）", miss.length === 1 && /消失/.test(renderIssues(miss).join("")), renderIssues(miss).join("").slice(0, 90));
+    check("严重度大写容错", validateEntityAdd("vuln", { kind: "CRITICAL" }).length === 0);
+    check("严重度合法值通过", validateEntityAdd("vuln", { kind: "high" }).length === 0);
+    check("非 vuln 实体不做严重度校验", validateEntityAdd("credential", { kind: "pwd?" }).length === 0);
+  }
+  // 阶段：拼错拦，新码与旧名都过
+  {
+    const bad = validateChainAdd({ stage: "reconn" });
+    check("★ 阶段拼错被拦且给建议", bad.length === 1 && /recon/.test(renderIssues(bad).join("")), renderIssues(bad).join("").slice(0, 90));
+    check("阶段新码通过（internal）", validateChainAdd({ stage: "internal" }).length === 0);
+    check("★ 阶段旧名通过（exploit，store 有映射）", validateChainAdd({ stage: "exploit" }).length === 0);
+    check("阶段可省略", validateChainAdd({}).length === 0);
+  }
+}
+
 // ── ② 端到端：拦截真的发生在写入路径上 ──
 const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "scopegate-"));
 const prevHome = process.env.REDTEAM_HOME;
@@ -286,10 +332,10 @@ try {
   const outside = await drill.execute({ op: "entity_add", entity: "asset", name: "198.51.100.9", target: "198.51.100.9" });
   check("★ 范围外目标被拦下", /范围闸拦下/.test(outside.text), outside.text.slice(0, 80));
 
-  const outsideVuln = await drill.execute({ op: "entity_add", entity: "vuln", name: "越界", target: "198.51.100.9", text: "p" });
+  const outsideVuln = await drill.execute({ op: "entity_add", entity: "vuln", name: "越界", target: "198.51.100.9", kind: "high", text: "p" });
   check("★ 范围外漏洞被拦下", /范围闸拦下/.test(outsideVuln.text), outsideVuln.text.slice(0, 80));
 
-  const outsideUrl = await drill.execute({ op: "entity_add", entity: "vuln", name: "越界URL", target: "https://evil.example.com/x", text: "p" });
+  const outsideUrl = await drill.execute({ op: "entity_add", entity: "vuln", name: "越界URL", target: "https://evil.example.com/x", kind: "high", text: "p" });
   check("★ 范围外 URL 被拦下", /范围闸拦下/.test(outsideUrl.text), outsideUrl.text.slice(0, 80));
 
   // asset 支持批量（target 逗号分隔）：合法的批量不该被误拦，其中一个越界则整条拦下
@@ -315,7 +361,7 @@ try {
     const bad = await drill.execute({ op: "update", entity: "vuln", row: 2, status: "exploited" });
     check("★ 误用 status= 时给出纠正提示", /stage=状态/.test(bad.text), bad.text.slice(0, 100));
   }
-  const insideUrl = await drill.execute({ op: "entity_add", entity: "vuln", name: "正常URL", target: "http://203.0.113.20/a", text: "p" });
+  const insideUrl = await drill.execute({ op: "entity_add", entity: "vuln", name: "正常URL", target: "http://203.0.113.20/a", kind: "high", text: "p" });
   check("范围内 URL 放行", /已写入/.test(insideUrl.text) && !/范围闸拦下/.test(insideUrl.text), insideUrl.text.slice(0, 70));
 
   // 技法闸 + 时间窗端到端：开一个「只授权 noisy、排除 destructive、窗口已过」的靶标
