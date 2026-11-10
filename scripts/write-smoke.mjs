@@ -5,9 +5,12 @@
  * 依赖：Node ≥18；需要本机装有 dsh 桌面端（拿它的 ai_base 当拷源）；没有就报「跳过」并按通过退出，不判失败。
  * 验证：2026-11-10 现状：夹具 22 个文件全部取自保险柜原文 → apply1 改掉 20 个 → 再 apply 幂等（漂移 0）→
  *      单次 apply→revert 与官方原文逐文件哈希全等（0 不符）；双次 apply 后 5 个文件停在一次已打补丁态（污染者 `backupAll`，一次性不累积）。
- * 运行告诫（第 81 轮实测）：本关会**短暂把真宿主 revert 再靠收尾 apply 推回去**，运行期间有几十秒宿主处于「待清洗」状态；
- *      第 81 轮紧跟 verify 再跑 probe:gates 就撞上这个窗口、报出「异常 1 关」的瞬态（连跑两次复测均 12 关异常 0）。
- *      所以**不要与其它读宿主的命令并行跑本关**；看到孤立的关 12 红，先复跑一次再下结论。
+ * 运行边界（第 83 轮更正，覆盖第 81 轮那条告诫）：本关现在**只动夹具**——`DSH_PATCH_BASES` 把
+ *      `enumeratePatchAiBases()` 限死在夹具那一个 base。此前它同时枚举到真宿主（实测 2 个 base），于是每次冒烟
+ *      都在真宿主上做一遍 apply+revert：既慢（14.4 秒），又把宿主短暂留在「待清洗」态（第 81 轮 probe:gates
+ *      那次「异常 1 关」瞬态就是它）。限定后 **14.4 → 3.8 秒、verify 全量 22.3 → 11.3 秒**，并由脚本直接断言
+ *      真宿主 pending 前后不变。方法论收获：第 83 轮我先用「真宿主某文件哈希未变」判隔离，差点得出「本来就隔离」
+ *      的错误结论——那个文件没变恰恰因为它的备份已被污染（第 80 轮）；**与被测缺陷相关的指标不能当隔离判据，要看就看整体 pending。**
  *
  * 三条当场量出来的事实（都是照记忆写会写错的东西）：
  *   · 从已清洗的真宿主拷来的文件起点是「已打补丁」态，直接 apply 命中 0（幂等的另一面）——必须先 revert 拿 pristine 当基线；
@@ -34,6 +37,7 @@ const toUrl = (p) => new URL("file:///" + String(p).replace(/\\/g, "/")).href;
 const core = await import(toUrl(path.join(root, "lib", "core.js")));
 
 const st = await core.gatherState();
+const beforePending = Number(st.patches_pending ?? -1);
 const realBase = String(st.ai_base || "");
 if (!realBase || !fs.existsSync(realBase)) {
   console.log("写路径冒烟：跳过（取不到宿主 ai_base；未知不等于通过，也不判失败）");
@@ -170,7 +174,7 @@ out.probe = out.residue.slice(0, 2).map((rel) => {
   } catch { }
   return { rel, cur, side: sideH, vault: vaultH, equalsOfficial: cur === expected[rel], equalsSidecar: cur === sideH, equalsVault: cur === vaultH };
 });
-// 收尾：子进程的 revert 会连真宿主一起还原（写入端不只认 DSH_BASE），所以最后补一次 apply 把状态推回去。
+// 收尾 apply：夹具已被 DSH_PATCH_BASES 限死，这一步只是把夹具留在已打补丁态（幂等），不再是为了掩盖泄漏。
 await core.applyPatchesAllHosts(core.ALL_PATCHES, opts);
 process.stdout.write(JSON.stringify(out));
 `;
@@ -181,7 +185,7 @@ let childErr = "";
 try {
   const { stdout } = await run(process.execPath, ["--input-type=module", "-e", child], {
     maxBuffer: 20e6,
-    env: { ...process.env, DSH_SURFACE: "desktop", DSH_BASE: fakeBase, DSH_HOME: home, DSH_DESKTOP_INSTALL: fixture },
+    env: { ...process.env, DSH_SURFACE: "desktop", DSH_BASE: fakeBase, DSH_HOME: home, DSH_DESKTOP_INSTALL: fixture, DSH_PATCH_BASES: fakeBase },
   });
   r = JSON.parse(stdout.trim().split("\n").pop());
 } catch (e) {
@@ -220,7 +224,7 @@ const sameHash = () => {
 };
 const st2 = await core.gatherState();
 const t2 = core.patchTally(st2, core.ALL_PATCHES);
-check(`跑完自己收尾：宿主恢复到 0 待清洗（${t2.applied}/${t2.total}）`, t2.pending === 0, `applied ${t2.applied} 待清洗 ${t2.pending}`);
+check(`真宿主未被冒烟改动：pending 前后一致（${beforePending} → ${t2.pending}）`, Number(t2.pending) === beforePending, `applied ${t2.applied}/${t2.total}｜若这条红说明 DSH_PATCH_BASES 没生效，泄漏回了真宿主`);
 check(`隔离直验：真宿主 3 个文件前后指纹未变`, sameHash(), `指纹=sha256 前 12 位`);
 
 fs.rmSync(fixture, { recursive: true, force: true });
