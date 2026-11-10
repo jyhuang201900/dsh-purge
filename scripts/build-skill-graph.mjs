@@ -294,10 +294,34 @@ for (const [, ids] of byDomainStage) {
 }
 
 // 角色档案
+// 角色的技能 = 「阶段映射」∪「该角色稿正文里点名的技能」。
+// 为什么取并集：角色稿是前几轮手写的散文，里面点名的技能（如 assess 稿里点名
+// secdev-boundary / iot-iiot-netdev 讲优先级）与按阶段算出来的不一定重合；
+// 只用阶段映射会让生成清单与稿子正文**互相打架**（第 110 轮实测：assess 稿点名 A/B，
+// 生成清单却列 C/D）。取并集两边都不矛盾，且更完整。
+// 真相直接取自 store-core.js 的 DEFAULT_PROMPTS（不另造中间文件，避免第二份会漂的副本）。
+const PROMPTS = await (async () => {
+  try {
+    // Windows 上不能直接 import("E:\\...")：Node 会把盘符当 URL scheme 报
+    // 「Only URLs with a scheme in: file, data, ...」。必须过 pathToFileURL。
+    const { pathToFileURL } = await import("node:url");
+    const p = pathToFileURL(path.join(root, "lib", "redteam", "store-core.js")).href;
+    const m = await import(p);
+    return m.DEFAULT_PROMPTS || {};
+  } catch (e) {
+    console.log(`  ⚠ 读不到 DEFAULT_PROMPTS（${String(e.message).slice(0, 46)}）：角色档案只按阶段映射算`);
+    return {};
+  }
+})();
+const proseOf = (role) => String(PROMPTS[role] || "");
+
 const agents = {};
 for (const [rid, r] of Object.entries(ROLES)) {
-  const mine = skills.filter((s) => s.role === rid).map((s) => s.id);
-  agents[rid] = { id: rid, name: r.name, stage: r.stage, skills: mine };
+  const byStage = skills.filter((s) => s.role === rid).map((s) => s.id);
+  const prose = [...new Set([...proseOf(rid).matchAll(/`([a-z][a-z0-9-]{3,40})`/g)].map((m) => m[1]))]
+    .filter((n) => skillNames.has(n));
+  const merged = [...new Set([...byStage, ...prose])].sort();
+  agents[rid] = { id: rid, name: r.name, stage: r.stage, skills: merged, fromStage: byStage.length, fromProse: prose.length };
 }
 agents["surface"] = { id: "surface", name: "攻击面专项（由 ctf-sandbox-orchestrator 路由）", stage: "surface", skills: skills.filter((s) => s.id.startsWith("competition-")).map((s) => s.id) };
 
@@ -329,6 +353,11 @@ console.log(`  零入边 ${zeroIn.length}${zeroIn.length ? "：" + zeroIn.slice(
 console.log(`  校验问题: ${problems.length}${problems.length ? "：" + problems.slice(0, 5).join(" | ") : " ✓"}`);
 
 const LINK_MARK = "<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->";
+// 结束标记：剥离时只吃「本块」这段，绝不能一路截到文件尾。
+// 第 110 轮实测踩到：inject-runnability 追加的「本机可执行性」块排在链路块之后，
+// 而旧写法 `t.slice(0, i)` 从链路标记截到 EOF，把那个块一起删了——两个生成器互相打架，
+// 表现为「刚注入 37 个，闸门立刻报 37 个缺失」。带结束标记就与追加顺序无关了。
+const LINK_END = "<!-- /skill-link-graph -->";
 
 /** 渲染「链路位置」章节：这是链路能被用到的唯一载体——模型按需加载技能时就看到上下游 */
 function renderSection(s) {
@@ -348,6 +377,7 @@ function renderSection(s) {
   if (s.records.length) L.push("- **落库**（做完必须记进演练台，没落库的发现等于没发生）：" + s.records.map((x) => "`" + x + "`").join("、") + " —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据");
   else L.push("- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台");
   L.push("");
+  L.push(LINK_END);
   return L.join("\n");
 }
 
@@ -364,7 +394,20 @@ if (!dry) {
     const p = path.join(SKILLS, s.id + ".md");
     let t = fs.readFileSync(p, "utf8");
     const i = t.indexOf(LINK_MARK);
-    if (i >= 0) t = t.slice(0, i).replace(/\s+$/, "");
+    if (i >= 0) {
+      // 只吃「链路块」这一段，块前的正文与块后别的生成物都保留。
+      const e = t.indexOf(LINK_END, i);
+      let cutEnd;
+      if (e > i) cutEnd = e + LINK_END.length;
+      else {
+        // 老文件（本标记之前生成的）没有结束标记：切到「下一个生成块标记」为止。
+        // 绝不能一路切到 EOF —— 那正是本轮 bug（把排在后面的可执行性块一起吃掉）。
+        // 所有生成器都用 HTML 注释做标记，所以「下一个 <!--」就是安全边界。
+        const nxt = t.indexOf("<!--", i + LINK_MARK.length);
+        cutEnd = nxt > i ? nxt : t.length;
+      }
+      t = (t.slice(0, i).replace(/[ \t]+$/, "") + "\n\n" + t.slice(cutEnd).replace(/^[\r\n]+/, "")).replace(/\s+$/, "");
+    }
     const next = t.replace(/\s+$/, "") + "\n\n" + renderSection(s) + "\n";
     if (next !== fs.readFileSync(p, "utf8")) { fs.writeFileSync(p, next, "utf8"); injected += 1; }
   }

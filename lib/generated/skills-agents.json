@@ -7,11 +7,21 @@
       "stage": "1",
       "skills": [
         "active-scan",
+        "asset-correlation",
+        "browser-automation",
+        "cn-proxy-pool",
         "fofa-recon",
+        "fscan-intranet",
+        "gogo-intranet",
+        "kimi-webbridge",
         "passive-recon",
         "recon-pipeline",
-        "subdomain-bruteforce"
-      ]
+        "subdomain-bruteforce",
+        "suo5-tunnel",
+        "web-fingerprint"
+      ],
+      "fromStage": 5,
+      "fromProse": 12
     },
     "assess": {
       "id": "assess",
@@ -19,8 +29,12 @@
       "stage": "2",
       "skills": [
         "asset-correlation",
+        "iot-iiot-netdev",
+        "secdev-boundary",
         "web-fingerprint"
-      ]
+      ],
+      "fromStage": 2,
+      "fromProse": 2
     },
     "vuln-scan": {
       "id": "vuln-scan",
@@ -28,6 +42,8 @@
       "stage": "3",
       "skills": [
         "api-security",
+        "browser-automation",
+        "cn-proxy-pool",
         "code-audit",
         "credential-attack",
         "database-security",
@@ -46,7 +62,9 @@
         "unauth-exploit",
         "waf-bypass",
         "web-vuln-payloads"
-      ]
+      ],
+      "fromStage": 19,
+      "fromProse": 9
     },
     "exploit": {
       "id": "exploit",
@@ -55,16 +73,21 @@
       "skills": [
         "apk-reverse",
         "binary-diff",
+        "browser-automation",
         "browser-extension-reverse",
         "chisel-tunnel",
+        "credential-attack",
         "dotnet-reverse",
         "firmware-pentest",
         "frp-tunnel",
+        "fscan-intranet",
         "ghidra-reverse",
         "go-rust-reverse",
         "ida-reverse",
         "iot-iiot-netdev",
         "js-reverse",
+        "kimi-webbridge",
+        "lateral-movement",
         "mobile-reverse",
         "patch-diff-exploit",
         "privesc-persistence",
@@ -78,15 +101,19 @@
         "thick-client",
         "vps-reverse-shell",
         "webshell-toolkit"
-      ]
+      ],
+      "fromStage": 25,
+      "fromProse": 14
     },
     "internal": {
       "id": "internal",
       "name": "内网渗透",
       "stage": "5",
       "skills": [
+        "chisel-tunnel",
         "cloud-k8s",
         "edr-bypass-re",
+        "frp-tunnel",
         "fscan-intranet",
         "gogo-intranet",
         "hardware-security",
@@ -95,10 +122,13 @@
         "netexec-scan",
         "ot-ics",
         "radio-sdr",
+        "suo5-tunnel",
         "threat-hunting",
         "wifi-wireless",
         "windows-ad"
-      ]
+      ],
+      "fromStage": 13,
+      "fromProse": 7
     },
     "flow": {
       "id": "flow",
@@ -107,11 +137,13 @@
       "skills": [
         "attack-chain",
         "case-review",
-        "ctf-sandbox-orchestrator",
         "ctf-sandbox",
+        "ctf-sandbox-orchestrator",
         "pentest-tools",
         "redteam-setup"
-      ]
+      ],
+      "fromStage": 6,
+      "fromProse": 0
     },
     "aux": {
       "id": "aux",
@@ -121,7 +153,9 @@
         "browser-automation",
         "cn-proxy-pool",
         "kimi-webbridge"
-      ]
+      ],
+      "fromStage": 3,
+      "fromProse": 0
     },
     "surface": {
       "id": "surface",

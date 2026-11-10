@@ -21,6 +21,7 @@ const home = process.env.DSH_HOME || path.join(os.homedir(), ".dsh");
 const toolkit = path.join(home, "redteam", "toolkit");
 const argv = process.argv.slice(2);
 const checkOnly = argv.includes("--check");
+const probeOnly = argv.includes("--probe"); // 只解析「正则命中哪个资产」不下载：先证明正则会中，再信能装
 const force = argv.includes("--force");
 const onlyIdx = argv.indexOf("--only");
 const only = onlyIdx >= 0 ? String(argv[onlyIdx + 1] || "").split(",").map((s) => s.trim()).filter(Boolean) : [];
@@ -36,6 +37,20 @@ const TOOLS = [
   { name: "fscan", repo: "shadow1ng/fscan", re: /fscan-nolocal_.*windows_x64\.exe$/, bin: "fscan.exe", dir: "fscan", ver: ["-h"] },
   { name: "frp", repo: "fatedier/frp", re: /windows_amd64\.zip$/, bin: "frpc.exe", dir: "frp", ver: ["--version"] },
   { name: "ligolo", repo: "nicocha30/ligolo-ng", re: /agent_.*windows_amd64\.zip$/, bin: "ligolo-agent.exe", dir: "ligolo", ver: ["--help"] },
+  // 第 110 轮扩面：技能引用了、但装配器没覆盖、且**确有官方 Windows 构建**的工具。
+  // 按「接入现成项目」原则加，资产名与正则全部对着真实 release 资产列表核过（不是照记忆写的）。
+  // 覆盖后 dir-bruteforce（ffuf/feroxbuster/gobuster）、nuclei-scan 与 web-fingerprint 与 secdev-boundary（nuclei）、
+  // 逆向族（r2）这些技能的「本机缺工具」落差就有装法可指，而不是只能写「未装」。
+  { name: "nuclei", repo: "projectdiscovery/nuclei", re: /nuclei_[\d.]+_windows_amd64\.zip$/, bin: "nuclei.exe", dir: "nuclei", ver: ["-version"] },
+  { name: "ffuf", repo: "ffuf/ffuf", re: /ffuf_[\d.]+_windows_amd64\.zip$/, bin: "ffuf.exe", dir: "ffuf", ver: ["-V"] },
+  { name: "feroxbuster", repo: "epi052/feroxbuster", re: /x86_64-windows-feroxbuster\.exe\.zip$/, bin: "feroxbuster.exe", dir: "feroxbuster", ver: ["--version"] },
+  { name: "gobuster", repo: "OJ/gobuster", re: /gobuster_Windows_x86_64\.zip$/, bin: "gobuster.exe", dir: "gobuster", ver: ["version"] },
+  // radare2 的资产名用 w64 而非 win；正则必须避开同批的 radare2-<ver>-w64-arm64.zip
+  { name: "radare2", repo: "radareorg/radare2", re: /radare2-[\d.]+-w64\.zip$/, bin: "r2.exe", dir: "radare2", ver: ["-v"] },
+  // 有 Windows 形态但暂不纳入（需要额外处理，如实记着而不是假装支持）：
+  //   hashcat → 只发 hashcat-<ver>.7z（多平台包，要 7z 解压）
+  //   apktool → 只发 apktool_<ver>.jar（要 java 跑，不是 exe）
+  //   masscan → release 无任何资产（只发源码）
 ];
 
 const exists = (p) => { try { return fs.statSync(p).size > 0; } catch { return false; } };
@@ -43,7 +58,20 @@ const target = (t) => path.join(toolkit, t.dir, t.bin);
 
 async function fetchJson(url) {
   const r = await fetch(url, { headers: { "user-agent": "dsh-purge-toolkit", accept: "application/vnd.github+json" }, signal: AbortSignal.timeout(30000) });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  if (!r.ok) {
+    // GitHub 未认证 API 只有 60 次/小时。限流与「正则写错」是完全不同的两回事，
+    // 但都表现为 probe/安装失败——第 110 轮实测把 403 限流误当成过回归查过一次，
+    // 所以这里把限流单独标出来，并给出重置时间。
+    if (r.status === 403) {
+      const remain = r.headers.get("x-ratelimit-remaining");
+      const reset = Number(r.headers.get("x-ratelimit-reset") || 0);
+      if (remain === "0" || reset) {
+        const at = reset ? new Date(reset * 1000).toISOString().slice(0, 19) + "Z" : "未知";
+        throw new Error(`GitHub API 限流（未认证 60 次/小时，剩余 ${remain ?? "?"}，重置于 ${at}）——不是正则写错，稍后重试`);
+      }
+    }
+    throw new Error(`HTTP ${r.status}`);
+  }
   return r.json();
 }
 
@@ -68,6 +96,32 @@ function unzip(zipPath, outDir) {
 
 const picks = TOOLS.filter((t) => !only.length || only.includes(t.name));
 if (!picks.length) { console.log(`  没有匹配的工具名；可选：${TOOLS.map((t) => t.name).join(", ")}`); process.exit(2); }
+
+// --probe：只解析 latest release 里正则命中的资产名与体积，**不下载、不写盘**。
+// 存在的理由：正则写错（资产名对不上）在真装之前看不出来，一装就是白等一次下载；
+// 而「先证明它会命中，再信它能装」是本仓的验证纪律。
+if (probeOnly) {
+  let hitN = 0, missN = 0;
+  for (const t of picks) {
+    try {
+      const rel = await fetchJson(`https://api.github.com/repos/${t.repo}/releases/latest`);
+      const asset = (rel.assets || []).find((a) => t.re.test(a.name));
+      if (!asset) {
+        const names = (rel.assets || []).map((a) => a.name).slice(0, 4).join(", ");
+        console.log(`  ✗ ${t.name.padEnd(11)} ${String(rel.tag_name).padEnd(10)} 正则没命中。资产样例：${names || "（无资产）"}`);
+        missN += 1;
+      } else {
+        console.log(`  ✓ ${t.name.padEnd(11)} ${String(rel.tag_name).padEnd(10)} ${asset.name}  ${Math.round(asset.size / 1024)}KB`);
+        hitN += 1;
+      }
+    } catch (e) {
+      console.log(`  ✗ ${t.name.padEnd(11)} 查询失败 ${String(e.message).slice(0, 50)}`);
+      missN += 1;
+    }
+  }
+  console.log(`  正则命中 ${hitN}｜未命中 ${missN}（--probe 不下载、不写盘）`);
+  process.exit(missN ? 1 : 0);
+}
 
 let ok = 0, skip = 0, fail = 0;
 for (const t of picks) {

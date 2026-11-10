@@ -90,3 +90,4 @@ Use this skill when the decisive Windows secret is DPAPI-protected and the hard 
 - **互补**（同类场景一起用）：`competition-cloud-metadata-path`、`competition-container-runtime`、`competition-identity-windows`、`competition-k8s-control-plane`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
+<!-- /skill-link-graph -->

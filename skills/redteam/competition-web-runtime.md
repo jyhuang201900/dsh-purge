@@ -264,3 +264,4 @@ exploit();
 - **互补**（同类场景一起用）：`competition-supply-chain`、`competition-template-render-path`、`competition-websocket-runtime`、`competition-zip-archive`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
+<!-- /skill-link-graph -->

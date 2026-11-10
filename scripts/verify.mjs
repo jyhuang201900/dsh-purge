@@ -146,6 +146,16 @@ if (!skip("tools")) {
   } else notes.push((out[out.length - 1] || "").trim());
 }
 
+// 关 14：纸面功夫——每个引用了「本机没装」的工具的技能，都必须自带「本机可执行性」块。
+//   为什么单独成关：技能厚不等于打得出去。实测 114 个里有 33 个引用了本机没有的工具，
+//   其中 9 个连一个字都没说——模型照抄命令就撞空。这关保证「落差一定写在技能自己的上下文里」。
+if (!skip("runnable")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "inject-runnability.mjs"), "--check"], { encoding: "utf8", timeout: 120000 });
+  const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
+  if (res.status !== 0) failures.push(`纸面功夫未过：${out.filter((l) => l.trim()).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 130)}`);
+  else notes.push((out[out.length - 1] || "").trim());
+}
+
 // 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
 const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json", "docs/debt-baseline.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))

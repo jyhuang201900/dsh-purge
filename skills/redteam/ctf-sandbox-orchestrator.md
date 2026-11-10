@@ -645,3 +645,4 @@ Use this reference for web challenges, API challenges, SSR/frontend issues, queu
 - **互补**（同类场景一起用）：`case-review`、`cn-proxy-pool`、`ctf-sandbox`、`kimi-webbridge`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
+<!-- /skill-link-graph -->

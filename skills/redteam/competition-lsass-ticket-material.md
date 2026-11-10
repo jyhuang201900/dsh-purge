@@ -91,3 +91,4 @@ Use this skill when the decisive host artifact lives in LSASS, ticket caches, or
 - **互补**（同类场景一起用）：`competition-kernel-container-escape`、`competition-linux-credential-pivot`、`competition-mailbox-abuse`、`competition-relay-coercion-chain`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
+<!-- /skill-link-graph -->

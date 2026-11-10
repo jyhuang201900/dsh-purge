@@ -90,3 +90,4 @@ Use this skill when the hard part is following a file from ingress through every
 - **互补**（同类场景一起用）：`competition-bundle-sourcemap-recovery`、`competition-custom-protocol-replay`、`competition-forensic-timeline`、`competition-graphql-rpc-drift`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
+<!-- /skill-link-graph -->

@@ -110,3 +110,4 @@ kubectl get clusterrolebindings
 - **专项下游**（同主题更深的靶子面）：`competition-k8s-control-plane`、`competition-cloud-metadata-path`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
+<!-- /skill-link-graph -->

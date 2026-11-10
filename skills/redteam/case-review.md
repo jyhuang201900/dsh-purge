@@ -168,3 +168,4 @@ This skill has no third-party dependency. If Python 3 is unavailable, the only a
 - **互补**（同类场景一起用）：`attack-chain`、`browser-automation`、`cn-proxy-pool`、`ctf-sandbox-orchestrator`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`stage` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
+<!-- /skill-link-graph -->

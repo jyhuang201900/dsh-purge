@@ -145,6 +145,19 @@ proxychains4 -f runs/proxychains-1080.conf enum4linux -a 10.0.0.6
    `result` 写回显摘要——报告要能照着复现。
 6. **回填知识库**：验证有效的通用利用脚本 `redteam_poc_add`（带 `category` + `engagement` + `asset_target` + `verified_note`，脱敏）。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -155,3 +168,4 @@ proxychains4 -f runs/proxychains-1080.conf enum4linux -a 10.0.0.6
 - **互补**（同类场景一起用）：`fscan-intranet`、`gogo-intranet`、`netexec-scan`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`credential`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
+<!-- /skill-link-graph -->

@@ -1370,7 +1370,7 @@
     },
     {
       "id": "role_recon",
-      "label": "角色 信息收集（5 个技能）",
+      "label": "角色 信息收集（13 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1382,7 +1382,7 @@
     },
     {
       "id": "role_assess",
-      "label": "角色 资产梳理（2 个技能）",
+      "label": "角色 资产梳理（4 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1394,7 +1394,7 @@
     },
     {
       "id": "role_vuln_scan",
-      "label": "角色 漏洞发现（19 个技能）",
+      "label": "角色 漏洞发现（21 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1406,7 +1406,7 @@
     },
     {
       "id": "role_exploit",
-      "label": "角色 漏洞利用（25 个技能）",
+      "label": "角色 漏洞利用（30 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1418,7 +1418,7 @@
     },
     {
       "id": "role_internal",
-      "label": "角色 内网渗透（13 个技能）",
+      "label": "角色 内网渗透（16 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -5278,7 +5278,67 @@
     },
     {
       "source": "role_recon",
+      "target": "skills_redteam_asset_correlation",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
+      "target": "skills_redteam_browser_automation",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
+      "target": "skills_redteam_cn_proxy_pool",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
       "target": "skills_redteam_fofa_recon",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
+      "target": "skills_redteam_fscan_intranet",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
+      "target": "skills_redteam_gogo_intranet",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
+      "target": "skills_redteam_kimi_webbridge",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5317,8 +5377,48 @@
       "weight": 1
     },
     {
+      "source": "role_recon",
+      "target": "skills_redteam_suo5_tunnel",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
+      "target": "skills_redteam_web_fingerprint",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
       "source": "role_assess",
       "target": "skills_redteam_asset_correlation",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_assess",
+      "target": "skills_redteam_iot_iiot_netdev",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_assess",
+      "target": "skills_redteam_secdev_boundary",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5339,6 +5439,26 @@
     {
       "source": "role_vuln_scan",
       "target": "skills_redteam_api_security",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_vuln_scan",
+      "target": "skills_redteam_browser_automation",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_vuln_scan",
+      "target": "skills_redteam_cn_proxy_pool",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5548,6 +5668,16 @@
     },
     {
       "source": "role_exploit",
+      "target": "skills_redteam_browser_automation",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_exploit",
       "target": "skills_redteam_browser_extension_reverse",
       "relation": "owns",
       "confidence": "EXTRACTED",
@@ -5559,6 +5689,16 @@
     {
       "source": "role_exploit",
       "target": "skills_redteam_chisel_tunnel",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_exploit",
+      "target": "skills_redteam_credential_attack",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5589,6 +5729,16 @@
     {
       "source": "role_exploit",
       "target": "skills_redteam_frp_tunnel",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_exploit",
+      "target": "skills_redteam_fscan_intranet",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5639,6 +5789,26 @@
     {
       "source": "role_exploit",
       "target": "skills_redteam_js_reverse",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_exploit",
+      "target": "skills_redteam_kimi_webbridge",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_exploit",
+      "target": "skills_redteam_lateral_movement",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5778,6 +5948,16 @@
     },
     {
       "source": "role_internal",
+      "target": "skills_redteam_chisel_tunnel",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_internal",
       "target": "skills_redteam_cloud_k8s",
       "relation": "owns",
       "confidence": "EXTRACTED",
@@ -5789,6 +5969,16 @@
     {
       "source": "role_internal",
       "target": "skills_redteam_edr_bypass_re",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_internal",
+      "target": "skills_redteam_frp_tunnel",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5878,6 +6068,16 @@
     },
     {
       "source": "role_internal",
+      "target": "skills_redteam_suo5_tunnel",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_internal",
       "target": "skills_redteam_threat_hunting",
       "relation": "owns",
       "confidence": "EXTRACTED",
@@ -5928,7 +6128,7 @@
     },
     {
       "source": "role_flow",
-      "target": "skills_redteam_ctf_sandbox_orchestrator",
+      "target": "skills_redteam_ctf_sandbox",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5938,7 +6138,7 @@
     },
     {
       "source": "role_flow",
-      "target": "skills_redteam_ctf_sandbox",
+      "target": "skills_redteam_ctf_sandbox_orchestrator",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,

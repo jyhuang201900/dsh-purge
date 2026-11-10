@@ -302,3 +302,4 @@ found_struct_offset → idapro_set_comments(addr=insn_va, comment="{struct_name}
 - **互补**（同类场景一起用）：`dotnet-reverse`、`ghidra-reverse`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
+<!-- /skill-link-graph -->

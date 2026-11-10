@@ -89,3 +89,4 @@ Use this skill when the decisive path runs through mailbox behavior, consent flo
 - **互补**（同类场景一起用）：`competition-linux-credential-pivot`、`competition-lsass-ticket-material`、`competition-relay-coercion-chain`、`competition-ssrf-metadata-pivot`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
+<!-- /skill-link-graph -->

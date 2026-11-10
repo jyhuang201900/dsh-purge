@@ -90,3 +90,4 @@ Use this skill when runtime truth lives in built assets, source maps, chunk tabl
 - **互补**（同类场景一起用）：`competition-browser-persistence`、`competition-custom-protocol-replay`、`competition-file-parser-chain`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
+<!-- /skill-link-graph -->
