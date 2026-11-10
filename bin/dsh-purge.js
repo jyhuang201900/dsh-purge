@@ -250,9 +250,7 @@ async function main() {
     const flashHost = hosts[0]?.aiBase || state.ai_base;
     const flash = core.silenceCmdFlash(flashHost);
     console.log(`  cmd-flash=${flash.entry} phase-1=${flash.phase1} ok=${flash.ok}`);
-    if (hosts.length > 1) {
-      console.log(`  多宿主 / multi-host: ${hosts.length} 份 @deepseek-ai 已清洗`);
-    }
+    console.log(`  触及宿主 / hosts touched ${hosts.length} 个${hosts.length > 1 ? "（多宿主：一次 apply 全部触及）" : ""}`);
     console.log(inject.source === "rule"
       ? "  - 使用当前规则集，不改写提示词文件"
       : "  - 使用已有提示词文件");
@@ -271,7 +269,8 @@ async function main() {
     console.log("全部完成 / All done。重启 dsh 生效 / Restart dsh to take effect.");
   } else if (mode === "--revert") {
     if (state.ai_base || core.enumeratePatchAiBases().length) {
-      const { reverted, errors } = await core.revertAllHosts();
+      const { reverted, errors, hosts } = await core.revertAllHosts();
+      console.log(`  触及宿主 / hosts touched ${(hosts || []).length} 个`);
       for (const p of reverted) console.log(`  ✓ 已还原 / Reverted ${p}`);
       for (const [p, e] of errors) console.log(`  ⚠ 还原失败 ${p}: ${e}`);
       if (reverted.length === 0) console.log("  - 没有补丁备份可还原 / no patch backup");
