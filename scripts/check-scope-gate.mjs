@@ -114,6 +114,64 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
   }
 }
 
+// ── ①d 阶段分流（进攻侧：每个阶段都要看真实数据，不能只说「逐条过」「铺面」）──
+// 实测缺口：9 个「下一步」分支里只有阶段④ 会按真实漏洞分流，其余说的是
+// 「逐条过」「铺面」「挖出所有网段」这类通用正确的话——而事实库里躺着网段、存活数、凭据类型。
+{
+  const { routeRecon, routeIntranet, routeTunnel, routeCredentials } = await import(toUrl(path.join(root, "lib", "redteam", "stage-route.js")));
+  // 阶段③：点出资产最多的那个网段
+  {
+    const s = routeRecon({ segments: [
+      { cidr: "10.0.0.0/24", assets: 12, live: 8, open_ports: 34 },
+      { cidr: "10.0.1.0/24", assets: 3, live: 2, open_ports: 5 },
+    ], untested: 4, assets: 15 });
+    check("★ 阶段③ 点出资产最多的网段", /10\.0\.0\.0\/24/.test(s) && /资产 12/.test(s) && /存活 8/.test(s), s.slice(0, 90));
+    check("★ 阶段③ 不点资产少的那个", !/10\.0\.1\.0\/24/.test(s), s.slice(0, 90));
+  }
+  // 阶段③：unknown ≠ 已知死，措辞要区分
+  {
+    const s = routeRecon({ segments: [{ cidr: "10.0.5.0/24", assets: 6, live: 0 }] });
+    check("★ 阶段③ 存活 0 时说「state 还是 unknown（没探过）」", /unknown/.test(s) && /naabu/.test(s), s.slice(0, 100));
+    const s2 = routeRecon({ segments: [{ cidr: "10.0.6.0/24", assets: 0, live: 0 }] });
+    check("阶段③ 网段空时说「先补资产」", /先补资产/.test(s2), s2.slice(0, 80));
+  }
+  check("阶段③ 无网段但有未测资产时点名 active-scan", /active-scan/.test(routeRecon({ segments: [], untested: 7, assets: 7 })));
+  check("阶段③ 有资产无网段时点名 asset-correlation", /asset-correlation/.test(routeRecon({ segments: [], untested: 0, assets: 5 })));
+
+  // 阶段⑤：内网最厚的优先
+  {
+    const s = routeIntranet({ segments: [
+      { cidr: "10.0.0.0/24", assets: 40, live: 30 },
+      { cidr: "172.16.5.0/24", assets: 2, live: 2 },
+    ] });
+    check("★ 阶段⑤ 点出内网最厚的网段并说明「比再铺新网段收益高」", /10\.0\.0\.0\/24/.test(s) && /收益高/.test(s), s.slice(0, 100));
+    check("阶段⑤ 内网全空时点名 gogo-intranet", /gogo-intranet/.test(routeIntranet({ segments: [{ cidr: "192.168.9.0/24", assets: 0, live: 0 }] })));
+    check("阶段⑤ 无网段时给铺面入口", /gogo/.test(routeIntranet({ segments: [] })));
+  }
+
+  // 隧道：四种情形必须各不相同（有资产没存活 ≠ 完全没资产）
+  {
+    const a = routeTunnel({ shells: 2, liveAssets: 5, assets: 10 });
+    const b = routeTunnel({ shells: 0, liveAssets: 3, assets: 10 });
+    const c = routeTunnel({ shells: 0, liveAssets: 0, assets: 10 });
+    const d = routeTunnel({ shells: 0, liveAssets: 0, assets: 0 });
+    check("★ 隧道四情形互不相同", new Set([a, b, c, d]).size === 4, `唯一 ${new Set([a, b, c, d]).size} 种`);
+    check("★ 隧道「有资产没存活」点名 active-scan", /active-scan/.test(c), c.slice(0, 80));
+    check("★ 隧道「完全没资产」点名收资产", /recon-pipeline/.test(d), d.slice(0, 80));
+  }
+
+  // 凭据：按类型分流
+  {
+    const s = routeCredentials({ creds: [
+      { secret_type: "ntlm" }, { secret_type: "ntlm" }, { secret_type: "password" }, { secret_type: "ssh_key" },
+    ] });
+    check("★ 凭据 hash 走离线破（hashcat -m 1000）", /hashcat/.test(s) && /-m 1000/.test(s), s.slice(0, 100));
+    check("★ 凭据 key 直接试（ssh -i）", /ssh -i/.test(s), s.slice(0, 100));
+    check("★ 凭据明文才在线登（netexec-scan）", /netexec-scan/.test(s), s.slice(0, 100));
+    check("凭据只有明文时不提 hashcat", !/hashcat/.test(routeCredentials({ creds: [{ secret_type: "password" }] })));
+  }
+}
+
 // ── ② 端到端：拦截真的发生在写入路径上 ──
 const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "scopegate-"));
 const prevHome = process.env.REDTEAM_HOME;
@@ -160,6 +218,8 @@ try {
     check("漏洞状态可用 stage=exploited 标记", /回读 status=exploited/.test(up.text), up.text.slice(0, 80));
     const s2 = await drill.execute({ op: "summary" });
     check("★ 标为已利用后自动推进到下一条（Redis）", /Redis/.test(s2.text) && /unauth-exploit/.test(s2.text), (s2.text.match(/→ 下一步：[^\n]*/) || [""])[0].slice(0, 90));
+
+
     const bad = await drill.execute({ op: "update", entity: "vuln", row: 2, status: "exploited" });
     check("★ 误用 status= 时给出纠正提示", /stage=状态/.test(bad.text), bad.text.slice(0, 100));
   }
@@ -229,6 +289,18 @@ try {
     const iAudit = rep.text.indexOf("## 零、授权边界");
     const iOne = rep.text.indexOf("## 一、成果漏洞");
     check("审计段排在成果段之前", iAudit >= 0 && iOne > iAudit, `audit@${iAudit} one@${iOne}`);
+
+    // 阶段分流必须**真的接在 summary 上**，不是只有函数正确。
+    // 首版只测了 routeRecon 等函数本身，于是「summary 不接分流」的探针咬不住（失败 0）——
+    // 函数对但没接上，是这类改动最常见的假成功。
+    {
+      await drill.execute({ op: "open", name: "scopegate-stage", target: "10.0.0.0/24" });
+      for (const ip of ["10.0.0.5", "10.0.0.6", "10.0.0.7"]) await drill.execute({ op: "entity_add", entity: "asset", name: ip, target: ip });
+      const r3 = await drill.execute({ op: "summary" });
+      const n3 = (r3.text.match(/→ 下一步：[^\n]*/) || [""])[0];
+      check("★ 阶段③ 端到端：下一步点出具体网段与存活数", /10\.0\.0\.0\/24/.test(n3) && /资产 3/.test(n3), n3.slice(0, 110));
+      check("★ 阶段③ 端到端：不再是「逐条过」那句通用话", !/逐条过/.test(n3), n3.slice(0, 110));
+    }
   }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
