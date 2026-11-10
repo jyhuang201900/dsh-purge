@@ -147,7 +147,7 @@ if (!skip("tools")) {
 }
 
 // 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
-const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json"]
+const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json", "docs/debt-baseline.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))
   .concat(fs.readdirSync(path.join(root, "graphify-out", "semantic")).filter((f) => f.endsWith(".json")).map((f) => `graphify-out/semantic/${f}`));
 let parsed = 0;
