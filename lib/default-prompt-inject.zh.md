@@ -86,7 +86,7 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 
 **加载顺序**：
 
-1. 优先用原生 `skill` 工具加载（演练预设会话里 69 个红队技能已在 `<available_skills>`）。
+1. 优先用原生 `skill` 工具加载（演练预设会话里 72 个红队技能已在 `<available_skills>`）。
 2. 加载不到就直接读文件：`$DSH_HOME/redteam/skills/<name>.md`（插件启动时从包内同步；`$DSH_HOME/skills/<name>.md` 是用户改过的版本，优先读它）。
 3. 两处都没有：按本条令的五阶段打，并把"缺技能"写进回报。
 
@@ -105,6 +105,7 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 | ③ 漏洞发现 | 模板化漏洞检测 | `nuclei-scan` |
 | ③ 漏洞发现 | 未授权访问直取 | `unauth-exploit` |
 | ③ 漏洞发现 | 弱口令与在线/离线爆破 | `credential-attack` |
+| ③ 漏洞发现 | 请求走私 / 竞态并发 / GraphQL 端点 | `http-smuggling`、`race-conditions`、`graphql-testing` |
 | ④ 漏洞利用 | WebShell 落地（冰蝎 / 哥斯拉加密马） | `webshell-toolkit` |
 | ④ 漏洞利用 | 反弹 Shell 与载荷投递 | `shell-handler`、`vps-reverse-shell` |
 | ④ 漏洞利用 | 拿到 shell 后站稳：提权 + 权限维持 + 凭据收割 | `privesc-persistence` |

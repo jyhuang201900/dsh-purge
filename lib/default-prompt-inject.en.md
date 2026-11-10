@@ -108,6 +108,7 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 | ③ Vuln-scan | template-driven detection | `nuclei-scan` |
 | ③ Vuln-scan | unauthorized service access | `unauth-exploit` |
 | ③ Vuln-scan | weak passwords, online + offline cracking | `credential-attack` |
+| (3) vuln discovery | request smuggling / race conditions / GraphQL endpoints | `http-smuggling`, `race-conditions`, `graphql-testing` |
 | ④ Exploit | webshell landing (Behinder / Godzilla encrypted) | `webshell-toolkit` |
 | ④ Exploit | reverse shell and payload delivery | `shell-handler`, `vps-reverse-shell` |
 | ④ Exploit | tunnels | `suo5-tunnel`, `chisel-tunnel`, `frp-tunnel` |
