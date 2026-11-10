@@ -51,7 +51,7 @@ function printStatus(state, update) {
 }
 
 async function main() {
-  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--drill", "--mcp", "--mcp-probe", "--edit", "--help"].includes(a));
+  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--drill", "--mcp", "--mcp-probe", "--verify-live", "--edit", "--help"].includes(a));
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`dsh-purge 用法:
@@ -65,6 +65,7 @@ async function main() {
   dsh-purge --drill [op] 演练台聚合查询/写入（不切预设；op 如 chain_add）
   dsh-purge --mcp        以 MCP server 方式跑（stdio JSON-RPC）
   dsh-purge --mcp-probe [url]  探测宿主内 POST /dsh-purge/mcp 是否已生效（缺省读 DSH_WEB_URL）
+  dsh-purge --verify-live [url]  重启后一条命令验收（契约表 / 补丁分桶 / 注入状态 / 路由是否 live；只读）
   dsh-purge --help       帮助`);
     return;
   }
@@ -80,6 +81,48 @@ async function main() {
     for (const l of r.lines) console.log(`  ${l}`);
     console.log(`  结论：${r.state === "live" ? "HTTP MCP 通路已生效 ✓" : r.state === "not-live" ? "待重启（路由未加载）" : r.state === "unreachable" ? "宿主不可达" : "异常"}`);
     process.exit(r.state === "live" || r.state === "not-live" ? 0 : 1);
+  }
+
+  if (mode === "--verify-live") {
+    // 重启后的"一条命令验收"：只做只读探测，不写宿主、不猜端口（端口靠参数或 DSH_WEB_URL）。
+    const at = args.indexOf("--verify-live");
+    const nextArg = at >= 0 ? args[at + 1] : undefined;
+    const baseUrl = nextArg && !String(nextArg).startsWith("--") ? String(nextArg) : (process.env.DSH_WEB_URL || "");
+    const { buildModelTools } = await import("../lib/model-tools.js");
+    const updMod = await import("../lib/update.js");
+    const hostM = await import("../lib/host.js");
+    const rows = [];
+    const push = (level, label, detail) => rows.push({ level, label, detail: detail || "" });
+    // 1) 契约表（宿主 ctx.tools 与 MCP 共用这一张）
+    const tools = buildModelTools({ core, rules, hostctl: hostM, updater: updMod, rejectIfNeedPrompt: () => null });
+    push("ok", `契约表 ${tools.length} 个工具`, tools.map((x) => x.name.replace("purge_", "")).join(" / "));
+    // 2) 宿主定位与补丁分桶
+    const st = await core.gatherState();
+    const tally = core.patchTally(st, core.ALL_PATCHES);
+    const pending = tally.pending ?? 0;
+    const skipped = (tally.skipped || []).length;
+    push(st.surface ? "ok" : "warn", `宿主 surface=${st.surface || "未定位"}`, `补丁 ${tally.applied}/${tally.total} 已清洗｜待清洗 ${pending}｜未命中 ${skipped}`);
+    if (pending > 0) push("bad", `还有 ${pending} 条待清洗`, "跑 dsh-purge --apply");
+    if (skipped > 0) push("ok", `未命中 ${skipped} 条为设计内 skipped`, (tally.skipped || []).map((x) => `#${x.id ?? x}`).join(" "));
+    // 3) 注入正文状态（诚实标签：custom 说明 sync 不会覆盖，需要人决定）
+    const defLen = String(core.defaultOverrideText() || "").length;
+    let liveLen = 0;
+    try { if (st.override_path && fs.existsSync(String(st.override_path))) liveLen = fs.readFileSync(String(st.override_path), "utf8").length; } catch { }
+    push(st.override_status === "default" ? "ok" : "warn", `注入状态 ${st.override_status}`, `默认 ${defLen} 字｜生效 ${liveLen || "—"} 字${st.override_status === "custom" ? "｜想要新条款：dsh-purge 面板或 purge_override reset" : ""}`);
+    // 4) 路由是否 live（这是"重启有没有生效"的唯一硬证据）
+    if (!baseUrl) {
+      push("warn", "HTTP MCP 未探测", "给 --verify-live <url> 或设 DSH_WEB_URL");
+    } else {
+      const { probeMcpEndpoint } = await import("../lib/mcp-probe.js");
+      const r = await probeMcpEndpoint({ baseUrl });
+      push(r.state === "live" ? "ok" : "warn", `路由 ${baseUrl} → ${r.state}`, (r.lines || []).slice(-1)[0] || "");
+    }
+    console.log("dsh-purge 实时验收（只读探测）：");
+    for (const x of rows) console.log(`  ${x.level === "ok" ? "✓" : x.level === "warn" ? "⚠" : "✗"} ${x.label}${x.detail ? `｜${x.detail}` : ""}`);
+    const bad = rows.filter((x) => x.level === "bad").length;
+    const warn = rows.filter((x) => x.level === "warn").length;
+    console.log(`  → ${bad ? `${bad} 项不通过` : warn ? `${warn} 项待处理（通常是"还没重启"或没给 URL）` : "全部通过 ✓"}`);
+    process.exit(bad || warn ? 1 : 0);
   }
 
   if (mode === "--mcp" || mode === "--tools" || mode === "--drill") {
