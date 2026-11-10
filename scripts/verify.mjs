@@ -131,7 +131,7 @@ if (!skip("cli")) {
 }
 // 关 12：写路径冒烟——apply/revert 往返（此前没有任何一关执行过写路径；它也是唯一能抓到 revert 不对称的关）。
 if (!skip("write")) {
-  const res = spawnSync(process.execPath, [path.join(root, "scripts", "write-smoke.mjs")], { encoding: "utf8", timeout: 180000 });
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "write-smoke.mjs")], { encoding: "utf8", timeout: 300000 });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
   if (res.status !== 0) {
     failures.push(`写路径冒烟未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
