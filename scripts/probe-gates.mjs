@@ -8,6 +8,9 @@
  * 两类证据要分清：
  *   · mutated-now —— 本轮现场改坏再复原，实测能红；
  *   · bitten —— 本会话之前已被真实缺陷咬过（记在 release-notes），不再重复改坏。
+ * 复原复检会自己定级（第 87 轮加）：clean 仍非 0 时立刻重跑一次并打印失败行——
+ *   「重跑即绿」＝前序操作时序问题，不是本关的状态依赖；仍红才当作真异常。第 87 轮就是靠这行把
+ *   关 12 的低频红定性成 Windows EPERM 瞬时锁（后在 core.writeBufAtomic 加重试解决）。
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -149,16 +152,30 @@ for (const p of probes) {
   } finally {
     if (typeof restored === "function") restored();
   }
-  const clean = run(p.cleanCmd || p.cmd).status;
+  const cleanRes = run(p.cleanCmd || p.cmd);
+  let clean = cleanRes.status;
+  let cleanNote = "";
+  // 复原后仍非 0：先重跑一次并抓失败行。目的是分开两种可能——「前序操作的时序绊了一下」vs「这关真有状态依赖」。
+  if (clean !== 0) {
+    const all = String((cleanRes.stdout || "") + (cleanRes.stderr || ""));
+    const firstBad = all.split(/[\r\n]+/).filter((l) => l.includes("✗"))[0] || all.split(/[\r\n]+/).filter(Boolean).pop() || "";
+    const retry = run(p.cleanCmd || p.cmd);
+    cleanNote = `首次复检 ${clean} → 重跑 ${retry.status}：` + firstBad.trim().slice(0, 90);
+    if (retry.status === 0) {
+      clean = 0;
+      cleanNote += "（重跑即绿：判为前序操作时序，不是本关的状态依赖）";
+    } else clean = retry.status;
+  }
   const bites = typeof badExit === "number" && badExit !== 0;
   const cleanOk = clean === 0;
-  rows.push({ gate: p.gate, how: p.how, badExit, clean, bites, cleanOk, out: badOut, detail: p.detail || "" });
+  rows.push({ gate: p.gate, how: p.how, badExit, clean, bites, cleanOk, cleanNote, out: badOut, detail: p.detail || "" });
 }
 
 console.log("闸门反向探针总表：");
 for (const r of rows) {
   const mark = r.how === "bitten" ? "已咬过" : (r.bites ? "改坏即红 ✓" : "改坏不红 ✗（门是假的）");
   console.log(`  ${(r.bites || r.how === "bitten") && r.cleanOk ? "✓" : "✗"} ${r.gate.padEnd(34)} ${mark}${r.how === "mutated-now" ? `｜坏态 exit=${r.badExit} → 复原 exit=${r.clean}` : ""}`);
+  if (r.cleanNote) console.log(`      复原复检: ${r.cleanNote}`);
   if (verbose && r.out) console.log(`      坏态首行: ${r.out.slice(0, 96)}`);
   if (r.detail) console.log(`      证据: ${r.detail}`);
 }
