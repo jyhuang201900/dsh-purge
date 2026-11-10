@@ -3,15 +3,17 @@
  * 用途：写路径冒烟——在临时宿主夹具上跑 revert→apply→apply→revert，用「逐文件字节」当判据（此前十一关没有一关执行过写路径）。
  * 用法：node scripts/write-smoke.mjs
  * 依赖：Node ≥18；需要本机装有 dsh 桌面端（拿它的 ai_base 当拷源）；没有就报「跳过」并按通过退出，不判失败。
- * 验证：2026-11-10 实测：拷 22 个真实小文件 → revert 到 pristine → apply 改掉 15 个 → 再 apply 幂等（漂移 0）→ 末次 revert 后与 pristine 零差异。
+ * 验证：2026-11-10 实测：拷 22 个真实小文件 → revert 到 pristine → apply 改掉 15 个 → 再 apply 幂等（漂移 0）→ 末次 revert 后仅 1 处残差（`dsh-settings/lib/index.js`，成因见下）。
  *
  * 三条当场量出来的事实（都是照记忆写会写错的东西）：
  *   · 从已清洗的真宿主拷来的文件起点是「已打补丁」态，直接 apply 命中 0（幂等的另一面）——必须先 revert 拿 pristine 当基线；
- *   · applyPatchesAllHosts 返回 {hosts, report}，report 是**数组**（每宿主一项），没有 report.applied —— 判据用「文件是否真变了」；
+ *   · applyPatchesAllHosts 返回 `{hosts, report}`，其中 **`report` 是扁平数组（76 项，每项 `{patch_id,name,status,path,applied,already,missing}`）**；
+ *     没有 `report.applied` 这种字段 —— 判据用「文件是否真变了」＋ `report[].path`（就是靠后者定位到 #42 在写 dsh-settings）；
  *   · 隔离旋钮是 DSH_DESKTOP_INSTALL，不是 DSH_BASE：只设 DSH_BASE 时写入端仍按真实安装目录解析（实测真宿主 74/76 被打到 15/76）；
  *     两者都设进夹具后，真宿主文件哈希一字未动（本轮实测 c3b695ac6714 前后相同）。
- *   · 只用 `?t=` 重导 core.js **不足以隔离**：core 依赖的 host.js 仍是同一实例、路径已绑真宿主，实测会把真宿主从 74/76 打回 15/76。
- *     所以执行段放进子进程，DSH_BASE / DSH_HOME 在任何 import 之前就指向夹具。
+ *   · `dsh-settings` 那条残差的成因（第 75 轮查清，别再当产品缺陷）：真机 revert 走 `host-backups/<hash>.bak`
+ *     （实测该文件备份 22,659 字 = 未打补丁原版，当前 27,636 字 = 已打补丁），而**临时夹具的 DSH_HOME 是空的、没有这层备份**，
+ *     revert 只能字符串反查；#42 十二条替换里有四条的 pattern 是前一条的输出（链式重叠），反查只能近似 → **残差 = 夹具先天不足**。
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -128,7 +130,7 @@ if (!r) {
   check("apply 返回 report 为数组（证明判据不靠猜字段）", r.reportIsArray === true, `${r.reportItems} 项`);
   check("apply 确实改写夹具文件（命中 > 0）", r.changedByApply > 0, `被改 ${r.changedByApply} / ${r.files}`);
   check("第二次 apply 幂等（无进一步改动）", r.driftOnSecondApply === 0, `漂移 ${r.driftOnSecondApply} 个`);
-  check("末次 revert 后逐文件字节复原（已知不对称：dsh-settings 最多留 1 处残差）", Array.isArray(r.residue) && r.residue.length <= 1, (r.residue || []).join(", ") || "全部一致");
+  check("末次 revert 后逐文件字节复原（残差上限 1，成因已查：夹具无 host-backups 可回，只能字符串反查）", Array.isArray(r.residue) && r.residue.length <= 1, (r.residue || []).join(", ") || "全部一致");
 }
 // 真宿主没被动过：状态哈希（补丁计数）在冒烟前后应一致
 // 直接验隔离：真宿主里被 apply 触及的文件，前后哈希必须一字不差（只看 pending 会被自收尾掩盖）。
