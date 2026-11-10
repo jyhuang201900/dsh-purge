@@ -12,6 +12,9 @@
 - **成本口径立起来**：76 条补丁净 +13,128 字，但**只有提示词层 +904 字进上下文**；`--align` 现在直说默认注入 29,777 字、生效文件字数与状态，并给出 token 估算（≈11,688 / 7,842）。
 - **定位复查**：`restart ∩ patch = 0` 在同口径 2000 条采样下复现，且**把正则口径一起写进档案**（宽口径下交集 2–5，均非文件级补丁治理）。
 - **验收工具化**：新增 `dsh-purge --verify-live [url]`（契约表 / 补丁分桶 / 注入状态 / 路由 live 四查，只读）；实测对运行中宿主 `POST /dsh-purge/mcp` 得 **HTTP 405**，把"需要重启"从口头判断变成机器可验事实。注入 ⚠ 也按证据分四档，本机定性为**插件记录与磁盘脱节**。
+- **`purge_override` 加第三个语义 `adopt`（只对齐记录、不动文件），而且方案是被实测纠正过的。** 原打算调 `markOverrideCustomized(home, true, 现文件)`，但临时 home 实测显示它会把状态从 `custom` 翻成 `stale-default`、`isKeepableUserOverride` 由 true 变 false —— 也就是**下次启动会被自动覆盖**，正好与「承认这是你自己的稿」相反。改用 `{ explicitSave: true }`（与面板「保存」同语义）后：状态保持 `custom`、`sync` 保留、文件未动；端到端确认 `--verify-live` 那条「记录与磁盘不一致」⚠ 降为信息级，且再 adopt 一次结果不变（幂等）。`--verify-live` 的提示也改成三选一：adopt / 面板保存 / reset。
+  代价照记：e2e 第一次我在进程内调用前忘了设 `DSH_HOME`，于是 adopt 写到了**真实** state 上（已还原，四个判据字段回到原值，可能少了 `updatedAt`，不影响逻辑）。同轮新增**第 23 项发版守卫**并立刻用于 1.1.85：README 三份的 `Version` 行与 `dsh://` 的 `version=` 必须等于 `package.json`（反向探针：只改 pkg → 三份各报一条精确红）。
+
 - **方法论五则**写进 README（按 104 次坑提及排序）：先量再写、回读不说谎、门要红得对、多点改动分步落盘、环境不是事实。
 
 ## English
@@ -26,6 +29,7 @@ Aligned with host **dsh 0.2.2-rc.1** (76 patches, 74 applied, 2 designed skips).
 - **Cost made explicit**: only the prompt layer (+904 chars) actually enters context; `--align` states default vs effective injection size, status, and token estimates (~11,688 / ~7,842).
 - **Positioning re-verified with the instrument pinned**: `restart ∩ patch = 0` on the same 2000-entry sample (2-5 under wider word sets).
 - **`dsh-purge --verify-live [url]`** added: four read-only checks; a running host answers `POST /dsh-purge/mcp` with **HTTP 405**, turning "you need to restart" into a machine-checked fact.
+- **`purge_override` gained a third mode, `adopt`** (re-align `override-state.json` to what is on disk, never rewriting the file). The obvious call `markOverrideCustomized(home, true, live)` was rejected by measurement: it flipped the status to `stale-default` and made `isKeepableUserOverride` false - i.e. the next boot would overwrite the user's draft, the opposite of adopting it. With `{ explicitSave: true }` the status stays `custom`, the file is untouched, repeat calls are idempotent, and the `--verify-live` warning drops to informational. Honest cost note: the first end-to-end run forgot to set `DSH_HOME`, so `adopt` wrote the real state file; it was restored. The new check-package item 23 (release guard) shipped in the same round and was used immediately for 1.1.85.
 
 
 
