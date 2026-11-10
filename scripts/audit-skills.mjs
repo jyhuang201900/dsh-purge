@@ -34,10 +34,13 @@ for (const s of skills) {
   }
 }
 
-// 4) 条令（AGENTS.md 的「进攻技能路由」+ 注入正文）点名的技能，必须都在 skills/redteam 里。
-//    lib/model-tools.js 也纳入：drill summary 的「下一步」会点名该加载哪个技能，
-//    那些名字同样必须真实存在（否则日常会话照着调就撞空），纳入后才不会漂。
-const doctrineFiles = ["AGENTS.md", "lib/default-prompt-inject.md", "lib/default-prompt-inject.zh.md", "lib/default-prompt-inject.en.md", "lib/model-tools.js"];
+// 4) 条令（AGENTS.md 的「进攻技能路由」+ 注入正文 + 面向模型的代码文本）点名的技能，
+//    必须都在 skills/redteam 里。纳入范围（都是模型真会读到的文本）：
+//      · lib/model-tools.js      —— drill summary 的「下一步」会点名该加载哪个技能
+//      · lib/redteam/store-core.js —— 五个角色稿正文（DEFAULT_PROMPTS）点名技能；
+//        角色稿进的是子会话系统提示词，点名一个不存在的技能等于让孩子去找不存在的武器。
+//    两者纳入后都不会漂；实测纳入前 0 误报（当前只点名真实技能），属前瞻守卫。
+const doctrineFiles = ["AGENTS.md", "lib/default-prompt-inject.md", "lib/default-prompt-inject.zh.md", "lib/default-prompt-inject.en.md", "lib/model-tools.js", "lib/redteam/store-core.js"];
 const skillSet = new Set(skills);
 const missingSkills = [];
 for (const rel of doctrineFiles) {
