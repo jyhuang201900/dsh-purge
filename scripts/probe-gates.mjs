@@ -102,6 +102,12 @@ const probes = [
     cmd: ["scripts/hygiene-selftest.mjs"],
   },
   {
+    gate: "关 11 CLI 冒烟（cli-smoke）",
+    how: "bitten",
+    detail: "本轮实测：把 bin 的 MODES 里 --align 改成 --algn（模拟 CLI 分发被改坏），冒烟立刻报 ✗ --align 出对齐体检｜exit=2（要 0），smoke exit=1、verify 报「CLI 冒烟未过」并退出非 0。反向探针第一次是空转的——我在 PowerShell 里用了 bash 的 \\' 引号把戏，突变根本没发生。",
+    cmd: ["scripts/cli-smoke.mjs"],
+  },
+  {
     gate: "关 8 JSON 合法性",
     how: "mutated-now",
     cmd: ["scripts/verify.mjs"],

@@ -52,8 +52,18 @@ function printStatus(state, update) {
   return out.join("\n");
 }
 
+/** CLI 可用旗标（唯一来源）：未知参数校验与 help 文案都以它为准，避免两份列表各自腐烂。 */
+const MODES = ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--drill", "--mcp", "--mcp-probe", "--verify-live", "--edit", "--help"];
+
 async function main() {
-  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--drill", "--mcp", "--mcp-probe", "--verify-live", "--edit", "--help"].includes(a));
+  const mode = args.find((a) => MODES.includes(a));
+  // 未知参数必须当场报错：以前 `--nonsense` 会静默落到默认分支、打印一份 status 并 exit 0，
+  // 于是手滑打错（--stauts）等于拿到一份假装成功的输出。用法错误用 exit=2，和内部失败(1)分开。
+  const stray = args.filter((a) => String(a).startsWith("--") && !MODES.includes(a) && a !== "-h");
+  if (stray.length) {
+    console.log(`dsh-purge: 未知参数 ${stray.join(" ")}｜可用：${MODES.join(" ")}（或 -h 看用法）`);
+    process.exit(2);
+  }
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`dsh-purge 用法:

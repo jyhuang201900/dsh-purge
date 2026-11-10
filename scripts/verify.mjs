@@ -113,6 +113,14 @@ if (!skipSize) {
   } else notes.push((out[out.length - 1] || "").trim());
 }
 
+// 关 11：CLI 冒烟——真跑 bin 的只读模式（此前十关没有一关执行过 CLI 分发，改坏 bin 也可能全绿）。
+if (!skipSize) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "cli-smoke.mjs")], { encoding: "utf8" });
+  const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
+  if (res.status !== 0) {
+    failures.push(`CLI 冒烟未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
+  } else notes.push((out[out.length - 1] || "").trim());
+}
 // 关 8：JSON 合法性——package.json / screenshots / locale 文案源 / 图谱语义层手写件。
 const jsons = ["package.json", "screenshots.json", "locale/zh.json", "locale/en.json"]
   .filter((f) => fs.existsSync(path.join(root, f)))
