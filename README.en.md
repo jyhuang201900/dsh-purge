@@ -414,7 +414,7 @@ npm run verify
 | Rules | `/rules` | `GET /rules` | `purge_rules` | own top-level command |
 | Skills | `/skills` | `GET /skills` + `/skill` | `purge_skills` | same |
 | Patch detail | `/purge status` (includes per-patch) | panel view | `purge_patch` | single source: all read `patchTally()` |
-| Drill console | - (preset plane has 56 `redteam_*`) | `GET /drill-grant` | `purge_drill` (18 ops) | model-first; no second command dialect |
+| Drill console | - (preset plane has 56 `redteam_*`) | `GET /drill-grant` | `purge_drill` (17 ops) | model-first; no second command dialect |
 | Session rewind | `/rewind` | `GET /rewind` + `/rewind/options` | - | session action; risky for the model to invoke |
 | MCP transport | - | `POST /mcp` | same contract table as `ctx.tools` | transport, not a capability |
 
@@ -560,6 +560,8 @@ Eight third-party dsh plugins are installed in this desktop profile; each owns o
 | `@panando/dsh-codex-harness`, `@xmanrui/dsh-im` | Coding harness, IM bridge | Orthogonal to purge |
 
 Purge hands capabilities to models through three entrances, all built from one contract table (`lib/model-tools.js`, 10 tools: status / align / apply / revert / patch / update / rules / skills / override / drill):
+
+**Capability ledger (only numbers a machine can compute; every one of them is reconciled by check-package item 21)**: 10 tools, `purge_drill` 17 op, 22 entities (10 read + 12 write), 41 end-to-end scenario steps, nine gates. Write-method coverage is 27 of 31 (87%); the remaining four (`close`, `seedStages`, `seedScorePoints`, `writePromptManifest`) are deliberate exemptions - see the three-entrance matrix above and release-notes, not an un-checked gap.
 
 1. **Inside a dsh session**: registered via `ctx.tools` on activation, so the model sees `purge_*`.
 2. **MCP over stdio**: `node bin/dsh-purge.js --mcp`, connectable by any MCP client, no running dsh required.

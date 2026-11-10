@@ -422,7 +422,7 @@ npm run verify
 | 规则集 | `/rules` | `GET /rules` | `purge_rules` | 独立顶层命令 |
 | 技能 | `/skills` | `GET /skills` + `/skill` | `purge_skills` | 同上 |
 | 补丁明细 | `/purge status`（含逐条） | 面板展示 | `purge_patch` | 单一来源：都读 `patchTally()` |
-| 演练台 | —（预设面有 56 个 `redteam_*`） | `GET /drill-grant` | `purge_drill`（18 op） | 模型面主打；命令面不做，避免第二套话术 |
+| 演练台 | —（预设面有 56 个 `redteam_*`） | `GET /drill-grant` | `purge_drill`（17 op） | 模型面主打；命令面不做，避免第二套话术 |
 | 会话回退 | `/rewind` | `GET /rewind` + `/rewind/options` | — | 会话动作，模型自己 rewind 有风险 |
 | MCP 通路 | — | `POST /mcp` | 与 `ctx.tools` 同一张表 | 传输层，不是能力 |
 
@@ -572,6 +572,8 @@ flowchart LR
 | `@panando/dsh-codex-harness`、`@xmanrui/dsh-im` | 编码 harness、IM 接入 | 与 purge 正交 |
 
 purge 给模型的入口有三条，共用同一张契约表（`lib/model-tools.js`，10 个工具：status / align / apply / revert / patch / update / rules / skills / override / drill）：
+
+**能力账（只放机器算得出的数，全部由 `check-package` 第 21 项对账）**：10 个工具、`purge_drill` 17 op、22 个实体（读 10 + 写 12）、端到端情景 41 步、九道闸门。写方法覆盖 27/31（87%），剩下 4 个（`close`、`seedStages`、`seedScorePoints`、`writePromptManifest`）是有意豁免——理由见上面三面矩阵与 release-notes，不是没查。
 
 1. **dsh 会话内**：插件激活时直接 `ctx.tools.register`，模型看到 `purge_*`。
 2. **MCP over stdio**：`node bin/dsh-purge.js --mcp`，任何 MCP 客户端可连，不需要 dsh 在跑。

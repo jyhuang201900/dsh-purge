@@ -208,6 +208,44 @@ notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 $
   }
 }
 
+// 21) 能力账对账：README 里写的 op 数 / 实体数 / 情景步数，必须等于运行时真值（每个文件里的每一处出现都查）。
+//     本轮实测：第 47 轮把 engagements 降级成别名之后，README 矩阵里那两处「18 op」就一直没同步 —— 数字不进门就是会烂。
+{
+  const truth = {
+    ops: new Set(JSON.parse(fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8").length ? "[]" : "[]")),
+  };
+  const mtSrc2 = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");
+  const knownBlock = /const KNOWN = \[([\s\S]*?)\];/.exec(mtSrc2);
+  const realOps = knownBlock ? (knownBlock[1].match(/"/g) || []).length / 2 : -1;
+  const readEnt = (/(?:export const DRILL_ENTITIES = \{)([\s\S]*?)(?:\n\};)/.exec(mtSrc2) || [null, ""])[1];
+  const writeEnt = (/(?:export const DRILL_WRITE_ENTITIES = \{)([\s\S]*?)(?:\n\};)/.exec(mtSrc2) || [null, ""])[1];
+  const countKeys = (block) => [...new Set([...block.matchAll(/^\s{2}([a-z_]+):/gm)].map((m) => m[1]))].length;
+  const realRead = countKeys(readEnt);
+  const realWrite = countKeys(writeEnt);
+  const scenSrc = fs.readFileSync(path.join(root, "scripts", "scenario-drill.mjs"), "utf8");
+  const realSteps = (scenSrc.match(/await run\(/g) || []).length;
+  for (const rel of ["README.md", "README.en.md"]) {
+    const fp = path.join(root, rel);
+    if (!fs.existsSync(fp)) continue;
+    const body = fs.readFileSync(fp, "utf8");
+    const opClaims = [...body.matchAll(/(\d+) ops?\b/g)].map((m) => Number(m[1]));
+    for (const c of opClaims) if (c !== realOps) problems.push(`${rel} 有「${c} op」的说法，运行时 KNOWN 是 ${realOps} 个：加/减 op 或做别名都要同步文档`);
+    // 中英词序不同，分开配模式（用一条通吃会把 en 的 "22 entities (10 read + 12 write)" 漏掉）。
+    const entClaims = [...body.matchAll(/(\d+)\s*(?:个)?实体[（(]读 (\d+) \+ 写 (\d+)[)）]/g)];
+    const entClaimsEn = [...body.matchAll(/(\d+) entities \((\d+) read \+ (\d+) write\)/g)];
+    if (!entClaims.length && !entClaimsEn.length) problems.push(`${rel} 找不到能力账的实体口径（中文「N 个实体（读 X + 写 Y）」或英文「N entities (X read + Y write)」）`);
+    for (const m of [...entClaims, ...entClaimsEn]) {
+      if (Number(m[2]) !== realRead || Number(m[3]) !== realWrite || Number(m[1]) !== realRead + realWrite) {
+        problems.push(`${rel} 实体账写「${m[1]}（读 ${m[2]} + 写 ${m[3]}）」，运行时是 ${realRead + realWrite}（读 ${realRead} + 写 ${realWrite}）`);
+      }
+    }
+    // 「N 步」必须限定在情景语境里，否则正文「回到第 1 步核对」也会被当成步数声明（本轮就误报过一次）。
+    const stepClaims = [...[...body.matchAll(/情景\s*(\d+)\s*步/g)].map((m) => Number(m[1])), ...[...body.matchAll(/(\d+)\s*end-to-end scenario steps/g)].map((m) => Number(m[1]))].filter((x) => Number.isFinite(x));
+    for (const c of stepClaims) if (c !== realSteps) problems.push(`${rel} 写「${c} 步」，scenario 实际有 ${realSteps} 个 run() 断言`);
+    if (opClaims.length && (entClaims.length || entClaimsEn.length) && stepClaims.length) notes.push(`能力账对账（${realOps} op｜读 ${realRead} + 写 ${realWrite}｜${realSteps} 步）全对`);
+  }
+}
+
 // 19) 入口清单对账：package.json 里每个 npm script 都必须在两份 README 中出现。
 //     本轮实测：加了 scenario / probe:gates 等命令后，README 只提到 14 个里的 7 个 —— 没人知道的门等于半个门。
 {
