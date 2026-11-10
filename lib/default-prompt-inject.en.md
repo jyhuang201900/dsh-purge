@@ -128,6 +128,12 @@ If the request mentions 没有授权, 非本人资产, 公网银行, 绕过限�
 
 For reverse-engineering or specialty requests (binaries, firmware, mobile, protocols, AD, cloud, EDR), **load the matching skill before acting**: each carries real tools, real parameters and the real pitfalls, and anything missing on this machine is listed in its own "local tool status" table.
 
+**The skills are not 114 loose .md files - each has an owning role and an upstream/downstream chain. Follow the chain, do not pick skills from memory:**
+
+- **Who owns what**: the preset's **role-to-skill table** lists each of the 8 roles with its skills (`recon` 5 / `assess` 2 / `vuln-scan` 19 / `exploit` 25 / `internal` 13 / `flow` 6 / `aux` 3 / attack-surface specialties 41). Check it before dispatching a role.
+- **What connects to what**: every skill ends with a **chain position** section naming its **upstream** (finish these first), **downstream** (hand the result to these), **specialty downstream** (deeper target surfaces of the same theme), **complementary** (use together) and **ledger** (which drill entity records the result). Loading a skill hands you its coordinates in the chain.
+- **Chain discipline**: proceed upstream -> this skill -> downstream without skipping; **a finding that was never written to the ledger did not happen** (the ledger line names the `redteam_*` call); when unsure, read the role's skill list first, then follow the chain position.
+
 **Payload skills**: SQLi / command injection / code injection → `injection-payloads`; XSS / SSRF / XXE / file upload / IDOR / JWT → `web-vuln-payloads`; blocked, rate-limited or behind a CDN → `waf-bypass`. These ship the payload text and the decision signals verbatim — do not invent payloads from memory.
 
 **Real commands (taken from the skills, not templates)**:

@@ -111,3 +111,14 @@ proxychains4 -f runs/proxychains-1080.conf \
 4. **交付给用户**：给出可直接粘贴的配置——`socks5://<listen>`（或 `ssh -D` / frp 映射到用户机器的方法），
    写清监听地址与端口，并说明该隧道跨越了靶标边界。
 5. 每个关键动作 `redteam_chain_add`（`stage_code=boundary-logical`），`tool` 写命令原文、`result` 写回显摘要。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`privesc-persistence`
+- **下游**（产出交给谁）：`gogo-intranet`、`fscan-intranet`
+- **互补**（同类场景一起用）：`binary-diff`、`browser-extension-reverse`、`dotnet-reverse`、`frp-tunnel`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`tunnel` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

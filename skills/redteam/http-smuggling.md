@@ -928,3 +928,15 @@ Transfer-Encoding: chunked
 ```
 
 ---
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
+- **上游**（先做完这些再进来）：`nuclei-scan`
+- **下游**（产出交给谁）：`waf-bypass`、`unauth-exploit`
+- **专项下游**（同主题更深的靶子面）：`competition-request-normalization-smuggling`
+- **互补**（同类场景一起用）：`dir-bruteforce`、`graphql-testing`、`injection-payloads`、`malware-analysis`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

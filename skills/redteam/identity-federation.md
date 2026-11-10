@@ -56,3 +56,15 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 | 工具 | 状态 |
 | --- | --- |
 | `burp` | ❌ 未装（用前先装，或改用等价工具） |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`windows-ad`
+- **下游**（产出交给谁）：`cloud-k8s`、`competition-oauth-oidc-chain`
+- **专项下游**（同主题更深的靶子面）：`competition-oauth-oidc-chain`
+- **互补**（同类场景一起用）：`gogo-intranet`、`hardware-security`、`lateral-movement`、`netexec-scan`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`credential`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

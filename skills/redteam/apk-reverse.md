@@ -869,3 +869,15 @@ function findInstances(className) {
 | frida-codeshare-scripts | 全网最全脚本收集 | https://github.com/zengfr/frida-codeshare-scripts |
 | Objection | Frida 封装工具 | https://github.com/sensepost/objection |
 | r2frida | radare2 + Frida 集成 | https://github.com/nowsecure/r2frida |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`mobile-reverse`
+- **下游**（产出交给谁）：`competition-android-hooking`
+- **专项下游**（同主题更深的靶子面）：`competition-android-hooking`
+- **互补**（同类场景一起用）：`binary-diff`、`browser-extension-reverse`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

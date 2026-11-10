@@ -111,3 +111,13 @@ mkdir -p "$DSH_HOME/redteam" && date -Is > "$DSH_HOME/redteam/.setup-complete"
 | 全部都没有 | 只做纯被动信息收集与资产梳理 | 明确告诉用户"这次只能做到信息收集阶段" |
 
 **降级决定要写进汇报**：用户需要知道这次是在什么条件下打的。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：流程/编排｜**角色**：`flow`
+- **下游**（产出交给谁）：`recon-pipeline`
+- **互补**（同类场景一起用）：`kimi-webbridge`、`pentest-tools`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

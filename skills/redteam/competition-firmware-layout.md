@@ -81,3 +81,12 @@ Use this skill when the hard part is understanding how a firmware image is struc
 - Editing extracted files before recording pristine offsets and hashes
 - Mixing config recovered from one partition with behavior sourced from another without proving the link
 - Treating an extracted secret as decisive without showing where the boot or update flow actually consumes it
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用
+- **互补**（同类场景一起用）：`competition-android-hooking`、`competition-crypto-mobile`、`competition-ios-runtime`、`competition-reverse-pwn`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

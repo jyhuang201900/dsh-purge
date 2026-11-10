@@ -84,3 +84,13 @@ curl -s "https://target.example.com/upload/x.jsp?cmd=id"
 - 工具 GUI 需要图形会话（`DISPLAY=:10.0` 可用）。
 - 凭据用 `redteam_credential_add` 落库：**明文写 `secret_value`**（面板直接显示，便于复用），同时把证据文件写 `runs/` 并在 `secret_ref` 里引用。资产库只在本机，别把库或导出内容带走。
 - 目标可能有 EDR/查杀：先测试 shell 是否存活，避免反复落地触发告警；落地失败就换语言/编码（JSP→JSPX→PHP）或换上传点。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`injection-payloads`、`unauth-exploit`、`code-audit`
+- **下游**（产出交给谁）：`privesc-persistence`、`suo5-tunnel`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`webshell`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

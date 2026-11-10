@@ -168,3 +168,14 @@ cosign verify --key cosign.pub myimage:tag
 | 工具 | 状态 |
 | --- | --- |
 | `install` | ❌ 未装（用前先装，或改用等价工具） |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
+- **上游**（先做完这些再进来）：`code-audit`
+- **下游**（产出交给谁）：`code-audit`
+- **专项下游**（同主题更深的靶子面）：`competition-supply-chain`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

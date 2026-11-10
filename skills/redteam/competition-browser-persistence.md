@@ -82,3 +82,12 @@ Use this skill when the decisive branch lives in browser-held state rather than 
 - Listing storage contents without showing which item changes behavior
 - Mixing several origins or tenants in one storage explanation
 - Treating cached UI data as backend authorization without proving a server-side effect
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现
+- **互补**（同类场景一起用）：`competition-bundle-sourcemap-recovery`、`competition-custom-protocol-replay`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

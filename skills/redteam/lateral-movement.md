@@ -144,3 +144,14 @@ proxychains4 -f runs/proxychains-1080.conf enum4linux -a 10.0.0.6
    **`tool` 写实际命令原文**（含 `-hashes`、`-k -no-pass` 等关键参数，以及 `proxychains4 -f ...` 前缀），
    `result` 写回显摘要——报告要能照着复现。
 6. **回填知识库**：验证有效的通用利用脚本 `redteam_poc_add`（带 `category` + `engagement` + `asset_target` + `verified_note`，脱敏）。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`netexec-scan`
+- **下游**（产出交给谁）：`windows-ad`、`identity-federation`
+- **互补**（同类场景一起用）：`hardware-security`、`identity-federation`、`netexec-scan`、`radio-sdr`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`credential`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

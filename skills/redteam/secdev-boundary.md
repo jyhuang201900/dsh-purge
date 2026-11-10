@@ -96,3 +96,14 @@ curl -sk "https://TARGET/api/ops/jobs/" | head -c 400              # 任务列�
 - 安全设备**重启=全网断**，生产靶场禁止任何"重启生效"类利用；只读洞优先，写文件类先确认路径不存在再写。
 - 设备口令爆破限流 `-t 2`、小字典（≤50 组），打锁了比没打还糟。
 - 边界突破记分必须带**内网可达实测证据**（一条内网资产的响应），没有就记 `candidate` 待验证。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`nuclei-scan`
+- **下游**（产出交给谁）：`webshell-toolkit`、`credential-attack`
+- **互补**（同类场景一起用）：`pwn-chain`、`radare2`、`shell-handler`、`suo5-tunnel`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

@@ -83,3 +83,15 @@ vol -f mem.dmp windows.cmdline
 | --- | --- |
 | `volatility` | ❌ 未装（用前先装，或改用等价工具） |
 | `tshark` | ✓ 已装 |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
+- **上游**（先做完这些再进来）：`threat-hunting`、`malware-analysis`
+- **下游**（产出交给谁）：`case-review`
+- **专项下游**（同主题更深的靶子面）：`competition-forensic-timeline`
+- **互补**（同类场景一起用）：`credential-attack`、`dir-bruteforce`、`graphql-testing`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

@@ -51,6 +51,7 @@
     "probe:gates": "node scripts/probe-gates.mjs",
     "audit:skills": "node scripts/audit-skills.mjs",
     "sync:bundled": "node scripts/sync-bundled.mjs",
+    "build:skills-graph": "node scripts/build-skill-graph.mjs",
     "sync:skills": "node scripts/sync-bundled.mjs",
     "toolkit:windows": "node scripts/toolkit-windows.mjs",
     "toolkit:check": "node scripts/toolkit-windows.mjs --check",

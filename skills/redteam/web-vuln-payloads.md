@@ -129,3 +129,13 @@ kid 注入         "kid":"../../proc/self/environ"  /  SQL 拼接
 - 每条漏洞存**原始请求全文**（含 header、Cookie、body）与响应关键片段，不要只写结论。
 - XSS 记上下文类型；SSRF 记外带域名与回连时间；越权记两个身份各自看到的字段差异。
 - `redteam_chain_add`：`stage_code=exploit`，`tool` 写实际命令原文。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
+- **上游**（先做完这些再进来）：`nuclei-scan`
+- **下游**（产出交给谁）：`webshell-toolkit`、`thick-client`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

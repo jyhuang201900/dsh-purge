@@ -69,3 +69,14 @@ nmap -f --resume -sS --version-intensity 2 -T2 <target>
 - `provenance = active`，`tool = nmap` / `masscan` / `naabu`，记录 scan_run。
 - 每个开放端口一条 `redteam_asset_add`：`ports` 里带 `service`、`version`、`product`；banner 原文进 `note`。
 - 结论给指挥者时**给数字**：存活主机数 / 开放端口数 / 其中可定版本的服务数 / 疑似高价值项（管理台、数据库、内部服务）。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：1 信息收集｜**角色**：`recon`
+- **上游**（先做完这些再进来）：`recon-pipeline`
+- **下游**（产出交给谁）：`web-fingerprint`、`nuclei-scan`
+- **互补**（同类场景一起用）：`fofa-recon`、`passive-recon`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

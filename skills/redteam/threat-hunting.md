@@ -77,3 +77,14 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 - [ ] 是否有明确假说与结论？
 - [ ] 规则是否注明误报与数据源？
 - [ ] Checklist？
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`edr-bypass-re`
+- **下游**（产出交给谁）：`digital-forensics`
+- **互补**（同类场景一起用）：`netexec-scan`、`radio-sdr`、`wifi-wireless`、`windows-ad`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

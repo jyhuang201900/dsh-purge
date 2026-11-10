@@ -232,3 +232,14 @@ redteam_vuln_add       { engagement, target, name, severity, evidence_ref }   # 
 - `suo5-tunnel`：WebShell → SOCKS5，给 gogo 提供 `--proxy` 入口
 - `vps-reverse-shell`：隧道与载荷投递
 - `web-fingerprint` / `asset-correlation`：把 gogo 的结果进一步关联成资产图谱
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`suo5-tunnel`、`chisel-tunnel`
+- **下游**（产出交给谁）：`fscan-intranet`、`netexec-scan`
+- **互补**（同类场景一起用）：`edr-bypass-re`、`fscan-intranet`、`hardware-security`、`identity-federation`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

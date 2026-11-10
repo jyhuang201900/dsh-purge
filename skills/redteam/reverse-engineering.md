@@ -718,3 +718,14 @@ echo "[+] Done. 在 IDA 中重新分析验证。"
 - [MODeflattener](https://github.com/mrT4ntr4/MODeflattener) — 静态 deflat（ollvm-unflattener 的对照）
 
 > 关联文档：[[anti-analysis.md]] (反调试/反分析总表)、[[tools-advanced.md]] (高级工具集)、[[elf-analysis.md]] (ELF 文件分析)、[[ai-assisted-re.md]] (AI 辅助逆向)
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`binary-diff`
+- **下游**（产出交给谁）：`ida-reverse`、`ghidra-reverse`、`radare2`
+- **专项下游**（同主题更深的靶子面）：`competition-reverse-pwn`、`mobile-reverse`、`competition-zip-archive`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

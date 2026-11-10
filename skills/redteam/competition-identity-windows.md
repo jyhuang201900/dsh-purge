@@ -85,3 +85,12 @@ Use this skill when the challenge revolves around identity flow, replayable cred
 - Treating possession of a hash or ticket as proof of resulting privilege
 - Saying "domain compromise" without a reproducible edge-by-edge chain
 - Separating host evidence from identity evidence until the story stops making sense
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透
+- **互补**（同类场景一起用）：`competition-container-runtime`、`competition-dpapi-credential-chain`、`competition-k8s-control-plane`、`competition-kerberos-delegation`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

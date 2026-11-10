@@ -86,3 +86,14 @@ wc -l runs/live-proxies.txt
 - 高频爆破前确认目标没有账号锁定策略；触发锁定前主动停手。
 - 用完清掉 `runs/` 下的临时配置（如 `proxychains.tmp.conf`），不要在系统里留下任何代理痕迹。
 - 仅在授权演练范围内使用。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：流程/编排｜**角色**：`aux`
+- **上游**（先做完这些再进来）：`recon-pipeline`
+- **下游**（产出交给谁）：`active-scan`、`dir-bruteforce`
+- **互补**（同类场景一起用）：`browser-automation`、`case-review`、`ctf-sandbox-orchestrator`、`ctf-sandbox`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

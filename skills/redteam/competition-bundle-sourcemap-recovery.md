@@ -81,3 +81,12 @@ Use this skill when runtime truth lives in built assets, source maps, chunk tabl
 - Trusting repository source over the currently served artifact set
 - Opening huge minified bundles before checking manifests and source maps
 - Recovering names without proving which bundle path actually executes at runtime
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现
+- **互补**（同类场景一起用）：`competition-browser-persistence`、`competition-custom-protocol-replay`、`competition-file-parser-chain`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

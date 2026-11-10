@@ -357,3 +357,14 @@ idapro_rename(batch={"func": [{"addr": "函数地址", "name": "有意义的名�
 | `strings` | ❌ 未装（用前先装，或改用等价工具） |
 | `radare2` | ❌ 未装（用前先装，或改用等价工具） |
 | `r2` | ❌ 未装（用前先装，或改用等价工具） |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`reverse-engineering`
+- **下游**（产出交给谁）：`patch-diff-exploit`、`pwn-chain`
+- **互补**（同类场景一起用）：`ghidra-reverse`、`go-rust-reverse`、`iot-iiot-netdev`、`js-reverse`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

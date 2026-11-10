@@ -211,3 +211,15 @@ _共 4 份 HackerOne 已披露 High/Critical 报告命中本类，按 (赏金 + 
 
 - Time-of-check Time-of-use (TOCTOU) Race Condition：3 条
 - Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition')：1 条
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
+- **上游**（先做完这些再进来）：`nuclei-scan`
+- **下游**（产出交给谁）：`api-security`
+- **专项下游**（同主题更深的靶子面）：`competition-race-condition-state-drift`
+- **互补**（同类场景一起用）：`nuclei-scan`、`oob-verification`、`unauth-exploit`、`waf-bypass`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

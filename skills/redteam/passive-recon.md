@@ -76,3 +76,13 @@ gh search code --owner=<org> --match file --filename .env 2>/dev/null \
 - 域名 → IP 用 `redteam_asset_link` 建 `resolves` 边；同证书 / 同主体建 `shares_cert` 边。
 - `redteam_chain_add`：`stage_code=recon`，`tool` 写实际命令原文，`result` 写数量摘要（如 `crt.sh 拿到 63 个子域 → 去重后 41 → 其中 6 个带内网线索`）。
 - 给指挥者的结论必须**给数字**，并单列"高优先级边缘资产"（test/dev/uat/pre/staging、老系统、非标准端口、非备案但同主体）。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：1 信息收集｜**角色**：`recon`
+- **下游**（产出交给谁）：`fofa-recon`、`recon-pipeline`
+- **互补**（同类场景一起用）：`active-scan`、`fofa-recon`、`subdomain-bruteforce`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

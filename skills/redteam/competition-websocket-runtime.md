@@ -81,3 +81,12 @@ Use this skill when the decisive behavior is carried by realtime handshake and f
 - Treating keepalive traffic as business logic
 - Listing frames without showing which one changes state
 - Ignoring reconnect or resubscribe behavior that is necessary to reproduce the issue
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现
+- **互补**（同类场景一起用）：`competition-template-render-path`、`competition-web-runtime`、`competition-zip-archive`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

@@ -439,3 +439,14 @@ def edit(idx, data):
 - **远程堆喷不稳** — 服务端 fork 模型每次连接 brk/mmap 可能不同，要做随机化测试
 - **不要在 attack 链中遗留 unsorted 残留** — main_arena 指针出现在意外的 chunk 里会让后续 show 输出错乱
 - **safe-linking 错误率** — 计算 PROTECT_PTR 时记得是 `pos >> 12`，pos 是要写入的地址不是要指向的地址
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`ida-reverse`、`radare2`
+- **下游**（产出交给谁）：`competition-reverse-pwn`
+- **互补**（同类场景一起用）：`privesc-persistence`、`protocol-reverse`、`radare2`、`secdev-boundary`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

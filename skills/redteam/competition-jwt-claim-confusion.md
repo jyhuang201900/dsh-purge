@@ -81,3 +81,12 @@ Use this skill when the decisive bug is not just "there is a JWT," but how heade
 - Stopping at successful decode without proving authorization acceptance
 - Focusing on one claim without showing the whole validation chain
 - Ignoring key lookup or normalization behavior that matters more than the raw claim value
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现
+- **互补**（同类场景一起用）：`competition-forensic-timeline`、`competition-graphql-rpc-drift`、`competition-malware-config`、`competition-oauth-oidc-chain`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

@@ -81,3 +81,12 @@ Use this skill when the hard part is not merely naming the protocol, but reprodu
 - Trying broad replay before framing and state dependencies are understood
 - Mixing messages from separate sessions into one replay model
 - Claiming protocol recovery without producing an accepted replay or meaningful state transition
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现
+- **互补**（同类场景一起用）：`competition-browser-persistence`、`competition-bundle-sourcemap-recovery`、`competition-file-parser-chain`、`competition-forensic-timeline`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

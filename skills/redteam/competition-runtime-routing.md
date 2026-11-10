@@ -81,3 +81,12 @@ Use this skill when the decisive question is which sandbox node, proxy rule, or 
 - Treating a cloud-looking or public-looking hostname as external without checking sandbox routing
 - Mixing auth failures with route resolution failures
 - Explaining the path from code only without capturing one real request that proves the route
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现
+- **互补**（同类场景一起用）：`competition-race-condition-state-drift`、`competition-request-normalization-smuggling`、`competition-stego-media`、`competition-supply-chain`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

@@ -81,3 +81,12 @@ Use this skill when the decisive edge is Linux credential material and where tha
 - Listing secrets without proving acceptance on a target service
 - Mixing local privilege escalation and lateral movement in one vague chain
 - Ignoring namespace or socket ownership context
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透
+- **互补**（同类场景一起用）：`competition-kerberos-delegation`、`competition-kernel-container-escape`、`competition-lsass-ticket-material`、`competition-mailbox-abuse`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

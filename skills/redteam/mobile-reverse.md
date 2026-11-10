@@ -203,3 +203,13 @@ Interceptor.attach(Module.findExportByName("libcommonCrypto.dylib", "CCCrypt"), 
 | `apktool` | ❌ 未装（用前先装，或改用等价工具） |
 | `burp` | ❌ 未装（用前先装，或改用等价工具） |
 | `wireshark` | ✓ 已装 |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **下游**（产出交给谁）：`apk-reverse`、`competition-ios-runtime`
+- **专项下游**（同主题更深的靶子面）：`competition-ios-runtime`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

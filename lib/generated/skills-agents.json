@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "roles": {
+    "recon": {
+      "id": "recon",
+      "name": "信息收集",
+      "stage": "1",
+      "skills": [
+        "active-scan",
+        "fofa-recon",
+        "passive-recon",
+        "recon-pipeline",
+        "subdomain-bruteforce"
+      ]
+    },
+    "assess": {
+      "id": "assess",
+      "name": "资产梳理",
+      "stage": "2",
+      "skills": [
+        "asset-correlation",
+        "web-fingerprint"
+      ]
+    },
+    "vuln-scan": {
+      "id": "vuln-scan",
+      "name": "漏洞发现",
+      "stage": "3",
+      "skills": [
+        "api-security",
+        "code-audit",
+        "credential-attack",
+        "database-security",
+        "digital-forensics",
+        "dir-bruteforce",
+        "email-security",
+        "graphql-testing",
+        "http-smuggling",
+        "injection-payloads",
+        "llm-security",
+        "malware-analysis",
+        "nuclei-scan",
+        "oob-verification",
+        "race-conditions",
+        "supply-chain-security",
+        "unauth-exploit",
+        "waf-bypass",
+        "web-vuln-payloads"
+      ]
+    },
+    "exploit": {
+      "id": "exploit",
+      "name": "漏洞利用",
+      "stage": "4",
+      "skills": [
+        "apk-reverse",
+        "binary-diff",
+        "browser-extension-reverse",
+        "chisel-tunnel",
+        "dotnet-reverse",
+        "firmware-pentest",
+        "frp-tunnel",
+        "ghidra-reverse",
+        "go-rust-reverse",
+        "ida-reverse",
+        "iot-iiot-netdev",
+        "js-reverse",
+        "mobile-reverse",
+        "patch-diff-exploit",
+        "privesc-persistence",
+        "protocol-reverse",
+        "pwn-chain",
+        "radare2",
+        "reverse-engineering",
+        "secdev-boundary",
+        "shell-handler",
+        "suo5-tunnel",
+        "thick-client",
+        "vps-reverse-shell",
+        "webshell-toolkit"
+      ]
+    },
+    "internal": {
+      "id": "internal",
+      "name": "内网渗透",
+      "stage": "5",
+      "skills": [
+        "cloud-k8s",
+        "edr-bypass-re",
+        "fscan-intranet",
+        "gogo-intranet",
+        "hardware-security",
+        "identity-federation",
+        "lateral-movement",
+        "netexec-scan",
+        "ot-ics",
+        "radio-sdr",
+        "threat-hunting",
+        "wifi-wireless",
+        "windows-ad"
+      ]
+    },
+    "flow": {
+      "id": "flow",
+      "name": "流程/编排",
+      "stage": "flow",
+      "skills": [
+        "attack-chain",
+        "case-review",
+        "ctf-sandbox-orchestrator",
+        "ctf-sandbox",
+        "pentest-tools",
+        "redteam-setup"
+      ]
+    },
+    "aux": {
+      "id": "aux",
+      "name": "辅助（浏览器桥 / 代理池）",
+      "stage": "flow",
+      "skills": [
+        "browser-automation",
+        "cn-proxy-pool",
+        "kimi-webbridge"
+      ]
+    },
+    "surface": {
+      "id": "surface",
+      "name": "攻击面专项（由 ctf-sandbox-orchestrator 路由）",
+      "stage": "surface",
+      "skills": [
+        "competition-ad-certificate-abuse",
+        "competition-agent-cloud",
+        "competition-android-hooking",
+        "competition-browser-persistence",
+        "competition-bundle-sourcemap-recovery",
+        "competition-cloud-metadata-path",
+        "competition-container-runtime",
+        "competition-crypto-mobile",
+        "competition-custom-protocol-replay",
+        "competition-dpapi-credential-chain",
+        "competition-file-parser-chain",
+        "competition-firmware-layout",
+        "competition-forensic-timeline",
+        "competition-graphql-rpc-drift",
+        "competition-identity-windows",
+        "competition-ios-runtime",
+        "competition-jwt-claim-confusion",
+        "competition-k8s-control-plane",
+        "competition-kerberos-delegation",
+        "competition-kernel-container-escape",
+        "competition-linux-credential-pivot",
+        "competition-lsass-ticket-material",
+        "competition-mailbox-abuse",
+        "competition-malware-config",
+        "competition-oauth-oidc-chain",
+        "competition-pcap-protocol",
+        "competition-prompt-injection",
+        "competition-queue-worker-drift",
+        "competition-race-condition-state-drift",
+        "competition-relay-coercion-chain",
+        "competition-request-normalization-smuggling",
+        "competition-reverse-pwn",
+        "competition-runtime-routing",
+        "competition-ssrf-metadata-pivot",
+        "competition-stego-media",
+        "competition-supply-chain",
+        "competition-template-render-path",
+        "competition-web-runtime",
+        "competition-websocket-runtime",
+        "competition-windows-pivot",
+        "competition-zip-archive"
+      ]
+    }
+  }
+}

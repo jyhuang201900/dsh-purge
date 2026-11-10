@@ -55,12 +55,45 @@ for (const rel of doctrineFiles) {
   }
 }
 
+// ── 链路层校验（第 106 轮加）：技能不能是散落的 .md ──
+// 索引/关系/角色档案是构建产物，技能目录是源；两者一旦不同步，链路就不再描述现实，
+// 而「有 114 个技能」和「只有几个会被用到」会重新变成同一件事。所以这里硬校验。
+const linkProblems = [];
+try {
+  const ids = skills.map((f) => f.replace(/\.md$/, ""));
+  const idxPath = path.join(root, "lib", "generated", "skills-index.json");
+  const relPath = path.join(root, "lib", "generated", "skills-relations.json");
+  const agtPath = path.join(root, "lib", "generated", "skills-agents.json");
+  if (!fs.existsSync(idxPath) || !fs.existsSync(relPath) || !fs.existsSync(agtPath)) {
+    linkProblems.push("链路产物缺失（跑 npm run build:skills-graph）");
+  } else {
+    const idx = JSON.parse(fs.readFileSync(idxPath, "utf8"));
+    const rel = JSON.parse(fs.readFileSync(relPath, "utf8"));
+    const agt = JSON.parse(fs.readFileSync(agtPath, "utf8"));
+    const idxIds = new Set(idx.skills.map((s) => s.id));
+    const miss = ids.filter((x) => !idxIds.has(x));
+    const extra = [...idxIds].filter((x) => !ids.includes(x));
+    if (miss.length) linkProblems.push(`索引缺 ${miss.length} 个技能：${miss.slice(0, 3).join(", ")}`);
+    if (extra.length) linkProblems.push(`索引多 ${extra.length} 个已不存在的技能：${extra.slice(0, 3).join(", ")}`);
+    const zeroIn = ids.filter((x) => !rel.relations.some((r) => r.target === x));
+    if (zeroIn.length) linkProblems.push(`零入边 ${zeroIn.length} 个：${zeroIn.slice(0, 3).join(", ")}`);
+    const noLink = ids.filter((x) => !fs.readFileSync(path.join(root, "skills", "redteam", x + ".md"), "utf8").includes("skill-link-graph"));
+    if (noLink.length) linkProblems.push(`缺链路章节 ${noLink.length} 个：${noLink.slice(0, 3).join(", ")}`);
+    const assigned = new Set(Object.values(agt.roles).flatMap((r) => r.skills));
+    const unassigned = ids.filter((x) => !assigned.has(x));
+    if (unassigned.length) linkProblems.push(`未被任何角色挂载 ${unassigned.length} 个：${unassigned.slice(0, 3).join(", ")}`);
+  }
+} catch (e) {
+  linkProblems.push(`链路校验异常：${String((e && e.message) || e).slice(0, 50)}`);
+}
+
 if (asJson) {
-  process.stdout.write(JSON.stringify({ skills: skills.length, realTools: realTools.size, regCalls, ghostRefs, missingSkills }, null, 1) + "\n");
+  process.stdout.write(JSON.stringify({ skills: skills.length, realTools: realTools.size, regCalls, ghostRefs, missingSkills, linkProblems }, null, 1) + "\n");
 } else {
   console.log(`弹药层审计：技能 ${skills.length} 个｜注册工具名 ${realTools.size} 个（register ${regCalls} 处）`);
   console.log(`  幽灵工具引用: ${ghostRefs.length ? ghostRefs.slice(0, 8).join(", ") : "0 ✓"}`);
   console.log(`  条令点名但技能不存在: ${missingSkills.length ? missingSkills.slice(0, 8).join(", ") : "0 ✓"}`);
+  console.log(`  链路层（索引/关系/角色 ↔ 技能目录）: ${linkProblems.length ? linkProblems.slice(0, 3).join("｜") : `一致、零入边 0、角色无遗漏 ✓`}`);
 }
-const bad = ghostRefs.length > 0 || missingSkills.length > 0 || realTools.size === 0 || skills.length === 0;
+const bad = ghostRefs.length > 0 || missingSkills.length > 0 || realTools.size === 0 || skills.length === 0 || linkProblems.length > 0;
 process.exit(bad ? 1 : 0);

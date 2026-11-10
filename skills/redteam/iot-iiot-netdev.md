@@ -106,3 +106,14 @@ hydra -L cisco_users.txt -P cisco_passes.txt TARGET telnet -t 2 -u 5
 - **工控写操作、设备改配置一律先报指挥**——这两个面一旦动错，影响的是物理世界和全网连通性，不是重启一台服务器。
 - 扫描限频：园区设备并发一高就假死（比业务系统脆得多），`-t 2`、串行、超时放宽到 5s。
 - 摄像头画面是敏感数据：**不要把真实画面外传到公共捕获服务**，留证存本机 `runs/` 并脱敏登记。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`ot-ics`
+- **下游**（产出交给谁）：`firmware-pentest`
+- **互补**（同类场景一起用）：`go-rust-reverse`、`ida-reverse`、`js-reverse`、`patch-diff-exploit`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

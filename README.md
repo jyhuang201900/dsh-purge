@@ -458,6 +458,7 @@ npm run verify
 | `npm run probe:gates` | 闸门反向探针总表：逐关改坏即红（没咬过的门等于不知道真假的门） |
 | `npm run audit:skills` | 弹药层一致性：技能正文引用的 `redteam_*` 工具名、条令点名的技能，都必须真实存在 |
 | `npm run sync:bundled` | 把仓源随包资源同步到运行时：**技能**（`skills/redteam` → `~/.dsh/redteam/skills`，由预设 `customSkillDirs` 发现）+ **红队预设**（`presets/redteam` → `~/.dsh/.agent-presets/redteam`，`core.js` 只读这个路径）。幂等；预设内容不同默认只报告（怕盖掉你的改动），`--force` 才覆盖。别名 `sync:skills` |
+| `npm run build:skills-graph` | **技能链路层**：扫描 `skills/redteam`，生成 `lib/generated/{skills-index,skills-relations,skills-agents}.json`（索引 / 关系表 / 角色档案），把「链路位置」（上游→本技能→下游→互补→落库）写进每个技能正文，并把「角色技能库总表」派生进预设。一个命令同步四个模块，幂等可重跑。链路一致性与零入边由 `audit-skills` 硬校验 |
 | `npm run toolkit:windows` / `toolkit:check` | 红队工具链的 **Windows** 装配器与体检：走 GitHub 官方 API 取 `windows_amd64` 资产装到 `$DSH_HOME/redteam/toolkit`（仓里的 `setup.sh` 是 Linux 专用，Windows 上每个都报无匹配资产）；`--check` 只体检。已知 `ksubdomain` 无 Windows 构建 |
 | `npm run test:hygiene` | 磁盘卫生模块夹具：prev 保留上限、孤儿对计数、坏 JSON 不许静默跳过 |
 | `npm run smoke:cli` | CLI 冒烟：真跑 `bin` 的只读模式，验参数分发与输出标志（未知旗标须报错，不许静默当 status） |

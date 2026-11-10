@@ -82,3 +82,12 @@ Use this skill when the hard part is proving how an OAuth or OIDC flow is shaped
 - Stopping at the callback without proving token exchange or claim acceptance
 - Treating possession of a token as authorization without showing where it is accepted
 - Mixing browser-only redirect evidence and backend-only auth evidence without linking them
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现
+- **互补**（同类场景一起用）：`competition-jwt-claim-confusion`、`competition-malware-config`、`competition-pcap-protocol`、`competition-prompt-injection`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

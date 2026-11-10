@@ -62,3 +62,13 @@ grep -oE 'https?://[a-z0-9.-]+\.(example\.com|内网域)' runs/*.js | sort -u
 - 每条边带 `confidence`（0–1）：证书 SAN 精确匹配 0.95，同 IP 反代线索 0.6，仅同 C 段 0.4。
 - `redteam_chain_add`：`stage_code=assess`，`result` 写"共 N 条资产、M 条边，其中 K 条排到 high，先打 <点名>"。
 - 给指挥者的结论必须**点名具体目标**，不要停在"发现了一些边缘资产"。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：2 资产梳理｜**角色**：`assess`
+- **上游**（先做完这些再进来）：`fofa-recon`、`web-fingerprint`
+- **下游**（产出交给谁）：`dir-bruteforce`、`nuclei-scan`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

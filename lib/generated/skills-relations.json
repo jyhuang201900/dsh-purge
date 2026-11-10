@@ -1,0 +1,1941 @@
+{
+  "schemaVersion": 1,
+  "total": 387,
+  "relations": [
+    {
+      "source": "active-scan",
+      "target": "web-fingerprint",
+      "relationship": "next"
+    },
+    {
+      "source": "active-scan",
+      "target": "nuclei-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "recon-pipeline",
+      "target": "active-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "api-security",
+      "target": "code-audit",
+      "relationship": "next"
+    },
+    {
+      "source": "api-security",
+      "target": "injection-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "graphql-testing",
+      "target": "api-security",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "api-security",
+      "relationship": "next"
+    },
+    {
+      "source": "apk-reverse",
+      "target": "competition-android-hooking",
+      "relationship": "next"
+    },
+    {
+      "source": "mobile-reverse",
+      "target": "apk-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "asset-correlation",
+      "target": "dir-bruteforce",
+      "relationship": "next"
+    },
+    {
+      "source": "asset-correlation",
+      "target": "nuclei-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "fofa-recon",
+      "target": "asset-correlation",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "asset-correlation",
+      "relationship": "next"
+    },
+    {
+      "source": "attack-chain",
+      "target": "recon-pipeline",
+      "relationship": "next"
+    },
+    {
+      "source": "binary-diff",
+      "target": "reverse-engineering",
+      "relationship": "next"
+    },
+    {
+      "source": "patch-diff-exploit",
+      "target": "binary-diff",
+      "relationship": "next"
+    },
+    {
+      "source": "browser-automation",
+      "target": "js-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "browser-automation",
+      "relationship": "next"
+    },
+    {
+      "source": "browser-extension-reverse",
+      "target": "thick-client",
+      "relationship": "next"
+    },
+    {
+      "source": "js-reverse",
+      "target": "browser-extension-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "digital-forensics",
+      "target": "case-review",
+      "relationship": "next"
+    },
+    {
+      "source": "malware-analysis",
+      "target": "case-review",
+      "relationship": "next"
+    },
+    {
+      "source": "chisel-tunnel",
+      "target": "gogo-intranet",
+      "relationship": "next"
+    },
+    {
+      "source": "chisel-tunnel",
+      "target": "fscan-intranet",
+      "relationship": "next"
+    },
+    {
+      "source": "privesc-persistence",
+      "target": "chisel-tunnel",
+      "relationship": "next"
+    },
+    {
+      "source": "cloud-k8s",
+      "target": "competition-k8s-control-plane",
+      "relationship": "next"
+    },
+    {
+      "source": "cloud-k8s",
+      "target": "competition-cloud-metadata-path",
+      "relationship": "next"
+    },
+    {
+      "source": "identity-federation",
+      "target": "cloud-k8s",
+      "relationship": "next"
+    },
+    {
+      "source": "cn-proxy-pool",
+      "target": "active-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "cn-proxy-pool",
+      "target": "dir-bruteforce",
+      "relationship": "next"
+    },
+    {
+      "source": "recon-pipeline",
+      "target": "cn-proxy-pool",
+      "relationship": "next"
+    },
+    {
+      "source": "code-audit",
+      "target": "injection-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "code-audit",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "supply-chain-security",
+      "target": "code-audit",
+      "relationship": "next"
+    },
+    {
+      "source": "credential-attack",
+      "target": "netexec-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "credential-attack",
+      "target": "lateral-movement",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "netexec-scan",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-ad-certificate-abuse",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-agent-cloud",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-android-hooking",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-browser-persistence",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-bundle-sourcemap-recovery",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-cloud-metadata-path",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-container-runtime",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-crypto-mobile",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-custom-protocol-replay",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-dpapi-credential-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-file-parser-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-firmware-layout",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-forensic-timeline",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-graphql-rpc-drift",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-identity-windows",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-ios-runtime",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-jwt-claim-confusion",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-k8s-control-plane",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-kerberos-delegation",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-kernel-container-escape",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-linux-credential-pivot",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-lsass-ticket-material",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-mailbox-abuse",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-malware-config",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-oauth-oidc-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-pcap-protocol",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-prompt-injection",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-queue-worker-drift",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-race-condition-state-drift",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-relay-coercion-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-request-normalization-smuggling",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-reverse-pwn",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-runtime-routing",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-ssrf-metadata-pivot",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-stego-media",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-supply-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-template-render-path",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-web-runtime",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-websocket-runtime",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-windows-pivot",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "competition-zip-archive",
+      "relationship": "next"
+    },
+    {
+      "source": "ctf-sandbox",
+      "target": "ctf-sandbox-orchestrator",
+      "relationship": "next"
+    },
+    {
+      "source": "database-security",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "api-security",
+      "target": "database-security",
+      "relationship": "next"
+    },
+    {
+      "source": "threat-hunting",
+      "target": "digital-forensics",
+      "relationship": "next"
+    },
+    {
+      "source": "malware-analysis",
+      "target": "digital-forensics",
+      "relationship": "next"
+    },
+    {
+      "source": "dir-bruteforce",
+      "target": "nuclei-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "dir-bruteforce",
+      "target": "unauth-exploit",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "dir-bruteforce",
+      "relationship": "next"
+    },
+    {
+      "source": "dotnet-reverse",
+      "target": "thick-client",
+      "relationship": "next"
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "dotnet-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "edr-bypass-re",
+      "target": "threat-hunting",
+      "relationship": "next"
+    },
+    {
+      "source": "edr-bypass-re",
+      "target": "lateral-movement",
+      "relationship": "next"
+    },
+    {
+      "source": "privesc-persistence",
+      "target": "edr-bypass-re",
+      "relationship": "next"
+    },
+    {
+      "source": "windows-ad",
+      "target": "edr-bypass-re",
+      "relationship": "next"
+    },
+    {
+      "source": "email-security",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "recon-pipeline",
+      "target": "email-security",
+      "relationship": "next"
+    },
+    {
+      "source": "firmware-pentest",
+      "target": "hardware-security",
+      "relationship": "next"
+    },
+    {
+      "source": "firmware-pentest",
+      "target": "competition-firmware-layout",
+      "relationship": "next"
+    },
+    {
+      "source": "iot-iiot-netdev",
+      "target": "firmware-pentest",
+      "relationship": "next"
+    },
+    {
+      "source": "fofa-recon",
+      "target": "web-fingerprint",
+      "relationship": "next"
+    },
+    {
+      "source": "frp-tunnel",
+      "target": "gogo-intranet",
+      "relationship": "next"
+    },
+    {
+      "source": "frp-tunnel",
+      "target": "fscan-intranet",
+      "relationship": "next"
+    },
+    {
+      "source": "privesc-persistence",
+      "target": "frp-tunnel",
+      "relationship": "next"
+    },
+    {
+      "source": "fscan-intranet",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "fscan-intranet",
+      "target": "netexec-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "gogo-intranet",
+      "target": "fscan-intranet",
+      "relationship": "next"
+    },
+    {
+      "source": "ghidra-reverse",
+      "target": "patch-diff-exploit",
+      "relationship": "next"
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "ghidra-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "gogo-intranet",
+      "target": "netexec-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "suo5-tunnel",
+      "target": "gogo-intranet",
+      "relationship": "next"
+    },
+    {
+      "source": "graphql-testing",
+      "target": "injection-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "graphql-testing",
+      "relationship": "next"
+    },
+    {
+      "source": "hardware-security",
+      "target": "radio-sdr",
+      "relationship": "next"
+    },
+    {
+      "source": "http-smuggling",
+      "target": "waf-bypass",
+      "relationship": "next"
+    },
+    {
+      "source": "http-smuggling",
+      "target": "unauth-exploit",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "http-smuggling",
+      "relationship": "next"
+    },
+    {
+      "source": "ida-reverse",
+      "target": "patch-diff-exploit",
+      "relationship": "next"
+    },
+    {
+      "source": "ida-reverse",
+      "target": "pwn-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "ida-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "identity-federation",
+      "target": "competition-oauth-oidc-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "windows-ad",
+      "target": "identity-federation",
+      "relationship": "next"
+    },
+    {
+      "source": "injection-payloads",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "injection-payloads",
+      "target": "oob-verification",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "injection-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "ot-ics",
+      "target": "iot-iiot-netdev",
+      "relationship": "next"
+    },
+    {
+      "source": "js-reverse",
+      "target": "web-vuln-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "js-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "kimi-webbridge",
+      "target": "browser-automation",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "kimi-webbridge",
+      "relationship": "next"
+    },
+    {
+      "source": "lateral-movement",
+      "target": "windows-ad",
+      "relationship": "next"
+    },
+    {
+      "source": "lateral-movement",
+      "target": "identity-federation",
+      "relationship": "next"
+    },
+    {
+      "source": "netexec-scan",
+      "target": "lateral-movement",
+      "relationship": "next"
+    },
+    {
+      "source": "llm-security",
+      "target": "competition-prompt-injection",
+      "relationship": "next"
+    },
+    {
+      "source": "api-security",
+      "target": "llm-security",
+      "relationship": "next"
+    },
+    {
+      "source": "malware-analysis",
+      "target": "competition-malware-config",
+      "relationship": "next"
+    },
+    {
+      "source": "digital-forensics",
+      "target": "malware-analysis",
+      "relationship": "next"
+    },
+    {
+      "source": "mobile-reverse",
+      "target": "competition-ios-runtime",
+      "relationship": "next"
+    },
+    {
+      "source": "netexec-scan",
+      "target": "windows-ad",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "web-vuln-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "unauth-exploit",
+      "relationship": "next"
+    },
+    {
+      "source": "oob-verification",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "web-vuln-payloads",
+      "target": "oob-verification",
+      "relationship": "next"
+    },
+    {
+      "source": "ot-ics",
+      "target": "competition-kernel-container-escape",
+      "relationship": "next"
+    },
+    {
+      "source": "fscan-intranet",
+      "target": "ot-ics",
+      "relationship": "next"
+    },
+    {
+      "source": "passive-recon",
+      "target": "fofa-recon",
+      "relationship": "next"
+    },
+    {
+      "source": "passive-recon",
+      "target": "recon-pipeline",
+      "relationship": "next"
+    },
+    {
+      "source": "patch-diff-exploit",
+      "target": "pwn-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "binary-diff",
+      "target": "patch-diff-exploit",
+      "relationship": "next"
+    },
+    {
+      "source": "pentest-tools",
+      "target": "recon-pipeline",
+      "relationship": "next"
+    },
+    {
+      "source": "pentest-tools",
+      "target": "nuclei-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "privesc-persistence",
+      "target": "suo5-tunnel",
+      "relationship": "next"
+    },
+    {
+      "source": "privesc-persistence",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "webshell-toolkit",
+      "target": "privesc-persistence",
+      "relationship": "next"
+    },
+    {
+      "source": "shell-handler",
+      "target": "privesc-persistence",
+      "relationship": "next"
+    },
+    {
+      "source": "protocol-reverse",
+      "target": "competition-custom-protocol-replay",
+      "relationship": "next"
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "protocol-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "pwn-chain",
+      "target": "competition-reverse-pwn",
+      "relationship": "next"
+    },
+    {
+      "source": "radare2",
+      "target": "pwn-chain",
+      "relationship": "next"
+    },
+    {
+      "source": "race-conditions",
+      "target": "api-security",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "race-conditions",
+      "relationship": "next"
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "radare2",
+      "relationship": "next"
+    },
+    {
+      "source": "recon-pipeline",
+      "target": "web-fingerprint",
+      "relationship": "next"
+    },
+    {
+      "source": "fofa-recon",
+      "target": "recon-pipeline",
+      "relationship": "next"
+    },
+    {
+      "source": "redteam-setup",
+      "target": "recon-pipeline",
+      "relationship": "next"
+    },
+    {
+      "source": "secdev-boundary",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "secdev-boundary",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "secdev-boundary",
+      "relationship": "next"
+    },
+    {
+      "source": "shell-handler",
+      "target": "vps-reverse-shell",
+      "relationship": "next"
+    },
+    {
+      "source": "unauth-exploit",
+      "target": "shell-handler",
+      "relationship": "next"
+    },
+    {
+      "source": "web-vuln-payloads",
+      "target": "shell-handler",
+      "relationship": "next"
+    },
+    {
+      "source": "subdomain-bruteforce",
+      "target": "active-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "passive-recon",
+      "target": "subdomain-bruteforce",
+      "relationship": "next"
+    },
+    {
+      "source": "suo5-tunnel",
+      "target": "fscan-intranet",
+      "relationship": "next"
+    },
+    {
+      "source": "code-audit",
+      "target": "supply-chain-security",
+      "relationship": "next"
+    },
+    {
+      "source": "thick-client",
+      "target": "protocol-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "js-reverse",
+      "target": "thick-client",
+      "relationship": "next"
+    },
+    {
+      "source": "unauth-exploit",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "vps-reverse-shell",
+      "target": "privesc-persistence",
+      "relationship": "next"
+    },
+    {
+      "source": "vps-reverse-shell",
+      "target": "suo5-tunnel",
+      "relationship": "next"
+    },
+    {
+      "source": "waf-bypass",
+      "target": "injection-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "waf-bypass",
+      "target": "web-vuln-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "waf-bypass",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "nuclei-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "web-vuln-payloads",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "web-vuln-payloads",
+      "target": "thick-client",
+      "relationship": "next"
+    },
+    {
+      "source": "webshell-toolkit",
+      "target": "suo5-tunnel",
+      "relationship": "next"
+    },
+    {
+      "source": "wifi-wireless",
+      "target": "netexec-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "recon-pipeline",
+      "target": "wifi-wireless",
+      "relationship": "next"
+    },
+    {
+      "source": "windows-ad",
+      "target": "competition-kerberos-delegation",
+      "relationship": "next"
+    },
+    {
+      "source": "windows-ad",
+      "target": "competition-ad-certificate-abuse",
+      "relationship": "specializes"
+    },
+    {
+      "source": "windows-ad",
+      "target": "competition-kerberos-delegation",
+      "relationship": "specializes"
+    },
+    {
+      "source": "windows-ad",
+      "target": "competition-lsass-ticket-material",
+      "relationship": "specializes"
+    },
+    {
+      "source": "identity-federation",
+      "target": "competition-oauth-oidc-chain",
+      "relationship": "specializes"
+    },
+    {
+      "source": "cloud-k8s",
+      "target": "competition-k8s-control-plane",
+      "relationship": "specializes"
+    },
+    {
+      "source": "cloud-k8s",
+      "target": "competition-cloud-metadata-path",
+      "relationship": "specializes"
+    },
+    {
+      "source": "api-security",
+      "target": "competition-jwt-claim-confusion",
+      "relationship": "specializes"
+    },
+    {
+      "source": "http-smuggling",
+      "target": "competition-request-normalization-smuggling",
+      "relationship": "specializes"
+    },
+    {
+      "source": "race-conditions",
+      "target": "competition-race-condition-state-drift",
+      "relationship": "specializes"
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "competition-reverse-pwn",
+      "relationship": "specializes"
+    },
+    {
+      "source": "firmware-pentest",
+      "target": "competition-firmware-layout",
+      "relationship": "specializes"
+    },
+    {
+      "source": "apk-reverse",
+      "target": "competition-android-hooking",
+      "relationship": "specializes"
+    },
+    {
+      "source": "mobile-reverse",
+      "target": "competition-ios-runtime",
+      "relationship": "specializes"
+    },
+    {
+      "source": "llm-security",
+      "target": "competition-prompt-injection",
+      "relationship": "specializes"
+    },
+    {
+      "source": "digital-forensics",
+      "target": "competition-forensic-timeline",
+      "relationship": "specializes"
+    },
+    {
+      "source": "malware-analysis",
+      "target": "competition-malware-config",
+      "relationship": "specializes"
+    },
+    {
+      "source": "supply-chain-security",
+      "target": "competition-supply-chain",
+      "relationship": "specializes"
+    },
+    {
+      "source": "protocol-reverse",
+      "target": "competition-custom-protocol-replay",
+      "relationship": "specializes"
+    },
+    {
+      "source": "edr-bypass-re",
+      "target": "competition-kernel-container-escape",
+      "relationship": "specializes"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "competition-browser-persistence",
+      "relationship": "specializes"
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "mobile-reverse",
+      "relationship": "specializes"
+    },
+    {
+      "source": "windows-ad",
+      "target": "competition-windows-pivot",
+      "relationship": "specializes"
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "competition-zip-archive",
+      "relationship": "specializes"
+    },
+    {
+      "source": "pentest-tools",
+      "target": "attack-chain",
+      "relationship": "specializes"
+    },
+    {
+      "source": "case-review",
+      "target": "competition-forensic-timeline",
+      "relationship": "specializes"
+    },
+    {
+      "source": "api-security",
+      "target": "competition-graphql-rpc-drift",
+      "relationship": "specializes"
+    },
+    {
+      "source": "wifi-wireless",
+      "target": "competition-pcap-protocol",
+      "relationship": "specializes"
+    },
+    {
+      "source": "active-scan",
+      "target": "fofa-recon",
+      "relationship": "complementary"
+    },
+    {
+      "source": "active-scan",
+      "target": "passive-recon",
+      "relationship": "complementary"
+    },
+    {
+      "source": "fofa-recon",
+      "target": "passive-recon",
+      "relationship": "complementary"
+    },
+    {
+      "source": "fofa-recon",
+      "target": "subdomain-bruteforce",
+      "relationship": "complementary"
+    },
+    {
+      "source": "passive-recon",
+      "target": "subdomain-bruteforce",
+      "relationship": "complementary"
+    },
+    {
+      "source": "apk-reverse",
+      "target": "binary-diff",
+      "relationship": "complementary"
+    },
+    {
+      "source": "apk-reverse",
+      "target": "browser-extension-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "binary-diff",
+      "target": "browser-extension-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "binary-diff",
+      "target": "chisel-tunnel",
+      "relationship": "complementary"
+    },
+    {
+      "source": "browser-extension-reverse",
+      "target": "chisel-tunnel",
+      "relationship": "complementary"
+    },
+    {
+      "source": "browser-extension-reverse",
+      "target": "dotnet-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "chisel-tunnel",
+      "target": "dotnet-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "chisel-tunnel",
+      "target": "frp-tunnel",
+      "relationship": "complementary"
+    },
+    {
+      "source": "dotnet-reverse",
+      "target": "frp-tunnel",
+      "relationship": "complementary"
+    },
+    {
+      "source": "dotnet-reverse",
+      "target": "ghidra-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "frp-tunnel",
+      "target": "ghidra-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "frp-tunnel",
+      "target": "go-rust-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ghidra-reverse",
+      "target": "go-rust-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ghidra-reverse",
+      "target": "ida-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "go-rust-reverse",
+      "target": "ida-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "go-rust-reverse",
+      "target": "iot-iiot-netdev",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ida-reverse",
+      "target": "iot-iiot-netdev",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ida-reverse",
+      "target": "js-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "iot-iiot-netdev",
+      "target": "js-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "iot-iiot-netdev",
+      "target": "patch-diff-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "js-reverse",
+      "target": "patch-diff-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "js-reverse",
+      "target": "privesc-persistence",
+      "relationship": "complementary"
+    },
+    {
+      "source": "patch-diff-exploit",
+      "target": "privesc-persistence",
+      "relationship": "complementary"
+    },
+    {
+      "source": "patch-diff-exploit",
+      "target": "protocol-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "privesc-persistence",
+      "target": "protocol-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "privesc-persistence",
+      "target": "pwn-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "protocol-reverse",
+      "target": "pwn-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "protocol-reverse",
+      "target": "radare2",
+      "relationship": "complementary"
+    },
+    {
+      "source": "pwn-chain",
+      "target": "radare2",
+      "relationship": "complementary"
+    },
+    {
+      "source": "pwn-chain",
+      "target": "secdev-boundary",
+      "relationship": "complementary"
+    },
+    {
+      "source": "radare2",
+      "target": "secdev-boundary",
+      "relationship": "complementary"
+    },
+    {
+      "source": "radare2",
+      "target": "shell-handler",
+      "relationship": "complementary"
+    },
+    {
+      "source": "secdev-boundary",
+      "target": "shell-handler",
+      "relationship": "complementary"
+    },
+    {
+      "source": "secdev-boundary",
+      "target": "suo5-tunnel",
+      "relationship": "complementary"
+    },
+    {
+      "source": "shell-handler",
+      "target": "suo5-tunnel",
+      "relationship": "complementary"
+    },
+    {
+      "source": "shell-handler",
+      "target": "thick-client",
+      "relationship": "complementary"
+    },
+    {
+      "source": "suo5-tunnel",
+      "target": "thick-client",
+      "relationship": "complementary"
+    },
+    {
+      "source": "suo5-tunnel",
+      "target": "vps-reverse-shell",
+      "relationship": "complementary"
+    },
+    {
+      "source": "thick-client",
+      "target": "vps-reverse-shell",
+      "relationship": "complementary"
+    },
+    {
+      "source": "attack-chain",
+      "target": "browser-automation",
+      "relationship": "complementary"
+    },
+    {
+      "source": "attack-chain",
+      "target": "case-review",
+      "relationship": "complementary"
+    },
+    {
+      "source": "browser-automation",
+      "target": "case-review",
+      "relationship": "complementary"
+    },
+    {
+      "source": "browser-automation",
+      "target": "cn-proxy-pool",
+      "relationship": "complementary"
+    },
+    {
+      "source": "case-review",
+      "target": "cn-proxy-pool",
+      "relationship": "complementary"
+    },
+    {
+      "source": "case-review",
+      "target": "ctf-sandbox-orchestrator",
+      "relationship": "complementary"
+    },
+    {
+      "source": "cn-proxy-pool",
+      "target": "ctf-sandbox-orchestrator",
+      "relationship": "complementary"
+    },
+    {
+      "source": "cn-proxy-pool",
+      "target": "ctf-sandbox",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "ctf-sandbox",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ctf-sandbox-orchestrator",
+      "target": "kimi-webbridge",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ctf-sandbox",
+      "target": "kimi-webbridge",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ctf-sandbox",
+      "target": "pentest-tools",
+      "relationship": "complementary"
+    },
+    {
+      "source": "kimi-webbridge",
+      "target": "pentest-tools",
+      "relationship": "complementary"
+    },
+    {
+      "source": "kimi-webbridge",
+      "target": "redteam-setup",
+      "relationship": "complementary"
+    },
+    {
+      "source": "pentest-tools",
+      "target": "redteam-setup",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-ad-certificate-abuse",
+      "target": "competition-agent-cloud",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-ad-certificate-abuse",
+      "target": "competition-cloud-metadata-path",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-agent-cloud",
+      "target": "competition-cloud-metadata-path",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-agent-cloud",
+      "target": "competition-container-runtime",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-cloud-metadata-path",
+      "target": "competition-container-runtime",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-cloud-metadata-path",
+      "target": "competition-dpapi-credential-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-container-runtime",
+      "target": "competition-dpapi-credential-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-container-runtime",
+      "target": "competition-identity-windows",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-dpapi-credential-chain",
+      "target": "competition-identity-windows",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-dpapi-credential-chain",
+      "target": "competition-k8s-control-plane",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-identity-windows",
+      "target": "competition-k8s-control-plane",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-identity-windows",
+      "target": "competition-kerberos-delegation",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-k8s-control-plane",
+      "target": "competition-kerberos-delegation",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-k8s-control-plane",
+      "target": "competition-kernel-container-escape",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-kerberos-delegation",
+      "target": "competition-kernel-container-escape",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-kerberos-delegation",
+      "target": "competition-linux-credential-pivot",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-kernel-container-escape",
+      "target": "competition-linux-credential-pivot",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-kernel-container-escape",
+      "target": "competition-lsass-ticket-material",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-linux-credential-pivot",
+      "target": "competition-lsass-ticket-material",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-linux-credential-pivot",
+      "target": "competition-mailbox-abuse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-lsass-ticket-material",
+      "target": "competition-mailbox-abuse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-lsass-ticket-material",
+      "target": "competition-relay-coercion-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-mailbox-abuse",
+      "target": "competition-relay-coercion-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-mailbox-abuse",
+      "target": "competition-ssrf-metadata-pivot",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-relay-coercion-chain",
+      "target": "competition-ssrf-metadata-pivot",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-relay-coercion-chain",
+      "target": "competition-windows-pivot",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-ssrf-metadata-pivot",
+      "target": "competition-windows-pivot",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-android-hooking",
+      "target": "competition-crypto-mobile",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-android-hooking",
+      "target": "competition-firmware-layout",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-crypto-mobile",
+      "target": "competition-firmware-layout",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-crypto-mobile",
+      "target": "competition-ios-runtime",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-firmware-layout",
+      "target": "competition-ios-runtime",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-firmware-layout",
+      "target": "competition-reverse-pwn",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-ios-runtime",
+      "target": "competition-reverse-pwn",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-browser-persistence",
+      "target": "competition-bundle-sourcemap-recovery",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-browser-persistence",
+      "target": "competition-custom-protocol-replay",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-bundle-sourcemap-recovery",
+      "target": "competition-custom-protocol-replay",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-bundle-sourcemap-recovery",
+      "target": "competition-file-parser-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-custom-protocol-replay",
+      "target": "competition-file-parser-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-custom-protocol-replay",
+      "target": "competition-forensic-timeline",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-file-parser-chain",
+      "target": "competition-forensic-timeline",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-file-parser-chain",
+      "target": "competition-graphql-rpc-drift",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-forensic-timeline",
+      "target": "competition-graphql-rpc-drift",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-forensic-timeline",
+      "target": "competition-jwt-claim-confusion",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-graphql-rpc-drift",
+      "target": "competition-jwt-claim-confusion",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-graphql-rpc-drift",
+      "target": "competition-malware-config",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-jwt-claim-confusion",
+      "target": "competition-malware-config",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-jwt-claim-confusion",
+      "target": "competition-oauth-oidc-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-malware-config",
+      "target": "competition-oauth-oidc-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-malware-config",
+      "target": "competition-pcap-protocol",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-oauth-oidc-chain",
+      "target": "competition-pcap-protocol",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-oauth-oidc-chain",
+      "target": "competition-prompt-injection",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-pcap-protocol",
+      "target": "competition-prompt-injection",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-pcap-protocol",
+      "target": "competition-queue-worker-drift",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-prompt-injection",
+      "target": "competition-queue-worker-drift",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-prompt-injection",
+      "target": "competition-race-condition-state-drift",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-queue-worker-drift",
+      "target": "competition-race-condition-state-drift",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-queue-worker-drift",
+      "target": "competition-request-normalization-smuggling",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-race-condition-state-drift",
+      "target": "competition-request-normalization-smuggling",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-race-condition-state-drift",
+      "target": "competition-runtime-routing",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-request-normalization-smuggling",
+      "target": "competition-runtime-routing",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-request-normalization-smuggling",
+      "target": "competition-stego-media",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-runtime-routing",
+      "target": "competition-stego-media",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-runtime-routing",
+      "target": "competition-supply-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-stego-media",
+      "target": "competition-supply-chain",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-stego-media",
+      "target": "competition-template-render-path",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-supply-chain",
+      "target": "competition-template-render-path",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-supply-chain",
+      "target": "competition-web-runtime",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-template-render-path",
+      "target": "competition-web-runtime",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-template-render-path",
+      "target": "competition-websocket-runtime",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-web-runtime",
+      "target": "competition-websocket-runtime",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-web-runtime",
+      "target": "competition-zip-archive",
+      "relationship": "complementary"
+    },
+    {
+      "source": "competition-websocket-runtime",
+      "target": "competition-zip-archive",
+      "relationship": "complementary"
+    },
+    {
+      "source": "credential-attack",
+      "target": "digital-forensics",
+      "relationship": "complementary"
+    },
+    {
+      "source": "credential-attack",
+      "target": "dir-bruteforce",
+      "relationship": "complementary"
+    },
+    {
+      "source": "digital-forensics",
+      "target": "dir-bruteforce",
+      "relationship": "complementary"
+    },
+    {
+      "source": "digital-forensics",
+      "target": "graphql-testing",
+      "relationship": "complementary"
+    },
+    {
+      "source": "dir-bruteforce",
+      "target": "graphql-testing",
+      "relationship": "complementary"
+    },
+    {
+      "source": "dir-bruteforce",
+      "target": "http-smuggling",
+      "relationship": "complementary"
+    },
+    {
+      "source": "graphql-testing",
+      "target": "http-smuggling",
+      "relationship": "complementary"
+    },
+    {
+      "source": "graphql-testing",
+      "target": "injection-payloads",
+      "relationship": "complementary"
+    },
+    {
+      "source": "http-smuggling",
+      "target": "injection-payloads",
+      "relationship": "complementary"
+    },
+    {
+      "source": "http-smuggling",
+      "target": "malware-analysis",
+      "relationship": "complementary"
+    },
+    {
+      "source": "injection-payloads",
+      "target": "malware-analysis",
+      "relationship": "complementary"
+    },
+    {
+      "source": "injection-payloads",
+      "target": "nuclei-scan",
+      "relationship": "complementary"
+    },
+    {
+      "source": "malware-analysis",
+      "target": "nuclei-scan",
+      "relationship": "complementary"
+    },
+    {
+      "source": "malware-analysis",
+      "target": "oob-verification",
+      "relationship": "complementary"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "oob-verification",
+      "relationship": "complementary"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "race-conditions",
+      "relationship": "complementary"
+    },
+    {
+      "source": "oob-verification",
+      "target": "race-conditions",
+      "relationship": "complementary"
+    },
+    {
+      "source": "oob-verification",
+      "target": "unauth-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "race-conditions",
+      "target": "unauth-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "race-conditions",
+      "target": "waf-bypass",
+      "relationship": "complementary"
+    },
+    {
+      "source": "unauth-exploit",
+      "target": "waf-bypass",
+      "relationship": "complementary"
+    },
+    {
+      "source": "edr-bypass-re",
+      "target": "fscan-intranet",
+      "relationship": "complementary"
+    },
+    {
+      "source": "edr-bypass-re",
+      "target": "gogo-intranet",
+      "relationship": "complementary"
+    },
+    {
+      "source": "fscan-intranet",
+      "target": "gogo-intranet",
+      "relationship": "complementary"
+    },
+    {
+      "source": "fscan-intranet",
+      "target": "hardware-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "gogo-intranet",
+      "target": "hardware-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "gogo-intranet",
+      "target": "identity-federation",
+      "relationship": "complementary"
+    },
+    {
+      "source": "hardware-security",
+      "target": "identity-federation",
+      "relationship": "complementary"
+    },
+    {
+      "source": "hardware-security",
+      "target": "lateral-movement",
+      "relationship": "complementary"
+    },
+    {
+      "source": "identity-federation",
+      "target": "lateral-movement",
+      "relationship": "complementary"
+    },
+    {
+      "source": "identity-federation",
+      "target": "netexec-scan",
+      "relationship": "complementary"
+    },
+    {
+      "source": "lateral-movement",
+      "target": "netexec-scan",
+      "relationship": "complementary"
+    },
+    {
+      "source": "lateral-movement",
+      "target": "radio-sdr",
+      "relationship": "complementary"
+    },
+    {
+      "source": "netexec-scan",
+      "target": "radio-sdr",
+      "relationship": "complementary"
+    },
+    {
+      "source": "netexec-scan",
+      "target": "threat-hunting",
+      "relationship": "complementary"
+    },
+    {
+      "source": "radio-sdr",
+      "target": "threat-hunting",
+      "relationship": "complementary"
+    },
+    {
+      "source": "radio-sdr",
+      "target": "wifi-wireless",
+      "relationship": "complementary"
+    },
+    {
+      "source": "threat-hunting",
+      "target": "wifi-wireless",
+      "relationship": "complementary"
+    },
+    {
+      "source": "threat-hunting",
+      "target": "windows-ad",
+      "relationship": "complementary"
+    },
+    {
+      "source": "wifi-wireless",
+      "target": "windows-ad",
+      "relationship": "complementary"
+    }
+  ]
+}

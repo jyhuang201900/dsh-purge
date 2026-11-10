@@ -142,3 +142,14 @@ msf6 > exploit -j
    `tool` 写**实际命令原文**（含完整反弹命令或 MSF 配置），`result` 写回显摘要（如 `uid=0(root) gid=0(root)`）。
 5. **交付给用户能复用的入口**：优先落地**冰蝎马/哥斯拉马**（技能 `webshell-toolkit`）——用户能在控制台直连操作；
    临时反弹会话要说明"这是一次性会话，非交付入口"。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`unauth-exploit`、`web-vuln-payloads`
+- **下游**（产出交给谁）：`vps-reverse-shell`、`privesc-persistence`
+- **互补**（同类场景一起用）：`radare2`、`secdev-boundary`、`suo5-tunnel`、`thick-client`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`webshell`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

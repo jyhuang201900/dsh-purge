@@ -212,3 +212,14 @@ redteam_vuln_add   { engagement, target, name: "Redis 未授权访问", severity
 - `suo5-tunnel`：WebShell → SOCKS5，给 fscan 提供 `-socks5` 入口
 - `vps-reverse-shell`：`-rsh` 的落地端、载荷投递
 - `webshell-toolkit`：拿到 WebShell 后的管理
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`gogo-intranet`
+- **下游**（产出交给谁）：`credential-attack`、`netexec-scan`
+- **互补**（同类场景一起用）：`edr-bypass-re`、`gogo-intranet`、`hardware-security`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

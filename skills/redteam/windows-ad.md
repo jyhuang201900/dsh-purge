@@ -85,3 +85,15 @@ bloodhound-python -d domain.local -u user -p pass -c All -ns <DC>
 | --- | --- |
 | `bloodhound` | ❌ 未装（用前先装，或改用等价工具） |
 | `sharphound` | ❌ 未装（用前先装，或改用等价工具） |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`lateral-movement`、`netexec-scan`
+- **下游**（产出交给谁）：`identity-federation`、`edr-bypass-re`、`competition-kerberos-delegation`
+- **专项下游**（同主题更深的靶子面）：`competition-ad-certificate-abuse`、`competition-kerberos-delegation`、`competition-lsass-ticket-material`、`competition-windows-pivot`
+- **互补**（同类场景一起用）：`threat-hunting`、`wifi-wireless`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`credential`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

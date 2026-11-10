@@ -177,3 +177,13 @@ python3 runs/fofa_client.py 'org="示例科技有限公司"' --pages 2 --interva
 | 找物联网/工控/网络设备 | `org="示例科技" && (port="554" \|\| port="502" \|\| port="102" \|\| port="161" \|\| title="NVR")`（命中后转技能 `iot-iiot-netdev`） |
 
 > 宽泛语句（单独用 `body=` / `title=`）结果量大、消耗配额快，务必叠加域名或 IP 限定。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：1 信息收集｜**角色**：`recon`
+- **下游**（产出交给谁）：`asset-correlation`、`web-fingerprint`
+- **互补**（同类场景一起用）：`active-scan`、`passive-recon`、`subdomain-bruteforce`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

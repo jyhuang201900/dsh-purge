@@ -57,3 +57,15 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 | `hashcat` | ❌ 未装（用前先装，或改用等价工具） |
 | `aircrack-ng` | ❌ 未装（用前先装，或改用等价工具） |
 | `wireshark` | ✓ 已装 |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`recon-pipeline`
+- **下游**（产出交给谁）：`netexec-scan`
+- **专项下游**（同主题更深的靶子面）：`competition-pcap-protocol`
+- **互补**（同类场景一起用）：`radio-sdr`、`threat-hunting`、`windows-ad`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

@@ -183,3 +183,14 @@ WebShell 场景配合技能 `suo5-tunnel`：把 suo5 客户端放本机，服务
 - `webshell-toolkit`：冰蝎/哥斯拉/蚁剑，拿到 WebShell 后的管理
 - `cn-proxy-pool`：需要国内出口 IP 时叠加代理（不要改动本机网络配置）
 - `active-scan` / `fofa-recon`：内网可达后继续测绘
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`shell-handler`
+- **下游**（产出交给谁）：`privesc-persistence`、`suo5-tunnel`
+- **互补**（同类场景一起用）：`suo5-tunnel`、`thick-client`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`webshell`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

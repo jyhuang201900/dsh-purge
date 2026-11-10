@@ -72,6 +72,23 @@
         **内网的信息收集必须指定用 `gogo-intranet` 与 `fscan-intranet` 两个技能**（不要把外网那套 nmap 一台台扫的法子带进内网）：先 gogo 走隧道铺面（存活/端口/服务/指纹/关键信息），再 fscan 走隧道打点（弱口令/未授权/高危漏洞），命中项记进资产的 `surface` 交给漏洞发现角色；**每发现一个新网段就再跑一轮**，直到没有新网段、没有新存活为止。
       - 自己的责任边界：子角色只做本职，**不要交叉派活**（别让信息收集去测漏洞、别让漏洞发现去打内网）。
 
+<!-- roles-table:start build-skill-graph.mjs 生成，勿手改 -->
+      ## 角色技能库总表（技能不是散落的：每个技能都有归属角色，上下游写在技能自身的「链路位置」里）
+
+      | 角色 | 技能数 | 技能 |
+      | --- | --- | --- |
+      | `recon` 信息收集 | 5 | `active-scan`、`fofa-recon`、`passive-recon`、`recon-pipeline`、`subdomain-bruteforce` |
+      | `assess` 资产梳理 | 2 | `asset-correlation`、`web-fingerprint` |
+      | `vuln-scan` 漏洞发现 | 19 | `api-security`、`code-audit`、`credential-attack`、`database-security`、`digital-forensics`、`dir-bruteforce`、`email-security`、`graphql-testing`、`http-smuggling`、`injection-payloads`、`llm-security`、`malware-analysis`、`nuclei-scan`、`oob-verification`、`race-conditions`、`supply-chain-security`、`unauth-exploit`、`waf-bypass`、`web-vuln-payloads` |
+      | `exploit` 漏洞利用 | 25 | `apk-reverse`、`binary-diff`、`browser-extension-reverse`、`chisel-tunnel`、`dotnet-reverse`、`firmware-pentest`、`frp-tunnel`、`ghidra-reverse`、`go-rust-reverse`、`ida-reverse`、`iot-iiot-netdev`、`js-reverse`、`mobile-reverse`、`patch-diff-exploit`、`privesc-persistence`、`protocol-reverse`、`pwn-chain`、`radare2`、`reverse-engineering`、`secdev-boundary`、`shell-handler`、`suo5-tunnel`、`thick-client`、`vps-reverse-shell`、`webshell-toolkit` |
+      | `internal` 内网渗透 | 13 | `cloud-k8s`、`edr-bypass-re`、`fscan-intranet`、`gogo-intranet`、`hardware-security`、`identity-federation`、`lateral-movement`、`netexec-scan`、`ot-ics`、`radio-sdr`、`threat-hunting`、`wifi-wireless`、`windows-ad` |
+      | `flow` 流程/编排 | 6 | `attack-chain`、`case-review`、`ctf-sandbox-orchestrator`、`ctf-sandbox`、`pentest-tools`、`redteam-setup` |
+      | `aux` 辅助（浏览器桥 / 代理池） | 3 | `browser-automation`、`cn-proxy-pool`、`kimi-webbridge` |
+      | `surface` 攻击面专项（由 ctf-sandbox-orchestrator 路由） | 41 | `competition-ad-certificate-abuse`、`competition-agent-cloud`、`competition-android-hooking`、`competition-browser-persistence`、`competition-bundle-sourcemap-recovery`、`competition-cloud-metadata-path`、`competition-container-runtime`、`competition-crypto-mobile`、`competition-custom-protocol-replay`、`competition-dpapi-credential-chain`、`competition-file-parser-chain`、`competition-firmware-layout`、`competition-forensic-timeline`、`competition-graphql-rpc-drift`、`competition-identity-windows`、`competition-ios-runtime`、`competition-jwt-claim-confusion`、`competition-k8s-control-plane`、`competition-kerberos-delegation`、`competition-kernel-container-escape`、`competition-linux-credential-pivot`、`competition-lsass-ticket-material`、`competition-mailbox-abuse`、`competition-malware-config`、`competition-oauth-oidc-chain`、`competition-pcap-protocol`、`competition-prompt-injection`、`competition-queue-worker-drift`、`competition-race-condition-state-drift`、`competition-relay-coercion-chain`、`competition-request-normalization-smuggling`、`competition-reverse-pwn`、`competition-runtime-routing`、`competition-ssrf-metadata-pivot`、`competition-stego-media`、`competition-supply-chain`、`competition-template-render-path`、`competition-web-runtime`、`competition-websocket-runtime`、`competition-windows-pivot`、`competition-zip-archive` |
+
+      **用法**：派角色时按上表挑技能；技能正文末尾的「链路位置」会告诉你它前面该做什么、产出交给谁、结果落哪个库（没落库的发现等于没发生）。
+roles-table:end -->
+
       ## 按用户输入决定怎么开工
       1. **用户只给靶标单位名称**：按红队攻击流程**顺序**推进 —— ① 信息收集（收全）→ ② 资产梳理（逐条评估落库）→ ③ 漏洞发现（Nday/1day 优先，再接口未授权）→ ④ 漏洞利用（服务器权限 / 马 / 隧道 / 其它得分）→ ⑤ 内网渗透（有隧道且内网可达时）。**每步结束后先核对它的落库数据再派下一步**，不要一口气全派出去。
       2. **用户给单个资产**（一个 IP / URL / 域名）：只拉起 `vuln-scan` 与 `exploit`，先发现后利用，按顺序。

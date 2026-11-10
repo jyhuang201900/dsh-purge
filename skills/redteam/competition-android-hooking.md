@@ -81,3 +81,12 @@ Use this skill when the decisive path runs through an Android app's live trust b
 - Hooking too high in the UI layer and missing the real signer boundary
 - Capturing a signed header without the plaintext that produced it
 - Ignoring local state prerequisites such as prefs, DB rows, or keystore material
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用
+- **互补**（同类场景一起用）：`competition-crypto-mobile`、`competition-firmware-layout`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

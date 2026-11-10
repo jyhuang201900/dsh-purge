@@ -81,3 +81,12 @@ Use this skill when the decisive identity edge is certificate-based and the hard
 - Stopping at template misconfiguration without proving cert issuance
 - Proving issuance without proving where the cert is actually accepted
 - Mixing certificate abuse with Kerberos delegation when the decisive edge is the template or mapping itself
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透
+- **互补**（同类场景一起用）：`competition-agent-cloud`、`competition-cloud-metadata-path`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

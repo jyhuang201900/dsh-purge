@@ -94,3 +94,14 @@ reg save HKLM\SAM runs\SAM.hive && reg save HKLM\SYSTEM runs\SYSTEM.hive   # 离
 - 写操作（加账号、改 cron、装服务）**先记原值再改**，报告里要能回滚。
 - 生产机避免编译型内核 exp；优先配置类、无文件类手段。
 - 收割的凭据**先验证再用**（netexec-scan 一把梭验证），别拿死凭据横向撞墙。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`webshell-toolkit`、`shell-handler`
+- **下游**（产出交给谁）：`suo5-tunnel`、`credential-attack`
+- **互补**（同类场景一起用）：`js-reverse`、`patch-diff-exploit`、`protocol-reverse`、`pwn-chain`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`credential`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

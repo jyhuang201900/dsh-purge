@@ -111,3 +111,14 @@ gobuster dir -u https://target -w /usr/share/seclists/Discovery/Web-Content/comm
    `result` 写命中摘要（例如 `命中 /admin/、/backup/www.zip、/.env`）。
 3. 跑完立刻 `redteam_asset_test` 回写 `status`/`test`/`surface`——不写状态后面的人一定重复扫。
 4. 字典与结果文件一律放 `runs/`（报告要能复现）。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
+- **上游**（先做完这些再进来）：`web-fingerprint`、`asset-correlation`
+- **下游**（产出交给谁）：`nuclei-scan`、`unauth-exploit`
+- **互补**（同类场景一起用）：`credential-attack`、`digital-forensics`、`graphql-testing`、`http-smuggling`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

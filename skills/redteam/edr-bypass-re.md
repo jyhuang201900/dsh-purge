@@ -557,3 +557,15 @@ CreateProcessW(L"C:\\Windows\\System32\\notepad.exe", NULL, NULL, NULL, FALSE,
 
 完成本三件套（hook 调研 → unhook → telemetry 致盲）后，回到 `SKILL.md` Step 5 在 sandbox 验证，
 然后按 `attack-chain/` 的 initial access 与 lateral movement 章节进入下一阶段。
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`privesc-persistence`、`windows-ad`
+- **下游**（产出交给谁）：`threat-hunting`、`lateral-movement`
+- **专项下游**（同主题更深的靶子面）：`competition-kernel-container-escape`
+- **互补**（同类场景一起用）：`fscan-intranet`、`gogo-intranet`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+

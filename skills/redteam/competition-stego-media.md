@@ -81,3 +81,12 @@ Use this skill when the challenge lives inside a media container, hidden channel
 - Jumping into brute force before checking trailers and metadata
 - Mixing several partial decode attempts without tracking which channel produced which bytes
 - Treating a suspicious pattern as success without reproducing the hidden payload
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现
+- **互补**（同类场景一起用）：`competition-request-normalization-smuggling`、`competition-runtime-routing`、`competition-supply-chain`、`competition-template-render-path`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+

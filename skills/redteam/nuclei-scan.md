@@ -99,3 +99,14 @@ nuclei -l runs/alive-urls.txt -tags cve -tl
 | 命中一堆 low/info | severity 没限 | 演练加 `-severity critical,high,medium` |
 | 目标被打挂 | 并发过高 / 跑了 dos 模板 | 降 `-rl`/`-c`；确认 ignore 文件没被动过 |
 | 内网目标打不到 | 没走隧道 | 加 `-proxy socks5://127.0.0.1:<suo5端口>`（技能 `suo5-tunnel`） |
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
+- **上游**（先做完这些再进来）：`dir-bruteforce`、`asset-correlation`
+- **下游**（产出交给谁）：`injection-payloads`、`web-vuln-payloads`、`unauth-exploit`
+- **互补**（同类场景一起用）：`injection-payloads`、`malware-analysis`、`oob-verification`、`race-conditions`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+
