@@ -74,12 +74,14 @@ try {
 const hashOf = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
 let seeded = 0;
 const expected = {};
+const expectedSrc = {};
 for (const { abs, rel } of targets) {
   const dst = path.join(fakeBase, rel);
   fs.mkdirSync(path.dirname(dst), { recursive: true });
   const vb = vaultIndex.get(String(abs).replace(/\\/g, "/").toLowerCase());
   const srcPath = vb || abs;
   if (vb) seeded += 1;
+  expectedSrc[rel] = vb ? "vault" : "live";
   fs.copyFileSync(srcPath, dst);
   expected[rel] = hashOf(fs.readFileSync(srcPath));
 }
@@ -110,12 +112,14 @@ const { createHash } = await import("node:crypto");
 const h2 = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
 const hashes = () => { const m = new Map(); for (const [rel, buf] of readAll()) m.set(rel, createHash("sha256").update(buf).digest("hex").slice(0, 16)); return m; };
 const expected = ${JSON.stringify(expected)};
+const expectedSrc = ${JSON.stringify(expectedSrc)};
 // 0) 先养一次备份：真机的第一次 apply 就是在这里生成旁侧 .dshpurge.bak；
 //    没有备份时 revert 只能字符串反查，对已经 pristine 的文件也不是无害的（第 76 轮实测 3 处偏移）。
 await core.applyPatchesAllHosts(core.ALL_PATCHES, opts);
 const w0 = await core.revertAllHosts();
 out.warmErrors = ((w0 && w0.errors) || []).length;
-out.warmMismatch = [...hashes().entries()].filter(([rel, h]) => expected[rel] && expected[rel] !== h).map(([rel]) => rel).slice(0, 4);
+out.warmMismatch = [...hashes().entries()].filter(([rel, h]) => expectedSrc[rel] === "vault" && expected[rel] && expected[rel] !== h).map(([rel]) => rel).slice(0, 4);
+out.liveSeeded = Object.entries(expectedSrc).filter(([, s]) => s === "live").map(([rel]) => rel);
 const base0 = readAll();
 const ap = await core.applyPatchesAllHosts(core.ALL_PATCHES, opts);
 out.reportIsArray = Array.isArray(ap && ap.report);
@@ -130,7 +134,7 @@ out.revert2Errors = (b2 && b2.errors || []).length;
 const hh = hashes();
 const hApplied1 = new Map();
 for (const [rel, buf] of a1) hApplied1.set(rel, createHash("sha256").update(buf).digest("hex").slice(0, 16));
-out.residue = [...hh.entries()].filter(([rel, h]) => expected[rel] && expected[rel] !== h).map(([rel]) => rel);
+out.residue = [...hh.entries()].filter(([rel, h]) => expectedSrc[rel] === "vault" && expected[rel] && expected[rel] !== h).map(([rel]) => rel);
 out.residueCount = out.residue.length;
 // 判据不用魔法数、不用我猜的标记字样：残差应当精确等于「第一次 apply 之后的状态」，
 // 也就是双次 apply 把还原点污染成了一次已打补丁态 —— 等式成立就说明性质清楚了，而不是"大概没坏"。
