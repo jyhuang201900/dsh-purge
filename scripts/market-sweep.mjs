@@ -8,7 +8,12 @@
  * 为什么要成工具：这两组数我手打过六趟，第 49 轮正是手打时漏记「正则作用在哪些字段」，
  * 才让档案里的 36 变成无法复现的考古题。**口径写死在代码里，比写在文档里更不容易烂。**
  */
+import fs from "node:fs";
+import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const PAGES = 40;
 const PAGE_SIZE = 50;
@@ -72,11 +77,34 @@ else if (all.length < BASELINE.sample || hitR.length !== BASELINE.restart || hit
 }
 
 const asJson = process.argv.includes("--json");
+// 与「上一次实测」自比：口径固化进代码解决了手打漂移，但邻居版本与目录规模会随时间动，
+// 光对本轮基线还不够——留下一份 .cache/market-last.json，下次跑就自动指出「哪一项和上次不同」。
+// 首次没有对照文件时明确说「首次无对照」，绝不把「没得比」说成「一致」。
+let prev = null;
+let prevNote = "首次无对照（本轮结果将写入 .cache/market-last.json）";
+const cacheFile = path.join(root, ".cache", "market-last.json");
+try { prev = JSON.parse(fs.readFileSync(cacheFile, "utf8")); } catch { prev = null; }
+const diffs = [];
+if (prev && prev.got) {
+  for (const k of Object.keys(got)) if (Number(prev.got[k]) !== Number(got[k])) diffs.push(`${k} ${prev.got[k]}→${got[k]}`);
+  for (const n of neigh) {
+    const p = (prev.neighbours || []).find((x) => x.pkg === n.pkg);
+    if (p && p.version !== n.version) diffs.push(`${n.pkg} ${p.version}→${n.version}`);
+  }
+  prevNote = diffs.length ? `与上次不同 ${diffs.length} 项：${diffs.join(", ")}` : "与上次逐项一致";
+}
+if (!netError) {
+  try {
+    fs.mkdirSync(path.dirname(cacheFile), { recursive: true });
+    fs.writeFileSync(cacheFile, JSON.stringify({ at: new Date().toISOString(), got, neighbours: neigh, verdict: { level, note } }, null, 1) + "\n", "utf8");
+  } catch { /* 写不进就算了，不影响判定 */ }
+}
 if (asJson) {
-  process.stdout.write(JSON.stringify({ baseline: BASELINE, got, neighbours: neigh, verdict: { level, note } }, null, 1) + "\n");
+  process.stdout.write(JSON.stringify({ baseline: BASELINE, got, neighbours: neigh, previous: prev ? prev.got : null, diffVsPrevious: diffs, verdict: { level, note } }, null, 1) + "\n");
 } else {
   console.log(`生态漂移：目录总数 ${total || "?"}｜采样 ${all.length} 条｜restart ${hitR.length}｜口径 D ${hitD.length}｜交集 ${both.length}`);
   console.log(`  ${level === "ok" ? "✓" : level === "warn" ? "⚠" : "·"} ${note}`);
+  console.log(`  上次对照：${prevNote}`);
   if (neigh.length) console.log(`  邻居版本：${neigh.map((x) => `${x.pkg} ${x.version}${x.published ? `（${x.published.slice(0, 10)}）` : ""}`).join("｜")}`);
 }
 // 只有「定位被吃进」（交集 > 0）判失败；量具与基线不符是 ⚠ 提醒（可能是目录变了），离线是未知——都不该天天红。

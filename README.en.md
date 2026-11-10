@@ -593,6 +593,12 @@ Purge hands capabilities to models through three entrances, all built from one c
 
 **Positioning (measured over a 2000-plugin sample, 2026-11-09)**: 26 entries mention needing a restart and 36 mention patching, but **zero mention both** - file-level patching that requires a restart has no neighbour doing the same thing. Meanwhile 72.5% of plugins ship a Web UI, so having an interface is not a differentiator.
 
+### A naming reality before publishing (measured in round 88)
+
+On the `dshmp` catalogue, the 6 plugins hit by `?q=purge` are all the "clear sessions / leftovers" family (`dsh-session-purge` and friends) - **none does instruction governance** - while `dsh-purge` itself **is not listed yet**.
+The catalogue's `?q=` is also not a name-substring filter (`q=dsh-purge` returns 11 entries, 0 containing purge), so **presence must be judged by paging the list, not by `q=`**.
+Hence if we ever publish, the display name needs a qualifier - **"prompt-authority cleaning" / 指令权威性清洗** - or it will read as the seventh session-cleanup plugin. Spec and detail: section 9c of `docs/dsh-mcp-ecosystem-notes.md`.
+
 ## Notes
 
 - The change surface is rendered copy, default policy and execution logic inside local `@deepseek-ai/*` packages, plus override files and rule sets under the harness home.
