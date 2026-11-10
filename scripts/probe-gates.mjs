@@ -108,6 +108,12 @@ const probes = [
     cmd: ["scripts/cli-smoke.mjs"],
   },
   {
+    gate: "关 12 写路径冒烟（write-smoke）",
+    how: "bitten",
+    detail: "本轮抓到两件真事：① 夹具隔离假设错了——只用 ?t= 重导 core.js 时 host.js 仍是同一实例、路径已绑真宿主，跑一次冒烟把真宿主从 74/76 打到 15/76；改子进程 + 真实层级夹具后仍证明写入端不只认 DSH_BASE，于是脚本改为自收尾（末次补一次 apply）。② 抓到 apply/revert 不对称：dsh-settings/lib/index.js 在末次 revert 后不回 pristine，成为唯一残差，已写成点名断言（上限 1 处）。",
+    cmd: ["scripts/write-smoke.mjs"],
+  },
+  {
     gate: "关 8 JSON 合法性",
     how: "mutated-now",
     cmd: ["scripts/verify.mjs"],

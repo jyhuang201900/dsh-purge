@@ -394,7 +394,7 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 
 ## Local checks
 
-One command runs eleven gates (syntax / size budget / bilingual copy incl. source-vs-inline / manifest parity / package self-proof / tool surface / end-to-end scenario / ammo-layer audit / hygiene fixtures / CLI smoke / valid JSON); a non-zero exit means a gate failed:
+One command runs twelve gates (syntax / size budget / bilingual copy incl. source-vs-inline / manifest parity / package self-proof / tool surface / end-to-end scenario / ammo-layer audit / hygiene fixtures / CLI smoke / write-path smoke / valid JSON); a non-zero exit means a gate failed:
 
 ```sh
 npm run verify
@@ -448,6 +448,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run audit:skills` | ammo-layer consistency: every `redteam_*` tool name cited by skills and every skill named by the doctrine must actually exist |
 | `npm run test:hygiene` | hygiene-module fixtures: the prev keep-limit, orphan pair counting, and a bad JSON that must not be skipped silently |
 | `npm run smoke:cli` | CLI smoke: actually runs the read-only modes of `bin` to check argument dispatch and output markers (an unknown flag must error, not quietly print status) |
+| `npm run smoke:write` | write-path smoke: revert -> apply -> apply -> revert over a temporary fixture, compared byte-by-byte (apply idempotence, revert round-trip, self-restoring) |
 | `npm run audit:graph` | graph orphan audit: finds code files with zero inbound edges and no mention in docs/manifest (a named manual CLI is not an orphan) |
 | `npm run verify` | one command, eight gates |
 | `npm run build:client` | rebuild the client bundle |
