@@ -242,6 +242,24 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
       check("★ 无字典时明确说要先装字典", (() => { const cv = commandsForStage({ stage: "recon", target: "x" }); const b = cv.find((c) => /目录爆破/.test(c.label)); return b && !b.ok && /字典/.test(b.note); })(), "无字典");
     }
   }
+  // ★ 侦察管道：命令"能跑"≠"跑得出结果"。实测 25k 条死域名灌进 dnsx 白等 396 秒、0 命中。
+  {
+    const { reconPipeline, judgeAliveRate } = await import(toUrl(path.join(root, "lib", "redteam", "pipeline.js")));
+    // 平台必须分开：head -n 是 Linux 命令，Windows 上 'head' is not recognized（实测 exit 255）
+    const win = reconPipeline({ domain: "example.com", toolkit: probeTool, platform: "win32" });
+    const lin = reconPipeline({ domain: "example.com", toolkit: probeTool, platform: "linux" });
+    check("★ Windows 管道不含 head（Windows 没这个命令）", win.every((s) => !/\bhead\b/.test(s.cmd)), win.map((s) => s.cmd).join(" ").slice(0, 90));
+    check("★ Linux 管道用 head", lin.some((s) => /\bhead\b/.test(s.cmd)), "linux");
+    check("★ 管道有上限（不把几万条直接灌下去）", win[0].cmd.includes("2000") && /上限/.test(win[0].note), win[0].note.slice(0, 60));
+    check("★ 管道有抽样探活这一步", /抽样/.test(win[1].step), win[1].step);
+    check("★ 探端口只喂 alive.txt", /alive\.txt/.test(win[3].cmd) && !/subs\.txt/.test(win[3].cmd), win[3].cmd.slice(0, 90));
+    // 解析率判定：实测 200→0 必须喊停
+    const dead = judgeAliveRate({ sampled: 200, resolved: 0 });
+    check("★ 死域名（200→0）必须喊停", dead.ok === false && dead.level === "stop", dead.why.slice(0, 80));
+    const good = judgeAliveRate({ sampled: 200, resolved: 120 });
+    check("解析率正常时不拦", good.ok === true, good.why.slice(0, 60));
+    check("样本太小不做判断", judgeAliveRate({ sampled: 20, resolved: 0 }).level === "skip");
+  }
   // 阶段命令按阶段变
   {
     const recon = commandsForStage({ stage: "recon", target: "10.0.0.0/24" });
