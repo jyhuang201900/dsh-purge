@@ -248,6 +248,28 @@ notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 $
   }
 }
 
+// 22) 「设计内 skipped」清单不许烂掉：每条 id 必须真实存在于补丁表、名字对得上；
+//     装了宿主的机器上还要求它当前确实是 skipped —— 一旦上游把这条补丁变成可打，清单就得重核（否则建议行会少喊一句）。
+{
+  const core22 = await import("../lib/core.js");
+  const DESIGN_SKIPPED_VERIFIED = core22.DESIGN_SKIPPED_VERIFIED;
+  const byId = new Map(ALL_PATCHES.map((x) => [x.id, x]));
+  for (const pt of (DESIGN_SKIPPED_VERIFIED && DESIGN_SKIPPED_VERIFIED.points) || []) {
+    const row = byId.get(pt.id);
+    if (!row) { problems.push(`设计内 skipped 清单里的 #${pt.id} 在补丁表里不存在：清单要删条目`); continue; }
+    if (row.name !== pt.name) problems.push(`设计内 skipped 清单 #${pt.id} 名字对不上（清单写 ${pt.name}，补丁表是 ${row.name}）`);
+  }
+  if (DESIGN_SKIPPED_VERIFIED && hostPresent) {
+    const ps22 = ((await core22.gatherState()) || {}).patch_status || {};
+    for (const pt of DESIGN_SKIPPED_VERIFIED.points) {
+      if (ps22[pt.id] !== "skipped" && ps22[pt.id] !== undefined) problems.push(`#${pt.id} 现在状态是 ${ps22[pt.id]}，不再是 skipped：设计内清单要重核（建议行会少喊一句）`);
+    }
+    notes.push(`设计内 skipped 清单 ${DESIGN_SKIPPED_VERIFIED.points.length} 条可核对（宿主 ${DESIGN_SKIPPED_VERIFIED.checkedAgainst}）`);
+  } else if (DESIGN_SKIPPED_VERIFIED) {
+    notes.push(`设计内 skipped 清单 ${DESIGN_SKIPPED_VERIFIED.points.length} 条（未装宿主，状态核对跳过）`);
+  }
+}
+
 // 19) 入口清单对账：package.json 里每个 npm script 都必须在两份 README 中出现。
 //     本轮实测：加了 scenario / probe:gates 等命令后，README 只提到 14 个里的 7 个 —— 没人知道的门等于半个门。
 {
