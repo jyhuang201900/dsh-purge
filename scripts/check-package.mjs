@@ -362,6 +362,23 @@ if (!injectLen) problems.push("默认注入正文是空的（打包或 asset-tab
 else if (injectLen > INJECT_BUDGET) problems.push(`默认注入正文 ${injectLen} 字，超预算 ${INJECT_BUDGET}：加条款前先想能不能折进现有段落`);
 if (injectLen) notes.push(`注入体积 ${injectLen} 字（预算 ${INJECT_BUDGET}，占 ${Math.round((100 * injectLen) / INJECT_BUDGET)}%）`);
 
+// 12b) 加密槽必须等于源文件：出厂默认是「源 → sealSlot → lib/asset-table.js」两步生成的，
+//      而宿主读的是**槽**不是源。改了 lib/default-prompt-inject.md 却没跑 embed-prompt，
+//      默认就会「悄悄停在旧版」——第 101 轮实测正是如此：源 30,725 字 vs 槽 29,777 字，
+//      我在源里加的 4 行技能聚合压根没进出厂默认。这属于「生成物即资产」，得由闸门对齐而不是靠人记得。
+try {
+  const sealedText = String(defaultOverrideText() || "");
+  const srcText = fs.readFileSync(path.join(root, "lib", "default-prompt-inject.md"), "utf8");
+  const normLine = (s) => s.split(/\r?\n/).map((l) => l.replace(/\s+$/, "")).join("\n");
+  if (sealedText && normLine(sealedText) !== normLine(srcText)) {
+    problems.push(`加密槽与源不一致（槽 ${sealedText.length} 字 vs 源 ${srcText.length} 字）：改了默认注入正文要跑 npm run embed-prompt，否则出厂默认停在旧版`);
+  } else if (sealedText) {
+    notes.push("加密槽与源一致");
+  }
+} catch (e) {
+  problems.push(`加密槽一致性检查失败：${String((e && e.message) || e).slice(0, 60)}`);
+}
+
 // 10) 闸门数自证：从 verify.mjs 读出实际关卡数，要求 README 中英两侧的说法与之一致。
 //     （「五关/六关/七关」这种话是最容易漂的口径：加一道门却忘了改文档，本仓库已经发生过两轮。）
 const ver = fs.readFileSync(path.join(root, "scripts", "verify.mjs"), "utf8");
