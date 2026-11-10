@@ -192,17 +192,6 @@ File → Save Module → 替换原文件
 | `strings` | ❌ 未装（用前先装，或改用等价工具） |
 | `r2` | ❌ 未装（用前先装，或改用等价工具） |
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`strings`
-- `strings`：Windows 无 strings；用 Sysinternals `strings.exe`，或 PowerShell 提取可打印串
-
-runnability:end -->
-
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -228,3 +217,12 @@ second-shot:end -->
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`strings`
+- `strings`：Windows 无 strings；用 Sysinternals `strings.exe`，或 PowerShell 提取可打印串
+
+runnability:end -->

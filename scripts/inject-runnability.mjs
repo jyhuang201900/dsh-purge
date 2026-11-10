@@ -99,7 +99,14 @@ function render(body, text) {
   if (missing.length) {
     L.push("", `本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：${missing.map((x) => "`" + x + "`").join("、")}`);
     for (const m of missing) {
-      if (INSTALLABLE.has(m)) L.push(`- \`${m}\`：\`npm run toolkit:windows -- --only ${m}\`（官方 Windows 构建已支持）`);
+      // 「装过但被安全软件删了」与「从没装过」处置完全不同：前者重装会被再删一次，要先加白名单。
+      // 第 119 轮实测本机腾讯电脑管家会在 20 秒内静默删掉 chisel / suo5 / gobuster 这类红队工具
+      // （装好即消失，Defender 无记录）。同一件事在 cmd-route.js 里也这么判，两处说法必须一致。
+      const dir = path.join(TK, m);
+      let blocked = false;
+      try { blocked = fs.existsSync(dir) && !fs.existsSync(path.join(dir, m + ".exe")); } catch { blocked = false; }
+      if (blocked) L.push(`- \`${m}\`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 \`${dir}\` 加进白名单再装`);
+      else if (INSTALLABLE.has(m)) L.push(`- \`${m}\`：\`npm run toolkit:windows -- --only ${m}\`（官方 Windows 构建已支持）`);
       else if (SUBSTITUTE[m]) L.push(`- \`${m}\`：${SUBSTITUTE[m]}`);
       else L.push(`- \`${m}\`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建`);
     }

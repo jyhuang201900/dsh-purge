@@ -184,22 +184,6 @@ WebShell 场景配合技能 `suo5-tunnel`：把 suo5 客户端放本机，服务
 - `cn-proxy-pool`：需要国内出口 IP 时叠加代理（不要改动本机网络配置）
 - `active-scan` / `fofa-recon`：内网可达后继续测绘
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`r2`、`wget`、`nc`、`socat`
-- `r2`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `wget`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `nc`：Windows 无原生 nc；用 PowerShell `TcpClient` 或 nmap 包里的 `ncat.exe`
-- `socat`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -225,3 +209,17 @@ second-shot:end -->
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`webshell`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`r2`、`wget`、`nc`、`socat`
+- `r2`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `wget`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `nc`：Windows 无原生 nc；用 PowerShell `TcpClient` 或 nmap 包里的 `ncat.exe`
+- `socat`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

@@ -14,7 +14,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
-import { spawnSync } from "node:child_process";
+import { spawnSync, execFileSync } from "node:child_process";
 
 const NL = String.fromCharCode(10);
 const home = process.env.DSH_HOME || path.join(os.homedir(), ".dsh");
@@ -75,15 +75,70 @@ async function fetchJson(url) {
   return r.json();
 }
 
-// 第 99 轮实测：这台机器 github.com:443 连不上，但 api.github.com 与 objects.githubusercontent.com 可达。
-// 所以不走 browser_download_url（它在 github.com 上），改走官方的资产端点 + Accept: application/octet-stream。
+// 下载：三条路依次试，把失败原因留清楚。
+//
+// 实测历史（这台机器，两种网络状况都出现过）：
+//   第 99 轮：github.com:443 连不上，但 api.github.com 可达 → 走 API 资产端点 + Accept: octet-stream。
+//   第 119 轮：API 端点也超时了（43.9MB 走 API 是重定向到 objects.githubusercontent.com，
+//              Node fetch 在这台机器上 12s 就 failed）。**根因是 Node 的 fetch 不读 Windows 系统代理**
+//              （只认 HTTP_PROXY/HTTPS_PROXY 环境变量），而系统代理是开着的（127.0.0.1:10808）；
+//              另外 curl 的 schannel 还要关掉证书吊销检查才能握手（--ssl-no-revoke）。
+//   实测结论：`curl --proxy <系统代理> --ssl-no-revoke` 能拿到 43.93MB / 61.8s / 746KB/s。
+//
+// 所以顺序是：fetch(API) → curl(走探测到的代理) → curl(直连)。任何一条成功就返回，
+// 全失败时把三条的原因拼起来报——只报最后一条会让人以为是同一个问题。
+function systemProxy() {
+  // 只**读**系统代理，不改它（用户的代理归用户管）。读不到就返回空串。
+  // 注意：本文件是 ESM，**没有 require**——首版这里写了 require("node:child_process")，
+  // 异常被 catch 吞掉后返回空串，于是「curl 走代理」那条路被静默跳过，
+  // 只剩 curl 直连（超时），症状表现为「解压失败」（其实是根本没下载到）。
+  // 用顶层 import 进来的 execFileSync。
+  try {
+    const out = execFileSync("reg", ["query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", "/v", "ProxyServer"], { encoding: "utf8", timeout: 5000 });
+    const m = /ProxyServer\s+REG_SZ\s+(\S+)/.exec(out);
+    return m ? m[1].trim() : "";
+  } catch { return ""; }
+}
+
 async function download(url, dest) {
-  const r = await fetch(url, { headers: { "user-agent": "dsh-purge-toolkit", accept: "application/octet-stream" }, signal: AbortSignal.timeout(300000) });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  const buf = Buffer.from(await r.arrayBuffer());
   fs.mkdirSync(path.dirname(dest), { recursive: true });
-  fs.writeFileSync(dest, buf);
-  return buf.length;
+  const reasons = [];
+
+  // ① fetch（API 资产端点；小文件通常够用）
+  try {
+    const r = await fetch(url, { headers: { "user-agent": "dsh-purge-toolkit", accept: "application/octet-stream" }, signal: AbortSignal.timeout(120000) });
+    if (r.ok) {
+      const buf = Buffer.from(await r.arrayBuffer());
+      fs.writeFileSync(dest, buf);
+      return buf.length;
+    }
+    reasons.push(`fetch HTTP ${r.status}`);
+  } catch (e) {
+    reasons.push(`fetch ${String(e?.message ?? e).slice(0, 40)}`);
+  }
+
+  // ② curl 走系统代理（不改代理配置，只是让 curl 用它）
+  // **必须带 Accept: application/octet-stream**：API 资产端点在不带这个头时返回的是
+  // **JSON 元数据**（几百字节），curl 会高高兴兴地报 HTTP 200 + 写一个 0.00 MB 的文件，
+  // 然后解压失败——症状看起来像「解压坏了」，其实是根本没下到包。实测踩过。
+  const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY || systemProxy();
+  const ACCEPT = ["-H", "Accept: application/octet-stream", "-H", "user-agent: dsh-purge-toolkit"];
+  if (proxy) {
+    const r = spawnSync("curl", ["-sS", "-L", "--proxy", proxy, "--ssl-no-revoke", "-m", "300", ...ACCEPT, "-o", dest, "-w", "%{http_code}", url], { encoding: "utf8", timeout: 330000 });
+    if (r.status === 0 && String(r.stdout || "").trim().startsWith("2") && exists(dest) && fs.statSync(dest).size > 1024) return fs.statSync(dest).size;
+    reasons.push(`curl(proxy ${proxy}) ${String(r.stdout || "").trim() || String(r.stderr || "").slice(0, 40)}${exists(dest) ? ` size=${fs.statSync(dest).size}` : ""}`);
+  } else {
+    reasons.push("curl(proxy) 跳过：没探到系统代理");
+  }
+
+  // ③ curl 直连（没有代理或代理不通时）
+  {
+    const r = spawnSync("curl", ["-sS", "-L", "--ssl-no-revoke", "-m", "300", ...ACCEPT, "-o", dest, "-w", "%{http_code}", url], { encoding: "utf8", timeout: 330000 });
+    if (r.status === 0 && String(r.stdout || "").trim().startsWith("2") && exists(dest) && fs.statSync(dest).size > 1024) return fs.statSync(dest).size;
+    reasons.push(`curl(direct) ${String(r.stdout || "").trim() || String(r.stderr || "").slice(0, 40)}${exists(dest) ? ` size=${fs.statSync(dest).size}` : ""}`);
+  }
+
+  throw new Error(`下载失败（三条路都不通）：${reasons.join("｜")}`);
 }
 
 function unzip(zipPath, outDir) {

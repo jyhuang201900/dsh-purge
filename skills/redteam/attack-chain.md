@@ -658,23 +658,6 @@ touch -t 202301010000 /path/to/file
 | `sqlmap` | ❌ 未装（用前先装，或改用等价工具） |
 | `burp` | ❌ 未装（用前先装，或改用等价工具） |
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`nuclei`、`whatweb`、`sqlmap`、`hydra`
-- `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
-- `nuclei`：`npm run toolkit:windows -- --only nuclei`（官方 Windows 构建已支持）
-- `whatweb`：Ruby gem；无 ruby 时用 `curl -I` + 人工指纹（技能里的指纹表可当字典）
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
-- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -697,3 +680,17 @@ second-shot:end -->
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`stage` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`whatweb`、`sqlmap`、`hydra`
+- `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
+- `whatweb`：Ruby gem；无 ruby 时用 `curl -I` + 人工指纹（技能里的指纹表可当字典）
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
+- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

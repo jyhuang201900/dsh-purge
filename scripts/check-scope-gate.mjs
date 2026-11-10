@@ -182,6 +182,20 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
     const h = probeTool("httpx");
     check("★ 冒牌 httpx（Python 版）不被认成可用", !(h.ok && /pythoncore|Scripts/i.test(h.path)), h.ok ? h.path : "缺（正确）");
   }
+  // 装了 / 被安全软件删了 / 从没装 三种状态必须能区分：
+  // 第 119 轮实测本机腾讯电脑管家会把 chisel/suo5/gobuster 在 20 秒内静默删除，
+  // 报「缺失」会让人以为是没装成功、反复重装（重装会被再删一次）。
+  {
+    const kinds = new Set();
+    for (const n of ["nuclei", "chisel", "netexec"]) kinds.add(probeTool(n).kind);
+    check("★ 工具状态能区分 装了/被删/没装", kinds.size >= 2, [...kinds].join(","));
+    const blk = commandFor({ tool: "chisel", args: "x", install: "npm run toolkit:windows -- --only chisel" });
+    if (probeTool("chisel").kind === "blocked") {
+      check("★ 被删的工具提示「加白名单」而不是「先装」", /白名单/.test(blk.note), blk.note.slice(0, 90));
+    } else {
+      check("（本机 chisel 未被删，跳过白名单断言）", true);
+    }
+  }
   // 已装工具给绝对路径（防 PATH 撞同名异构）
   {
     const r = commandFor({ tool: "naabu", args: "-host X -top-ports 100" });
