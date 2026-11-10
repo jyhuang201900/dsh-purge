@@ -17,7 +17,7 @@ const BIN = path.join(root, "bin", "dsh-purge.js");
 const MODES = ["--apply", "--revert", "--uninstall", "--status", "--align", "--tools", "--drill", "--mcp", "--mcp-probe", "--verify-live", "--edit", "--help"];
 
 const cases = [
-  { label: "--status 出状态表", args: ["--status"], codes: [0], marks: [/dsh-purge 状态/] },
+  { label: "--status 出状态表（含宿主枚举）", args: ["--status"], codes: [0], marks: [/dsh-purge 状态/, /宿主枚举\s+\d+ 个/] },
   { label: "--align 出对齐体检", args: ["--align"], codes: [0], marks: [/宿主 host=/] },
   { label: "--tools 列全 10 个工具", args: ["--tools"], codes: [0], marks: [/共 10 个工具/, /purge_drill/] },
   { label: "--help 列全每个可用旗标", args: ["--help"], codes: [0], marks: [/dsh-purge 用法/, ...MODES.map((m) => new RegExp(m.replace(/-/g, "-")))] },

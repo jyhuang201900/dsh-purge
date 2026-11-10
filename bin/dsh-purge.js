@@ -29,6 +29,7 @@ function printStatus(state, update) {
   out.push(`  注入状态       ${state.override_status}`);
   out.push("");
   const tally = core.patchTally(state);
+  out.push(`  宿主枚举       ${core.hostEnumerationLine(state).replace(/^宿主枚举 /, "")}`);
   out.push(`  补丁 ${tally.applied}/${tally.total} 已清洗, ${tally.pending} 待清洗, ${tally.skipped.length} 锚点未命中, ${tally.na} 不适用, ${tally.missing} 缺文件`);
   for (const p of core.ALL_PATCHES) {
     const s = state.patch_status[p.id];
