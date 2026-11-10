@@ -117,6 +117,11 @@ const main = async () => {
   await run("list shot 复核", { op: "list", entity: "shot" }, has("共 1 条"), has("#1"));
   await run("delete shot 联动", { op: "delete", entity: "shot", row: 1 }, has("已删 #1"), has("回读剩 0"));
 
+  // 10f) 得分点必须能就地取到 code（score_add 的 point 参数要 id；曾只印中文 name，模型取不到 id）
+  const scTxt = await run("scores 带 code", { op: "scores" }, has("terminal-access（"), has("加 limit="), has("共 25 条"));
+  const codeFromOut = /\b([a-z][a-z0-9-]+)（/.exec(scTxt);
+  if (!codeFromOut) failures.push("scores：没能从输出里解析出 code，说明渲染又退化了");
+
   // 10e) 资产面：登记（importBundle 包成单条）→ 评估（枚举静默回落要如实报）→ 测试回写
   await run("assets 空态引导", { op: "assets" }, has("共 0 条"), has("importBundle"));
   await run("entity_add asset", { op: "entity_add", entity: "asset", target: "203.0.113.20", name: "nas-20" }, has("已写入"), has("表内现有 1 条"), has("新增 1 条"));
