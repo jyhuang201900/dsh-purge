@@ -400,6 +400,14 @@ One command runs nine gates (syntax / size budget / bilingual copy incl. source-
 npm run verify
 ```
 
+### Five working rules (ordered by how often this repo actually tripped on them)
+
+1. **Measure before writing.** Every "I remember it works like this" needs one command to prove it - most rework came from guessing anchors, signatures and field names.
+2. **Read-back must not lie.** `updated:true` can mean a silent no-op, and a `counts` field can be rows processed rather than rows added.
+3. **A gate has to fail correctly.** Every gate needs evidence it turns red when broken; loose regexes, optional prefixes and pointing at the wrong script make a gate lie - worse than having no gate.
+4. **Land edits one at a time when they are many.** Batched edits lose everything if the batch fails at parse time, and quoting across PowerShell -> script -> code is the top killer.
+5. **Environment is not fact.** Each command is a fresh process: without `DSH_BASE` you get confident fake numbers, and truncating the pipe can kill a command that writes files.
+
 ### Three-entrance matrix (command x panel route x model tool)
 
 | Capability | Slash command | Panel route | Model tool | Note |

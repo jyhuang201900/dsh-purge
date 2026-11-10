@@ -229,6 +229,7 @@ notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 $
     if (!fs.existsSync(fp)) continue;
     const body = fs.readFileSync(fp, "utf8");
     const opClaims = [...body.matchAll(/(\d+) ops?\b/g)].map((m) => Number(m[1]));
+    if (!opClaims.length) problems.push(`${rel} 找不到「N op」的能力账口径（句子被改或删了）`);
     for (const c of opClaims) if (c !== realOps) problems.push(`${rel} 有「${c} op」的说法，运行时 KNOWN 是 ${realOps} 个：加/减 op 或做别名都要同步文档`);
     // 中英词序不同，分开配模式（用一条通吃会把 en 的 "22 entities (10 read + 12 write)" 漏掉）。
     const entClaims = [...body.matchAll(/(\d+)\s*(?:个)?实体[（(]读 (\d+) \+ 写 (\d+)[)）]/g)];
@@ -242,6 +243,7 @@ notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 $
     // 「N 步」必须限定在情景语境里，否则正文「回到第 1 步核对」也会被当成步数声明（本轮就误报过一次）。
     const stepClaims = [...[...body.matchAll(/情景\s*(\d+)\s*步/g)].map((m) => Number(m[1])), ...[...body.matchAll(/(\d+)\s*end-to-end scenario steps/g)].map((m) => Number(m[1]))].filter((x) => Number.isFinite(x));
     for (const c of stepClaims) if (c !== realSteps) problems.push(`${rel} 写「${c} 步」，scenario 实际有 ${realSteps} 个 run() 断言`);
+    if (!stepClaims.length) problems.push(`${rel} 找不到「情景 N 步 / N end-to-end scenario steps」的能力账口径`);
     if (opClaims.length && (entClaims.length || entClaimsEn.length) && stepClaims.length) notes.push(`能力账对账（${realOps} op｜读 ${realRead} + 写 ${realWrite}｜${realSteps} 步）全对`);
   }
 }
