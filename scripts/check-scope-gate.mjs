@@ -223,6 +223,40 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
   }
 }
 
+// ── ①f 入参校验（不静默降级：建成一个边界为空的靶标比报错危险得多）──
+// 实测缺口（第 120 轮）：四种写法都会让靶标「建成功但边界全空」——
+//   techs=noisy（键名错）、tech=noisy;passive（分号）、10.0.0.999/24（IP 越界）、
+//   from=2026/11/11（时间格式错）。最危险的是「建成了但边界为空」：人以为有边界，实际等于无授权作业。
+{
+  const { validateOpenArgs, renderIssues, parseScopeString } = await import(toUrl(path.join(root, "lib", "redteam", "validate-input.js")));
+  const BAD = [
+    ["键名写错", { target: "10.0.0.0/24", scope: "techs=noisy" }, /scope\.techs/],
+    ["分号分隔", { target: "10.0.0.0/24", scope: "tech=noisy;passive" }, /scope\.tech/],
+    ["IP 段越界", { target: "10.0.0.999/24" }, /target/],
+    ["时间格式错", { target: "10.0.0.0/24", scope: "from=2026/11/11" }, /scope\.from/],
+    ["掩码超范围", { target: "10.0.0.0/33" }, /target/],
+    ["技法是乱码", { target: "10.0.0.0/24", scope: "tech=noisy!!bad" }, /scope\.tech/],
+    ["键重复", { target: "10.0.0.0/24", scope: "tech=noisy,tech=passive" }, /scope\.tech/],
+    ["值为空", { target: "10.0.0.0/24", scope: "tech=" }, /scope\.tech/],
+    ["目标不是 IP 也不是域名", { target: "not a target!!" }, /target/],
+  ];
+  for (const [label, args, re] of BAD) {
+    const { issues } = validateOpenArgs(args);
+    const lines = renderIssues(issues);
+    check(`★ 校验抓住「${label}」并带字段路径`, issues.length > 0 && re.test(lines.join(" ")), lines.join(" / ").slice(0, 90));
+  }
+  // 正确写法必须零问题（不能把合法输入也拦了）
+  {
+    const { issues } = validateOpenArgs({ target: "10.0.0.0/24", scope: "tech=noisy,passive,deny=destructive,from=2026-11-11 00:00,to=2026-11-12 00:00" });
+    check("★ 合法入参零问题（不误拦）", issues.length === 0, renderIssues(issues).join(" / ").slice(0, 90));
+  }
+  // 值内逗号必须保留（tech=noisy,passive 是两项，不是一个坏值）
+  {
+    const { kv, issues } = parseScopeString("tech=noisy,passive,deny=destructive");
+    check("★ tech 的多值不被切碎", kv.tech === "noisy,passive" && issues.length === 0, `tech=${kv.tech}`);
+  }
+}
+
 // ── ② 端到端：拦截真的发生在写入路径上 ──
 const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "scopegate-"));
 const prevHome = process.env.REDTEAM_HOME;
@@ -236,6 +270,13 @@ try {
   const tools = buildModelTools({ core, rules, hostctl, updater, rejectIfNeedPrompt: () => null });
   const drill = tools.find((t) => t.name === "purge_drill");
 
+  // 端到端：写错的入参必须**拒绝建靶**，而不是建一个边界为空的靶标
+  {
+    const badOpen = await drill.execute({ op: "open", name: "scopegate-bad", target: "10.0.0.999/24" });
+    check("★ 端到端：IP 越界时拒绝建靶", /未建靶/.test(badOpen.text) && /target/.test(badOpen.text), badOpen.text.slice(0, 100));
+    const badTech = await drill.execute({ op: "open", name: "scopegate-bad2", target: "10.0.0.0/24", scope: "techs=noisy" });
+    check("★ 端到端：键名写错时拒绝建靶", /未建靶/.test(badTech.text) && /scope\.techs/.test(badTech.text), badTech.text.slice(0, 100));
+  }
   const opened = await drill.execute({ op: "open", name: "scopegate", target: "203.0.113.0/24" });
   check("临时靶标已建立", /已建靶/.test(opened.text), opened.text.slice(0, 60));
 
