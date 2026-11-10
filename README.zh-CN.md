@@ -444,6 +444,7 @@ npm run verify
 | --- | --- |
 | `npm run embed-prompt` | 把默认注入正文重封进 `lib/asset-table.js`（改了源必须跑，否则宿主拿旧稿） |
 | `npm run check-anchors` | 逐条补丁锚点对已发布宿主产物核对（`--old` 现在会自动推断上一档） |
+| `npm run check:upstream` | 上游漂移探测：npm 上 dsh 的最新版是否还是我钉的 `dshTarget`；engines 越界判失败，查不到只报未知 |
 | `npm run check-size` | 每文件体积预算（默认上限 200KB） |
 | `npm run check:locale` | `client.js` 里中英两块 329 组文案 key 的一致性 |
 | `npm run build:locale` | 由 `locale/*.json` 生成内联块；`--check` 验源与内联不分叉 |

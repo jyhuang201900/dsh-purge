@@ -436,6 +436,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | --- | --- |
 | `npm run embed-prompt` | re-seal the default injected body into `lib/asset-table.js` (must run after editing the source) |
 | `npm run check-anchors` | check every patch anchor against published host artifacts (`--old` is now auto-derived) |
+| `npm run check:upstream` | upstream drift probe: is npm's latest dsh still the pinned `dshTarget`? Out of engines range fails; an unreachable registry stays unknown |
 | `npm run check-size` | per-file size budget (200KB default cap) |
 | `npm run check:locale` | key parity of the two inline dictionaries (329 zh/en copy keys) in `client.js` |
 | `npm run build:locale` | inline `locale/*.json` into client.js; `--check` proves source and inline agree |

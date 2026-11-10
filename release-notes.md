@@ -4,6 +4,10 @@
 
 对齐宿主 **dsh 0.2.2-rc.1**（EXE 实测版本，cordis 4.1.0；补丁 76 条、74 已清洗、2 条设计内 skipped）。这一版不铺新面积，做的是把前 40 轮攒下的东西**变得可核对**：
 
+- **上游没动，但我把"有没有被冲掉"做成了一条命令（新增 `npm run check:upstream`）。** 实测结论先放这：`dist-tags.latest = next = 0.2.2-rc.1`（2026-11-04 发布，今天 11-10 无更新）、**42 个版本全是预发布、0 个稳定版**、本机宿主重新量仍是 `@deepseek-ai/dsh-desktop 0.2.2-rc.1`（**没偷偷升级**）、`engines.dsh ">=0.2.1-rc.2 <0.2.3-0"` 未越界。顺带一个 tag 怪象值得记：`alpha` 指向 `0.2.2-alpha.3`（11-03），**比 latest 还旧**。
+  判级刻意"宽严分明"：**只有 engines 容不下才算不通过（exit 1）**；界内出现更新版 → ⚠ 提醒去跑 `check-anchors` 再决定 re-anchor；注册表查不到 → `·` **只报"未知"，绝不把"没查到"说成"一致"**。四态全部实测：`ok`（现状）/ `warn`（把 `dshTarget` 临时改 0.2.1-rc.5）/ `bad`（把上界压到 `<0.2.2-0`）/ `unknown`（URL 指到没人听的端口）。
+  **而 `bad` 那一态抓出了我自己代码里的分支顺序 bug**：我先判 `latest === target` 再判越界，于是"版本没变、但声明范围太窄"被吞成 `✓ ok`，还把"已达/超过上界 0.2.2"这句矛盾话塞在 ok 的文案里、exit 还是 0 —— 也就是**越界分支根本没机会触发**。改成"越界先判"后 `✗ engines 已容不下上游 …（版本没变，是声明范围太窄）` + `exit=1` 才对上。第 19 项照例在我加完 npm 入口后立刻报两份 README 漏写入口，补行归零；`check:upstream` 也进了图谱（新脚本 AST 节点存在，边指向真节点，2228 节点 `validationErrors: []`）。
+
 - **能力面收口**：`purge_drill` 写到 18 op → 别名化后 17 op；写方法覆盖 **27/31（87%）**，POC 五面（增·查·改·用·删）与资产面（登记·评估·测试回写）全部闭环；剩余 4 个方法（`close`、`seedStages`、`seedScorePoints`、`writePromptManifest`）**明确豁免并写理由**。
 - **两条自造拒绝链被拆掉**：`op=scores`、`op=stages` 原先只印中文名，而 `score_add`/`chain_add` 要的是 code —— 现在每行都带 code（还顺带把分值与名字同屏），并固化成情景断言。
 - **门禁体系成型**：`verify` 从七关升到 **九关**（新增端到端情景、弹药层审计，并把 locale 源↔内联一致并入双语关）；`check-package` 涨到 **22 项**，其中一整套是**自我约束型断言**（注入体积 ≤33,000、提示词净增减 ≤2,000、工具数、文案组数、平面基线、入口清单、发版口径）。
@@ -27,6 +31,8 @@
 ## English
 
 Aligned with host **dsh 0.2.2-rc.1** (76 patches, 74 applied, 2 designed skips). This release stops adding surface and makes what exists verifiable:
+
+- **Upstream has not moved, but "will I get clobbered" is now a command (`npm run check:upstream`).** Measured today: `dist-tags.latest = next = 0.2.2-rc.1` (published 2026-11-04, nothing newer on 11-10), **all 42 published versions are pre-releases, zero stable**, and re-measuring this machine's host still gives `@deepseek-ai/dsh-desktop 0.2.2-rc.1` (it did not sneak-upgrade); `engines.dsh ">=0.2.1-rc.2 <0.2.3-0"` is not breached. One tag oddity worth keeping: `alpha` points at `0.2.2-alpha.3` (11-03), i.e. **older than latest**. Grading is deliberately asymmetric: only an `engines` range that can no longer hold upstream fails (exit 1); a newer in-range release is a ⚠ nudge to run `check-anchors` before re-anchoring; an unreachable registry is `·` **reported as unknown - never as "consistent"**. All four states were exercised (`ok` current, `warn` by temporarily setting `dshTarget` to 0.2.1-rc.5, `bad` by narrowing the upper bound to `<0.2.2-0`, `unknown` by pointing the URL at a dead port), and the `bad` case **exposed a branch-ordering bug in my own code**: testing `latest === target` before the range check swallowed "version unchanged but declared range too narrow" into `✓ ok` - with the contradictory text inside it and exit 0, so the out-of-range branch could never fire. Item 19 again caught the two missing README rows the moment I added the npm entry. The new script is in the graph too (real AST node, edge points at it; 2228 nodes, `validationErrors: []`).
 
 - **Capability line closed out**: `purge_drill` at 17 ops after aliasing `engagements`; write-method coverage **27 of 31 (87%)** with POC (create/read/update/mark-used/delete) and asset (register/assess/test-writeback) loops proven end to end; the remaining four methods are **exempted with written reasons**.
 - **Two self-inflicted dead ends removed**: `op=scores` and `op=stages` printed only Chinese names while `score_add`/`chain_add` need the code - both now expose it, locked in by scenario assertions.

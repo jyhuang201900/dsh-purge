@@ -39,6 +39,7 @@
   "scripts": {
     "embed-prompt": "node scripts/embed-default-prompt.mjs",
     "check-anchors": "node scripts/check-anchors.mjs",
+    "check:upstream": "node scripts/check-upstream.mjs",
     "check-size": "node scripts/check-size.mjs",
     "check:locale": "node scripts/check-locale.mjs",
     "build:locale": "node scripts/build-locale.mjs",
