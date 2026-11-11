@@ -123,9 +123,8 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`ghidra`、`radare2`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`ghidra`
 - `frida`：`python -m pip install frida-tools`
 - `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `radare2`：`npm run toolkit:windows -- --only radare2`（官方 Windows 构建已支持）
 
 runnability:end -->

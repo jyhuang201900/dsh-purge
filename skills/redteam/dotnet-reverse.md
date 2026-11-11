@@ -222,10 +222,8 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`ghidra`、`radare2`、`r2`、`strings`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`ghidra`、`strings`
 - `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `radare2`：`npm run toolkit:windows -- --only radare2`（官方 Windows 构建已支持）
-- `r2`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 - `strings`：Windows 无 strings；用 Sysinternals `strings.exe`，或 PowerShell 提取可打印串
 
 runnability:end -->

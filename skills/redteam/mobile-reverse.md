@@ -235,12 +235,11 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`objection`、`apktool`、`jadx`、`ghidra`、`radare2`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`objection`、`apktool`、`jadx`、`ghidra`
 - `frida`：`python -m pip install frida-tools`
 - `objection`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 - `apktool`：官方只发 `apktool_<ver>.jar`（需 java）；装上后 `java -jar apktool.jar d <apk>`
 - `jadx`：官方发 `jadx-gui-<ver>-win.zip`（Java 启动器，需 java）
 - `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `radare2`：`npm run toolkit:windows -- --only radare2`（官方 Windows 构建已支持）
 
 runnability:end -->

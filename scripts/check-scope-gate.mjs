@@ -830,6 +830,34 @@ try {
     // 判据要查**全文**而不是只查代码块：ida-reverse 把 radare2 写在表格里
     check("★ 判据查全文（表格里写的也算）", rSrc.includes("const scope =") && rSrc.includes("body}") && rSrc.includes("text || \"\""), "scope=body+text");
   }
+  // ★ 工具别名：radare2 的 Windows 包里 `r2.exe` 与 `r2agent.exe` **哈希完全相同**
+  // （都是 r2agent 守护进程），真正能分析的 CLI 是 `radare2.exe`。
+  // 技能正文大量写 `r2 -A ./bin`，查 `r2` 会说「本机无」——让人以为要另装一个工具。
+  // 第 139 轮实测：别名不是另一个工具，是同一个工具的短名。
+  {
+    const { probeTool: pT2, TOOL_ALIAS } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+    check("★ 别名表存在且含 r2→radare2", TOOL_ALIAS && TOOL_ALIAS.r2 === "radare2", JSON.stringify(TOOL_ALIAS && TOOL_ALIAS.r2));
+    const rd = pT2("radare2");
+    if (rd.ok) {
+      check("★ 装了 radare2 时 r2 也算有", pT2("r2").ok && pT2("rabin2").ok, "r2=" + pT2("r2").kind);
+      check("★ r2 解析到同一个 exe", String(pT2("r2").path) === String(rd.path), String(pT2("r2").path || "").split("\\").slice(-2).join("\\"));
+    } else {
+      check("（本机无 radare2，跳过别名解析断言）", true);
+    }
+    // 别名不该把无关工具也认成存在
+    check("★ 别名不误伤（suo5 仍是 suo5）", !TOOL_ALIAS.suo5, "suo5 无别名");
+    // 装机清单里的 bin 必须指向**真能用的**那个：radare2 包里 r2.exe 是 r2agent 副本
+    // （哈希与 r2agent.exe 相同），拿它当主程序会得到 `Usage: r2agent`。
+    {
+      const tkSrc = fs.readFileSync(path.join(root, "scripts", "toolkit-windows.mjs"), "utf8");
+      const m = /name: "radare2"[^}]*bin: "([^"]+)"/.exec(tkSrc);
+      check("★ radare2 的 bin 是 radare2.exe 不是 r2.exe", m && m[1] === "radare2.exe", m ? m[1] : "找不到配置");
+      // 装机后必须**看退出码**：旧代码只看有没有输出，会把「装了但跑不起来」报成 ✓
+      check("★ 装机后校验退出码（不只看出没输出）", /v\.status !== 0 && !verText/.test(tkSrc), "看 status");
+      // 解压要铺整棵树：只复制单个 exe 会漏掉 dll（实测 0xC0000135）
+      check("★ 解压后铺整棵目录树（不只复制 exe）", /copyTree\(tmpDir/.test(tkSrc), "copyTree");
+    }
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 

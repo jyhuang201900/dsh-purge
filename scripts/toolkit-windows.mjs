@@ -46,7 +46,10 @@ const TOOLS = [
   { name: "feroxbuster", repo: "epi052/feroxbuster", re: /x86_64-windows-feroxbuster\.exe\.zip$/, bin: "feroxbuster.exe", dir: "feroxbuster", ver: ["--version"] },
   { name: "gobuster", repo: "OJ/gobuster", re: /gobuster_Windows_x86_64\.zip$/, bin: "gobuster.exe", dir: "gobuster", ver: ["version"] },
   // radare2 的资产名用 w64 而非 win；正则必须避开同批的 radare2-<ver>-w64-arm64.zip
-  { name: "radare2", repo: "radareorg/radare2", re: /radare2-[\d.]+-w64\.zip$/, bin: "r2.exe", dir: "radare2", ver: ["-v"] },
+  // **bin 必须是 radare2.exe，不是 r2.exe**：实测该 zip 里 r2.exe 与 r2agent.exe 哈希完全相同
+  // （都是 r2agent），拿 r2.exe 当主程序会得到 `Usage: r2agent` —— 装好了但根本不能分析。
+  // 真正的 CLI 是 radare2.exe（`radare2 -v` → `radare2 6.2.6`）。
+  { name: "radare2", repo: "radareorg/radare2", re: /radare2-[\d.]+-w64\.zip$/, bin: "radare2.exe", dir: "radare2", ver: ["-v"] },
   // 有 Windows 形态但暂不纳入（需要额外处理，如实记着而不是假装支持）：
   //   hashcat → 只发 hashcat-<ver>.7z（多平台包，要 7z 解压）
   //   apktool → 只发 apktool_<ver>.jar（要 java 跑，不是 exe）
@@ -216,13 +219,57 @@ for (const t of picks) {
       walk(tmpDir, 0);
       const pick = found.find((p) => path.basename(p).toLowerCase() === t.bin.toLowerCase()) || found[0];
       if (!pick) throw new Error("解压后没找到 .exe");
-      fs.copyFileSync(pick, dst);
+      // **不能只复制 exe**：radare2 这类工具依赖同目录或上级目录的 r_*.dll，
+      // 只拿走 r2.exe 会让它启动即崩（实测退出码 0xC0000135 = DLL 缺失），
+      // 而脚本还照样报「✓ 装好」——**装了但跑不起来，比没装更糟**。
+      // 做法：把**整个解压树**按原结构铺到目标目录，再把 pick 放到 dst。
+      // 只复制 pick 的同级文件不够（实测：r2.exe 在 bin/ 下、dll 在根，同级复制会漏掉 dll）。
+      const copyTree = (from, to) => {
+        let n = 0;
+        const walkCopy = (src, out) => {
+          let ents = [];
+          try { ents = fs.readdirSync(src, { withFileTypes: true }); } catch { return; }
+          for (const e of ents) {
+            const s = path.join(src, e.name);
+            const o = path.join(out, e.name);
+            if (e.isDirectory()) { try { fs.mkdirSync(o, { recursive: true }); } catch { /* 忽略 */ } walkCopy(s, o); continue; }
+            try { fs.copyFileSync(s, o); n += 1; } catch { /* 单个文件失败不影响主流程 */ }
+          }
+        };
+        walkCopy(from, to);
+        return n;
+      };
+      const copied = copyTree(tmpDir, path.dirname(dst));
+      if (copied <= 1) fs.copyFileSync(pick, dst);
+      else if (!exists(dst)) fs.copyFileSync(pick, dst);
+      // 解压树可能是 `radare2-<ver>-w64/bin/r2.exe` 这种嵌套结构，而 dll 在 `bin/` 里。
+      // 把 pick 所在目录的内容**铺到 dst 同级**，否则 r2.exe 与它的 dll 分居两地，
+      // 启动即 0xC0000135（实测：753 个文件都复制了，r2 还是起不来，就是因为差这一层）。
+      {
+        const pickDir = path.dirname(pick);
+        const dstDir = path.dirname(dst);
+        if (path.resolve(pickDir) !== path.resolve(dstDir)) {
+          for (const e of fs.readdirSync(pickDir, { withFileTypes: true })) {
+            if (!e.isFile()) continue;
+            const to = path.join(dstDir, e.name);
+            if (exists(to)) continue;
+            try { fs.copyFileSync(path.join(pickDir, e.name), to); } catch { /* 忽略 */ }
+          }
+        }
+      }
     } else {
       fs.copyFileSync(tmpFile, dst);
     }
     fs.rmSync(tmpDir, { recursive: true, force: true });
     const v = spawnSync(dst, t.ver, { encoding: "utf8", timeout: 8000 });
     const verText = String((v.stdout || "") + (v.stderr || "")).split(/\r?\n/).find((l) => l.trim()) || "";
+    // **退出码必须看**：radare2 只复制 r2.exe 时启动即崩（0xC0000135 DLL 缺失），
+    // 但旧代码只看有没有输出，于是照样打「✓ 装好」——把坏件报成好件。
+    // 非 0 且没有任何输出 = 起不来，直接抛错让它进失败分支。
+    if (v.status !== 0 && !verText) {
+      const hex = v.status === null ? "null" : (v.status >>> 0).toString(16).toUpperCase();
+      throw new Error(`装好了但跑不起来（退出码 ${v.status} / 0x${hex}）——多为缺 DLL 或被安全软件拦截`);
+    }
     console.log(`  ✓ ${t.name.padEnd(10)} ${String(rel.tag_name).padEnd(10)} ${Math.round(size / 1024)}KB｜${verText.trim().slice(0, 56)}`);
     ok += 1;
   } catch (e) {

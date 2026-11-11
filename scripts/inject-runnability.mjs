@@ -54,7 +54,12 @@ const SUBSTITUTE = {
 
 const have = new Map();
 const TK = path.join(process.env.DSH_HOME || path.join(process.env.USERPROFILE || "", ".dsh"), "redteam", "toolkit");
+// radare2 的短名（r2/rabin2/...）指同一个主程序：`r2.exe` 在 Windows 包里是 r2agent 的副本，
+// 哈希与 r2agent.exe 相同，拿它当主程序会得到 `Usage: r2agent`——装好了但不能分析。
+const ALIAS = { r2: "radare2", rabin2: "radare2", radiff2: "radare2", rahash2: "radare2", rax2: "radare2" };
 function has(tool) {
+  const alias = ALIAS[String(tool || "").toLowerCase()];
+  if (alias) tool = alias;
   if (have.has(tool)) return have.get(tool);
   const base = tool.replace(/\.exe$/i, "");
   for (const c of [path.join(TK, base, base + ".exe"), path.join(TK, base + ".exe")]) {
