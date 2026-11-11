@@ -452,8 +452,7 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`strings`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
 - `frida`：`python -m pip install frida-tools`
-- `strings`：Windows 无 strings；用 Sysinternals `strings.exe`，或 PowerShell 提取可打印串
 
 runnability:end -->

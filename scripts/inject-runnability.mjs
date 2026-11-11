@@ -65,6 +65,14 @@ function has(tool) {
   for (const c of [path.join(TK, base, base + ".exe"), path.join(TK, base + ".exe")]) {
     try { if (fs.statSync(c).size > 0) { have.set(tool, true); return true; } } catch { /* 下一个 */ }
   }
+  // 二进制名可能与工具名不同（strings → strings64.exe）：目录里有 exe 就算装了
+  try {
+    const dir = path.join(TK, base);
+    if (fs.existsSync(dir) && fs.readdirSync(dir).some((f) => /\.exe$/i.test(f))) {
+      have.set(tool, true);
+      return true;
+    }
+  } catch { /* 忽略 */ }
   let ok = false;
   for (const p of ["where.exe", "which"]) {
     try { execFileSync(p, [tool], { stdio: "ignore", timeout: 3000 }); ok = true; break; } catch { /* 下一个 */ }

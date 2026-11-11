@@ -858,6 +858,47 @@ try {
       check("★ 解压后铺整棵目录树（不只复制 exe）", /copyTree\(tmpDir/.test(tkSrc), "copyTree");
     }
   }
+  // ★ 二进制名可能与工具名不同：strings 的 64 位版是 `strings64.exe`，
+  // 而 probeTool 原来硬拼 `<name>.exe`，于是**装好、真跑出 838 行，却报 blocked**。
+  // 第 140 轮实测：目录存在时退一步扫目录里第一个 exe，别再假定名字一致。
+  {
+    const { probeTool: pT3 } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+    const rSrc2 = fs.readFileSync(path.join(root, "lib", "redteam", "cmd-route.js"), "utf8");
+    check("★ probeTool 会扫目录（不只认 <name>.exe）", /readdirSync\(dir\)\.filter/.test(rSrc2), "扫目录");
+    check("★ 优先同前缀（strings64 之于 strings）", /startsWith\(real\.toLowerCase\(\)\)/.test(rSrc2), "同前缀优先");
+    // **行为断言**，不是查字符串：造一个「二进制名≠工具名」的临时目录，
+    // 直接问 probeTool 认不认。只查源码会被「保留字符串但改逻辑」的探针骗过（实测 A 就是这样没咬住）。
+    {
+      const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "probe-"));
+      const fakeDir = path.join(tmpRoot, "faketool");
+      fs.mkdirSync(fakeDir, { recursive: true });
+      fs.writeFileSync(path.join(fakeDir, "faketool64.exe"), "x");
+      const prev = process.env.DSH_HOME;
+      process.env.DSH_HOME = tmpRoot;
+      // redteam 目录结构：$DSH_HOME/redteam/toolkit/<name>/
+      const tk2 = path.join(tmpRoot, "redteam", "toolkit");
+      fs.mkdirSync(tk2, { recursive: true });
+      fs.cpSync(fakeDir, path.join(tk2, "faketool"), { recursive: true });
+      try {
+        // 重新 import 拿新的 toolkitRoot（模块内 root 是函数调用时算的）
+        const m2 = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")) + "?v=" + Date.now());
+        const got = m2.probeTool("faketool");
+        check("★ 二进制名≠工具名时仍认得出（faketool64.exe）", got.ok === true, got.kind + " " + String(got.path || "").split("\\").slice(-1)[0]);
+      } finally {
+        if (prev === undefined) delete process.env.DSH_HOME; else process.env.DSH_HOME = prev;
+        fs.rmSync(tmpRoot, { recursive: true, force: true });
+      }
+    }
+    const st = pT3("strings");
+    if (st.ok) {
+      check("★ 装了 strings64 时 strings 也算有", /strings64|strings/i.test(st.path), st.path.split("\\").slice(-2).join("\\"));
+    } else {
+      check("（本机无 strings，跳过）", true);
+    }
+    // inject-runnability 必须同一判据，否则技能块与 probeTool 打架
+    const irSrc = fs.readFileSync(path.join(root, "scripts", "inject-runnability.mjs"), "utf8");
+    check("★ inject-runnability 也认目录里任意 exe", /readdirSync\(dir\)\.some/.test(irSrc), "has 扫目录");
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 

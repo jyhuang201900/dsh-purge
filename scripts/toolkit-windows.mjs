@@ -50,6 +50,10 @@ const TOOLS = [
   // （都是 r2agent），拿 r2.exe 当主程序会得到 `Usage: r2agent` —— 装好了但根本不能分析。
   // 真正的 CLI 是 radare2.exe（`radare2 -v` → `radare2 6.2.6`）。
   { name: "radare2", repo: "radareorg/radare2", re: /radare2-[\d.]+-w64\.zip$/, bin: "radare2.exe", dir: "radare2", ver: ["-v"] },
+  // strings：Windows 没有这个命令，但**17 个技能引用它**（逆向/恶意样本分析都要提可打印串）。
+  // Sysinternals 官方版不是 GitHub release，所以用固定 URL（不走 repo/re 那套）。
+  // 选 strings64.exe：64 位进程能读 32/64 位 PE；strings.exe 在 64 位系统上读大文件会受限。
+  { name: "strings", url: "https://download.sysinternals.com/files/Strings.zip", bin: "strings64.exe", dir: "strings", ver: ["-accepteula", "-?"] },
   // 有 Windows 形态但暂不纳入（需要额外处理，如实记着而不是假装支持）：
   //   hashcat → 只发 hashcat-<ver>.7z（多平台包，要 7z 解压）
   //   apktool → 只发 apktool_<ver>.jar（要 java 跑，不是 exe）
@@ -198,6 +202,32 @@ for (const t of picks) {
     continue;
   }
   try {
+    // 固定 URL 的工具（如 Sysinternals strings）不走 GitHub release 那套
+    if (t.url) {
+      const tmpDir0 = fs.mkdtempSync(path.join(os.tmpdir(), `tk-${t.name}-`));
+      const tmpFile0 = path.join(tmpDir0, path.basename(new URL(t.url).pathname) || "pkg.zip");
+      const size0 = await download(t.url, tmpFile0);
+      fs.mkdirSync(path.dirname(dst), { recursive: true });
+      if (!unzip(tmpFile0, tmpDir0)) throw new Error("解压失败");
+      let picked0 = null;
+      const walk0 = (d, depth) => {
+        if (depth > 3 || picked0) return;
+        for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+          const q = path.join(d, e.name);
+          if (e.isDirectory()) { walk0(q, depth + 1); continue; }
+          if (e.name.toLowerCase() === t.bin.toLowerCase()) { picked0 = q; return; }
+        }
+      };
+      walk0(tmpDir0, 0);
+      if (!picked0) throw new Error(`包里没找到 ${t.bin}`);
+      fs.copyFileSync(picked0, dst);
+      fs.rmSync(tmpDir0, { recursive: true, force: true });
+      const v0 = spawnSync(dst, t.ver, { encoding: "utf8", timeout: 8000 });
+      const verText0 = String((v0.stdout || "") + (v0.stderr || "")).split(/\r?\n/).find((l) => l.trim()) || "";
+      console.log(`  ✓ ${t.name.padEnd(10)} fixed      ${Math.round(size0 / 1024)}KB｜${verText0.trim().slice(0, 60)}`);
+      ok += 1;
+      continue;
+    }
     const rel = await fetchJson(`https://api.github.com/repos/${t.repo}/releases/latest`);
     const asset = (rel.assets || []).find((a) => t.re.test(a.name));
     if (!asset) throw new Error(`latest 里没有匹配 ${t.re} 的资产`);
