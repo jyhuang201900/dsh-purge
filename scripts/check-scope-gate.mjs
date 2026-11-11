@@ -918,6 +918,27 @@ try {
       check("（本机无 nmap，跳过实扫断言）", true);
     }
   }
+  // ★ 装了工具必须**出现在下一步里**，否则等于白装。
+  // 第 142 轮实测：nmap / radare2 / strings 三个装好后，命令生成器里**一个都没有**——
+  // recon 只有 naabu（只报端口，不认版本），逆向阶段干脆不存在。
+  {
+    const { commandsForStage: cfs } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+    const rc = cfs({ stage: "recon", target: "10.0.0.5" });
+    const nm2 = rc.find((c) => /认版本/.test(c.label));
+    check("★ recon 有 nmap 认版本这一步", !!nm2, nm2 ? nm2.label : "没有");
+    if (nm2) {
+      check("★ nmap 命令带 -sV（版本识别）", /-sV/.test(nm2.cmd), nm2.cmd.slice(0, 100));
+      check("★ nmap 命令带 -sC（默认脚本）", /-sC/.test(nm2.cmd), nm2.cmd.slice(0, 100));
+      // 端口表抽取必须按平台：$(cut|paste) 是 Linux 写法，Windows 没有
+      check("★ 端口抽取不用 cut/paste（Windows 没这俩）", !/\bcut\b|\bpaste\b/.test(nm2.cmd), nm2.cmd.slice(0, 110));
+      check("★ nmap 命令喂 ports.txt", /ports\.txt/.test(nm2.cmd), "喂 ports.txt");
+    }
+    const rv = cfs({ stage: "reverse", target: "x", binary: "s.exe" });
+    check("★ 逆向阶段有 strings 提串", rv.some((c) => /提可打印串/.test(c.label)), rv.map((c) => c.label).join("|"));
+    check("★ 逆向阶段有 radare2 看头/导入表", rv.some((c) => /看二进制头/.test(c.label)) && rv.some((c) => /看导入表/.test(c.label)), rv.map((c) => c.label).join("|"));
+    const r2c = rv.find((c) => /看二进制头/.test(c.label));
+    check("★ radare2 命令用 -q -c（非交互）", r2c && /-q -c/.test(r2c.cmd), r2c ? r2c.cmd.slice(0, 100) : "无");
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 

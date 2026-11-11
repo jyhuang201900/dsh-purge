@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6ed800b4`
+- Built from commit: `4ae02a8e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -587,7 +587,7 @@ Nodes (3): engines, dsh, node
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `README.md（中文主文档）` connect `README.md（中文主文档）` to `check-locale.mjs`, `ctf-sandbox-orchestrator（流程/编排 / flow）`, `update.js`, `uninstall.js`, `core.js`, `preset.yml`, `skills.js`, `package.json`, `lib/index.js`, `client.js`, `rewind.js`, `rules.js`, `注入方式改造方案-1.1.34化.md（注入前置）`, `verify.mjs`, `net-scope.js`, `reapply.js`, `restart-desktop.js`, `dsh-purge.js`?**
-  _High betweenness centrality (0.142) - this node is a cross-community bridge._
+  _High betweenness centrality (0.122) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `default-prompt-inject.md（当前生效的注入正文）` (e.g. with `v1.1.34-prompt-inject.md（历史版本快照）` and `defaultOverrideText()`) actually correct?**
   _`default-prompt-inject.md（当前生效的注入正文）` has 7 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `RFC-1918`, `BIN`, `RFC-3986` to the rest of the system?**
