@@ -959,6 +959,24 @@ try {
     const scSrc = fs.readFileSync(path.join(root, "lib", "redteam", "scope.js"), "utf8");
     check("★ firstOutOfScope 不再以代码形式存在", !/export function firstOutOfScope/.test(scSrc), "已删");
   }
+  // ★ 参数必须「声明了才读得到」：第 144 轮审阅发现 score_add 读 args.point，
+  // 但 purge_drill 的 schema 里根本没声明 point——**模型按 schema 填参数时看不到它，
+  // 于是 score_add 永远报「需要 point」**。代码支持、文档不支持，等于不支持。
+  {
+    const mtSrc = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");
+    const at = mtSrc.indexOf('name: "purge_drill"');
+    const seg = mtSrc.slice(at, at + 4200);
+    const declared = [...seg.matchAll(/^\s{8}(\w+):\s*\{\s*type:/gm)].map((m) => m[1]);
+    // purge_drill 自己读的参数（其余工具的 args.xxx 不算）
+    const own = ["op","engagement","limit","row","entity","name","text","stage","tool","scope","value","target","kind","content","point"];
+    const readAll = new Set([...mtSrc.matchAll(/args\.(\w+)/g)].map((m) => m[1]));
+    const missing = own.filter((x) => readAll.has(x) && !declared.includes(x));
+    check("★ purge_drill 读了参数就必须声明（否则模型填不到）", missing.length === 0, missing.length ? "缺: " + missing.join(",") : declared.length + " 个已声明");
+    check("★ point 已声明（score_add 靠它指定得分点）", declared.includes("point"), "point");
+    // 反向：声明了却没人读，说明文档承诺了不存在的能力
+    const unused = declared.filter((d) => !readAll.has(d));
+    check("★ 声明了的参数必须有人读", unused.length === 0, unused.length ? "未读: " + unused.join(",") : "0 个");
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 

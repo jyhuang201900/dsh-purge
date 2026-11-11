@@ -4,131 +4,120 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2728 nodes · 6732 edges · 116 communities (110 shown, 6 thin omitted)
+- 2725 nodes · 6731 edges · 104 communities (101 shown, 3 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 241 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `33b4f187`
+- Built from commit: `75af1c28`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
+- ctf-sandbox-orchestrator（流程/编排 / flow）
+- desktop.js
 - update.js
 - uninstall.js
-- store-core.js
 - skills.js
-- core.js
 - extract-asar.js
-- lib/index.js
-- RedteamStore
+- core.js
+- identity.js
 - client.js
+- store-core.js
 - rules.js
 - rewind.js
-- identity.js
-- ctf-sandbox-orchestrator（流程/编排 / flow）
+- .db
+- lib/index.js
+- reapply.js
 - net-scope.js
 - redteam/client.js
 - check-package.mjs
+- restart-desktop.js
+- ref_node_path
 - check-anchors.mjs
 - ui.js
-- reapply.js
-- restart-desktop.js
 - dsh-purge.js
-- apiJson
+- RedteamStore
 - scripts
-- PurgifySection
+- RewindButton
 - build-skill-graph.mjs
-- ref_node_process
 - tools.js
-- verify.mjs
+- tools-smoke.mjs
 - continue-retry.js
+- targetFiles
 - isDir
-- default-prompt-inject.md（当前生效的注入正文）
-- .openEngagement
 - PurgeDock
 - applyPatches
-- desktop.js
+- findDshHome
 - cmd-route.js
 - platform-config.js
-- ref_node_path
 - inject-second-shot.mjs
 - model-tools.js
-- revertAll
-- 角色 漏洞发现（21 个技能）
-- skill-availability.js
-- defaultOverrideText
-- validate-input.js
-- .kb
 - package.json
+- ref_node_os
+- defaultOverrideText
+- .scoreReport
+- validate-input.js
+- ref_node_url
 - report.mjs
+- .openEngagement
 - steps
 - check-tools.mjs
 - graph-audit.mjs
-- tools-smoke.mjs
-- findDesktopAppExecutable
-- web-fingerprint（框架/中间件/CMS/组件版本）
 - write-smoke.mjs
-- ref_node_url
-- host.js
+- verify.mjs
+- PurgifySection
 - patchShim
 - host-sync.mjs
 - inject-runnability.mjs
 - redteam-setup.sh
+- apiJson
 - README.md（中文主文档）
 - child-process-hide.mjs
-- silenceCmdFlash
-- restartOfficialHarness
+- findAiBaseWeb
 - check-skill-runnable.mjs
-- findDshHome
-- graphify-sync.mjs
+- .kb
 - check-locale.mjs
+- graphify-sync.mjs
 - findShimDir
-- gatherState
 - role-section.js
 - anchor-gate.mjs
-- 角色 漏洞利用（30 个技能）
 - build-locale.mjs
 - toolkit-windows.mjs
-- release-notes.md（1.1.72 → 1.1.83 演化史）
+- ref_node_process
 - market-sweep.mjs
-- 注入方式改造方案-1.1.34化.md（注入前置）
-- official-update.js
-- scenario-drill.mjs
 - table-read.js
+- installIdentityOverride
+- apply
 - scope.js
 - check-manifest.mjs
 - ensureHostClean
-- installIdentityOverride
-- build-client.mjs
+- scenario-drill.mjs
 - settings.js
 - audit-skills.mjs
 - wordlists-windows.mjs
-- apply
+- 注入方式改造方案-1.1.34化.md（注入前置）
+- host.js
 - install
 - export-engagement-report.mjs
-- .dirOf
+- 模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）
+- check-upstream.mjs
 - normalize-skill-headings.mjs
-- 适配-0.2.1-rc.2-差异分析.md（宿主升级核对）
-- repairOfficialCliAfterUnpack
-- ip-utils.js
 - surface.js
 - embed-default-prompt.mjs
-- 模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）
+- ip-utils.js
+- web.js
 - exports
-- isInsideDesktopInstall
 - ingest.js
 - store.js
-- validate.js
-- mnemon-settings.js
 - RewindSafe
 - RtBoundary
+- drill-grant.js
 - ContinueSafe
-- default-prompt-inject.zh.md（中文版注入正文）
+- collectInjectText
 - preset.yml
-- engines
+- default-prompt-inject.zh.md（中文版注入正文）
 - repository
-- recon.sh script
 
 ## God Nodes (most connected - your core abstractions)
 1. `RedteamStore` - 116 edges
@@ -149,10 +138,10 @@
   docs/preview/settings.png → lib/core.js
 - `ZERO-LATENCY INTERRUPT 与 Σ Integration（旧版思维框架）` --semantically_similar_to--> `进攻条令 — ATTACK DOCTRINE（输出即火力）`  [INFERRED] [semantically similar]
   docs/v1.1.34-prompt-inject.md → lib/default-prompt-inject.md
-- `双语字典 328×2 key 必须一模一样（按连续文案行自动发现块，不硬编码行号）` --references--> `default-prompt-inject.en.md（英文版注入正文）`  [INFERRED]
-  scripts/check-locale.mjs → lib/default-prompt-inject.en.md
-- `宿主重置后的补丁判失与 applied stamp 自愈` --conceptually_related_to--> `装梁神导致 pnpm 把安装副本覆盖回 1.1.72`  [INFERRED]
-  lib/reapply.js → .workbuddy-ai/memory/2026-10-22.md
+- `asar 密封态 = 补丁是否真生效的判据` --references--> `适配-0.2.1-rc.2-差异分析.md（宿主升级核对）`  [INFERRED]
+  lib/restart-desktop.js → docs/适配-0.2.1-rc.2-差异分析.md
+- `双语字典 328×2 key 必须一模一样（按连续文案行自动发现块，不硬编码行号）` --semantically_similar_to--> `0.2.2-rc.1 包搬家两例：PTC 执行器拆成 dsh-tool-executor-ptc、交付物提示词拆成 dsh-deliverable-file-references`  [INFERRED] [semantically similar]
+  scripts/check-locale.mjs → lib/core.js
 
 ## Import Cycles
 - None detected.
@@ -193,147 +182,147 @@
 - **自更新半升级防线：COPY_NAMES 覆盖核心载荷 + COPY_DIRS 整目录替换 + 清单闸门盯分叉** — gates_manifest_parity, lib_update_copy_names, lib_update_overlayfromzip, skills_redteam_fofa_recon [INFERRED 0.95]
 - **注入前置改造（1.1.34 化）的四处代码落点** — lib_identity_rewritepromptassembly, lib_identity_ensurefullinject, lib_identity_foldinjectintopersona, lib_identity_stripharnesspersona [EXTRACTED 1.00]
 
-## Communities (116 total, 6 thin omitted)
+## Communities (104 total, 3 thin omitted)
 
-### Community 0 - "update.js"
+### Community 0 - "ctf-sandbox-orchestrator（流程/编排 / flow）"
+Cohesion: 0.05
+Nodes (148): v1.1.34-prompt-inject.md（历史版本快照）, WEB PENTEST ROUTING 与 canned slots（技能路由表的前身）, ZERO-LATENCY INTERRUPT 与 Σ Integration（旧版思维框架）, default-prompt-inject.md（当前生效的注入正文）, 生成物即资产：工程性 / 连续性 / 项目性三纪律, 进攻条令 — ATTACK DOCTRINE（输出即火力）, 火力阶梯五级（打光弹药才停火）, 五阶段主线（信息收集→资产梳理→漏洞发现→漏洞利用→内网渗透） (+140 more)
+
+### Community 1 - "desktop.js"
+Cohesion: 0.05
+Nodes (95): asar 密封态 = 补丁是否真生效的判据, 官方客户端升级回写标记 dsh-purge-reapply-asar, appAsarPath(), appDirForExecutable(), ASAR_RENAME_WHEN_IDLE_PS1, ASAR_RENAME_WHEN_IDLE_SH, ASAR_SWAP_PS1, cleanupLegacyRestartScripts() (+87 more)
+
+### Community 2 - "update.js"
 Cohesion: 0.07
-Nodes (83): 生态约定对照：8 个同机插件里 4 个声明 engines.dsh、4 个用 dsh.compatibility, 渠道双车道与钉选（stable=master / beta，pin 固定旧版本）, applyUpdate(), _applyUpdateImpl(), archiveTarballUrl(), archiveZipUrl(), autoUpdateGuardPath(), autoUpdateIfNeeded() (+75 more)
+Nodes (84): 生态约定对照：8 个同机插件里 4 个声明 engines.dsh、4 个用 dsh.compatibility, 渠道双车道与钉选（stable=master / beta，pin 固定旧版本）, atomicWriteSync(), applyUpdate(), _applyUpdateImpl(), archiveTarballUrl(), archiveZipUrl(), autoUpdateGuardPath() (+76 more)
 
-### Community 1 - "uninstall.js"
+### Community 3 - "uninstall.js"
 Cohesion: 0.06
 Nodes (67): clearLiveSelectedDefault(), clearOwnedSelectedDefault(), configSet(), configValue(), isOwnedPresetId(), listProfilePatchFiles(), OWNED_PRESET_IDS, readText() (+59 more)
 
-### Community 2 - "store-core.js"
-Cohesion: 0.07
-Nodes (58): RFC-1918, RFC-3986, buildCurlCommand(), buildHttpRequest(), commandKind(), fillTemplate(), parseCurl(), parseTarget() (+50 more)
-
-### Community 3 - "skills.js"
+### Community 4 - "skills.js"
 Cohesion: 0.10
 Nodes (57): assertImportSourceOutsideSkills(), assertInside(), backupExisting(), blockScalarValue(), copyDir(), deleteSkill(), displayUnderHome(), escapeYamlKey() (+49 more)
-
-### Community 4 - "core.js"
-Cohesion: 0.05
-Nodes (56): alignSummary 建议行分档 + 设计内 skipped 清单（DESIGN_SKIPPED_VERIFIED，带 checkedAgainst/证据文档，第 22 项守它别烂）, AI_RESOLVE_IDS, alignSummary(), allExisting(), ALLOW_EXEC_CORE, allowTargetForPatch(), allowTargetPath(), allowTargetPathForAiBase() (+48 more)
 
 ### Community 5 - "extract-asar.js"
 Cohesion: 0.08
 Nodes (56): aiBaseUnderAppDir(), ensureHiddenConsole(), findDshBinRoot(), isPackagedDesktopDshRoot(), openSealedDesktopHost(), restoreSealedExtract(), restoreUnusableExtract(), scheduleSealedDesktopRestart() (+48 more)
 
-### Community 6 - "lib/index.js"
-Cohesion: 0.08
-Nodes (55): clearDrillGrant(), drillGrantPath(), readDrillGrant(), writeDrillGrant(), isMnemonPluginMessage(), allowPluginRequest(), applyHostHooks(), autoApply() (+47 more)
+### Community 6 - "core.js"
+Cohesion: 0.05
+Nodes (54): alignSummary 建议行分档 + 设计内 skipped 清单（DESIGN_SKIPPED_VERIFIED，带 checkedAgainst/证据文档，第 22 项守它别烂）, AI_RESOLVE_IDS, alignSummary(), allExisting(), ALLOW_EXEC_CORE, allowTargetForPatch(), allowTargetPath(), allowTargetPathForAiBase() (+46 more)
 
-### Community 7 - "RedteamStore"
-Cohesion: 0.09
-Nodes (7): nowIso(), tunnelIsLegit(), normGained(), parseJson(), promptHash(), RedteamStore, targetKey()
+### Community 7 - "identity.js"
+Cohesion: 0.08
+Nodes (49): CAPABILITY_SECTION, capabilityProtocolText(), ASSEMBLE_GUARD, assemblyHasExactInject(), assemblyLooksRedteam(), attachRedteamOpsOnly(), childOrigin(), ensureFullInject() (+41 more)
 
 ### Community 8 - "client.js"
-Cohesion: 0.07
-Nodes (48): AgentsTab(), applyDrillParts(), AssetsTab(), AttackFilesTab(), bothInjectEmpty(), ChainTab(), clampRtGeom(), clearStoredDraft() (+40 more)
+Cohesion: 0.08
+Nodes (46): AgentsTab(), applyDrillParts(), AssetsTab(), AttackFilesTab(), bothInjectEmpty(), ChainTab(), clampRtGeom(), Clip() (+38 more)
 
-### Community 9 - "rules.js"
+### Community 9 - "store-core.js"
+Cohesion: 0.07
+Nodes (43): RFC-1918, ASSET_FTS_DDL, DDL, guessPocCategory(), HAS_FTS5, KNOWLEDGE_DDL, migrate(), migrateKnowledge() (+35 more)
+
+### Community 10 - "rules.js"
 Cohesion: 0.11
 Nodes (48): atomicCopyFile(), atomicWriteFile(), hangOperatorPrompt(), hungOperatorPrompt(), peekCommittedOverride(), activateRule(), ancestorChainForCwd(), collectRuleContents() (+40 more)
 
-### Community 10 - "rewind.js"
+### Community 11 - "rewind.js"
 Cohesion: 0.11
 Nodes (47): analyzeRewind(), applyRewind(), asEventList(), createBlank(), disarmRewoundSession(), disposeObservation(), doRewindOneSession(), errorText() (+39 more)
 
-### Community 11 - "identity.js"
+### Community 12 - ".db"
+Cohesion: 0.08
+Nodes (9): nowIso(), tunnelIsLegit(), normGained(), parseJson(), targetKey(), normalizeShellStatus(), normalizeShellType(), WEBSHELL_STATUSES (+1 more)
+
+### Community 13 - "lib/index.js"
 Cohesion: 0.09
-Nodes (46): CTF CORE CONTRACT / SCOPE / EVIDENCE / WORKFLOW 四段, Little Code Sauce / YG 人格框架（SANDBOX — STABLE）, HARD OUTPUT RULES + 拒绝对抗（禁止词表与整轮重写）, ASSEMBLE_GUARD, assemblyHasExactInject(), assemblyLooksRedteam(), attachRedteamOpsOnly(), childOrigin() (+38 more)
+Nodes (45): isMnemonPluginMessage(), allowPluginRequest(), applyHostHooks(), DEFAULTS, denyCrossOrigin(), ensureRestartReady(), fsExists(), handlePurgeCommand() (+37 more)
 
-### Community 12 - "ctf-sandbox-orchestrator（流程/编排 / flow）"
-Cohesion: 0.17
-Nodes (43): 角色 攻击面专项（由 ctf-sandbox-orchestrator 路由）（41 个技能）, competition-ad-certificate-abuse（内网渗透）, competition-agent-cloud（内网渗透）, competition-android-hooking（漏洞利用）, competition-browser-persistence（漏洞发现）, competition-bundle-sourcemap-recovery（漏洞发现）, competition-cloud-metadata-path（内网渗透）, competition-container-runtime（内网渗透） (+35 more)
-
-### Community 13 - "net-scope.js"
+### Community 14 - "reapply.js"
 Cohesion: 0.10
-Nodes (40): addHost(), allowCache, allowDecision(), allowFilePath(), appendDenial(), BANK_HOSTS, bankHit(), collectFromText() (+32 more)
+Nodes (41): 三条破损补丁 #77 / #68 / #26, 死补丁 #40 移除与 84 → 83 计数, 适配-0.2.1-rc.2-差异分析.md（宿主升级核对）, 0.2.2-rc.1 锚点漂移已修：7 条补丁重锚或补映射，实况 74/76（追平 0.2.1 基线）, 宿主实况：桌面 EXE 0.2.2-rc.1 / runtime 0.2.2-rc.1 / cordis 4.1.0, 0.2.2-rc.1 包搬家两例：PTC 执行器拆成 dsh-tool-executor-ptc、交付物提示词拆成 dsh-deliverable-file-references, #82 教训：打包注释 //#region 不能当锚点第二行, 宿主重置后的补丁判失与 applied stamp 自愈 (+33 more)
 
-### Community 14 - "redteam/client.js"
+### Community 15 - "net-scope.js"
+Cohesion: 0.10
+Nodes (41): addHost(), allowCache, allowDecision(), allowFilePath(), appendDenial(), BANK_HOSTS, bankHit(), collectFromText() (+33 more)
+
+### Community 16 - "redteam/client.js"
 Cohesion: 0.10
 Nodes (36): AgentsTab(), apply(), AssetsTab(), AttackFilesTab(), ChainTab(), clampRtGeom(), Clip(), ConcurrencyCard() (+28 more)
 
-### Community 15 - "check-package.mjs"
+### Community 17 - "check-package.mjs"
 Cohesion: 0.05
 Nodes (39): asJson, CLAIM_FILES, CN, cnNum, declaredParams, descNumM, EN, fileKeys (+31 more)
 
-### Community 16 - "check-anchors.mjs"
+### Community 18 - "restart-desktop.js"
+Cohesion: 0.10
+Nodes (36): 三份 spawnEnv 分叉：只有 desktop 那份兜底 DSH_PROFILE, 重启阶梯（web 杀旧服务等端口 / desktop 杀兄弟进程挪 asar / 卸载走 rmtree）, envForDetachedSpawn(), asarStillSealed(), commandMatchesExe(), darwinBundleName(), darwinBundleOf(), killOtherDesktopProcesses() (+28 more)
+
+### Community 19 - "ref_node_path"
+Cohesion: 0.06
+Nodes (27): checkOnly, dry, root, STEPS, asJson, CASES, fails, NOW (+19 more)
+
+### Community 20 - "check-anchors.mjs"
 Cohesion: 0.08
 Nodes (34): argv, asPostPatch, asWhitespace, cmpVer(), collapse(), collapsedIdx(), decodeLit(), decodeSgl() (+26 more)
 
-### Community 17 - "ui.js"
+### Community 21 - "ui.js"
 Cohesion: 0.12
 Nodes (36): mergeConfigEnv(), officialSkillSummaries(), summarizeSkills(), dispatchAsync(), apply(), applyUpdate(), checkLatest(), checkLatestFromGithub() (+28 more)
 
-### Community 18 - "reapply.js"
-Cohesion: 0.13
-Nodes (34): 0.2.2-rc.1 锚点漂移已修：7 条补丁重锚或补映射，实况 74/76（追平 0.2.1 基线）, 宿主实况：桌面 EXE 0.2.2-rc.1 / runtime 0.2.2-rc.1 / cordis 4.1.0, 0.2.2-rc.1 包搬家两例：PTC 执行器拆成 dsh-tool-executor-ptc、交付物提示词拆成 dsh-deliverable-file-references, 宿主重置后的补丁判失与 applied stamp 自愈, 宿主枚举可见化：gatherState 出 patch_hosts 四字段 + hostEnumerationLine 单一格式化器，四个状态面共用, dshHostVersion(), readJsonVersion(), appliedStampPath() (+26 more)
-
-### Community 19 - "restart-desktop.js"
-Cohesion: 0.12
-Nodes (33): 三份 spawnEnv 分叉：只有 desktop 那份兜底 DSH_PROFILE, 重启阶梯（web 杀旧服务等端口 / desktop 杀兄弟进程挪 asar / 卸载走 rmtree）, envForDetachedSpawn(), asarStillSealed(), commandMatchesExe(), darwinBundleName(), darwinBundleOf(), killOtherDesktopProcesses() (+25 more)
-
-### Community 20 - "dsh-purge.js"
+### Community 22 - "dsh-purge.js"
 Cohesion: 0.09
-Nodes (28): args, main(), MODES, printStatus(), CLI 实时验收 --verify-live：契约表/补丁分桶/注入状态/路由 live 四查，有 ⚠ 即非 0, lib/mcp-server.js：MCP 协议单一来源 mcpRespond —— stdio 循环与宿主 HTTP 路由 POST /dsh-purge/mcp 共用, dirMb(), resolveResources() (+20 more)
+Nodes (29): args, main(), MODES, printStatus(), CLI 实时验收 --verify-live：契约表/补丁分桶/注入状态/路由 live 四查，有 ⚠ 即非 0, 关 10 磁盘卫生夹具 + 面板路由存活矩阵（12 条断言：阈值、负载形状、反腐蚀）, lib/mcp-server.js：MCP 协议单一来源 mcpRespond —— stdio 循环与宿主 HTTP 路由 POST /dsh-purge/mcp 共用, dirMb() (+21 more)
 
-### Community 21 - "apiJson"
-Cohesion: 0.11
-Nodes (26): apiJson(), apiTimeoutMs(), apiUrl(), armComposerFill(), ContinueButton(), conversationFace(), conversationInput(), currentSessionId() (+18 more)
+### Community 23 - "RedteamStore"
+Cohesion: 0.12
+Nodes (5): slugTarget(), pngSize(), promptHash(), RedteamStore, assertPathWithin()
 
-### Community 22 - "scripts"
+### Community 24 - "scripts"
 Cohesion: 0.06
 Nodes (34): scripts, audit:graph, audit:skills, build:client, build:locale, build:skills, build:skills-graph, check-anchors (+26 more)
 
-### Community 23 - "PurgifySection"
-Cohesion: 0.09
-Nodes (33): Btn(), clientCurrentCwd(), clientGuessSurface(), ContinueRetrySection(), detectHostTheme(), formatSize(), hostSurfaceOf(), hostText() (+25 more)
+### Community 25 - "RewindButton"
+Cohesion: 0.11
+Nodes (25): armComposerFill(), clearStoredDraft(), ContinueButton(), conversationFace(), conversationInput(), currentSessionId(), dropInheritedQueue(), fillComposer() (+17 more)
 
-### Community 24 - "build-skill-graph.mjs"
+### Community 26 - "build-skill-graph.mjs"
 Cohesion: 0.06
 Nodes (28): agents, assigned, byDomainStage, DOMAIN_RULES, dry, dupRel, files, ids (+20 more)
 
-### Community 25 - "ref_node_process"
-Cohesion: 0.07
-Nodes (20): mcpRespond(), runMcpServer(), asJson, CASES, fails, NOW, root, scope (+12 more)
-
-### Community 26 - "tools.js"
+### Community 27 - "tools.js"
 Cohesion: 0.10
 Nodes (23): PLANNER_ROLE, ROLE_ORDER, ROLE_TITLES, addCandidate(), AGENT_PARAM, apply(), bindingKeyOf(), bindings (+15 more)
 
-### Community 27 - "verify.mjs"
-Cohesion: 0.08
-Nodes (27): 关 9 弹药层一致性审计：技能引用的工具名与条令点名的技能都必须真实存在, 发版七关闸门：语法 / 体积预算 / 双语 key 一致性 / 清单一致性 / 包自证 / 工具面 / JSON 合法（npm run verify 一票过）, 图谱审计：文件级孤儿判红；导出级只报线索（含结构边修正与 79% 盲区率）, 关 10 磁盘卫生夹具 + 面板路由存活矩阵（12 条断言：阈值、负载形状、反腐蚀）, 闸门反向探针总表：每道门都要有「改坏即红」的证据，否则等于不知道真假, 关 13 工具层冒烟：真执行 purge_apply / purge_revert（mutating 工具分支此前没有一关跑过）, 上游漂移探测 check:upstream：latest vs dshTarget vs engines，越界才判失败、离线只报未知, 关 12 写路径冒烟：夹具起点用保险柜原文；单次 apply→revert 哈希精确等于官方；双次 apply 污染还原点（5 文件停在一次已打补丁态） (+19 more)
+### Community 28 - "tools-smoke.mjs"
+Cohesion: 0.07
+Nodes (24): 关 11 CLI 冒烟：真跑 bin 的只读模式（此前十关没一关执行过 CLI 分发）, BIN, cases, MODES, root, run, BS, child (+16 more)
 
-### Community 28 - "continue-retry.js"
+### Community 29 - "continue-retry.js"
 Cohesion: 0.12
 Nodes (26): ABNORMAL_KINDS, clampCount(), createTracker(), DEFAULT_CONTINUE_RETRY, failureCodeOf(), hasFreshHumanTurn(), inboxBusy(), inspectTurn() (+18 more)
 
-### Community 29 - "isDir"
-Cohesion: 0.14
-Nodes (30): aiBaseGuessesAround(), aiBaseGuessesFor(), dshBaseEnvStatus(), enumeratePatchAiBases(), findAiBaseDesktop(), findAiBaseFromDshHome(), findAiBaseFromRequire(), findAiBaseFromRunningProcess() (+22 more)
+### Community 30 - "targetFiles"
+Cohesion: 0.15
+Nodes (30): backupAll(), collectRevertTargets(), dropStaleUserProfilePatchBackups(), ensureOfficialSnapshot(), flattenTargetPaths(), hasBackup(), hostBakDigest(), hostBakVaultRoot() (+22 more)
 
-### Community 30 - "default-prompt-inject.md（当前生效的注入正文）"
-Cohesion: 0.22
-Nodes (30): default-prompt-inject.md（当前生效的注入正文）, 角色 内网渗透（16 个技能）, chisel-tunnel（HTTP/WebSocket 隧道）, cloud-k8s（内网渗透 / internal）, edr-bypass-re（内网渗透 / internal）, firmware-pentest（漏洞利用 / exploit）, frp-tunnel（frps/frpc 内网穿透）, fscan-intranet（内网综合扫描 v2.2.1） (+22 more)
-
-### Community 31 - ".openEngagement"
+### Community 31 - "isDir"
 Cohesion: 0.13
-Nodes (7): 真 bug：openEngagement 把 scope 串直接存进 scope_cidrs，导致 report() 的 .join 抛错, op=report：战报 / kind=score 得分报告 / kind=targets 目标汇总（零新增参数收纳，输出 2-16 行有界）, slugify(), slugTarget(), cidrList(), readMeta(), writeMeta()
+Nodes (30): firstExisting(), homeHasHarnessData(), isDir(), isFile(), isPnpmNodeModules(), keepLiangshenOperatorPrompt(), keepSurfaceFile(), liangshenPromptFilterText() (+22 more)
 
 ### Community 32 - "PurgeDock"
 Cohesion: 0.13
 Nodes (28): apply(), AuthGate(), clampDockGeom(), defaultDockGeom(), EnvAdaptSendGate(), fetchEnvAdaptStatus(), hasInlinePurgeEntry(), HeroNewSessionMount() (+20 more)
 
 ### Community 33 - "applyPatches"
-Cohesion: 0.15
-Nodes (28): applyPatches(), applyReplacementsToText(), asLf(), cloneRegExp(), collapseDuplicateLegacyApplyPath(), endOfBalancedBlock(), fileKeysOf(), filePatchOutcome() (+20 more)
+Cohesion: 0.14
+Nodes (29): applyPatches(), applyReplacementsToText(), asLf(), cloneRegExp(), collapseDuplicateLegacyApplyPath(), endOfBalancedBlock(), fileKeysOf(), filePatchOutcome() (+21 more)
 
-### Community 34 - "desktop.js"
-Cohesion: 0.10
-Nodes (25): appDirForExecutable(), ASAR_RENAME_WHEN_IDLE_PS1, ASAR_RENAME_WHEN_IDLE_SH, ASAR_SWAP_PS1, cmdEntryAlreadyGood(), helperEnv(), INTERNAL_LOG_PATH, isSealedRuntimeDir() (+17 more)
+### Community 34 - "findDshHome"
+Cohesion: 0.12
+Nodes (29): applyRuntimeEnv(), desktopAsarStillSealed(), displayTitleOf(), dshBaseEnvStatus(), findAiBase(), findDshHome(), findWslWindowsDshHome(), gatherState() (+21 more)
 
 ### Community 35 - "cmd-route.js"
 Cohesion: 0.13
@@ -343,295 +332,259 @@ Nodes (25): ALIASED, commandFor(), commandsForStage(), listWordlists(), NEEDS_PR
 Cohesion: 0.19
 Nodes (26): adaptInDir(), assignToolkitFolder(), configPathOf(), defaultToolkitDir(), detectKali(), EMPTY(), envAdaptStatus(), findInDir() (+18 more)
 
-### Community 37 - "ref_node_path"
-Cohesion: 0.09
-Nodes (18): child, portFree(), waitFree(), checkOnly, dry, root, STEPS, built (+10 more)
-
-### Community 38 - "inject-second-shot.mjs"
+### Community 37 - "inject-second-shot.mjs"
 Cohesion: 0.08
 Nodes (25): asJson, files, minIdx, noSection, qualified, root, rows, SKILLS (+17 more)
 
-### Community 39 - "model-tools.js"
+### Community 38 - "model-tools.js"
 Cohesion: 0.13
 Nodes (18): hostEnumerationLine(), BRIEF_SUFFIX, buildModelTools(), core0(), defaultRenderStatus(), DRILL_ENTITIES, DRILL_WRITE_ENTITIES, TEXT_OUT (+10 more)
 
-### Community 40 - "revertAll"
-Cohesion: 0.18
-Nodes (26): backupAll(), collectRevertTargets(), dropStaleUserProfilePatchBackups(), ensureOfficialSnapshot(), flattenTargetPaths(), hasBackup(), hostBakDigest(), hostBakVaultRoot() (+18 more)
+### Community 39 - "package.json"
+Cohesion: 0.08
+Nodes (25): npm run host-sync：把「仓库 → 宿主 profile 副本」这条重复手工动作固化, 清单一致性闸门：COPY_NAMES（自更新）必须落在 files（发布）之内, COPY_NAMES, bin, dsh-purge, bugs, url, description (+17 more)
 
-### Community 41 - "角色 漏洞发现（21 个技能）"
-Cohesion: 0.22
-Nodes (26): 角色 辅助（浏览器桥 / 代理池）（3 个技能）, 角色 漏洞发现（21 个技能）, api-security（漏洞发现 / vuln-scan）, browser-automation（headless Chrome 抓取）, case-review（流程/编排 / flow）, cn-proxy-pool（国内免费代理池）, code-audit（漏洞发现 / vuln-scan）, credential-attack（hydra 在线爆破 + hashcat 离线破解） (+18 more)
-
-### Community 42 - "skill-availability.js"
-Cohesion: 0.14
+### Community 40 - "ref_node_os"
+Cohesion: 0.13
 Nodes (23): 进攻力体检：红队 32 技能可用 32、坏 0；单查给出缺的环境变量与修法, bundledSkillSummaries(), checkSkill(), dshHomeCandidates(), existsUnderAnyHome(), expandSkillPath(), pathCountsOnThisHost(), readSkillFromRoot() (+15 more)
 
-### Community 43 - "defaultOverrideText"
+### Community 41 - "defaultOverrideText"
 Cohesion: 0.22
 Nodes (25): commitOverrideOnApply(), defaultOverrideHash(), defaultOverrideText(), editOverride(), findOverrideFile(), hashOverride(), installOverride(), isKeepableUserOverride() (+17 more)
 
-### Community 44 - "validate-input.js"
+### Community 42 - ".scoreReport"
+Cohesion: 0.20
+Nodes (17): RFC-3986, buildCurlCommand(), buildHttpRequest(), commandKind(), fillTemplate(), parseCurl(), parseTarget(), evaluateScoreBoard() (+9 more)
+
+### Community 43 - "validate-input.js"
 Cohesion: 0.14
 Nodes (23): ASSET_PRIORITIES, ASSET_TEST_STATES, issue(), LEGACY_STAGES, parseScopeString(), renderIssue(), renderIssues(), REPORT_KINDS (+15 more)
 
-### Community 45 - ".kb"
-Cohesion: 0.13
-Nodes (7): 社区同路原则：one stable proxy tool instead of N tool schemas（dsh-mcp-lazy / dsh-mcp-lens 按需加载 schema）, purge_drill：56 个 preset 平面工具收成聚合入口，18 op（读 8 + 写面收纳 update 四方法 / delete 三方法 / open / switch）, 组合式收纳：一个 entity 参数换 10 读面 + 13 写面（POC 五面闭环、资产登记/评估/测试回写）, op=entity_add：一个 op 覆盖六个写面（+92 字符 ≈15/面），shot/poc 明确不接并说明原因, defaultPocFilename(), slugPoc(), pocCategoryName()
-
-### Community 46 - "package.json"
+### Community 44 - "ref_node_url"
 Cohesion: 0.09
-Nodes (22): npm run host-sync：把「仓库 → 宿主 profile 副本」这条重复手工动作固化, 清单一致性闸门：COPY_NAMES（自更新）必须落在 files（发布）之内, COPY_NAMES, bin, dsh-purge, bugs, url, description (+14 more)
+Nodes (19): applyAt, beginAt, body, client, clientPath, drillSrc, end, endAt (+11 more)
 
-### Community 47 - "report.mjs"
+### Community 45 - "report.mjs"
 Cohesion: 0.09
 Nodes (21): argv, checkDebt, day, dbPath, debtLines, failures, liveLines, md (+13 more)
 
-### Community 48 - "steps"
+### Community 46 - ".openEngagement"
+Cohesion: 0.17
+Nodes (6): 真 bug：openEngagement 把 scope 串直接存进 scope_cidrs，导致 report() 的 .join 抛错, op=report：战报 / kind=score 得分报告 / kind=targets 目标汇总（零新增参数收纳，输出 2-16 行有界）, slugify(), cidrList(), readMeta(), writeMeta()
+
+### Community 47 - "steps"
 Cohesion: 0.09
 Nodes (21): concurrency, cancel-in-progress, group, GH_TOKEN, jobs, release, name, permissions (+13 more)
 
-### Community 49 - "check-tools.mjs"
+### Community 48 - "check-tools.mjs"
 Cohesion: 0.09
 Nodes (21): asJson, blocks, BUDGET, drillTool, entBlock, entSections, fallback, hidden (+13 more)
 
-### Community 50 - "graph-audit.mjs"
+### Community 49 - "graph-audit.mjs"
 Cohesion: 0.10
 Nodes (21): asJson, deadExports, fileInbound, g, graphBlind, graphPath, hasName(), inbound (+13 more)
 
-### Community 51 - "tools-smoke.mjs"
-Cohesion: 0.09
-Nodes (18): BS, child, childFile, env, fakeBase, fx, home, map (+10 more)
-
-### Community 52 - "findDesktopAppExecutable"
-Cohesion: 0.20
-Nodes (21): commonDesktopInstallDirs(), exeCandidatesBeside(), exeDirFromRegistryValue(), extraDiscoveredInstallDirs(), extraInstallsFromEnv(), findDesktopAppExecutable(), firstExistingExe(), homeSiblingInstalls() (+13 more)
-
-### Community 53 - "web-fingerprint（框架/中间件/CMS/组件版本）"
-Cohesion: 0.26
-Nodes (21): 角色 资产梳理（4 个技能）, 角色 流程/编排（6 个技能）, 角色 信息收集（13 个技能）, active-scan（主动端口与服务扫描）, asset-correlation（资产关联与易打性排序）, 五种资产关系边（resolves/contains/exposes/shares_cert/trusts）, attack-chain（流程/编排 / flow）, ctf-sandbox（流程/编排 / flow） (+13 more)
-
-### Community 54 - "write-smoke.mjs"
+### Community 50 - "write-smoke.mjs"
 Cohesion: 0.10
 Nodes (16): beforePending, childFile, expected, expectedSrc, fakeBase, fixture, home, realBase (+8 more)
 
-### Community 55 - "ref_node_url"
-Cohesion: 0.10
-Nodes (15): 关 11 CLI 冒烟：真跑 bin 的只读模式（此前十关没一关执行过 CLI 分发）, PROMPTS, argv, asJson, BUDGETS, maxDefault, over, root (+7 more)
+### Community 51 - "verify.mjs"
+Cohesion: 0.11
+Nodes (18): 关 9 弹药层一致性审计：技能引用的工具名与条令点名的技能都必须真实存在, 发版七关闸门：语法 / 体积预算 / 双语 key 一致性 / 清单一致性 / 包自证 / 工具面 / JSON 合法（npm run verify 一票过）, 图谱审计：文件级孤儿判红；导出级只报线索（含结构边修正与 79% 盲区率）, 闸门反向探针总表：每道门都要有「改坏即红」的证据，否则等于不知道真假, 端到端情景第八关：20 步串 op 并断言回读，专抓组合期「说谎的回读」与跨 op 不一致, 关 13 工具层冒烟：真执行 purge_apply / purge_revert（mutating 工具分支此前没有一关跑过）, 上游漂移探测 check:upstream：latest vs dshTarget vs engines，越界才判失败、离线只报未知, 关 12 写路径冒烟：夹具起点用保险柜原文；单次 apply→revert 哈希精确等于官方；双次 apply 污染还原点（5 文件停在一次已打补丁态） (+10 more)
 
-### Community 56 - "host.js"
-Cohesion: 0.17
-Nodes (16): markersAny=true 的补丁：applied 只代表「至少打了一处」，会藏半个没打的门, 状态面升级：补丁按 已清洗/待清洗/锚点未命中/不适用/缺文件 分桶 + 宿主版本对齐告警, 未安装项整体摘除：83 → 76 条补丁，面板 0 不适用 / 0 缺文件, ADAPTERS, currentSurface(), hostAdapter(), hostAlignment(), restartNote() (+8 more)
+### Community 52 - "PurgifySection"
+Cohesion: 0.15
+Nodes (19): clientGuessSurface(), detectHostTheme(), hostSurfaceOf(), hostText(), keepListedVersion(), PatchGroups(), patchIdLabel(), patchRowsOf() (+11 more)
 
-### Community 57 - "patchShim"
+### Community 53 - "patchShim"
 Cohesion: 0.20
 Nodes (19): ensureDirSync(), hasLegacyPermissionPin(), insertShimInject(), isTextShim(), patchShim(), restoreFromBak(), revertAllShims(), revertShim() (+11 more)
 
-### Community 58 - "host-sync.mjs"
+### Community 54 - "host-sync.mjs"
 Cohesion: 0.11
 Nodes (16): argv, copyDir, copyMatches(), dryRun, force, head, home, m (+8 more)
 
-### Community 59 - "inject-runnability.mjs"
+### Community 55 - "inject-runnability.mjs"
 Cohesion: 0.12
 Nodes (18): ALIAS, checkOnly, drift, dry, esc(), files, has(), have (+10 more)
 
-### Community 60 - "redteam-setup.sh"
+### Community 56 - "redteam-setup.sh"
 Cohesion: 0.27
 Nodes (18): ask(), ask_secret(), bad(), BIN, cur_env(), dim(), dl_asset(), doctor() (+10 more)
 
-### Community 61 - "README.md（中文主文档）"
+### Community 57 - "apiJson"
+Cohesion: 0.15
+Nodes (18): apiJson(), apiTimeoutMs(), apiUrl(), Btn(), clientCurrentCwd(), ContinueRetrySection(), formatSize(), isAbortError() (+10 more)
+
+### Community 58 - "README.md（中文主文档）"
 Cohesion: 0.17
 Nodes (18): banner.svg（720×180 项目横幅）, 硬编码 replace 清理的措辞漂移风险, dock-auth.png（850×925，演练台授权页截图）, dock-clean.png（800×850，清洗页侧栏截图）, dock-drill.png（900×850，演练台截图）, own-servers.png（652×509，自己的服务器白名单截图·中文）, own-servers-en.png（652×505，自己的服务器白名单截图·英文）, rules.png（1064×1244，规则集截图） (+10 more)
 
-### Community 62 - "child-process-hide.mjs"
+### Community 59 - "child-process-hide.mjs"
 Cohesion: 0.18
 Nodes (17): builtinChildProcess(), ChildProcess, cp, exec, execFile, execFileSync, execSync, fork (+9 more)
 
-### Community 63 - "silenceCmdFlash"
-Cohesion: 0.18
-Nodes (18): keepLiangshenOperatorPrompt(), keepSurfaceFile(), liangshenPromptFilterText(), listLiangshenBootstrapFiles(), listLiangshenMinimalPromptFiles(), listMnemonIndexFiles(), listOfficialPhase1Files(), silenceCmdFlash() (+10 more)
-
-### Community 64 - "restartOfficialHarness"
+### Community 60 - "findAiBaseWeb"
 Cohesion: 0.22
-Nodes (18): appAsarPath(), cleanupLegacyRestartScripts(), desktopRestartChoice(), desktopRuntimeOf(), dshHomeForRelaunch(), isDesktopExecutable(), isOfficialHarnessExecutable(), logInternal() (+10 more)
+Nodes (18): aiBaseGuessesAround(), aiBaseGuessesFor(), enumeratePatchAiBases(), findAiBaseDesktop(), findAiBaseFromDshHome(), findAiBaseFromRequire(), findAiBaseFromRunningProcess(), findAiBaseRecursive() (+10 more)
 
-### Community 65 - "check-skill-runnable.mjs"
+### Community 61 - "check-skill-runnable.mjs"
 Cohesion: 0.11
 Nodes (15): argvLimit, asJson, files, have, LINUX_MARKS, linuxRows, missRows, root (+7 more)
 
-### Community 66 - "findDshHome"
-Cohesion: 0.15
-Nodes (17): applyRuntimeEnv(), atomicWriteSync(), desktopDshHomeGuesses(), desktopHomeCandidates(), findDshHome(), findWslWindowsDshHome(), isDshHomeDir(), listPiAiApiFiles() (+9 more)
+### Community 62 - ".kb"
+Cohesion: 0.19
+Nodes (5): 组合式收纳：一个 entity 参数换 10 读面 + 13 写面（POC 五面闭环、资产登记/评估/测试回写）, op=entity_add：一个 op 覆盖六个写面（+92 字符 ≈15/面），shot/poc 明确不接并说明原因, defaultPocFilename(), slugPoc(), pocCategoryName()
 
-### Community 67 - "graphify-sync.mjs"
+### Community 63 - "check-locale.mjs"
+Cohesion: 0.12
+Nodes (14): 双语字典 328×2 key 必须一模一样（按连续文案行自动发现块，不硬编码行号）, 双语文案拆开：源在 locale/*.json，运行时仍走构建期内联（拆源不拆加载）, default-prompt-inject.en.md（英文版注入正文）, argv, asJson, blocks, dicts, expectBlocks (+6 more)
+
+### Community 64 - "graphify-sync.mjs"
 Cohesion: 0.25
 Nodes (16): edgesOf(), ensureBaseline(), fail(), FILE_TYPES, foldRationale(), hyperEdgesOf(), INFERRED_OK, isSemantic() (+8 more)
 
-### Community 68 - "check-locale.mjs"
-Cohesion: 0.13
-Nodes (13): 双语字典 328×2 key 必须一模一样（按连续文案行自动发现块，不硬编码行号）, 双语文案拆开：源在 locale/*.json，运行时仍走构建期内联（拆源不拆加载）, argv, asJson, blocks, dicts, expectBlocks, file (+5 more)
-
-### Community 69 - "findShimDir"
+### Community 65 - "findShimDir"
 Cohesion: 0.27
 Nodes (16): collectDirs(), dirHasDshLauncher(), execFileText(), findDesktopShimDir(), findNpmPrefix(), findShimDir(), guessedPrefixDirs(), guessedShimDirs() (+8 more)
 
-### Community 70 - "gatherState"
-Cohesion: 0.22
-Nodes (16): desktopAsarStillSealed(), displayTitleOf(), findAiBase(), gatherState(), groupPatchesForDisplay(), missingAiBaseMessage(), officialShellMain(), patchAppliesHere() (+8 more)
-
-### Community 71 - "role-section.js"
+### Community 66 - "role-section.js"
 Cohesion: 0.28
 Nodes (15): currentEngagementId(), evictRoleBySessionIfOverflow(), installSubagentRoleCapture(), isRedteamChild(), noteClaimedMessage(), parseRedteamRole(), readRoleFile(), remember() (+7 more)
 
-### Community 72 - "anchor-gate.mjs"
+### Community 67 - "anchor-gate.mjs"
 Cohesion: 0.24
 Nodes (15): apply(), buildInstructionHint(), classifyReasoning(), countWord(), decidePromotion(), extractInstructionPaths(), hasAnchoredReasoning(), instructionHintMessages() (+7 more)
 
-### Community 73 - "角色 漏洞利用（30 个技能）"
-Cohesion: 0.39
-Nodes (16): 角色 漏洞利用（30 个技能）, apk-reverse（漏洞利用 / exploit）, binary-diff（漏洞利用 / exploit）, browser-extension-reverse（漏洞利用 / exploit）, dotnet-reverse（漏洞利用 / exploit）, ghidra-reverse（漏洞利用 / exploit）, go-rust-reverse（漏洞利用 / exploit）, ida-reverse（漏洞利用 / exploit） (+8 more)
-
-### Community 74 - "build-locale.mjs"
+### Community 68 - "build-locale.mjs"
 Cohesion: 0.13
 Nodes (13): block, checkOnly, clientPath, crlf, die(), en, marked, onlyEn (+5 more)
 
-### Community 75 - "toolkit-windows.mjs"
+### Community 69 - "toolkit-windows.mjs"
 Cohesion: 0.14
 Nodes (12): argv, checkOnly, download(), exists(), force, NL, onlyIdx, picks (+4 more)
 
-### Community 76 - "release-notes.md（1.1.72 → 1.1.83 演化史）"
-Cohesion: 0.19
-Nodes (15): v1.1.34-prompt-inject.md（历史版本快照）, WEB PENTEST ROUTING 与 canned slots（技能路由表的前身）, ZERO-LATENCY INTERRUPT 与 Σ Integration（旧版思维框架）, 生成物即资产：工程性 / 连续性 / 项目性三纪律, 进攻条令 — ATTACK DOCTRINE（输出即火力）, 火力阶梯五级（打光弹药才停火）, 五阶段主线（信息收集→资产梳理→漏洞发现→漏洞利用→内网渗透）, release-notes.md（1.1.72 → 1.1.83 演化史） (+7 more)
+### Community 70 - "ref_node_process"
+Cohesion: 0.14
+Nodes (10): mcpRespond(), runMcpServer(), argv, asJson, BUDGETS, maxDefault, over, root (+2 more)
 
-### Community 77 - "market-sweep.mjs"
+### Community 71 - "market-sweep.mjs"
 Cohesion: 0.16
 Nodes (13): all, asJson, BASELINE, both, cacheFile, diffs, FIELDS(), got (+5 more)
 
-### Community 78 - "注入方式改造方案-1.1.34化.md（注入前置）"
-Cohesion: 0.19
-Nodes (13): 锚点核对法：上游源码 + npm 已发布产物双重比对, 四层防御：注入在前 / stripHarnessPersona / overlayOfficialIdentity / 文件级补丁短路, 注入位置前置（order -100000 / cap -99999）, 注入方式改造方案-1.1.34化.md（注入前置）, CAPABILITY_SECTION, capabilityProtocolText(), isCwdOnlyText(), isWorkspaceBaselineSection() (+5 more)
-
-### Community 79 - "official-update.js"
-Cohesion: 0.22
-Nodes (13): 官方客户端升级回写标记 dsh-purge-reapply-asar, jsString(), officialRestartScript(), probeWshJsEngine(), wshJsEngineWorks(), hostFs, clearStaleExtractedApps(), clearUpgradeMarker() (+5 more)
-
-### Community 80 - "scenario-drill.mjs"
-Cohesion: 0.19
-Nodes (13): 端到端情景第八关：20 步串 op 并断言回读，专抓组合期「说谎的回读」与跨 op 不一致, drill, failures, has(), liveStore, main(), not(), re() (+5 more)
-
-### Community 81 - "table-read.js"
+### Community 72 - "table-read.js"
 Cohesion: 0.24
 Nodes (9): IV, MASK, SLOT, SLOT_ROWS, TAG, MIX, mixKey(), sealSlot() (+1 more)
 
-### Community 82 - "scope.js"
+### Community 73 - "installIdentityOverride"
+Cohesion: 0.20
+Nodes (14): installAssembleGuard(), addPromptSection(), closerFollowBytes(), injectAllowedNow(), installIdentityOverride(), logAssembleDecision(), purgeLog(), readInjectFallback() (+6 more)
+
+### Community 74 - "apply"
+Cohesion: 0.22
+Nodes (13): apply(), autoApply(), currentSettleScope(), log(), settleInstalledPatches(), shimNeedsPatch(), uninstallHungPromptGlobal(), DESKTOP_SETTLE_DELAY_MS (+5 more)
+
+### Community 75 - "scope.js"
 Cohesion: 0.30
 Nodes (13): checkAction(), checkTarget(), checkTechnique(), cidrInsideCidr(), ipInCidr(), ipv4ToInt(), isDomain(), isIpv4() (+5 more)
 
-### Community 83 - "check-manifest.mjs"
+### Community 76 - "check-manifest.mjs"
 Cohesion: 0.14
 Nodes (13): allow, alwaysShipped, asJson, block, copy, denies, extra, pkg (+5 more)
 
-### Community 84 - "ensureHostClean"
+### Community 77 - "ensureHostClean"
 Cohesion: 0.19
 Nodes (12): aiBaseBelongsToExe(), allPatchHostsWritten(), applyPatchesAllHosts(), ensureHostClean(), hostCleanMarkersPresent(), isPatchResultSoftOk(), mergeApplyReports(), patchAllShims() (+4 more)
 
-### Community 85 - "installIdentityOverride"
+### Community 78 - "scenario-drill.mjs"
 Cohesion: 0.21
-Nodes (13): installAssembleGuard(), addPromptSection(), closerFollowBytes(), injectAllowedNow(), installIdentityOverride(), logAssembleDecision(), purgeLog(), readInjectFallback() (+5 more)
+Nodes (12): drill, failures, has(), liveStore, main(), not(), re(), root (+4 more)
 
-### Community 86 - "build-client.mjs"
-Cohesion: 0.15
-Nodes (12): applyAt, beginAt, body, client, clientPath, drillSrc, end, endAt (+4 more)
-
-### Community 87 - "settings.js"
+### Community 79 - "settings.js"
 Cohesion: 0.32
 Nodes (11): clampMaxAgents(), DEFAULT_MAX_AGENTS, MAX_AGENTS_LIMIT, maxAgentsOf(), maxAgentsSourceOf(), readSettings(), saveMaxAgents(), settingsPathOf() (+3 more)
 
-### Community 88 - "audit-skills.mjs"
+### Community 80 - "audit-skills.mjs"
 Cohesion: 0.17
 Nodes (11): asJson, doctrineFiles, ghostRefs, linkProblems, missingSkills, realTools, root, skillDir (+3 more)
 
-### Community 89 - "wordlists-windows.mjs"
+### Community 81 - "wordlists-windows.mjs"
 Cohesion: 0.20
 Nodes (10): checkOnly, dir, fetchList(), force, LISTS, only, onlyArg, picks (+2 more)
 
-### Community 90 - "apply"
-Cohesion: 0.27
-Nodes (10): apply(), currentSettleScope(), settleInstalledPatches(), uninstallHungPromptGlobal(), DESKTOP_SETTLE_DELAY_MS, isInactiveContextError(), settleDelayMs(), settleMayReapply() (+2 more)
+### Community 82 - "注入方式改造方案-1.1.34化.md（注入前置）"
+Cohesion: 0.25
+Nodes (11): 锚点核对法：上游源码 + npm 已发布产物双重比对, 四层防御：注入在前 / stripHarnessPersona / overlayOfficialIdentity / 文件级补丁短路, 注入位置前置（order -100000 / cap -99999）, 注入方式改造方案-1.1.34化.md（注入前置）, isCwdOnlyText(), isWorkspaceBaselineSection(), looksLikeOfficialIdentity(), overlayOfficialIdentity() (+3 more)
 
-### Community 91 - "install"
+### Community 83 - "host.js"
+Cohesion: 0.24
+Nodes (10): markersAny=true 的补丁：applied 只代表「至少打了一处」，会藏半个没打的门, 状态面升级：补丁按 已清洗/待清洗/锚点未命中/不适用/缺文件 分桶 + 宿主版本对齐告警, 未安装项整体摘除：83 → 76 条补丁，面板 0 不适用 / 0 缺文件, ADAPTERS, currentSurface(), hostAdapter(), hostAlignment(), restartNote() (+2 more)
+
+### Community 84 - "install"
 Cohesion: 0.18
 Nodes (11): patch, inject, platform, dsh, bundle, client, install, git (+3 more)
 
-### Community 92 - "export-engagement-report.mjs"
+### Community 85 - "export-engagement-report.mjs"
 Cohesion: 0.18
 Nodes (9): argv, id, name, outDir, outFile, rep, shotsDst, shotsSrc (+1 more)
 
-### Community 94 - "normalize-skill-headings.mjs"
+### Community 86 - "模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）"
+Cohesion: 0.20
+Nodes (10): 社区情报主文档：独占性、目录规模、restart∩patch=0、长尾抽样、产物级对照、模块化判定、成本自述做法（七轮实测累计）, 同地盘地图：600 条样本里无人做提示词优先级治理，purge 的三档作用域已被 purge_rules 报出, 生态漂移探测 sweep:market：把六趟手打的复查口径写死进代码（FIELDS + 正则 + 基线），交集被吃进即判失败, 生态规模与产物级对照：catalog 10063 条；dsh-context 0 工具/65 字，dsh-ops 8 注册/7,566 字，purge 10 工具/3,598 字, 社区同路原则：one stable proxy tool instead of N tool schemas（dsh-mcp-lazy / dsh-mcp-lens 按需加载 schema）, purge_drill：56 个 preset 平面工具收成聚合入口，18 op（读 8 + 写面收纳 update 四方法 / delete 三方法 / open / switch）, 生态 tag 口径门禁：7 个 tag 全部满足「2000 条样本在用 + purge 真具备」，词形分裂按生态现状并存, purge_status 按需展开：同一渲染函数两个 section 显式索取，返回值成本 13023 → 538 字符 (+2 more)
+
+### Community 87 - "check-upstream.mjs"
+Cohesion: 0.27
+Nodes (9): asJson, cmp(), core3(), inRange(), pkg, range, root, target (+1 more)
+
+### Community 88 - "normalize-skill-headings.mjs"
 Cohesion: 0.24
 Nodes (9): checkOnly, demote(), dropRedundantH1(), dry, files, normalize(), remaining, root (+1 more)
 
-### Community 95 - "适配-0.2.1-rc.2-差异分析.md（宿主升级核对）"
-Cohesion: 0.31
-Nodes (9): 三条破损补丁 #77 / #68 / #26, 死补丁 #40 移除与 84 → 83 计数, 适配-0.2.1-rc.2-差异分析.md（宿主升级核对）, #82 教训：打包注释 //#region 不能当锚点第二行, asar 密封态 = 补丁是否真生效的判据, 换装备份剪枝 prunePreservedDirs：谁制造谁收尾，prev 目录只留最近 2 份, 装梁神导致 pnpm 把安装副本覆盖回 1.1.72, memory/2026-10-22.md（1.1.73–1.1.75 实战日志） (+1 more)
-
-### Community 96 - "repairOfficialCliAfterUnpack"
-Cohesion: 0.33
-Nodes (9): ensureAppRuntimeSymlink(), isAsarSealedPath(), isDir(), isFile(), packageRootsFromInstall(), repairOfficialCliAfterUnpack(), resourceDirCandidates(), resourcesDirForExecutable() (+1 more)
-
-### Community 97 - "ip-utils.js"
-Cohesion: 0.33
-Nodes (5): cidrOf(), expandIpv6(), ipToInt(), isIpv6(), scopeOfIp()
-
-### Community 98 - "surface.js"
+### Community 89 - "surface.js"
 Cohesion: 0.44
 Nodes (8): exeName(), forcedSurface(), isDesktopSurface(), norm(), pathLooksDesktop(), resourcesLookLikeDesktopInstall(), slash(), SURFACES
 
-### Community 99 - "embed-default-prompt.mjs"
+### Community 90 - "embed-default-prompt.mjs"
 Cohesion: 0.22
 Nodes (7): embed-prompt, dest, packed, root, src, text, 发版固定流程：改 md 源 → embed-prompt 重封入 asset-table.js → bump 三份 README → pnpm update
 
-### Community 100 - "模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）"
-Cohesion: 0.25
-Nodes (8): 社区情报主文档：独占性、目录规模、restart∩patch=0、长尾抽样、产物级对照、模块化判定、成本自述做法（七轮实测累计）, 同地盘地图：600 条样本里无人做提示词优先级治理，purge 的三档作用域已被 purge_rules 报出, 生态漂移探测 sweep:market：把六趟手打的复查口径写死进代码（FIELDS + 正则 + 基线），交集被吃进即判失败, 生态规模与产物级对照：catalog 10063 条；dsh-context 0 工具/65 字，dsh-ops 8 注册/7,566 字，purge 10 工具/3,598 字, 生态 tag 口径门禁：7 个 tag 全部满足「2000 条样本在用 + purge 真具备」，词形分裂按生态现状并存, purge_status 按需展开：同一渲染函数两个 section 显式索取，返回值成本 13023 → 538 字符, 工具面闸门 check-tools：结构 + 描述预算 + 返回值预算 + op/entity 可发现性（七关之一）, 模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）
+### Community 91 - "ip-utils.js"
+Cohesion: 0.39
+Nodes (5): cidrOf(), expandIpv6(), ipToInt(), isIpv6(), scopeOfIp()
 
-### Community 101 - "exports"
+### Community 92 - "web.js"
+Cohesion: 0.54
+Nodes (6): hostFromRequest(), portFromRequest(), restartArgv(), scheduleCleanupRestart(), scheduleRestart(), spawnRestartHelper()
+
+### Community 93 - "exports"
 Cohesion: 0.25
 Nodes (8): exports, ./client, ./locale/*.json, ./package.json, ./redteam, ./redteam/store, ./redteam/tools, ./redteam/ui
 
-### Community 102 - "isInsideDesktopInstall"
-Cohesion: 0.33
-Nodes (7): inferDesktopInstallDir(), isInsideDesktopInstall(), isSubPath(), looksLikeDesktopName(), looksLikeDesktopNameTail(), slashNorm(), isPackagedDesktopDshRoot()
-
-### Community 103 - "ingest.js"
+### Community 94 - "ingest.js"
 Cohesion: 0.43
 Nodes (6): importCommands(), parseArtifacts(), parseHttpxLine(), parseNucleiLine(), parsePortLine(), toBundle()
 
-### Community 104 - "store.js"
+### Community 95 - "store.js"
 Cohesion: 0.38
 Nodes (5): apply(), inject, name, readSelfPackage(), resolveRoot()
 
-### Community 105 - "validate.js"
-Cohesion: 0.38
-Nodes (4): normalizeShellStatus(), normalizeShellType(), WEBSHELL_STATUSES, WEBSHELL_TYPES
+### Community 98 - "drill-grant.js"
+Cohesion: 0.80
+Nodes (4): clearDrillGrant(), drillGrantPath(), readDrillGrant(), writeDrillGrant()
 
-### Community 106 - "mnemon-settings.js"
-Cohesion: 0.40
-Nodes (4): normalizeRewriteOptions(), DEFAULT_SETTINGS, loadMnemonSettings(), mnemonSettingsPath()
+### Community 100 - "collectInjectText"
+Cohesion: 0.50
+Nodes (4): CTF CORE CONTRACT / SCOPE / EVIDENCE / WORKFLOW 四段, Little Code Sauce / YG 人格框架（SANDBOX — STABLE）, HARD OUTPUT RULES + 拒绝对抗（禁止词表与整轮重写）, collectInjectText()
 
-### Community 110 - "default-prompt-inject.zh.md（中文版注入正文）"
-Cohesion: 0.67
-Nodes (4): default-prompt-inject.en.md（英文版注入正文）, default-prompt-inject.zh.md（中文版注入正文）, 草稿审查 R1–R8 缺陷清单, Scoped Rules 动态路由（25 条按意图激活）
-
-### Community 111 - "preset.yml"
+### Community 101 - "preset.yml"
 Cohesion: 0.50
 Nodes (3): description, name, order
 
-### Community 112 - "engines"
-Cohesion: 0.67
-Nodes (3): engines, dsh, node
+### Community 102 - "default-prompt-inject.zh.md（中文版注入正文）"
+Cohesion: 1.00
+Nodes (3): default-prompt-inject.zh.md（中文版注入正文）, 草稿审查 R1–R8 缺陷清单, Scoped Rules 动态路由（25 条按意图激活）
 
-### Community 113 - "repository"
+### Community 103 - "repository"
 Cohesion: 0.67
 Nodes (3): repository, type, url
 
@@ -640,25 +593,25 @@ Nodes (3): repository, type, url
   docs/preview/settings.png · relation: references
 
 ## Knowledge Gaps
-- **3 isolated node(s):** `RFC-1918`, `BIN`, `RFC-3986`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 747 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3 isolated node(s):** `RFC-1918`, `RFC-3986`, `BIN`
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 744 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `README.md（中文主文档）` connect `README.md（中文主文档）` to `update.js`, `skills.js`, `check-locale.mjs`, `core.js`, `lib/index.js`, `client.js`, `rules.js`, `rewind.js`, `release-notes.md（1.1.72 → 1.1.83 演化史）`, `net-scope.js`, `package.json`, `preset.yml`, `注入方式改造方案-1.1.34化.md（注入前置）`, `restart-desktop.js`, `dsh-purge.js`, `host.js`, `verify.mjs`, `适配-0.2.1-rc.2-差异分析.md（宿主升级核对）`?**
-  _High betweenness centrality (0.124) - this node is a cross-community bridge._
+- **Why does `README.md（中文主文档）` connect `README.md（中文主文档）` to `ctf-sandbox-orchestrator（流程/编排 / flow）`, `update.js`, `skills.js`, `preset.yml`, `core.js`, `package.json`, `client.js`, `rules.js`, `rewind.js`, `lib/index.js`, `reapply.js`, `net-scope.js`, `restart-desktop.js`, `host.js`, `verify.mjs`, `注入方式改造方案-1.1.34化.md（注入前置）`, `dsh-purge.js`, `check-locale.mjs`?**
+  _High betweenness centrality (0.113) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `default-prompt-inject.md（当前生效的注入正文）` (e.g. with `v1.1.34-prompt-inject.md（历史版本快照）` and `defaultOverrideText()`) actually correct?**
   _`default-prompt-inject.md（当前生效的注入正文）` has 7 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `RFC-1918`, `BIN`, `RFC-3986` to the rest of the system?**
+- **What connects `RFC-1918`, `RFC-3986`, `BIN` to the rest of the system?**
   _3 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `update.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.06703146374829001 - nodes in this community are weakly interconnected._
-- **Why does `release-notes.md（1.1.72 → 1.1.83 演化史）` connect `release-notes.md（1.1.72 → 1.1.83 演化史）` to `update.js`, `store-core.js`, `模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）`, `check-locale.mjs`, `client.js`, `identity.js`, `reapply.js`, `web-fingerprint（框架/中间件/CMS/组件版本）`, `README.md（中文主文档）`, `default-prompt-inject.md（当前生效的注入正文）`, `适配-0.2.1-rc.2-差异分析.md（宿主升级核对）`?**
-  _High betweenness centrality (0.087) - this node is a cross-community bridge._
-- **Should `uninstall.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.06354642313546423 - nodes in this community are weakly interconnected._
+- **Should `ctf-sandbox-orchestrator（流程/编排 / flow）` be split into smaller, more focused modules?**
+  _Cohesion score 0.05478948336091193 - nodes in this community are weakly interconnected._
+- **Why does `release-notes.md（1.1.72 → 1.1.83 演化史）` connect `ctf-sandbox-orchestrator（流程/编排 / flow）` to `update.js`, `identity.js`, `client.js`, `store-core.js`, `reapply.js`, `模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）`, `README.md（中文主文档）`, `check-locale.mjs`?**
+  _High betweenness centrality (0.090) - this node is a cross-community bridge._
+- **Should `desktop.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.05153576582148011 - nodes in this community are weakly interconnected._
 
 ### Low-confidence Hints
 _AMBIGUOUS edges — the extractor was unsure. Verify before acting on these._
