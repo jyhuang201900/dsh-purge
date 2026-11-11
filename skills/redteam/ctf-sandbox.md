@@ -17,7 +17,7 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 - [ ] 我是否打开了 sidecar orchestrator，而不是把 40 个子技能当 PRIMARY？
 - [ ] 若任务其实是 pwn/APK/IDA，我是否让更具体的 PRIMARY 接手？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |

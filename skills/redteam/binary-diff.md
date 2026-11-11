@@ -289,7 +289,18 @@ found_struct_offset → idapro_set_comments(addr=insn_va, comment="{struct_name}
 | `ntoskrnl` | ✓ 已装 |
 | `target` | ❌ 未装（用前先装，或改用等价工具） |
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
-| `radare2` | ❌ 未装（用前先装，或改用等价工具） |
+| `radare2` | ✓ 已装（toolkit 内，非 PATH） |
+
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`ghidra`
+- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+runnability:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
@@ -302,12 +313,3 @@ found_struct_offset → idapro_set_comments(addr=insn_va, comment="{struct_name}
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`ghidra`
-- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-runnability:end -->

@@ -126,17 +126,7 @@ proxychains4 -f runs/proxychains-1080.conf \
 
 second-shot:end -->
 
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：4 漏洞利用｜**角色**：`exploit`
-- **上游**（先做完这些再进来）：`privesc-persistence`
-- **下游**（产出交给谁）：`gogo-intranet`、`fscan-intranet`
-- **互补**（同类场景一起用）：`frp-tunnel`、`suo5-tunnel`
-- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`tunnel` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
-
-<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -149,3 +139,15 @@ second-shot:end -->
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`privesc-persistence`
+- **下游**（产出交给谁）：`gogo-intranet`、`fscan-intranet`
+- **互补**（同类场景一起用）：`frp-tunnel`、`suo5-tunnel`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`tunnel` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+
+<!-- /skill-link-graph -->

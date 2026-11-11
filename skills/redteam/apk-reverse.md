@@ -388,9 +388,9 @@ frida -U -f com.example.app -l hook.js
 | `apktool` | ❌ 未装（用前先装，或改用等价工具） |
 | `adb` | ❌ 未装（用前先装，或改用等价工具） |
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
-| `radare2` | ❌ 未装（用前先装，或改用等价工具） |
+| `radare2` | ✓ 已装（toolkit 内，非 PATH） |
 | `ghidra` | ❌ 未装（用前先装，或改用等价工具） |
-| `strings` | ❌ 未装（用前先装，或改用等价工具） |
+| `strings` | ✓ 已装 |
 
 ---
 
@@ -885,18 +885,7 @@ function findInstances(className) {
 
 second-shot:end -->
 
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：4 漏洞利用｜**角色**：`exploit`
-- **上游**（先做完这些再进来）：`mobile-reverse`
-- **下游**（产出交给谁）：`competition-android-hooking`
-- **专项下游**（同主题更深的靶子面）：`competition-android-hooking`
-- **互补**（同类场景一起用）：`mobile-reverse`
-- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
-
-<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -910,3 +899,16 @@ second-shot:end -->
 - `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 
 runnability:end -->
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`mobile-reverse`
+- **下游**（产出交给谁）：`competition-android-hooking`
+- **专项下游**（同主题更深的靶子面）：`competition-android-hooking`
+- **互补**（同类场景一起用）：`mobile-reverse`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+
+<!-- /skill-link-graph -->

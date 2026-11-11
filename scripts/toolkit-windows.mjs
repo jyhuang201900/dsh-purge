@@ -44,7 +44,11 @@ const TOOLS = [
   { name: "nuclei", repo: "projectdiscovery/nuclei", re: /nuclei_[\d.]+_windows_amd64\.zip$/, bin: "nuclei.exe", dir: "nuclei", ver: ["-version"] },
   { name: "ffuf", repo: "ffuf/ffuf", re: /ffuf_[\d.]+_windows_amd64\.zip$/, bin: "ffuf.exe", dir: "ffuf", ver: ["-V"] },
   { name: "feroxbuster", repo: "epi052/feroxbuster", re: /x86_64-windows-feroxbuster\.exe\.zip$/, bin: "feroxbuster.exe", dir: "feroxbuster", ver: ["--version"] },
-  { name: "gobuster", repo: "OJ/gobuster", re: /gobuster_Windows_x86_64\.zip$/, bin: "gobuster.exe", dir: "gobuster", ver: ["version"] },
+  // ver 必须能打印版本号，实测三种写法差别很大（gobuster v3.8.2）：
+  //   `version`    → cobra 未知子命令，退出码 3、`No help topic for 'version'`（旧写法，把错误输出当版本号）
+  //   `-h`         → 退出 0，但只打 NAME/USAGE，没有版本号
+  //   `--version`  → 退出 0，`gobuster version 3.8.2`  ← 用这个
+  { name: "gobuster", repo: "OJ/gobuster", re: /gobuster_Windows_x86_64\.zip$/, bin: "gobuster.exe", dir: "gobuster", ver: ["--version"] },
   // radare2 的资产名用 w64 而非 win；正则必须避开同批的 radare2-<ver>-w64-arm64.zip
   // **bin 必须是 radare2.exe，不是 r2.exe**：实测该 zip 里 r2.exe 与 r2agent.exe 哈希完全相同
   // （都是 r2agent），拿 r2.exe 当主程序会得到 `Usage: r2agent` —— 装好了但根本不能分析。
@@ -311,6 +315,10 @@ for (const t of picks) {
             const s = path.join(src, e.name);
             const o = path.join(out, e.name);
             if (e.isDirectory()) { try { fs.mkdirSync(o, { recursive: true }); } catch { /* 忽略 */ } walkCopy(s, o); continue; }
+            // **别把下载来的 zip 一起铺进去**：tmpFile 就落在 tmpDir 里，copyTree 会把
+            // `chisel_1.12.0_windows_amd64.zip`／`gobuster_Windows_x86_64.zip` 拷到工具目录，
+            // 实测在 toolkit 里留下 7.8MB 无用压缩包（重装一次留一份）。
+            if (path.resolve(s) === path.resolve(tmpFile)) continue;
             try { fs.copyFileSync(s, o); n += 1; } catch { /* 单个文件失败不影响主流程 */ }
           }
         };
@@ -348,7 +356,11 @@ for (const t of picks) {
       const hex = v.status === null ? "null" : (v.status >>> 0).toString(16).toUpperCase();
       throw new Error(`装好了但跑不起来（退出码 ${v.status} / 0x${hex}）——多为缺 DLL 或被安全软件拦截`);
     }
-    console.log(`  ✓ ${t.name.padEnd(10)} ${String(rel.tag_name).padEnd(10)} ${Math.round(size / 1024)}KB｜${verText.trim().slice(0, 56)}`);
+    // **非 0 退出但有输出，也要留痕**：这类「有输出就算活着」的宽容是为了兼容 help 文本，
+    // 但它同时会把「探针参数写错」伪装成「装好了」（gobuster `version` 即被 cobra 以退出码 3 拒掉）。
+    // 所以打 ✓ 的同时把退出码写出来，错的探针能被一眼看见，而不是等用户跑空命令才发现。
+    const exitNote = v.status === 0 ? "" : `（探针退出码 ${v.status}，参数可能不对）`;
+    console.log(`  ✓ ${t.name.padEnd(10)} ${String(rel.tag_name).padEnd(10)} ${Math.round(size / 1024)}KB｜${verText.trim().slice(0, 56)}${exitNote}`);
     ok += 1;
   } catch (e) {
     console.log(`  ✗ ${t.name.padEnd(10)} ${String(e.message).slice(0, 70)}`);

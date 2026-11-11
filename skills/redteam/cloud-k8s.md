@@ -97,7 +97,7 @@ kubectl get clusterrolebindings
 
 | 工具 | 状态 |
 | --- | --- |
-| `nmap` | ❌ 未装（用前先装，或改用等价工具） |
+| `nmap` | ✓ 已装（toolkit 内，非 PATH） |
 
 
 

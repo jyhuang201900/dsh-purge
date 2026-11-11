@@ -35,6 +35,13 @@ const root = rootIdx >= 0 ? path.resolve(argv[rootIdx + 1]) : path.resolve(path.
   }
   const hit = cands.find((x) => { try { return fs.existsSync(x); } catch { return false; } });
   if (hit && !process.env.DSH_BASE) process.env.DSH_BASE = hit;
+  // 面也要跟着宿主走：ai_base 在 resources/app/dsh/ 下，但 detectSurface() 在没有桌面进程特征的
+  // node 子进程里判成非桌面 → gatherState 取不到 ai_base → write-smoke / tools-smoke 静默「跳过」，
+  // 包自证那边 targetFiles 也会假缩水（实测 56 → 52）。设一次，子进程继承。
+  try {
+    const { adoptSurfaceForAiBase } = await import("../lib/surface.js");
+    adoptSurfaceForAiBase(process.env.DSH_BASE);
+  } catch { /* 判不出来就走默认面 */ }
 }
 const skipSize = argv.includes("--skip-size");
 // 按名点跳：--skip write,cli（名字取自下面各关的短名）。

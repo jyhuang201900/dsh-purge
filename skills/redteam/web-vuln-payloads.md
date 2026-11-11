@@ -130,6 +130,17 @@ kid 注入         "kid":"../../proc/self/environ"  /  SQL 拼接
 - XSS 记上下文类型；SSRF 记外带域名与回连时间；越权记两个身份各自看到的字段差异。
 - `redteam_chain_add`：`stage_code=exploit`，`tool` 写实际命令原文。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -141,12 +152,3 @@ kid 注入         "kid":"../../proc/self/environ"  /  SQL 拼接
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
-
-runnability:end -->

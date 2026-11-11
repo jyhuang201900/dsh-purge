@@ -68,13 +68,11 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 - [ ] 是否还原关键数据流？
 - [ ] Checklist？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |
 | `frida` | ❌ 未装（用前先装，或改用等价工具） |
-
-
 
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
@@ -90,6 +88,17 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 
 second-shot:end -->
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
+- `frida`：`python -m pip install frida-tools`
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -101,12 +110,3 @@ second-shot:end -->
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
-- `frida`：`python -m pip install frida-tools`
-
-runnability:end -->

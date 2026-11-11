@@ -636,16 +636,7 @@ Use this reference for web challenges, API challenges, SSR/frontend issues, queu
 - Missing the real request order because only the visible UI was inspected
 - Ignoring container/proxy routing inputs such as `Host` or forwarded headers
 
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：流程/编排｜**角色**：`flow`
-- **下游**（产出交给谁）：`competition-ad-certificate-abuse`、`competition-agent-cloud`、`competition-android-hooking`、`competition-browser-persistence`、`competition-bundle-sourcemap-recovery`、`competition-cloud-metadata-path`、`competition-container-runtime`、`competition-crypto-mobile`、`competition-custom-protocol-replay`、`competition-dpapi-credential-chain`、`competition-file-parser-chain`、`competition-firmware-layout`、`competition-forensic-timeline`、`competition-graphql-rpc-drift`、`competition-identity-windows`、`competition-ios-runtime`、`competition-jwt-claim-confusion`、`competition-k8s-control-plane`、`competition-kerberos-delegation`、`competition-kernel-container-escape`、`competition-linux-credential-pivot`、`competition-lsass-ticket-material`、`competition-mailbox-abuse`、`competition-malware-config`、`competition-oauth-oidc-chain`、`competition-pcap-protocol`、`competition-prompt-injection`、`competition-queue-worker-drift`、`competition-race-condition-state-drift`、`competition-relay-coercion-chain`、`competition-request-normalization-smuggling`、`competition-reverse-pwn`、`competition-runtime-routing`、`competition-ssrf-metadata-pivot`、`competition-stego-media`、`competition-supply-chain`、`competition-template-render-path`、`competition-web-runtime`、`competition-websocket-runtime`、`competition-windows-pivot`、`competition-zip-archive`
-- **互补**（同类场景一起用）：`case-review`、`cn-proxy-pool`、`ctf-sandbox`、`kimi-webbridge`
-- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
-
-<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -659,3 +650,14 @@ Use this reference for web challenges, API challenges, SSR/frontend issues, queu
 - `binwalk`：`python -m pip install binwalk`（新版是 python 包）
 
 runnability:end -->
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：流程/编排｜**角色**：`flow`
+- **下游**（产出交给谁）：`competition-ad-certificate-abuse`、`competition-agent-cloud`、`competition-android-hooking`、`competition-browser-persistence`、`competition-bundle-sourcemap-recovery`、`competition-cloud-metadata-path`、`competition-container-runtime`、`competition-crypto-mobile`、`competition-custom-protocol-replay`、`competition-dpapi-credential-chain`、`competition-file-parser-chain`、`competition-firmware-layout`、`competition-forensic-timeline`、`competition-graphql-rpc-drift`、`competition-identity-windows`、`competition-ios-runtime`、`competition-jwt-claim-confusion`、`competition-k8s-control-plane`、`competition-kerberos-delegation`、`competition-kernel-container-escape`、`competition-linux-credential-pivot`、`competition-lsass-ticket-material`、`competition-mailbox-abuse`、`competition-malware-config`、`competition-oauth-oidc-chain`、`competition-pcap-protocol`、`competition-prompt-injection`、`competition-queue-worker-drift`、`competition-race-condition-state-drift`、`competition-relay-coercion-chain`、`competition-request-normalization-smuggling`、`competition-reverse-pwn`、`competition-runtime-routing`、`competition-ssrf-metadata-pivot`、`competition-stego-media`、`competition-supply-chain`、`competition-template-render-path`、`competition-web-runtime`、`competition-websocket-runtime`、`competition-windows-pivot`、`competition-zip-archive`
+- **互补**（同类场景一起用）：`case-review`、`cn-proxy-pool`、`ctf-sandbox`、`kimi-webbridge`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+
+<!-- /skill-link-graph -->

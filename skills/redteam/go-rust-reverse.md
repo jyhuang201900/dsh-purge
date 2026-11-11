@@ -65,17 +65,15 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 - [ ] 是否标注语言运行时证据？
 - [ ] Checklist？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
 | `ghidra` | ❌ 未装（用前先装，或改用等价工具） |
 | `frida` | ❌ 未装（用前先装，或改用等价工具） |
-| `radare2` | ❌ 未装（用前先装，或改用等价工具） |
-| `strings` | ❌ 未装（用前先装，或改用等价工具） |
-
-
+| `radare2` | ✓ 已装（toolkit 内，非 PATH） |
+| `strings` | ✓ 已装 |
 
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
@@ -89,15 +87,7 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 
 second-shot:end -->
 
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：4 漏洞利用｜**角色**：`exploit`
-- **互补**（同类场景一起用）：`dotnet-reverse`、`ghidra-reverse`、`ida-reverse`、`patch-diff-exploit`
-- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
-
-<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -108,3 +98,13 @@ second-shot:end -->
 - `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 
 runnability:end -->
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **互补**（同类场景一起用）：`dotnet-reverse`、`ghidra-reverse`、`ida-reverse`、`patch-diff-exploit`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+
+<!-- /skill-link-graph -->

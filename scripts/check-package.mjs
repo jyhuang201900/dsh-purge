@@ -210,6 +210,20 @@ const hostPresent = Boolean(process.env.DSH_BASE && fs.existsSync(process.env.DS
 if (process.env.DSH_BASE && !fs.existsSync(process.env.DSH_BASE)) {
   problems.push(`DSH_BASE 指向不存在的路径：${process.env.DSH_BASE}（设了却指错会让对账静默跳过，必须修正或清空）`);
 }
+// **面（surface）也必须跟着宿主走** —— 第 148 轮实测：本关一直报「targetFiles 52 个键，基线 56」，
+// 根因不是宿主少了文件，而是**闸门自己把目标筛掉了**：
+//   在 `node` 子进程里 detectSurface() 认不出桌面安装 → pathZone 把这些文件判成 desktop-install
+//   → allowTargetPath()（桌面面才允许 desktop-install）一律拒绝 → Object.keys 少 4~8 个。
+// 证据：同一 DSH_BASE，加 DSH_SURFACE=desktop 后 56 键、问题 0（pi-ai 三件与 dsh-tools-ptc 全回来）。
+// 所以先按 DSH_BASE 所在位置判定面，再对账；判不出来就保持默认面（不硬猜）。
+if (hostPresent && !process.env.DSH_SURFACE) {
+  try {
+    const { adoptSurfaceForAiBase } = await import("../lib/surface.js");
+    if (adoptSurfaceForAiBase(process.env.DSH_BASE)) {
+      notes.push("宿主是桌面安装：按 desktop 面判定（否则 resources/app 下的目标会被自身白名单筛掉，映射假缩水）");
+    }
+  } catch { /* 判不出来就走默认面 */ }
+}
 const fileKeys = (() => { if (!hostPresent) return -2; try { return Object.keys(targetFiles(process.env.DSH_BASE) || {}).length; } catch { return -1; } })();
 if (fileKeys === -2) notes.push("映射基线：本机未装宿主（DSH_BASE 不存在），跳过对账而非判红");
 else if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对账）");

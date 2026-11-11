@@ -27,7 +27,13 @@ const toUrl = (p) => new URL("file:///" + String(p).replace(/\\/g, "/")).href;
 
 const fails = [];
 let checks = 0;
+// **「本机缺工具」不等于「通过了」**（第 148 轮）：旧写法在工具不在时打一条 check("（本机无 X，跳过…）", true)，
+// 于是「共 N 项」里混着从没执行过的断言，N 看着稳、实际会随本机工具增减而虚增/虚减。
+// 现在走 skip 通道：不计入通过数，但**必须被数出来并打印**，让「本机缺什么所以哪条没跑」进可见面。
+let skips = 0;
+const skipped = [];
 const check = (name, ok, detail = "") => { checks += 1; if (!ok) fails.push(`${name}${detail ? "｜" + String(detail).slice(0, 90) : ""}`); };
+const skip = (name, why) => { skips += 1; skipped.push(`${name}（${why}）`); };
 
 // ── ① 纯判定单测 ──
 const { checkTarget, ipInCidr, cidrInsideCidr } = await import(toUrl(path.join(root, "lib", "redteam", "scope.js")));
@@ -194,7 +200,7 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
     if (probeTool("chisel").kind === "blocked") {
       check("★ 被删的工具提示「加白名单」而不是「先装」", /白名单/.test(blk.note), blk.note.slice(0, 90));
     } else {
-      check("（本机 chisel 未被删，跳过白名单断言）", true);
+      skip("被删工具的白名单提示", "本机 chisel 未被删，走不到该分支");
     }
   }
   // 已装工具给绝对路径（防 PATH 撞同名异构）
@@ -325,7 +331,7 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
       check("★ 装了 httpx 时认指纹用 httpx", fp && /httpx/.test(fp.cmd) && !/nuclei/.test(fp.cmd), (fp ? fp.cmd : "无").slice(0, 100));
       check("★ 认指纹命令带代理", fp && /-http-proxy/.test(fp.cmd), (fp ? fp.cmd : "无").slice(0, 100));
     } else {
-      check("（本机无 httpx，跳过认指纹断言）", true);
+      skip("httpx 认指纹", "本机无 httpx");
     }
   }
   // ★ 管道必须从「端口」接到「漏洞」：只探到端口不算结果。
@@ -843,7 +849,7 @@ try {
       check("★ 装了 radare2 时 r2 也算有", pT2("r2").ok && pT2("rabin2").ok, "r2=" + pT2("r2").kind);
       check("★ r2 解析到同一个 exe", String(pT2("r2").path) === String(rd.path), String(pT2("r2").path || "").split("\\").slice(-2).join("\\"));
     } else {
-      check("（本机无 radare2，跳过别名解析断言）", true);
+      skip("radare2 别名解析", "本机无 radare2");
     }
     // 别名不该把无关工具也认成存在
     check("★ 别名不误伤（suo5 仍是 suo5）", !TOOL_ALIAS.suo5, "suo5 无别名");
@@ -894,7 +900,7 @@ try {
     if (st.ok) {
       check("★ 装了 strings64 时 strings 也算有", /strings64|strings/i.test(st.path), st.path.split("\\").slice(-2).join("\\"));
     } else {
-      check("（本机无 strings，跳过）", true);
+      skip("strings 可打印串提取", "本机无 strings");
     }
     // inject-runnability 必须同一判据，否则技能块与 probeTool 打架
     const irSrc = fs.readFileSync(path.join(root, "scripts", "inject-runnability.mjs"), "utf8");
@@ -915,7 +921,7 @@ try {
       const txt = String(run.stdout || "") + String(run.stderr || "");
       check("★ 装了 nmap 就真能扫（回环 -sT）", run.status === 0 && /Nmap done/.test(txt), txt.split(/\r?\n/).filter((l) => /Nmap done|open|closed/.test(l))[0] || "无输出");
     } else {
-      check("（本机无 nmap，跳过实扫断言）", true);
+      skip("nmap 回环实扫", "本机无 nmap");
     }
   }
   // ★ 装了工具必须**出现在下一步里**，否则等于白装。
@@ -998,9 +1004,9 @@ try {
 }
 
 if (asJson) {
-  process.stdout.write(JSON.stringify({ checks, fails }, null, 1) + "\n");
+  process.stdout.write(JSON.stringify({ checks, fails, skips, skipped }, null, 1) + "\n");
 } else {
-  console.log(`范围闸自测：共 ${checks} 项（判定 + 端到端）｜失败 ${fails.length}`);
+  console.log(`范围闸自测：共 ${checks} 项（判定 + 端到端）｜失败 ${fails.length}` + (skips ? `｜跳过 ${skips}：${skipped.join("、")}` : ""));
   for (const f of fails.slice(0, 6)) console.log(`  ✗ ${f}`);
   if (!fails.length) console.log("  越界目标一律拦下、范围内放行 ✓");
 }

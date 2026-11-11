@@ -150,7 +150,7 @@ This skill has no third-party dependency. If Python 3 is unavailable, the only a
 - [ ] 是否执行了 hash verification，或记录了未执行原因？
 - [ ] 是否以 strict 模式重新运行并保存了 review 结果？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |

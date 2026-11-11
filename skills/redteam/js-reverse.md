@@ -178,7 +178,7 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 | --- | --- |
 | `（本机未装）` | ❌ 未装（用前先装，或改用等价工具） |
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
-| `radare2` | ❌ 未装（用前先装，或改用等价工具） |
+| `radare2` | ✓ 已装（toolkit 内，非 PATH） |
 
 
 

@@ -27,14 +27,18 @@ const START = "<!-- runnability:start";
 const END = "runnability:end -->";
 
 /** 装配器覆盖的工具（与 scripts/toolkit-windows.mjs 的 TOOLS 对齐；不一致由本脚本自检报出） */
-const INSTALLABLE = new Set(["subfinder", "dnsx", "naabu", "httpx", "chisel", "suo5", "fscan", "frp", "ligolo", "nuclei", "ffuf", "feroxbuster", "gobuster", "radare2"]);
+const INSTALLABLE = new Set([
+  "subfinder", "dnsx", "naabu", "httpx", "chisel", "suo5", "fscan", "frp", "ligolo",
+  "nuclei", "ffuf", "feroxbuster", "gobuster", "radare2",
+  // 第 110 轮装配器扩面时加的两个（strings → strings64.exe、nmap → NSIS 静默装），
+  // 本表没跟上是「装配器有本脚本没登记」的红：装法会指到一个本脚本说不支持的名字。
+  "strings", "nmap",
+]);
 
 /** Windows 上的等价替代：只收「本机真能用」的。没写的就是没有好替代，如实说。 */
 const SUBSTITUTE = {
-  nmap: "本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`",
   hydra: "Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环",
   sqlmap: "`python -m pip install sqlmap`（本机有 python）",
-  strings: "Windows 无 strings；用 Sysinternals `strings.exe`，或 PowerShell 提取可打印串",
   apktool: "官方只发 `apktool_<ver>.jar`（需 java）；装上后 `java -jar apktool.jar d <apk>`",
   proxychains: "Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>` 或 PowerShell `-Proxy`",
   hashcat: "官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）",

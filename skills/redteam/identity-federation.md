@@ -50,7 +50,7 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 - [ ] 每个 Finding 是否有复现与影响？
 - [ ] Checklist？
 
-## 本机工具实况（自动探测，非猜测）
+## 本机工具实况（导入时快照；当前真值用 `npm run toolkit:check` 或 `node scripts/sync-tool-status.mjs` 复核——表会过期，命令不会）
 
 | 工具 | 状态 |
 | --- | --- |

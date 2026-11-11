@@ -100,17 +100,7 @@ wc -l runs/final.txt
 - `redteam_chain_add`：`stage_code=recon`，`tool` 写命令原文，`result` 写"字典 N 条 → 命中 M 个 → 可解析 K 个"。
 - 爆破量级要如实报：**跑了多大字典、多久、命中几个**——"扫了一圈没有"和"只过了 5000 条"是两个结论。
 
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：1 信息收集｜**角色**：`recon`
-- **上游**（先做完这些再进来）：`passive-recon`
-- **下游**（产出交给谁）：`active-scan`
-- **互补**（同类场景一起用）：`passive-recon`、`recon-pipeline`
-- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
-
-<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -123,3 +113,15 @@ wc -l runs/final.txt
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：1 信息收集｜**角色**：`recon`
+- **上游**（先做完这些再进来）：`passive-recon`
+- **下游**（产出交给谁）：`active-scan`
+- **互补**（同类场景一起用）：`passive-recon`、`recon-pipeline`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`asset` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+
+<!-- /skill-link-graph -->

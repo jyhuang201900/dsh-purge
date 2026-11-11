@@ -419,7 +419,7 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 
 | 工具 | 状态 |
 | --- | --- |
-| `radare2` | ❌ 未装（用前先装，或改用等价工具） |
+| `radare2` | ✓ 已装（toolkit 内，非 PATH） |
 | `rabin2` | ❌ 未装（用前先装，或改用等价工具） |
 | `rasm2` | ❌ 未装（用前先装，或改用等价工具） |
 | `radiff2` | ❌ 未装（用前先装，或改用等价工具） |
@@ -436,6 +436,17 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
 | `frida` | ❌ 未装（用前先装，或改用等价工具） |
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
+- `frida`：`python -m pip install frida-tools`
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -447,12 +458,3 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
-- `frida`：`python -m pip install frida-tools`
-
-runnability:end -->

@@ -36,6 +36,11 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const toUrl = (p) => new URL("file:///" + String(p).replace(/\\/g, "/")).href;
 const core = await import(toUrl(path.join(root, "lib", "core.js")));
 
+// 面跟着宿主走（第 148 轮）：单跑本脚本时不设 DSH_SURFACE，gatherState 取不到桌面安装的 ai_base，
+// 这一关就写成「跳过」并按通过退出——跳过等于没跑。
+const { adoptSurfaceForAiBase } = await import(toUrl(path.join(root, "lib", "surface.js")));
+adoptSurfaceForAiBase(process.env.DSH_BASE);
+
 const st = await core.gatherState();
 const beforePending = Number(st.patches_pending ?? -1);
 const realBase = String(st.ai_base || "");
