@@ -14,6 +14,28 @@ import { fileURLToPath } from "node:url";
 const argv = process.argv.slice(2);
 const rootIdx = argv.indexOf("--root");
 const root = rootIdx >= 0 ? path.resolve(argv[rootIdx + 1]) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// **宿主自动探测**（第 145 轮）：write-smoke / tools-smoke 需要宿主 ai_base 当拷源，
+// 只认 DSH_BASE；不设就报「跳过」并按通过退出——**跳过等于这两关没跑**。
+// 而本机宿主在 E: 盘，%ProgramFiles% 是 C:，写死环境变量探不到，所以这里主动探一次，
+// 并显式 env 传给子进程（spawnSync 默认继承 process.env，但探测结果要写回才生效）。
+{
+  const cands = [];
+  try {
+    const out = spawnSync("powershell", ["-NoProfile", "-Command",
+      "(Get-Process -Name 'DeepSeek Harness' -ErrorAction SilentlyContinue | Select-Object -First 1).Path"], { encoding: "utf8", timeout: 8000 });
+    const exePath = String(out.stdout || "").trim();
+    if (exePath) {
+      const resDir = path.join(path.dirname(exePath), "resources");
+      cands.push(path.join(resDir, "app", "dsh", "node_modules", "@deepseek-ai"));
+    }
+  } catch { /* 进程查不到就走常见位置 */ }
+  for (const r of [process.env.ProgramFiles, "E:\\Program Files", "D:\\Program Files"]) {
+    if (!r) continue;
+    cands.push(path.join(r, "harness", "resources", "app", "dsh", "node_modules", "@deepseek-ai"));
+  }
+  const hit = cands.find((x) => { try { return fs.existsSync(x); } catch { return false; } });
+  if (hit && !process.env.DSH_BASE) process.env.DSH_BASE = hit;
+}
 const skipSize = argv.includes("--skip-size");
 // 按名点跳：--skip write,cli（名字取自下面各关的短名）。
 // 为什么需要它：实测 22.1 秒里 write-smoke 一门占 14.4 秒（65%），迭代时想只看其余关就得有这个旋钮；

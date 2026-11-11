@@ -977,6 +977,18 @@ try {
     const unused = declared.filter((d) => !readAll.has(d));
     check("★ 声明了的参数必须有人读", unused.length === 0, unused.length ? "未读: " + unused.join(",") : "0 个");
   }
+  // ★ 「跳过」不等于「通过」：第 145 轮发现 verify 里写路径冒烟与工具层冒烟
+  // 一直在报「跳过（取不到宿主 ai_base）」并按通过退出——**两关其实一次都没跑**。
+  // 根因：它们只认 DSH_BASE，而本机宿主在 E: 盘、%ProgramFiles% 是 C:，探不到。
+  {
+    const vSrc = fs.readFileSync(path.join(root, "scripts", "verify.mjs"), "utf8");
+    check("★ verify 会自己探测宿主（不依赖外部设 DSH_BASE）", /宿主自动探测/.test(vSrc) && /DeepSeek Harness/.test(vSrc), "有探测");
+    check("★ 探测候选含非系统盘（宿主可能在 E:/D:）", /E:\\\\Program Files/.test(vSrc) || vSrc.includes("E:\\Program Files"), "含 E 盘");
+    // check-package 同理：DSH_BASE 指错必须报错，不能静默跳过对账
+    const pSrc = fs.readFileSync(path.join(root, "scripts", "check-package.mjs"), "utf8");
+    check("★ DSH_BASE 指错要报错（不能静默跳过）", /DSH_BASE 指向不存在的路径/.test(pSrc), "有校验");
+    check("★ check-package 也自动探测宿主", /宿主自动探测/.test(pSrc), "有探测");
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 

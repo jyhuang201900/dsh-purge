@@ -167,7 +167,49 @@ const scoreCount = await (async () => {
 })();
 if (scoreCount === -1) problems.push("读不到 score-rules（导入失败）");
 else if (scoreCount !== PLANE_BASELINE.scorePoints) problems.push(`得分点 ${scoreCount} 个，基线 ${PLANE_BASELINE.scorePoints}：改分值表要同步文档口径`);
+// **自动探测宿主**：不设 DSH_BASE 时，宿主装在本机却对不上账，等于白跑一次。
+// 第 145 轮实测两件事：
+//   ① DSH_BASE 指到 `resources/app.asar/dsh`（不存在）时，对账被静默跳过；
+//   ② 真正的 aiBase 是 `resources/app/dsh/node_modules/@deepseek-ai` 这一层
+//      （targetFiles 在里面找 dsh-* 子包，指到 dsh/ 或 app.asar 都找不到）；
+//   ③ **宿主不一定装在 C 盘**——本机在 `E:\Program Files\harness`，
+//      而 `%ProgramFiles%` 是 `C:\Program Files`，所以写死环境变量探不到。
+// 所以先按「运行中的进程路径」推，再退到常见安装位置。
+if (!process.env.DSH_BASE) {
+  const cands = [];
+  // ① 从正在运行的宿主进程推：<...>/harness/DeepSeek Harness.exe → <...>/harness/resources/app/dsh/node_modules/@deepseek-ai
+  try {
+    const { execFileSync } = await import("node:child_process");
+    const out = execFileSync("powershell", ["-NoProfile", "-Command",
+      "(Get-Process -Name 'DeepSeek Harness' -ErrorAction SilentlyContinue | Select-Object -First 1).Path"], { encoding: "utf8", timeout: 8000 });
+    const exePath = String(out || "").trim();
+    if (exePath) {
+      const resDir = path.join(path.dirname(exePath), "resources");
+      cands.push(path.join(resDir, "app", "dsh", "node_modules", "@deepseek-ai"));
+      cands.push(path.join(resDir, "app.asar.unpacked", "node_modules", "@deepseek-ai"));
+    }
+  } catch { /* 进程查不到就走下面的常见位置 */ }
+  for (const root of [process.env.ProgramFiles, process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, "Programs"), "E:\\Program Files", "D:\\Program Files"]) {
+    if (!root) continue;
+    cands.push(path.join(root, "harness", "resources", "app", "dsh", "node_modules", "@deepseek-ai"));
+  }
+  const hit = cands.find((p) => { try { return fs.existsSync(p); } catch { return false; } });
+  if (hit) {
+    process.env.DSH_BASE = hit;
+    notes.push(`宿主自动探测：${hit.replace(/\\/g, "/").replace(/^.*?harness/, "…/harness")}`);
+  }
+}
 const hostPresent = Boolean(process.env.DSH_BASE && fs.existsSync(process.env.DSH_BASE));
+// **DSH_BASE 设了却指错 = 静默跳过**，这是最危险的一种绿：
+// 第 145 轮实测，我把 DSH_BASE 指向 `resources/app.asar/dsh`（该路径根本不存在），
+// 于是「平面基线」那一项从「映射 56」悄悄变成「映射 1（跳过）」，
+// 而整体仍然报「问题 0」——**看起来通过了，实际一次都没对账**。
+// 现在区分两种情况：
+//   · 没设 DSH_BASE → 本机确实没装宿主，跳过是合理的（记 note）；
+//   · 设了但路径不存在 → 是**指错了**，必须报问题，否则等于自己骗自己。
+if (process.env.DSH_BASE && !fs.existsSync(process.env.DSH_BASE)) {
+  problems.push(`DSH_BASE 指向不存在的路径：${process.env.DSH_BASE}（设了却指错会让对账静默跳过，必须修正或清空）`);
+}
 const fileKeys = (() => { if (!hostPresent) return -2; try { return Object.keys(targetFiles(process.env.DSH_BASE) || {}).length; } catch { return -1; } })();
 if (fileKeys === -2) notes.push("映射基线：本机未装宿主（DSH_BASE 不存在），跳过对账而非判红");
 else if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对账）");
