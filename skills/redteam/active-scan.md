@@ -86,8 +86,7 @@ nmap -f --resume -sS --version-intensity 2 -T2 <target>
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`masscan`、`dirsearch`、`fscan`、`gogo`、`suo5`、`chisel`
-- `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`masscan`、`dirsearch`、`fscan`、`gogo`、`suo5`、`chisel`
 - `masscan`：该仓库 release 无任何资产（只发源码）；Windows 上优先用 `naabu`
 - `dirsearch`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 - `fscan`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\fscan` 加进白名单再装

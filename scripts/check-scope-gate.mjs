@@ -15,6 +15,7 @@
  *      而不只是模块函数正确。**函数对但没接上**是这类改动最常见的假成功。
  */
 import fs from "node:fs";
+import { spawnSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -898,6 +899,24 @@ try {
     // inject-runnability 必须同一判据，否则技能块与 probeTool 打架
     const irSrc = fs.readFileSync(path.join(root, "scripts", "inject-runnability.mjs"), "utf8");
     check("★ inject-runnability 也认目录里任意 exe", /readdirSync\(dir\)\.some/.test(irSrc), "has 扫目录");
+  }
+  // ★ NSIS 安装程序不能 unzip：nmap 官方只发 setup.exe（无 zip 免安装版）。
+  // 实测 `/S /D=<dir>` 可静默装，但**不能只取 nmap.exe**——它依赖同目录的
+  // nse/ 脚本（619 个）与 nmap-services 数据，只拿 exe 会丢一大半功能。
+  {
+    const tkSrc2 = fs.readFileSync(path.join(root, "scripts", "toolkit-windows.mjs"), "utf8");
+    check("★ 装机器支持 NSIS 静默安装", /t\.nsis/.test(tkSrc2) && /\/S/.test(tkSrc2), "nsis 分支");
+    check("★ NSIS 后搬整棵目录树（不只取 exe）", /copyAll\(srcRoot/.test(tkSrc2), "copyAll");
+    // 行为断言：装了 nmap 就真能扫（造一次回环扫描，不依赖外部网络）
+    const { probeTool: pT4 } = await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")));
+    const nm = pT4("nmap");
+    if (nm.ok) {
+      const run = spawnSync(nm.path, ["-sT", "-p", "1", "127.0.0.1", "--max-retries", "1", "-T4"], { encoding: "utf8", timeout: 60000 });
+      const txt = String(run.stdout || "") + String(run.stderr || "");
+      check("★ 装了 nmap 就真能扫（回环 -sT）", run.status === 0 && /Nmap done/.test(txt), txt.split(/\r?\n/).filter((l) => /Nmap done|open|closed/.test(l))[0] || "无输出");
+    } else {
+      check("（本机无 nmap，跳过实扫断言）", true);
+    }
   }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));

@@ -54,6 +54,12 @@ const TOOLS = [
   // Sysinternals 官方版不是 GitHub release，所以用固定 URL（不走 repo/re 那套）。
   // 选 strings64.exe：64 位进程能读 32/64 位 PE；strings.exe 在 64 位系统上读大文件会受限。
   { name: "strings", url: "https://download.sysinternals.com/files/Strings.zip", bin: "strings64.exe", dir: "strings", ver: ["-accepteula", "-?"] },
+  // nmap：14 个技能引用它。官方只发 NSIS 安装程序（没有 zip 免安装版），
+  // 所以走「静默装到临时目录 → 把 nmap.exe 与配套数据文件取出来」这条路。
+  // 实测 `/S /D=<dir>` 可静默装（304 秒、1737 个文件），nmap.exe 单文件 2.8MB
+  // 但**依赖同目录的 nse 脚本与 nmap-services 数据**，只拿 exe 会丢功能。
+  // 另外：SYN 扫描（-sS）需要 Npcap 驱动；本机已有，但换机器要单独装。
+  { name: "nmap", url: "https://nmap.org/dist/nmap-7.993-setup.exe", nsis: true, bin: "nmap.exe", dir: "nmap", ver: ["--version"] },
   // 有 Windows 形态但暂不纳入（需要额外处理，如实记着而不是假装支持）：
   //   hashcat → 只发 hashcat-<ver>.7z（多平台包，要 7z 解压）
   //   apktool → 只发 apktool_<ver>.jar（要 java 跑，不是 exe）
@@ -208,6 +214,48 @@ for (const t of picks) {
       const tmpFile0 = path.join(tmpDir0, path.basename(new URL(t.url).pathname) || "pkg.zip");
       const size0 = await download(t.url, tmpFile0);
       fs.mkdirSync(path.dirname(dst), { recursive: true });
+      // NSIS 安装程序不能 unzip：静默装到临时目录，再把整棵安装树搬过来
+      if (t.nsis) {
+        const stage = path.join(tmpDir0, "stage");
+        fs.mkdirSync(stage, { recursive: true });
+        const ip = spawnSync(tmpFile0, ["/S", `/D=${stage}`], { encoding: "utf8", timeout: 900000 });
+        if (ip.status !== 0) throw new Error(`静默安装失败（退出码 ${ip.status}）`);
+        // 装好的树里找 bin
+        let found0 = null;
+        const walkN = (d, depth) => {
+          if (depth > 4 || found0) return;
+          let ents = [];
+          try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+          for (const e of ents) {
+            const q2 = path.join(d, e.name);
+            if (e.isDirectory()) { walkN(q2, depth + 1); continue; }
+            if (e.name.toLowerCase() === t.bin.toLowerCase()) { found0 = q2; return; }
+          }
+        };
+        walkN(stage, 0);
+        if (!found0) throw new Error(`安装后没找到 ${t.bin}`);
+        // 把 bin 所在目录整棵搬过去（nmap 依赖同目录的 nse/ 与 nmap-services 数据）
+        const srcRoot = path.dirname(found0);
+        fs.mkdirSync(path.dirname(dst), { recursive: true });
+        const copyAll = (src, out) => {
+          let ents = [];
+          try { ents = fs.readdirSync(src, { withFileTypes: true }); } catch { return; }
+          for (const e of ents) {
+            const s2 = path.join(src, e.name);
+            const o2 = path.join(out, e.name);
+            if (e.isDirectory()) { try { fs.mkdirSync(o2, { recursive: true }); } catch { /* 忽略 */ } copyAll(s2, o2); continue; }
+            try { fs.copyFileSync(s2, o2); } catch { /* 忽略 */ }
+          }
+        };
+        copyAll(srcRoot, path.dirname(dst));
+        fs.rmSync(tmpDir0, { recursive: true, force: true });
+        const vN = spawnSync(dst, t.ver, { encoding: "utf8", timeout: 15000 });
+        const vT = String((vN.stdout || "") + (vN.stderr || "")).split(/\r?\n/).find((l) => l.trim()) || "";
+        if (vN.status !== 0 && !vT) throw new Error(`装好了但跑不起来（退出码 ${vN.status}）`);
+        console.log(`  ✓ ${t.name.padEnd(10)} nsis       ${Math.round(size0 / 1024)}KB｜${vT.trim().slice(0, 60)}`);
+        ok += 1;
+        continue;
+      }
       if (!unzip(tmpFile0, tmpDir0)) throw new Error("解压失败");
       let picked0 = null;
       const walk0 = (d, depth) => {

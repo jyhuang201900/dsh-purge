@@ -79,8 +79,7 @@ grep -oE 'https?://[a-z0-9.-]+\.(example\.com|内网域)' runs/*.js | sort -u
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`openssl`
-- `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`openssl`
 - `openssl`：Git for Windows 的 bash 自带 openssl；或 PowerShell 证书命令（`New-SelfSignedCertificate` 等）
 
 runnability:end -->

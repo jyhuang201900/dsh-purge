@@ -685,8 +685,7 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`katana`、`whatweb`、`sqlmap`、`hydra`、`impacket`、`netexec`、`crackmapexec`、`bloodhound`、`mimikatz`、`responder`、`aircrack-ng`、`pip`
-- `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`katana`、`whatweb`、`sqlmap`、`hydra`、`impacket`、`netexec`、`crackmapexec`、`bloodhound`、`mimikatz`、`responder`、`aircrack-ng`、`pip`
 - `katana`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 - `whatweb`：Ruby gem；无 ruby 时用 `curl -I` + 人工指纹（技能里的指纹表可当字典）
 - `sqlmap`：`python -m pip install sqlmap`（本机有 python）

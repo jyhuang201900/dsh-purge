@@ -127,8 +127,7 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`fscan`、`ghidra`、`binwalk`
-- `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`fscan`、`ghidra`、`binwalk`
 - `fscan`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\fscan` 加进白名单再装
 - `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 - `binwalk`：`python -m pip install binwalk`（新版是 python 包）

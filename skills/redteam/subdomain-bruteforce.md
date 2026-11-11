@@ -116,8 +116,7 @@ wc -l runs/final.txt
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`masscan`、`pip`
-- `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`masscan`、`pip`
 - `masscan`：该仓库 release 无任何资产（只发源码）；Windows 上优先用 `naabu`
 - `pip`：用 `python -m pip` 代替裸 `pip`
 
