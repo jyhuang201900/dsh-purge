@@ -774,6 +774,19 @@ try {
     const s3 = await drill.execute({ op: "summary" });
     check("★ 计分后缺口消失、改报正常", !/计分缺口/.test(s3.text) && /计分：已确认 1 条/.test(s3.text), (s3.text.match(/计分：[^\n]*/) || [""])[0].slice(0, 110));
   }
+  // ★ entity_add vuln 要能**一次写到位**：store 的 addVuln 本来就认 status，
+  // 但 build 一直没传，于是每条漏洞只能先记成 candidate 再 update 一次改状态。
+  // 第 136 轮实测：两步漏了第二步，漏洞就永远进不了战报。
+  {
+    await drill.execute({ op: "open", name: "scopegate-vst", target: "10.0.3.0/24" });
+    await drill.execute({ op: "entity_add", entity: "asset", target: "10.0.3.5" });
+    const r1 = await drill.execute({ op: "entity_add", entity: "vuln", target: "10.0.3.5", name: "V1", kind: "high", text: "x", stage: "confirmed" });
+    check("★ entity_add vuln 一次写到位（stage=状态）", /high\/confirmed/.test(r1.text), (r1.text.split("\n")[0] || "").slice(0, 110));
+    const r2 = await drill.execute({ op: "entity_add", entity: "vuln", target: "10.0.3.5", name: "V2", kind: "high", text: "x", stage: "confirmd" });
+    check("★ 状态拼错被拦（不静默回落 candidate）", /未写入/.test(r2.text) && /confirmd/.test(r2.text), (r2.text.split("\n")[0] || "").slice(0, 120));
+    const r3 = await drill.execute({ op: "entity_add", entity: "vuln", target: "10.0.3.5", name: "V3", kind: "high", text: "x" });
+    check("★ 不给 stage 仍是 candidate（默认不变）", /high\/candidate/.test(r3.text), (r3.text.split("\n")[0] || "").slice(0, 110));
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 
