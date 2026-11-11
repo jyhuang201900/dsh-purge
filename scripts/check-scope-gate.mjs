@@ -327,6 +327,25 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
       check("（本机无 httpx，跳过认指纹断言）", true);
     }
   }
+  // ★ 管道必须从「端口」接到「漏洞」：只探到端口不算结果。
+  // ⑤ httpx 有三个必须一起做的动作（都实测踩过）：
+  //   补 scheme（裸 host:port 会把 :80 探成 https）、-ldp（否则默认端口被吃掉）、-nfs（按输入协议）。
+  // ⑥ nuclei 要喂 httpx.txt（确认存活的）且带 -duc。
+  {
+    const { reconPipeline } = await import(toUrl(path.join(root, "lib", "redteam", "pipeline.js")));
+    const s = reconPipeline({ domain: "example.com", toolkit: probeTool, platform: "win32" });
+    check("★ 管道 6 步（含认指纹与漏洞扫描）", s.length === 6, `${s.length} 步`);
+    const h5 = s.find((x) => /认指纹/.test(x.step));
+    const h6 = s.find((x) => /漏洞扫描/.test(x.step));
+    check("★ ⑤ 先补 scheme（裸 host:port 会把 :80 探成 https）", h5 && /urls\.txt/.test(h5.cmd) && /https/.test(h5.cmd) && /http/.test(h5.cmd), (h5 ? h5.cmd : "无").slice(0, 100));
+    check("★ ⑤ 带 -ldp（否则默认端口被吃掉）", h5 && /-ldp/.test(h5.cmd), (h5 ? h5.cmd : "无").slice(0, 100));
+    check("★ ⑤ 带 -nfs（按输入协议探测）", h5 && /-nfs/.test(h5.cmd), (h5 ? h5.cmd : "无").slice(0, 100));
+    check("★ ⑤ 带代理（不读系统代理会静默 0 输出）", h5 && /-http-proxy/.test(h5.cmd), (h5 ? h5.cmd : "无").slice(0, 100));
+    check("★ ⑥ 喂 httpx.txt 而不是 ports.txt", h6 && /-l runs\/httpx\.txt/.test(h6.cmd), (h6 ? h6.cmd : "无").slice(0, 100));
+    check("★ ⑥ 带 -duc", h6 && /-duc/.test(h6.cmd), (h6 ? h6.cmd : "无").slice(0, 100));
+    // PowerShell 的 $s:// 会被当成变量 $s: —— 必须用花括号包住变量名
+    check("★ ⑤ 的 PS 变量用花括号（否则被解析成变量加冒号）", h5 && !/\$s:\/\//.test(h5.cmd), (h5 ? h5.cmd.slice(0, 120) : "无"));
+  }
   // 阶段命令按阶段变
   {
     const recon = commandsForStage({ stage: "recon", target: "10.0.0.0/24" });
