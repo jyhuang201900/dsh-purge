@@ -755,6 +755,25 @@ try {
     const r1 = await drill.execute({ op: "report", kind: "score" });
     check("★ score_add 之后战报有分", /count=[1-9]/.test(r1.text) && /points=[1-9]/.test(r1.text), (r1.text.split("\n")[0] || "").slice(0, 110));
   }
+  // ★ 记账断点：记了漏洞不等于有得分。
+  // 第 135 轮实测：status 从 candidate 改成 confirmed 后战报仍 count=0，
+  // 因为 scoreReport() 读 score_hit，只有 score_add 才写那张表。没有提示的话，
+  // 人会以为「记了漏洞战报就有分」，直到交报告才发现是 0 分。
+  {
+    await drill.execute({ op: "open", name: "scopegate-gap", target: "10.0.2.0/24" });
+    await drill.execute({ op: "entity_add", entity: "asset", target: "10.0.2.5" });
+    const s0 = await drill.execute({ op: "summary" });
+    check("★ 无成果时不报计分缺口", !/计分缺口/.test(s0.text), "无漏洞");
+    await drill.execute({ op: "entity_add", entity: "vuln", target: "10.0.2.5", name: "CVE-2021-44228", kind: "critical", text: "x" });
+    const s1 = await drill.execute({ op: "summary" });
+    check("★ candidate 不算缺口（还没确认）", !/计分缺口/.test(s1.text), "candidate");
+    await drill.execute({ op: "update", entity: "vuln", row: 1, stage: "confirmed" });
+    const s2 = await drill.execute({ op: "summary" });
+    check("★ confirmed 未计分时报缺口", /计分缺口/.test(s2.text) && /score_add/.test(s2.text), (s2.text.match(/⚠ 计分缺口[^\n]*/) || [""])[0].slice(0, 120));
+    await drill.execute({ op: "score_add", point: "web-app", target: "10.0.2.5", text: "RCE" });
+    const s3 = await drill.execute({ op: "summary" });
+    check("★ 计分后缺口消失、改报正常", !/计分缺口/.test(s3.text) && /计分：已确认 1 条/.test(s3.text), (s3.text.match(/计分：[^\n]*/) || [""])[0].slice(0, 110));
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 
