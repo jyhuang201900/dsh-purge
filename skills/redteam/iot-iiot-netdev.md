@@ -123,8 +123,7 @@ hydra -L cisco_users.txt -P cisco_passes.txt TARGET telnet -t 2 -u 5
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`、`fscan`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`
 - `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
-- `fscan`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\fscan` 加进白名单再装
 
 runnability:end -->

@@ -214,8 +214,7 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`suo5`、`wget`、`nc`、`socat`
-- `suo5`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\suo5` 加进白名单再装
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`wget`、`nc`、`socat`
 - `wget`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 - `nc`：Windows 无原生 nc；用 PowerShell `TcpClient` 或 nmap 包里的 `ncat.exe`
 - `socat`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
