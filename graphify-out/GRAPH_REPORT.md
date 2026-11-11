@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `97a0df24`
+- Built from commit: `f45b0b65`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -579,7 +579,7 @@ Nodes (3): repository, type, url
   docs/preview/settings.png · relation: references
 
 ## Knowledge Gaps
-- **3 isolated node(s):** `BIN`, `RFC-3986`, `RFC-1918`
+- **3 isolated node(s):** `RFC-1918`, `BIN`, `RFC-3986`
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 741 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -587,15 +587,15 @@ Nodes (3): repository, type, url
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `README.md（中文主文档）` connect `README.md（中文主文档）` to `check-locale.mjs`, `ctf-sandbox-orchestrator（流程/编排 / flow）`, `update.js`, `skills.js`, `core.js`, `identity.js`, `client.js`, `rules.js`, `rewind.js`, `lib/index.js`, `package.json`, `net-scope.js`, `reapply.js`, `dsh-purge.js`, `restart-desktop.js`, `verify.mjs`?**
-  _High betweenness centrality (0.154) - this node is a cross-community bridge._
+  _High betweenness centrality (0.129) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `default-prompt-inject.md（当前生效的注入正文）` (e.g. with `v1.1.34-prompt-inject.md（历史版本快照）` and `defaultOverrideText()`) actually correct?**
   _`default-prompt-inject.md（当前生效的注入正文）` has 7 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `BIN`, `RFC-3986`, `RFC-1918` to the rest of the system?**
+- **What connects `RFC-1918`, `BIN`, `RFC-3986` to the rest of the system?**
   _3 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ctf-sandbox-orchestrator（流程/编排 / flow）` be split into smaller, more focused modules?**
   _Cohesion score 0.05069124423963134 - nodes in this community are weakly interconnected._
 - **Why does `release-notes.md（1.1.72 → 1.1.83 演化史）` connect `ctf-sandbox-orchestrator（流程/编排 / flow）` to `check-locale.mjs`, `update.js`, `store-core.js`, `identity.js`, `client.js`, `reapply.js`, `README.md（中文主文档）`, `模型工具契约表：lib/model-tools.js 一处定义，宿主 ctx.tools 与 MCP 共用（8 个工具）`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
+  _High betweenness centrality (0.094) - this node is a cross-community bridge._
 - **Should `desktop.js` be split into smaller, more focused modules?**
   _Cohesion score 0.05153576582148011 - nodes in this community are weakly interconnected._
 

@@ -731,8 +731,33 @@ try {
       check("★ 阶段③ 端到端：不再是「逐条过」那句通用话", !/逐条过/.test(n3), n3.slice(0, 110));
     }
   }
+  // ★ 命令里的 target 必须是**单台主机**，不能是网段。
+  // 第 134 轮实测：原来优先取「资产最多的网段」，于是命令变成
+  //   curl ... "http://10.0.0.0/24/"  —— 把网段当主机名用，那条命令必然打不出去。
+  {
+    await drill.execute({ op: "open", name: "scopegate-tgt", target: "10.0.0.0/24" });
+    await drill.execute({ op: "entity_add", entity: "asset", target: "10.0.0.5" });
+    await drill.execute({ op: "entity_add", entity: "vuln", target: "10.0.0.5", name: "CVE-2021-44228", kind: "critical", text: "fastjson" });
+    await drill.execute({ op: "update", entity: "vuln", row: 1, stage: "confirmed" });
+    const sm2 = await drill.execute({ op: "summary" });
+    check("★ 命令不用网段当主机（/24 打不出去）", !/http:\/\/\d+\.\d+\.\d+\.\d+\/\d+/.test(sm2.text), (sm2.text.match(/→ 命令：[^\n]*/) || [""])[0].slice(0, 110));
+    check("★ 命令指向真实 IP", /http:\/\/10\.0\.0\.5\//.test(sm2.text) || /-host 10\.0\.0\.5/.test(sm2.text), (sm2.text.match(/→ 命令：[^\n]*/) || [""])[0].slice(0, 110));
+  }
+  // ★ 计分与漏洞是两条账：记了漏洞不等于有得分，score_add 才产生得分。
+  {
+    await drill.execute({ op: "open", name: "scopegate-score", target: "10.0.1.0/24" });
+    await drill.execute({ op: "entity_add", entity: "asset", target: "10.0.1.5" });
+    await drill.execute({ op: "entity_add", entity: "vuln", target: "10.0.1.5", name: "CVE-2021-44228", kind: "critical", text: "x" });
+    await drill.execute({ op: "update", entity: "vuln", row: 1, stage: "confirmed" });
+    const r0 = await drill.execute({ op: "report", kind: "score" });
+    check("★ 只记漏洞不计分时战报 count=0（口径如此）", /count=0/.test(r0.text), (r0.text.split("\n")[0] || "").slice(0, 110));
+    await drill.execute({ op: "score_add", point: "web-app", target: "10.0.1.5", text: "RCE 回显 id=root" });
+    const r1 = await drill.execute({ op: "report", kind: "score" });
+    check("★ score_add 之后战报有分", /count=[1-9]/.test(r1.text) && /points=[1-9]/.test(r1.text), (r1.text.split("\n")[0] || "").slice(0, 110));
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
+
 } finally {
   if (prevHome === undefined) delete process.env.REDTEAM_HOME; else process.env.REDTEAM_HOME = prevHome;
   try { fs.rmSync(tmpHome, { recursive: true, force: true }); } catch { /* 临时目录删不掉不影响判定 */ }
