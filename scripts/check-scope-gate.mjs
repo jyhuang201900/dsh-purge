@@ -346,6 +346,26 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
     // PowerShell 的 $s:// 会被当成变量 $s: —— 必须用花括号包住变量名
     check("★ ⑤ 的 PS 变量用花括号（否则被解析成变量加冒号）", h5 && !/\$s:\/\//.test(h5.cmd), (h5 ? h5.cmd.slice(0, 120) : "无"));
   }
+  // ★ 管道产物必须能落库：runs/*.txt 只落盘不算结果（「没落库的发现等于没发生」）。
+  {
+    const { parseHttpxLine, parsePortLine, parseNucleiLine, parseArtifacts } = await import(toUrl(path.join(root, "lib", "redteam", "ingest.js")));
+    // 用真跑得到的真实行，不用编造格式
+    const h1 = parseHttpxLine("https://example.com:443 [200] [Example Domain] [Cloudflare,HTTP/3]");
+    check("★ 解析 httpx 行（端口/状态/技术栈）", h1 && h1.host === "example.com" && h1.port === 443 && h1.status === 200 && h1.tech.length === 2, JSON.stringify(h1));
+    const h2 = parseHttpxLine("http://example.com:80 [400] [400 The plain HTTP request was sent to HTTPS port] [Cloudflare]");
+    check("★ 解析 400 行也不崩", h2 && h2.port === 80 && h2.status === 400, JSON.stringify(h2));
+    check("★ 解析 naabu 行", (() => { const r = parsePortLine("example.com:8443"); return r && r.port === 8443; })(), "example.com:8443");
+    const n1 = parseNucleiLine("[CVE-2021-44228] [http] [critical] https://target/");
+    check("★ 解析 nuclei 行", n1 && n1.severity === "critical" && n1.url === "https://target/", JSON.stringify(n1));
+    check("★ banner 行跳过而不是当成漏洞", parseNucleiLine("   __  banner") === null, "banner");
+    // tech-detect 是指纹不是漏洞——落成漏洞会污染报告
+    const b = parseArtifacts({ "nuclei.txt": "[tech-detect:cloudflare] [http] [info] https://x\n[CVE-1] [http] [high] https://y" });
+    check("★ tech-detect 不算漏洞", b.vulns.length === 1 && b.vulns[0].severity === "high", JSON.stringify(b.vulns.map((v) => v.title)));
+    check("★ 跳过的行有记录（不静默丢）", b.skipped.length === 1 && /指纹/.test(b.skipped[0].why), JSON.stringify(b.skipped.map((s) => s.why)));
+    // 去重：同 host 只留一条资产
+    const d2 = parseArtifacts({ "httpx.txt": "https://a.com:443 [200] [A] [X]\nhttps://a.com:8443 [200] [A] [X]" });
+    check("★ 同 host 资产去重（端口仍分别记）", d2.assets.length === 1 && d2.ports.length === 2, `${d2.assets.length} 资产 / ${d2.ports.length} 端口`);
+  }
   // 阶段命令按阶段变
   {
     const recon = commandsForStage({ stage: "recon", target: "10.0.0.0/24" });
