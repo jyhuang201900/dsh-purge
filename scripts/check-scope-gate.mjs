@@ -939,6 +939,26 @@ try {
     const r2c = rv.find((c) => /看二进制头/.test(c.label));
     check("★ radare2 命令用 -q -c（非交互）", r2c && /-q -c/.test(r2c.cmd), r2c ? r2c.cmd.slice(0, 100) : "无");
   }
+  // ★ 写了不接等于没写：第 143 轮审阅发现三个孤儿导出（零调用）。
+  // pickSubdomainWordlist 与 writePipelineScripts 已接上，firstOutOfScope 已删。
+  {
+    const cfs2 = (await import(toUrl(path.join(root, "lib", "redteam", "cmd-route.js")))).commandsForStage;
+    const rcx = cfs2({ stage: "recon", target: "example.com" });
+    const sb = rcx.find((c) => /子域爆破/.test(c.label));
+    check("★ recon 有子域爆破这一步", !!sb, sb ? sb.label : "没有");
+    if (sb) {
+      // 技能里写的是 /usr/share/seclists/...，Windows 上必然找不到
+      check("★ 子域爆破用本机字典（不含 /usr/share）", !/usr\/share/.test(sb.cmd), sb.cmd.slice(0, 100));
+      check("★ 子域爆破指向真实字典文件", /wordlists/.test(sb.cmd) && /subdomains/i.test(sb.cmd), sb.cmd.slice(0, 120));
+    }
+    // writePipelineScripts 必须真被 summary 调用（否则脚本永远不落盘）
+    const mtSrc = fs.readFileSync(path.join(root, "lib", "model-tools.js"), "utf8");
+    check("★ summary 会落盘管道脚本", /writePipelineScripts\(/.test(mtSrc), "调用 writePipelineScripts");
+    check("★ 落盘后告诉用户脚本路径", /已写成脚本/.test(mtSrc), "提示路径");
+    // firstOutOfScope 不该复活（它零调用，留着是假象）
+    const scSrc = fs.readFileSync(path.join(root, "lib", "redteam", "scope.js"), "utf8");
+    check("★ firstOutOfScope 不再以代码形式存在", !/export function firstOutOfScope/.test(scSrc), "已删");
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 
