@@ -35,6 +35,16 @@ const INSTALLABLE = new Set([
   "strings", "nmap",
 ]);
 
+/**
+ * 装得上的工具也要留兜底：装配器有官方构建，不等于这台机器一定装得成
+ * （nmap 是 NSIS 静默装、要管理员；strings 装的是 strings64.exe）。删掉 SUBSTITUTE 里
+ * nmap/strings 两条后，替代路径会从技能上下文里消失——用这张小表把它们接回去。
+ */
+const INSTALL_HINT = {
+  nmap: "；装不上（NSIS 要管理员）时用 `naabu -scan-type c`（TCP connect）或 PowerShell `Test-NetConnection`",
+  strings: "；包内是 `strings64.exe`，也可用 PowerShell 提取可打印串",
+};
+
 /** Windows 上的等价替代：只收「本机真能用」的。没写的就是没有好替代，如实说。 */
 const SUBSTITUTE = {
   hydra: "Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环",
@@ -146,7 +156,7 @@ function render(body, text) {
       let blocked = false;
       try { blocked = fs.existsSync(dir) && !fs.existsSync(path.join(dir, m + ".exe")); } catch { blocked = false; }
       if (blocked) L.push(`- \`${m}\`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 \`${dir}\` 加进白名单再装`);
-      else if (INSTALLABLE.has(m)) L.push(`- \`${m}\`：\`npm run toolkit:windows -- --only ${m}\`（官方 Windows 构建已支持）`);
+      else if (INSTALLABLE.has(m)) L.push(`- \`${m}\`：\`npm run toolkit:windows -- --only ${m}\`（官方 Windows 构建已支持）${INSTALL_HINT[m] || ""}`);
       else if (SUBSTITUTE[m]) L.push(`- \`${m}\`：${SUBSTITUTE[m]}`);
       else L.push(`- \`${m}\`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建`);
     }

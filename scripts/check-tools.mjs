@@ -133,6 +133,29 @@ for (const b of blocks) {
 //    新面优先折进 kind/entity（如 report kind=targets 零新增参数只涨 109 字符），而不是再加 op。
 if (known.length > BUDGET.drill_ops_max) problems.push(`drill 已有 ${known.length} 种 op，超上限 ${BUDGET.drill_ops_max}：先考虑用 kind/entity 收纳，别堆 op`);
 
+// 7) toolkit 空壳：目录在、里面没有任何 exe。这不是「没装」，是**装过被删**的指纹。
+//    第 148 轮实测：suo5 目录 01:59 建立、当晚文件已被清空（腾讯电脑管家/Defender 实时防护），
+//    而所有闸门都绿——因为没人查「目录存在但为空」。两类情形处置完全不同：
+//    没装 → 直接 `npm run toolkit:windows -- --only <name>`；装过被删 → 重装会被再删一次，**必须先加白名单**。
+{
+  const tk = path.join(process.env.DSH_HOME || path.join(process.env.USERPROFILE || "", ".dsh"), "redteam", "toolkit");
+  const shells = [];
+  let installed = 0;
+  try {
+    for (const e of fs.readdirSync(tk, { withFileTypes: true })) {
+      if (!e.isDirectory()) continue;
+      let exes = 0;
+      try { exes = fs.readdirSync(path.join(tk, e.name)).filter((f) => /\.exe$/i.test(f)).length; } catch { /* 读不到按 0 算 */ }
+      if (exes) installed += 1;
+      else shells.push(e.name);
+    }
+  } catch { /* 本机没有 toolkit 目录 = 一个工具都没装，不算缺陷 */ }
+  if (shells.length) {
+    problems.push(`toolkit 空壳目录 ${shells.join("、")}：目录在但没有任何 .exe——多为安全软件静默删除（实测 20 秒内）。先把 ${tk} 加进信任区/排除项，再 npm run toolkit:windows -- --only ${shells.join(",")}；直接重装会被再删一次`);
+  }
+  notes.push(`toolkit 实况：${installed} 个目录有可执行文件${shells.length ? `，空壳 ${shells.length} 个（${shells.join("、")}）` : "，无空壳"}`);
+}
+
 if (asJson) process.stdout.write(`${JSON.stringify({ problems, notes, surface, worst }, null, 2)}\n`);
 else {
   process.stdout.write(`工具面闸门：${notes.length} 项核对，问题 ${problems.length}\n`);

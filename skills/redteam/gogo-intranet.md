@@ -233,20 +233,6 @@ redteam_vuln_add       { engagement, target, name, severity, evidence_ref }   # 
 - `vps-reverse-shell`：隧道与载荷投递
 - `web-fingerprint` / `asset-correlation`：把 gogo 的结果进一步关联成资产图谱
 
-<!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
-
-## 第二发（主力打不出去时，按这个顺序换）
-
-1. **同类替代**（链路里的互补技能，手法最接近）：`fscan-intranet`、`lateral-movement`、`netexec-scan`
-
-2. **前提没满足就先回去**：`chisel-tunnel`、`frp-tunnel`、`suo5-tunnel` —— 上一环没做实，本环再试也是空打
-
-3. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
-
-**纪律**：同一手法不许连打三次（第一次是验证、第二次换参数、第三次必须换手法）；换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
-
-second-shot:end -->
-
 
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
@@ -260,6 +246,20 @@ second-shot:end -->
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
+
+<!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
+
+## 第二发（主力打不出去时，按这个顺序换）
+
+1. **同类替代**（链路里的互补技能，手法最接近）：`fscan-intranet`、`lateral-movement`、`netexec-scan`
+
+2. **前提没满足就先回去**：`chisel-tunnel`、`frp-tunnel`、`suo5-tunnel` —— 上一环没做实，本环再试也是空打
+
+3. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
+
+**纪律**：同一手法不许连打三次（第一次是验证、第二次换参数、第三次必须换手法）；换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
+
+second-shot:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 

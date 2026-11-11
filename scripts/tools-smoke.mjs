@@ -26,10 +26,16 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const toUrl = (p) => new URL("file:///" + String(p).replace(/\\/g, "/")).href;
 const core = await import(toUrl(path.join(root, "lib", "core.js")));
 
-// 面跟着宿主走（第 148 轮）：单跑本脚本时不设 DSH_SURFACE，gatherState 取不到桌面安装的 ai_base，
-// 这一关就写成「跳过」并按通过退出——跳过等于没跑。
-const { adoptSurfaceForAiBase } = await import(toUrl(path.join(root, "lib", "surface.js")));
-adoptSurfaceForAiBase(process.env.DSH_BASE);
+const { adoptSurfaceForAiBase, findHostAiBase } = await import(toUrl(path.join(root, "lib", "surface.js")));
+// 面跟着宿主走（第 148 轮）：单跑时没有 DSH_BASE → gatherState 取不到 ai_base → 旧写法「跳过」按 exit 0 放行。
+// 跳过的意思是这一关没跑，所以现在自己解析宿主，解析不到就 exit 2，由 verify 判失败。
+const hostBase = findHostAiBase();
+if (!hostBase) {
+  console.log("工具层冒烟：未跑（本机找不到宿主 ai_base；跳过不是通过，exit 2）");
+  process.exit(2);
+}
+if (!process.env.DSH_BASE) process.env.DSH_BASE = hostBase;
+adoptSurfaceForAiBase(hostBase);
 
 const st = await core.gatherState();
 const realBase = String(st.ai_base || "");

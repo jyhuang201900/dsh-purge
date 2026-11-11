@@ -152,18 +152,6 @@ john --show hashes.txt
    `tool` 写实际命令、`result` 写回显摘要（如 `ssh 10.0.0.5 用 root/Root@123 登录成功，uid=0(root)`）。
 5. 哈希文件、破解结果一律放 `runs/`。
 
-<!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
-
-## 第二发（主力打不出去时，按这个顺序换）
-
-1. **前提没满足就先回去**：`nuclei-scan`、`database-security`、`email-security` —— 上一环没做实，本环再试也是空打
-
-2. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
-
-**纪律**：同一手法不许连打三次（第一次是验证、第二次换参数、第三次必须换手法）；换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
-
-second-shot:end -->
-
 
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
@@ -179,6 +167,18 @@ second-shot:end -->
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
+
+<!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
+
+## 第二发（主力打不出去时，按这个顺序换）
+
+1. **前提没满足就先回去**：`nuclei-scan`、`database-security`、`email-security` —— 上一环没做实，本环再试也是空打
+
+2. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
+
+**纪律**：同一手法不许连打三次（第一次是验证、第二次换参数、第三次必须换手法）；换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
+
+second-shot:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 

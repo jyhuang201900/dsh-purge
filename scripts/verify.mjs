@@ -49,6 +49,14 @@ const skipSize = argv.includes("--skip-size");
 // 而旧参数 --skip-size 其实是「除语法外全跳」，名字说一件事、做另一件 —— 保留兼容，但新用法以 --skip 为准。
 const skipSet = new Set((argv[argv.indexOf("--skip") + 1] || process.env.DSH_VERIFY_SKIP || "").split(",").map((x) => String(x).trim().toLowerCase()).filter(Boolean));
 const skip = (name) => skipSize || skipSet.has(name);
+// **「跳过」不是通过**（第 148 轮）：子进程用 exit 2 表示「这一关没跑」；禁止再出现「带病绿」。
+// 同时兜另一种形态——exit 0 但最后一行写「跳过/未跑」（历史遗留写法）。命中即判失败并返回 true。
+const gateNotRun = (status, out, name) => {
+  const last = (out[out.length - 1] || "").trim();
+  if (status === 2) { failures.push(`${name}：未跑（本机找不到宿主 ai_base；跳过不是通过）`); return true; }
+  if (status === 0 && /跳过|未跑/.test(last)) { failures.push(`${name}：未跑——${last.slice(0, 110)}`); return true; }
+  return false;
+};
 if (argv.includes("--skip") && !argv[argv.indexOf("--skip") + 1]) {
   console.log("--skip 需要名单，例如：node scripts/verify.mjs --skip write,cli（可用：size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json）");
 }
@@ -125,11 +133,12 @@ if (!skip("tools")) {
 // 关 7：端到端情景——把 drill 的 18 个 op 串成一条真实流程逐步断言回读（组合期最容易出「说谎的回读」）。
 if (!skip("scenario")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "scenario-drill.mjs")], { encoding: "utf8" });
-  const tail = (res.stdout || "").trim().split("\n").filter(Boolean).slice(-1)[0] || "";
-  if (res.status !== 0) {
+  const tail = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (gateNotRun(res.status, tail, "情景测试")) { /* 已记入 failures */ }
+  else if (res.status !== 0) {
     const bad = (res.stdout || "").split("\n").filter((l) => l.includes("✗")).slice(0, 3).join(" / ");
-    failures.push(`情景测试未过：${bad || tail || (res.stderr || "").trim().split("\n")[0]}`);
-  } else notes.push(`情景：${tail.replace(/^情景测试：/, "")}`);
+    failures.push(`情景测试未过：${bad || (tail.slice(-1)[0] || "") || (res.stderr || "").trim().split("\n")[0]}`);
+  } else notes.push(`情景：${(tail.slice(-1)[0] || "").replace(/^情景测试：/, "")}`);
 }
 
 // 关 9：弹药层一致性——技能正文引用的工具名、条令点名的技能，都必须真实存在（引用不存在的名字 = 模型照做就撞空）。
@@ -159,18 +168,22 @@ if (!skip("cli")) {
   } else notes.push((out[out.length - 1] || "").trim());
 }
 // 关 12：写路径冒烟——apply/revert 往返（此前没有任何一关执行过写路径；它也是唯一能抓到 revert 不对称的关）。
+//   exit 2 = 本机没宿主、这一关没跑；「跳过」按失败处理，不再带病绿。
 if (!skip("write")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "write-smoke.mjs")], { encoding: "utf8", timeout: 300000 });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
-  if (res.status !== 0) {
+  if (gateNotRun(res.status, out, "写路径冒烟")) { /* 已记入 failures */ }
+  else if (res.status !== 0) {
     failures.push(`写路径冒烟未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
   } else notes.push((out[out.length - 1] || "").trim());
 }
 // 关 13：工具层冒烟——真跑 purge_apply / purge_revert（mutating 的工具分支此前没有一关执行过）。
-if (!skip("tools")) {
+//   注意 skip 名是 toolsmoke：关 6 已用 "tools"，同名会让 `--skip tools` 一次关掉两关（审阅抓到的碰撞）。
+if (!skip("toolsmoke")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "tools-smoke.mjs")], { encoding: "utf8", timeout: 180000 });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
-  if (res.status !== 0) {
+  if (gateNotRun(res.status, out, "工具层冒烟")) { /* 已记入 failures */ }
+  else if (res.status !== 0) {
     failures.push(`工具层冒烟未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
   } else notes.push((out[out.length - 1] || "").trim());
 }
