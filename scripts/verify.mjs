@@ -196,5 +196,37 @@ notes.push(`JSON：${parsed}/${jsons.length} 合法`);
 
 for (const line of notes) process.stdout.write(`  ${line}\n`);
 for (const line of failures) process.stderr.write(`  ✗ ${line}\n`);
-process.stdout.write(failures.length ? `[verify] 未通过：${failures.length} 项\n` : "[verify] 全部通过 ✓\n");
+// 已知偶发标注：闸门红的时候，人第一件要判断的是「这是新问题还是老 flake」。
+// 以前这个判断全靠人肉查 docs/debt-baseline.json——连续三轮我都得手查一遍才算数。
+// 现在直接标出来：命中基线里的已知偶发项就明说，并给出「再跑一次确认」的具体命令。
+// 注意：**标注不等于放过**——退出码仍然是 1，因为偶发也可能是真问题恰好撞上，
+// 只有人能决定「再跑一次」还是「动手查」。
+// 顺序要紧：标注必须打在 `[verify] 未通过` **之前**，否则人先读到结论再看解释，
+// 中间那行"已知偶发"就容易被跳过（实测第一版就是这个顺序）。
+const knownFlakes = [];
+if (failures.length) {
+  try {
+    const debtPath = path.join(root, "docs", "debt-baseline.json");
+    const debt = JSON.parse(fs.readFileSync(debtPath, "utf8"));
+    const KNOWN = [
+      { match: /写路径冒烟未过/, key: "gate12", label: "写路径冒烟（双次 apply 幂等）" },
+    ];
+    for (const k of KNOWN) {
+      if (!failures.some((f) => k.match.test(f))) continue;
+      const d = debt[k.key] || {};
+      // redSample 形如 "1/18"：直接把分子分母算成百分比，别让人自己除
+      let rate = String(d.redSample || d.note || "");
+      const m = /^(\d+)\s*\/\s*(\d+)$/.exec(rate);
+      if (m) rate = `${rate}（≈${Math.round((Number(m[1]) / Number(m[2])) * 100)}%）`;
+      knownFlakes.push(`  ⓘ 「${k.label}」是**已知偶发**：${rate.slice(0, 130)}`);
+      knownFlakes.push(`     先复跑确认：node scripts/verify.mjs（连绿 3 次即 flake，红就动手查）`);
+    }
+  } catch { /* 基线读不到就不标，不影响退出码 */ }
+}
+for (const line of knownFlakes) process.stderr.write(`${line}\n`);
+// 失败时全部走 stderr：stdout/stderr 是两条流，合并（2>&1）后顺序由缓冲决定，
+// 实测会出现「[verify] 未通过」夹在 ✗ 与 ⓘ 之间——**结论跑到解释前面**，
+// 那行「已知偶发」就容易被跳过。同一流里顺序才是确定的。
+if (failures.length) process.stderr.write(`[verify] 未通过：${failures.length} 项\n`);
+else process.stdout.write("[verify] 全部通过 ✓\n");
 process.exit(failures.length ? 1 : 0);

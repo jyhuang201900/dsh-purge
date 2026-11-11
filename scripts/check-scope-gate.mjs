@@ -787,6 +787,38 @@ try {
     const r3 = await drill.execute({ op: "entity_add", entity: "vuln", target: "10.0.3.5", name: "V3", kind: "high", text: "x" });
     check("★ 不给 stage 仍是 candidate（默认不变）", /high\/candidate/.test(r3.text), (r3.text.split("\n")[0] || "").slice(0, 110));
   }
+  // ★ 已知偶发要能自动标出来：闸门红时人第一件要判断「新问题还是老 flake」，
+  // 以前全靠人肉查 docs/debt-baseline.json（连续三轮都手查过）。
+  // 注意：**不嵌套跑 verify**（它自己 30s+ 还带子进程，嵌套必 ETIMEDOUT），
+  // 改成逻辑级验证：用与 verify 相同的判据模拟失败集合，断言能命中并换算百分比。
+  {
+    const vSrc = fs.readFileSync(path.join(root, "scripts", "verify.mjs"), "utf8");
+    check("★ verify 会读 debt-baseline 标注已知偶发", /debt-baseline\.json/.test(vSrc) && /knownFlakes/.test(vSrc), "读基线");
+    check("★ 标注里带复跑建议", /先复跑确认/.test(vSrc), "复跑建议");
+    check("★ redSample 换算成百分比", /Math\.round\(\(Number\(m\[1\]\)/.test(vSrc), "百分比换算");
+    check("★ 失败时结论走 stderr（同流才有确定顺序）", /if \(failures\.length\) process\.stderr\.write/.test(vSrc), "stderr");
+    check("★ 标注不等于放过（退出码仍为 1）", /process\.exit\(failures\.length \? 1 : 0\)/.test(vSrc), "exit 1");
+    // 逻辑级：基线数值真能换算，且判据真能命中/不误标
+    const debt = JSON.parse(fs.readFileSync(path.join(root, "docs", "debt-baseline.json"), "utf8"));
+    const rate0 = String((debt.gate12 || {}).redSample || "");
+    const m0 = /^(\d+)\s*\/\s*(\d+)$/.exec(rate0);
+    const pct = m0 ? Math.round((Number(m0[1]) / Number(m0[2])) * 100) : -1;
+    check("★ 基线 redSample 可换算百分比", pct > 0 && pct < 100, `${rate0} → ${pct}%`);
+    const KNOWN = [{ match: /写路径冒烟未过/, key: "gate12", label: "写路径冒烟（双次 apply 幂等）" }];
+    check("★ 失败文本能命中已知偶发判据", KNOWN.some((k) => ["写路径冒烟未过：x"].some((f) => k.match.test(f))), "命中");
+    // 上面只验了判据正则本身；还要验 verify **真的用了它**——否则把那段逻辑删掉，
+    // 正则依然匹配（探针 A 实测就是这样咬不住的）。这里直接查 verify 里那段块是否可达：
+    // 要求「读基线」与「产出标注」在同一个非条件块内（不能是 if(false) 或 else 死代码）。
+    {
+      const vl = vSrc.split(/\r?\n/);
+      const ia = vl.findIndex((x) => x.includes("const knownFlakes"));
+      const ib = vl.findIndex((x, k) => k > ia && x.includes("for (const line of knownFlakes)"));
+      const body = ia >= 0 && ib > ia ? vl.slice(ia, ib).join("\n") : "";
+      const dead = /if \(true\) \{\}\s*else/.test(body) || /if \(false\)/.test(body);
+      check("★ verify 的标注块不是死代码", body.includes("debt-baseline.json") && !dead, dead ? "被改成死代码" : "可达");
+    }
+    check("★ 非该关的失败不会被误标", !KNOWN.some((k) => ["范围闸未过：x"].some((f) => k.match.test(f))), "不误标");
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 
