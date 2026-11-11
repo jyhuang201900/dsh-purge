@@ -366,6 +366,30 @@ check("三边界：全通过", checkAction({ targets: ["203.0.113.5"], technique
     const d2 = parseArtifacts({ "httpx.txt": "https://a.com:443 [200] [A] [X]\nhttps://a.com:8443 [200] [A] [X]" });
     check("★ 同 host 资产去重（端口仍分别记）", d2.assets.length === 1 && d2.ports.length === 2, `${d2.assets.length} 资产 / ${d2.ports.length} 端口`);
   }
+  // ★ 端口/指纹必须**写了能读**：第 133 轮实测，importBundle 有 ports 循环但没有查询方法，
+  //   于是 assets 只显示 example.com(unknown)，443 与 Cloudflare 已进库却看不见。
+  {
+    const { parseArtifacts, toBundle } = await import(toUrl(path.join(root, "lib", "redteam", "ingest.js")));
+    const b = parseArtifacts({ "httpx.txt": "https://example.com:443 [200] [Example Domain] [Cloudflare,HTTP/3]" });
+    const bundle = toBundle(b);
+    const one = bundle[0];
+    check("★ toBundle 带端口（否则 importBundle 的 ports 循环永远不执行）", Array.isArray(one.ports) && one.ports.length === 1 && one.ports[0].port === 443, JSON.stringify(one.ports || null));
+    // service 必须是**字符串**：传对象会在 importBundle 里报
+    // "Provided value cannot be bound to SQLite parameter 2"（实测）
+    check("★ service 是字符串不是对象", typeof one.ports?.[0]?.service === "string", typeof one.ports?.[0]?.service);
+    check("★ 指纹带 product", Array.isArray(one.ports?.[0]?.fingerprints) && one.ports[0].fingerprints.some((f) => f.product === "Cloudflare"), JSON.stringify(one.ports?.[0]?.fingerprints));
+    // 不允许出现 undefined（SQLite 绑不了）
+    const hasUndef = JSON.stringify(one).includes("undefined");
+    check("★ bundle 里没有 undefined（SQLite 绑不了）", !hasUndef, hasUndef ? "有 undefined" : "干净");
+  }
+  // ★ 写了必须能读：store 要有 listPorts，否则端口进库了却没有任何查询面
+  // （第 133 轮实测：importBundle 有 ports 循环但无查询方法，assets 只显示 example.com(unknown)）
+  {
+    const { RedteamStore } = await import(toUrl(path.join(root, "lib", "redteam", "store-core.js")));
+    check("★ store 有 listPorts（端口写了能读）", typeof RedteamStore.prototype.listPorts === "function", typeof RedteamStore.prototype.listPorts);
+    const src = fs.readFileSync(path.join(root, "lib", "redteam", "store-core.js"), "utf8");
+    check("★ listPorts 真的查 port 表", /FROM port p JOIN asset a/.test(src), "查 port 表");
+  }
   // 阶段命令按阶段变
   {
     const recon = commandsForStage({ stage: "recon", target: "10.0.0.0/24" });
