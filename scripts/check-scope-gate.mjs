@@ -819,6 +819,17 @@ try {
     }
     check("★ 非该关的失败不会被误标", !KNOWN.some((k) => ["范围闸未过：x"].some((f) => k.match.test(f))), "不误标");
   }
+  // ★ 工具名检测不能只认「单独出现」：技能里最常见的是**路径形态**
+  //   `$TK/suo5/suo5-linux-amd64`、`C:\\...\\toolkit\\suo5\\suo5.exe`、`./suo5`，
+  // 第 138 轮实测旧正则把三种全漏了：`suo5-tunnel` 正文出现 suo5 16 次，
+  // 却只报「本机缺 nmap」——真正要用的主工具一个字没提。
+  {
+    const rSrc = fs.readFileSync(path.join(root, "scripts", "inject-runnability.mjs"), "utf8");
+    check("★ 工具名判据用 toolRe（不是内联旧正则）", /const toolRe = /.test(rSrc) && /toolRe\(t\)\.test\(scope\)/.test(rSrc), "toolRe");
+    check("★ 判据覆盖路径分隔符", /=\/\\\\/.test(rSrc) || /:\/\\\\/.test(rSrc), "含 / 与 \\");
+    // 判据要查**全文**而不是只查代码块：ida-reverse 把 radare2 写在表格里
+    check("★ 判据查全文（表格里写的也算）", rSrc.includes("const scope =") && rSrc.includes("body}") && rSrc.includes("text || \"\""), "scope=body+text");
+  }
 } catch (e) {
   check("端到端执行", false, String((e && e.message) || e).slice(0, 100));
 

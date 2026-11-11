@@ -179,10 +179,13 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`、`hashcat`、`john`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`、`hashcat`、`john`、`netexec`、`fscan`、`suo5`
 - `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
 - `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
 - `john`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `fscan`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\fscan` 加进白名单再装
+- `suo5`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\suo5` 加进白名单再装
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

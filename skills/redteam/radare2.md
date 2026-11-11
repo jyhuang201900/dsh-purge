@@ -452,8 +452,10 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`radare2`、`r2`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`radare2`、`r2`、`strings`
+- `frida`：`python -m pip install frida-tools`
 - `radare2`：`npm run toolkit:windows -- --only radare2`（官方 Windows 构建已支持）
 - `r2`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `strings`：Windows 无 strings；用 Sysinternals `strings.exe`，或 PowerShell 提取可打印串
 
 runnability:end -->

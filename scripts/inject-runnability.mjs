@@ -88,12 +88,35 @@ const TOOLS = [
   "curl", "wget", "nc", "ncat", "socat", "openssl", "python", "python3", "pip", "pip3", "node", "go",
 ];
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/**
+ * 工具名在正文里的出现判据。
+ *
+ * 第 138 轮实测的漏检：旧正则 `(?:^|[\s|&;($`])name(?=[\s|&;)$`\\]|$)` 要求工具名
+ * **前后都是空白或特定分隔符**，于是三种最常见的真实写法全被漏掉：
+ *   `$TK/suo5/suo5-linux-amd64`、`C:\...\toolkit\suo5\suo5.exe`、`./suo5`
+ * ——它们的前导字符是 `/`、`\`、`.`，都不在字符集里。
+ * 后果：`suo5-tunnel` 正文里 `suo5` 出现 16 次，却只报「本机缺 nmap」，
+ * **真正要用的主工具一个字都没提**。这正是「本机可执行性」块最该说清的事。
+ *
+ * 改成两侧都接受路径分隔符与常见前缀字符；同时要求右侧不是「单词延续」，
+ * 免得 `suo5x`、`suo5_helper` 这类同前缀名字被误判成工具本身。
+ */
+const toolRe = (t) => new RegExp(
+  "(?:^|[\\s|&;($`'\"=:/\\\\])" + esc(t) + "(?=$|[\\s|&;)$`'\"<>:,\\\\/]|\\.exe\\b|\\.md\\b|-[a-z])",
+  "m",
+);
+
 const LINUX_MARKS = [/\bsudo\b/, /\bapt(-get)?\s+(install|update|upgrade)\b/, /\bsystemctl\b/, /\/usr\/bin\//, /\/usr\/share\//, /\bchmod\s+\+x\b/, /\bcat\s+\/etc\//, /~(?:^|\/|\s)/, /\.\/\w+\.(sh|py)\b/];
 
 /** 渲染该技能的「本机可执行性」块；没问题时返回 ""（不硬塞空块） */
 function render(body, text) {
-  const missing = TOOLS.filter((t) => new RegExp("(?:^|[\\s|&;($`])" + esc(t) + "(?=[\\s|&;)$`\\\\]|$)", "m").test(body) && !has(t));
-  const marks = LINUX_MARKS.filter((re) => re.test(body)).length;
+  // 判据用**全文**而不是只查代码块：
+  // 第 138 轮实测，`ida-reverse` 把 `radare2` 写在表格与「上游备选」里（`| radare2 | ❌ 未装 |`），
+  // 代码块里没有，于是只查 body 就判成「无需该块」——而技能正文明确告诉读者要用它。
+  // 正文提到的工具同样是「要用的工具」，漏掉它等于把坑留给读者。
+  const scope = `${body}\n${text || ""}`;
+  const missing = TOOLS.filter((t) => toolRe(t).test(scope) && !has(t));
+  const marks = LINUX_MARKS.filter((re) => re.test(scope)).length;
   if (!missing.length && !marks) return "";
   const L = [START + " scripts/inject-runnability.mjs 生成，勿手改 -->", "", "## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）"];
   if (missing.length) {

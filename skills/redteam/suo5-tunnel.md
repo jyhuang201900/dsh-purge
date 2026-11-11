@@ -76,7 +76,11 @@ curl -s --socks5 127.0.0.1:1080 "http://10.0.0.8:8080/api/user/1" -H "Cookie: JS
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`fscan`、`gogo`、`suo5`、`chisel`
 - `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
+- `fscan`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\fscan` 加进白名单再装
+- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `suo5`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\suo5` 加进白名单再装
+- `chisel`：**装过但文件已被删除**（多为腾讯电脑管家/Defender 实时防护）——重装会被再删一次，先把 `C:\Users\Administrator\.dsh\redteam\toolkit\chisel` 加进白名单再装
 
 runnability:end -->

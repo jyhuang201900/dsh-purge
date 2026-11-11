@@ -685,11 +685,20 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`whatweb`、`sqlmap`、`hydra`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nmap`、`katana`、`whatweb`、`sqlmap`、`hydra`、`impacket`、`netexec`、`crackmapexec`、`bloodhound`、`mimikatz`、`responder`、`aircrack-ng`、`pip`
 - `nmap`：本机无 nmap；用 `naabu -scan-type c`（已装，TCP connect）或 PowerShell `Test-NetConnection`
+- `katana`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
 - `whatweb`：Ruby gem；无 ruby 时用 `curl -I` + 人工指纹（技能里的指纹表可当字典）
 - `sqlmap`：`python -m pip install sqlmap`（本机有 python）
 - `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
+- `impacket`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `crackmapexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `bloodhound`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `mimikatz`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `responder`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `aircrack-ng`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `pip`：用 `python -m pip` 代替裸 `pip`
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

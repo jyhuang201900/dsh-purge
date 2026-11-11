@@ -455,9 +455,11 @@ def edit(idx, data):
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`radare2`、`readelf`、`binwalk`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`radare2`、`readelf`、`strings`、`binwalk`、`nc`
 - `radare2`：`npm run toolkit:windows -- --only radare2`（官方 Windows 构建已支持）
 - `readelf`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `strings`：Windows 无 strings；用 Sysinternals `strings.exe`，或 PowerShell 提取可打印串
 - `binwalk`：`python -m pip install binwalk`（新版是 python 包）
+- `nc`：Windows 无原生 nc；用 PowerShell `TcpClient` 或 nmap 包里的 `ncat.exe`
 
 runnability:end -->

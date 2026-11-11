@@ -161,6 +161,9 @@ second-shot:end -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`pip`
+- `pip`：用 `python -m pip` 代替裸 `pip`
+
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
