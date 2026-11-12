@@ -18,6 +18,8 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（116 
 - 加/改技能后**必须** `node scripts/build-skills.mjs`（标题规范化 → 可执行性 → 第二发 → 链路）。第二发/可执行性/链路三块是生成物，手写会被 verify 判红。
 - 雷达 `FINGERPRINT_RULES` 的 **code 不唯一**（国产 OA 与通用 Web 都是 `web-app`），所以**任何 `find(r => r.code === code)` 反查都是错的**——永远拿到排在前面的那条。技能名要存在实际命中的样本上。`check-package` 第 16 项守这条。
 - 技能数由 check-package 对账，改数必须同步 package.json + 3 份 README。
+- **`purge_skills q=`**：技能检索（1.1.91）。索引 `lib/generated/skills-search.json` 由 build-skill-graph 生成，改技能后自动跟上。排序规则见 test-oa 教训：名字压过正文提及、英文词边界、两字母缩写不做子串、层级折进分值、同义词只在查询侧展开。
+- **任何「只在相等时生效」的 tie-break 都要怀疑永远不触发**（1.1.91 实测：rank 做 tie-break 一次也没生效）。
 
 ## 关键机制
 - 0.2.1-rc.2 起提示词变量只注册 provider/model，**段文本含 `{{cwd}}` 会组装期 throw**。
