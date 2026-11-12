@@ -138,6 +138,20 @@ const main = async () => {
   await run("update asset 合法评估", { op: "update", entity: "asset", target: "203.0.113.20", kind: "high", value: "还有 445" }, has("priority=high"), has("潜在面=还有 445"));
   await run("update asset 测试回写", { op: "update", entity: "asset", target: "203.0.113.20", stage: "tested", text: "跑完 spray" }, has("已回写测试"), has("test_status=tested"));
 
+  // 10h) 计分机会雷达：把「库里已有什么」翻成「值多少分、差哪一步」。
+  //      先落两条凭据——雷达的核心映射就是「凭据 → 得分点」，没有凭据它只会报「差一步」，
+  //      验不到「分已经在口袋里」这条最贵的能力。
+  await run("entity_add credential web", { op: "entity_add", entity: "credential", target: "203.0.113.30:8080", name: "admin", kind: "password", text: "P@ssw0rd" }, has("已写入"));
+  await run("entity_add credential db", { op: "entity_add", entity: "credential", target: "203.0.113.31:3306", name: "root", kind: "password", text: "" }, has("已写入"));
+  //      断言四件事：① 已记的 terminal-access 必须在「已记分」；② 凭据要变成「可拿未拿」；
+  //      ③ 必须给可直接复制的 op=score_add 指令（只报分数不给动作等于把判断推回给模型）；
+  //      ④ 必须有「差一步」（有资产/漏洞却没对应得分点时）。
+  await run("radar 计分机会", { op: "radar" },
+    has("得分机会雷达"), has("已记分"), has("terminal-access"), has("可拿未拿"), has("web-app"),
+    has("建议先打"), has("op=score_add point="), has("差一步"));
+  // 一行版必须内嵌进缺省 summary（只放 op=radar 里等于「有机会但没人看」）
+  await run("summary 内嵌雷达", { op: "summary" }, has("计分机会："));
+
   // 11) 汇总口径要与逐步回读一致（跨 op 的同一事实不许两个数）
   // 跨 op 一致性：同一个事实（记了 1 步链）在 chain / report / summary 三处必须是同一个数。
   const sum = await run("summary 复核", { op: "summary" }, has("靶标 1 个｜当前=示例靶"), has("chainSteps=1"));

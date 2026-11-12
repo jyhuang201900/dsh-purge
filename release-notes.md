@@ -1,3 +1,31 @@
+# 1.1.87
+
+## 中文
+
+这一版只做一件事：**给 25 条得分点补上「规划」这一段**。
+
+此前这条链上只有两段——`addScoreHit` 校验分值/证据/封顶，`scoreReport` 汇总战报，中间是空的。后果很具体：库里躺着 3 条 Web 后台凭据，`op=scores` 只列出 25 条规则名，模型看不出「这 3 条已经值 300 分」，于是继续去挖新洞；反过来也有把 500 分的集权系统按 10 分/台记的错档。
+
+- **新增 `purge_drill op=radar`（第 18 个 op）：计分机会雷达。** 把事实库现状翻成三档——**已记分**（来自 `scoreChain`，带上限占用）、**可拿未拿**（证据已在库里、只差点一次记分）、**差一步**（有前置、缺一个动作），并按 `预期分 ÷ 成本` 排序给 Top 3。每条「可拿未拿」后面直接跟一行可复制的 `op=score_add point=… value=…`——只报分数不给动作，等于把最该帮模型判断的那一步又推回给它。
+- **指纹只说明「看到了」，凭据/会话才说明「控住了」。** 这条区分是雷达诚实的底线：扫到一个 8080 就报「分已到手」，会让模型停止进攻。所以只有「指纹命中的主机 ∧ 该主机上已有凭据/访问/webshell」才进「可拿未拿」，纯指纹的进「差一步」并点名具体目标（「已经看到 10.0.0.5:8080 是堡垒机，去打这一台」）。
+- **端口级首个命中即止，修掉一处分值虚高。** 一台 Jumpserver 的 8080 同时满足集权/安全设备/Web 三条正则，全收会把一台机器算成三份分。同时删掉 `secdev` 正则里的「堡垒」——堡垒机是集权系统（500 分）不是安全设备（200 分），实测同一台机器被报成 `central-system + secdev + web-app`，虚高 700 分。规则表按「越具体、分值越高越靠前」排序，首个命中即该类系统，这正是得分规则里「先判是否有更贴切类别，没有才归入 Web 应用」的实现。
+- **缺省 `op=summary` 内嵌一行「计分机会：…（详见 op=radar）」。** 只把雷达放在 `op=radar` 里等于「有机会但没人看」——和「存了不读等于没存」是同一条。`summary` 是缺省 op，模型每次开局都会看到这一行。
+- **雷达自己不许报错。** 每个集合单独 `try`，任何一条判据失败只让该段缺失，不阻断整张雷达：雷达报错比没有雷达更糟，模型会以为「没机会」。
+- **情景测试 41 → 45 步**，新增两条凭据写入与 radar / summary 断言（含「必须给可复制的 `op=score_add`」）；`check-package` 当场抓到 README 里 `17 op` / `41 步` 的计数漂移并已同步为 `18 op` / `45 步`——闸门抓到文档漂移，正是它存在的理由。
+
+## English
+
+One change this release: **the 25 score points were missing their "planning" stage.**
+
+The chain had two ends - `addScoreHit` validating value/evidence/caps, and `scoreReport` totalling the deliverable - with nothing in between. The consequence was concrete: with three web-admin credentials sitting in the store, `op=scores` printed only 25 rule names, so the model could not see that those three were already worth 300 points and kept hunting for new holes. The mirror-image error also happened: a 500-point centralised system recorded at the 10-points-per-device rate.
+
+- **New `purge_drill op=radar` (18th op): the scoring-opportunity radar.** It turns current store state into three tiers - **already scored** (from `scoreChain`, with cap usage), **claimable but unrecorded** (evidence is already in the store, only the recording step is missing), and **one step away** (prerequisite present, one action missing) - ranked by `expected points / cost`, top 3. Every "claimable" line is followed by a copy-pasteable `op=score_add point=… value=…`; reporting points without an action hands the single most useful judgement back to the model.
+- **A fingerprint says "seen"; a credential or session says "controlled".** That distinction is the radar's honesty floor: calling an open 8080 "points in hand" would make the model stop attacking. Only "fingerprint host AND that host already has a credential/access/webshell" counts as claimable; fingerprint-only goes to "one step away" and names the target ("10.0.0.5:8080 is a jump server - go take that one").
+- **First match wins, per port - fixing an inflated score.** One Jumpserver's 8080 satisfied the centralised, security-appliance and web regexes at once, counting one machine as three. Also removed "堡垒" from the `secdev` regex: a jump server is a centralised system (500), not a security appliance (200) - measured, one host was reported as `central-system + secdev + web-app`, inflating by 700. Rules are ordered most-specific-and-highest-value first, first match wins, which is exactly the scoring rule's "judge for a more precise category first, fall back to web app only if none fits".
+- **Default `op=summary` now embeds one line: "scoring opportunities: … (see op=radar)".** Leaving the radar only in `op=radar` means "opportunity exists but nobody looks" - the same failure as "stored but never read". `summary` is the default op, so the model sees this line at the start of every session.
+- **The radar itself must never throw.** Each collection is read in its own `try`; a failing rule drops only its own section. A radar that errors is worse than no radar: the model reads it as "no opportunities".
+- **Scenario test 41 → 45 steps**, adding two credential writes plus radar/summary assertions (including "must emit a copy-pasteable `op=score_add`"). `check-package` immediately caught the `17 op` / `41 步` drift in the READMEs and both are now `18 op` / `45 步` - the gate catching documentation drift is the whole reason it exists.
+
 # 1.1.86
 
 ## 中文

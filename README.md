@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.1.86</strong></p>
+<p align="center"><strong>Version 1.1.87</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 114 个演练技能（32 个进攻流程 + 16 个逆向与专项纵深）。</em>
@@ -133,7 +133,7 @@ dsh plugin --profile desktop add https://github.com/jyhuang201900/dsh-purge/arch
 插件市场里按 npm 包名搜会 404（npm 上没有这个包），用上面的 GitHub 归档命令。桌面客户端也可以点按钮（`dsh://` 唤起，下载地址已是 GitHub）：
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.86&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>唤起客户端一键安装</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.87&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>唤起客户端一键安装</strong></a>
 </p>
 
 ### 装完都要做这三步
@@ -450,7 +450,7 @@ npm run verify
 | 规则集 | `/rules` | `GET /rules` | `purge_rules` | 独立顶层命令 |
 | 技能 | `/skills` | `GET /skills` + `/skill` | `purge_skills` | 同上 |
 | 补丁明细 | `/purge status`（含逐条） | 面板展示 | `purge_patch` | 单一来源：都读 `patchTally()` |
-| 演练台 | —（预设面有 56 个 `redteam_*`） | `GET /drill-grant` | `purge_drill`（17 op） | 模型面主打；命令面不做，避免第二套话术 |
+| 演练台 | —（预设面有 56 个 `redteam_*`） | `GET /drill-grant` | `purge_drill`（18 op） | 模型面主打；命令面不做，避免第二套话术 |
 | 会话回退 | `/rewind` | `GET /rewind` + `/rewind/options` | — | 会话动作，模型自己 rewind 有风险 |
 | MCP 通路 | — | `POST /mcp` | 与 `ctx.tools` 同一张表 | 传输层，不是能力 |
 
@@ -617,7 +617,7 @@ flowchart LR
 
 purge 给模型的入口有三条，共用同一张契约表（`lib/model-tools.js`，10 个工具：status / align / apply / revert / patch / update / rules / skills / override / drill）：
 
-**能力账（只放机器算得出的数，全部由 `check-package` 第 21 项对账）**：10 个工具、`purge_drill` 17 op、22 个实体（读 10 + 写 12）、端到端情景 41 步、九道闸门。写方法覆盖 27/31（87%），剩下 4 个（`close`、`seedStages`、`seedScorePoints`、`writePromptManifest`）是有意豁免——理由见上面三面矩阵与 release-notes，不是没查。
+**能力账（只放机器算得出的数，全部由 `check-package` 第 21 项对账）**：10 个工具、`purge_drill` 18 op、22 个实体（读 10 + 写 12）、端到端情景 45 步、九道闸门。写方法覆盖 27/31（87%），剩下 4 个（`close`、`seedStages`、`seedScorePoints`、`writePromptManifest`）是有意豁免——理由见上面三面矩阵与 release-notes，不是没查。
 
 1. **dsh 会话内**：插件激活时直接 `ctx.tools.register`，模型看到 `purge_*`。
 2. **MCP over stdio**：`node bin/dsh-purge.js --mcp`，任何 MCP 客户端可连，不需要 dsh 在跑。
