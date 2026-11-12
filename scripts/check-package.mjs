@@ -521,6 +521,41 @@ const lost = WANT_TAGS.filter((k) => !kw.includes(k));
 if (lost.length) problems.push(`keywords 丢了生态主流 tag：${lost.join(", ")}（目录站在用，且 purge 确实具备）`);
 notes.push(`生态 tag ${WANT_TAGS.length - lost.length}/${WANT_TAGS.length} 在位`);
 
+// 13) 判据自测：hostPromptKeepsInject 决定「reapply 算不算成功」和「看门脚本允不允许拉起宿主」，
+//     它 2026-11-12 在 0.2.2-rc.1 上恒 false（判据要一条没有任何补丁写的标记），reapply 因此永远报
+//     「清洗没有完成」、换装后看门脚本会拒绝启动。这里钉住三种形态的结论，防止再退回「拿原厂特征当脏」。
+try {
+  const hostCleanUrl = "file:///" + path.join(root, "lib", "host-clean.js").replace(/\\/g, "/");
+  const { hostPromptKeepsInject, hostCleanFnSource } = await import(hostCleanUrl);
+  const stockBody = [
+    'import x from "./foo";',
+    "// system-prompt/assemble",
+    'if (config.includeHarnessIdentity ?? true) text: "You are an AI agent powered by DeepSeek Harness."',
+    "sections: completeSection === void 0 ? transformed.sections : [completeSection],",
+  ].join("\n");
+  const washedBody = stockBody
+    .replace('text: "You are an AI agent powered by DeepSeek Harness."', 'text: "" // [dsh-purge] identity stripped');
+  const cases = [
+    ["实机已洗（有 identity stripped 标记、无 keeps 标记、含原厂 drops 行）", washedBody, true],
+    ["原厂未洗", stockBody, false],
+    ["空文件", "", false],
+  ];
+  for (const [label, body, want] of cases) {
+    const got = hostPromptKeepsInject(body);
+    if (got !== want) problems.push(`清洗判据自测失败：${label} 期望 ${want} 实得 ${got}`);
+  }
+  // 看门脚本内嵌的那份必须是同一份判据（单一来源）。桌面面没有 JScript 运行时就没法在这里跑，
+  // 只能钉住「生成源码里出现三条关键判据」，防止有人把它手改成另一套。
+  const src = hostCleanFnSource();
+  for (const needle of ["[dsh-purge] identity stripped", "system-prompt/assemble", "You are an AI agent powered by DeepSeek Harness."]) {
+    if (!src.includes(needle)) problems.push(`看门脚本判据缺关键判据片段：${needle}`);
+  }
+  if (/transformed\.sections : \[completeSection\]/.test(src)) problems.push("看门脚本判据又把原厂 drops 行当脏判据了（0.2.2-rc.1 恒 false）");
+  notes.push("清洗判据自测（3 形态 + 看门脚本同源）✓");
+} catch (e) {
+  problems.push(`清洗判据自测跑不起来：${String((e && e.message) || e).slice(0, 80)}`);
+}
+
 if (asJson) process.stdout.write(`${JSON.stringify({ real: REAL, claims, problems, notes }, null, 2)}\n`);
 else {
   process.stdout.write(`包自证：实况 补丁 ${REAL.patches} 条 / 技能 ${REAL.skills} 个｜绿项 ${notes.length} 条（条数随实况增减，不是固定项数），问题 ${problems.length}\n`);
