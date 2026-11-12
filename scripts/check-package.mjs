@@ -154,7 +154,23 @@ else notes.push(`适配记录在位（${wantDoc}）`);
 // 18) 平面能力数基线：预设面注册数、得分点数、targetFiles 键数。
 //     这三个数散在文档里（如「把 56 个 redteam_* 聚成 1 个 purge_drill」），钉在这儿：上游或我们改了，
 //     就得同时改基线与文档，而不是让文档静默说谎 —— 本轮正是发现 files 描述写 26 条而实际 56。
-const PLANE_BASELINE = { redteamTools: 56, scorePoints: 25, targetFileKeys: 56 };
+const PLANE_BASELINE = { redteamTools: 56, scorePoints: 25, targetFileKeys: 57 };
+// **只比数字会让「少一个 A、多一个 B」静默通过** —— 第 153 轮就栽在这：数字从 56 变 57，
+// 没人知道进出的是哪个键，只能靠人工 dump 名单去猜。数字之外再钉名单，对不上就点名。
+const TARGETFILE_KEYS_BASELINE = [
+  "agent-instructions", "agent-loop", "agent-preset", "api-session-controller", "app-boot",
+  "auto-review", "base", "base-package", "compaction-tool-result-pruner", "conversation-client",
+  "deliverables-prompt", "desktop-shell", "dsh-tool-executor-ptc", "dsh-tools",
+  "dsh-tools-pipeline", "dsh-tools-ptc", "dsh-tools-types", "escalation", "fs-observation-policy",
+  "fs-sandbox", "headless", "llm-deepseek", "permission-presets", "permission-presets-types",
+  "persona", "pi-ai-anthropic-messages", "pi-ai-completions", "pi-ai-responses-shared",
+  "preset-acp-app", "preset-cordis", "preset-minimal", "preset-ptc", "preset-sdk-app",
+  "preset-sdk-minimal", "preset-standard", "repeat-tool-reminder", "sandbox-local",
+  "sandbox-policy", "session", "session-format-v0", "session-log-deepseek",
+  "session-log-deepseek-types", "session-reference", "settings", "subagent", "subagent-types",
+  "system-prompt", "tool-bash", "tool-fs", "tool-pwsh", "tool-subagent", "tool-todo", "tool-web",
+  "user-approval", "user-approval-code", "web-app", "web-app-lib",
+];
 const toolsSrc = fs.readFileSync(path.join(root, "lib", "redteam", "tools.js"), "utf8");
 const regCount = (toolsSrc.match(/tools\.register\(/g) || []).length;
 if (regCount !== PLANE_BASELINE.redteamTools) problems.push(`redteam_* 注册 ${regCount} 处，基线 ${PLANE_BASELINE.redteamTools}：预设面能力数变了要同步文档与语义层的说法`);
@@ -227,10 +243,17 @@ if (hostPresent && !process.env.DSH_SURFACE) {
     problems.push(`读不到 lib/surface.js 的面判定：${String(e && e.message || e).slice(0, 90)}（导入失败只会退化成「映射 52 键，基线 56」的误导）`);
   }
 }
-const fileKeys = (() => { if (!hostPresent) return -2; try { return Object.keys(targetFiles(process.env.DSH_BASE) || {}).length; } catch { return -1; } })();
-if (fileKeys === -2) notes.push("映射基线：本机未装宿主（DSH_BASE 不存在），跳过对账而非判红");
-else if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对账）");
-else if (fileKeys !== PLANE_BASELINE.targetFileKeys) problems.push(`targetFiles ${fileKeys} 个键，基线 ${PLANE_BASELINE.targetFileKeys}：文件映射增减要同步状态文案`);
+const fileKeyList = (() => { if (!hostPresent) return -2; try { return Object.keys(targetFiles(process.env.DSH_BASE) || {}).sort(); } catch { return -1; } })();
+if (fileKeyList === -2) notes.push("映射基线：本机未装宿主（DSH_BASE 不存在），跳过对账而非判红");
+else if (fileKeyList < 0) problems.push("targetFiles 调用失败（基线无从对账）");
+else {
+  const added = fileKeyList.filter((k) => !TARGETFILE_KEYS_BASELINE.includes(k));
+  const removed = TARGETFILE_KEYS_BASELINE.filter((k) => !fileKeyList.includes(k));
+  if (added.length) problems.push(`targetFiles 多出键：${added.join(", ")}：新登记的文件映射要同步 TARGETFILE_KEYS_BASELINE 与文档`);
+  if (removed.length) problems.push(`targetFiles 少了键：${removed.join(", ")}：宿主构建换了文件名/包，改映射或改基线，别让补丁静默落空`);
+  if (fileKeyList.length !== PLANE_BASELINE.targetFileKeys) problems.push(`targetFiles ${fileKeyList.length} 个键，基线 ${PLANE_BASELINE.targetFileKeys}：文件映射增减要同步状态文案`);
+}
+const fileKeys = Array.isArray(fileKeyList) ? fileKeyList.length : fileKeyList;
 notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 ${fileKeys === -2 ? "跳过" : fileKeys}（与文档一致）`);
 
 // 19b) 运行时实效（只报不判红）：Electron 优先加载 `resources/app.asar`，而补丁写在解开目录
