@@ -191,16 +191,24 @@ for (const b of blocks) {
     const noKeys = idx.skills.filter((s) => !Array.isArray(s.keys) || !s.keys.length).map((s) => s.id);
     if (missing.length) problems.push(`检索索引漏了 ${missing.length} 个技能：${missing.slice(0, 5).join(", ")}`);
     if (noKeys.length) problems.push(`检索索引里 ${noKeys.length} 个技能零关键词（存在但找不到）：${noKeys.slice(0, 5).join(", ")}`);
-    // ② 典型查询（三类：端口词 / 产品名 / 技能名），每条都要求预期技能出现在结果里
+    // ② 典型查询（四类：端口词 / 产品名 / 技能名 / 症状），每条都要求预期技能在**首位**。
+    //    为什么卡首位而不是「出现在结果里」：症状查询「拿不到 shell」曾把 edr-bypass-re 排第一、
+    //    shell-handler 排第三——四个候选都是反含 shell、同分，最后靠字母序定序，纯属巧合。
+    //    「结果里有」这种断言抓不到排序退化，只有卡首位能。
     const CASES = [
       { q: "ollama", want: "ai-infra-attack" },
       { q: "泛微", want: "cn-oa-exploit" },
       { q: "webshell", want: "webshell-toolkit" },
-      { q: "域控", want: "windows-ad" },
+      { q: "域控", want: "lateral-movement" },
+      { q: "拿不到 shell", want: "shell-handler" },
+      { q: "子域", want: "subdomain-bruteforce" },
     ];
     for (const c of CASES) {
       const r = await skillTool.execute({ q: c.q });
-      if (!String(r.text || "").includes(c.want)) problems.push(`检索自测：q=${c.q} 未命中 ${c.want}（检索退化成找不到）`);
+      const first = String(r.text || "").split("\n").find((l) => l.includes("· ")) || "";
+      if (!first.includes(c.want)) {
+        problems.push(`检索自测：q=${c.q} 首位应是 ${c.want}，实得「${first.trim().slice(0, 46) || "空"}」`);
+      }
     }
     // ③ 空结果必须给方向，不许空转
     const none = await skillTool.execute({ q: "zzzz不存在的词" });

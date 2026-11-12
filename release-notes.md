@@ -1,3 +1,35 @@
+# 1.1.92
+
+## 中文
+
+这一版修 1.1.91 的**排序退化**——装上宿主后才暴露，本地测试没抓到。
+
+- **症状**：宿主重启后实测 `purge_skills q=拿不到 shell` 返回 `edr-bypass-re` 第一，而 `shell-handler` 排第三。
+- **根因**：「拿不到 shell」里的 `shell` 与四个候选技能的 key 都是**反含命中**（查询里包含 key），全部 15 分。同分之后靠字母序定序，`edr-bypass-re` 的 `e` 排最前——**纯属巧合，不是它最相关**。缺陷在于反含这条路径没有区分度：症状式提问几乎全靠它，而它给出的是随机顺序。
+- **修法两处**：
+  - 反含分值按 key 长度递增（3 字 +2 / 4-5 字 +5 / 6+ 字 +8）：`shell` 比 `sh` 更具体，就该更高。
+  - **技能名含该词时 +10**（拆词判，且只认 `-` 分隔的整段）。名字叫 `shell-handler` 比描述里提一句 shell 更像答案。
+- **两处都是被反弹回来的**：
+  - 名字加成第一版用 `id.includes(w)`，结果 `subdomain-bruteforce` 因含 `domain` 被加权，「域控」又被它顶到第一。改成只认词级整段（`nameSegs.includes(w)`）。
+  - 名字加成第二版对 `competition-*` 也生效，于是 `competition-kerberos-delegation` 靠名字拼接天然命中，把 `windows-ad` 压到第三。专项已经靠 rank −6 让位一次，再加一次等于把「先给主干」的意图彻底抵消——改为专项不吃这条加成。
+- **闸门升级**：`check-tools` 的检索自测从「结果里出现预期技能」改为**卡首位**，并把用例从 4 条增到 6 条（加 `拿不到 shell`、`子域`）。「结果里有」这种断言抓不到排序退化——`shell-handler` 一直在结果里，只是排第三。
+- 实测最终 13 条查询：`拿不到 shell`→`shell-handler`、`webshell`→`webshell-toolkit`、`域控`→`lateral-movement`（`windows-ad` 第二）、`横向移动`→`lateral-movement`、`ollama`→`ai-infra-attack`、`泛微`→`cn-oa-exploit`、`子域`→`subdomain-bruteforce`、`kerberos`→`lateral-movement`（专项第三）。
+
+## English
+
+This fixes a **ranking regression in 1.1.91** that only showed up on the host - local tests missed it.
+
+- **Symptom**: after restarting the host, `purge_skills q=拿不到 shell` returned `edr-bypass-re` first and `shell-handler` third.
+- **Cause**: the word `shell` in that query reverse-contains-matched four skills' keys, all scoring 15. Ties then fell back to alphabetical order, and `edr-bypass-re` starts with `e` - **pure coincidence, not relevance**. The defect is that the reverse-contains path has no discrimination, yet symptom-style queries rely on it almost entirely.
+- **Two fixes**:
+  - Reverse-contains score now scales with key length (3 chars +2 / 4-5 chars +5 / 6+ chars +8): `shell` is more specific than `sh` and should rank higher.
+  - **+10 when the skill name contains the word** (word-split, and only whole `-`-separated segments). A skill called `shell-handler` is more likely the answer than one that mentions shell in passing.
+- **Both fixes got bounced back once**:
+  - The first name bonus used `id.includes(w)`, so `subdomain-bruteforce` got boosted for containing `domain` and pushed itself back to the top of "域控". Narrowed to whole-segment matching (`nameSegs.includes(w)`).
+  - The second version also boosted `competition-*`, so `competition-kerberos-delegation` won on name composition alone and pushed `windows-ad` to third. Specialties already step back once via rank −6; boosting them again cancels the "trunk first" intent - specialties are now excluded from this bonus.
+- **Gate upgrade**: the `check-tools` search check went from "expected skill appears in results" to **must be first**, and from 4 cases to 6 (adding `拿不到 shell` and `子域`). "Appears in results" cannot catch ranking regressions - `shell-handler` was always in the list, just third.
+- Final measured results across 13 queries: `拿不到 shell`→`shell-handler`, `webshell`→`webshell-toolkit`, `域控`→`lateral-movement` (`windows-ad` second), `横向移动`→`lateral-movement`, `ollama`→`ai-infra-attack`, `泛微`→`cn-oa-exploit`, `子域`→`subdomain-bruteforce`, `kerberos`→`lateral-movement` (specialty third).
+
 # 1.1.91
 
 ## 中文
