@@ -2,6 +2,18 @@
 
 ## 中文
 
+- **修 `op=radar` 在空库时的误导向。** 靶标刚开、资产还没落库时，雷达原本打「先开靶标、跑一轮侦察把资产落库」——可靶标明明已经开着。模型照做就会重复建靶，或者反过来以为雷达坏了。根因是渲染层拿不到「靶标开没开」这个事实却写了它的结论。改成只讲**库的状态与下一步动作**：「库还空着：先跑一轮侦察把资产落库（技能 `recon-pipeline`；已知域名用 `fofa-recon`），落库后这里立刻能算出「可拿未拿」的分」——开没开靶都成立。
+- **加断言防回归**：情景测试新增「空库 radar 不误导向」，同时断言**必须**出现 `库还空着` / `recon-pipeline`、**不许**出现 `先开靶标`。41 → 46 步（含 1.1.87 的雷达步骤）。
+
+## English
+
+- **Fixed a misleading hint in `op=radar` when the store is empty.** With a target just opened but no assets recorded yet, the radar printed "open a target first, then run recon" - while the target was already open. A model following that would create duplicate targets, or conclude the tool was broken. The render layer had no access to whether a target exists, yet stated its conclusion; it now describes only the store's state and the next action: "the store is still empty: run one recon pass to land assets (`recon-pipeline`; `fofa-recon` for known domains) - claimable points appear immediately after." True either way.
+- **Regression guard**: the scenario suite gains "empty-store radar must not misdirect", asserting `库还空着` / `recon-pipeline` **must** appear and `先开靶标` **must not**. 41 → 46 steps (including the 1.1.87 radar steps).
+
+# 1.1.88
+
+## 中文
+
 这一版只修 1.1.87 里那副**没上膛的枪**：`lib/profile-guard.js` 的 profile 自愈。
 
 1.1.87 加它的理由是实情——宿主遇到加载不动的 profile patch（典型是引用了已卸载的插件）会把它静默重置成 `[]`，provider / UI / 预设一起没，11-12 一天发生了两次。但判据写错了：`missingPackages()` 用 `\bname:` 抓包名，而 patch 文件里的 `name:` 有两个身份——插件条目（`@deepseek-ai/…`、`dsh-super-code/super-code`）和**模型/预设显示名**（`name: DeepSeek V4.1 Flash`、`name: Super Code 模式`）。显示名被当成包名去 node_modules 里找，永远找不到，于是每一份备份都被判成「脏」，自愈恒不执行。

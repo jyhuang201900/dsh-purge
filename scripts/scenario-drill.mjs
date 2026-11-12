@@ -57,6 +57,10 @@ const main = async () => {
   const targetId = (/@(\S+?)｜/.exec(opened) || [])[1] || "";
   if (!targetId) failures.push("open：没能从输出里解析出靶标 id");
 
+  // 2b) 靶标刚开、库还空：雷达必须给**侦察落库**这一步，且**不许**说「先开靶标」——
+  //     靶标明明开着，让模型去开靶会重复建靶，或让它以为工具坏了（第 135 轮实测踩到）。
+  await run("空库 radar 不误导向", { op: "radar" }, has("库还空着"), has("recon-pipeline"), not("先开靶标"));
+
   // 3) 增：漏洞一条（entity_add 复用 target/name/kind/text）
   await run("entity_add vuln", { op: "entity_add", entity: "vuln", target: "203.0.113.11", name: "Fastjson 反序列化", kind: "high", text: "JNDI 回显" },
     has("已写入"), has("现共 1 条"), has("title=Fastjson 反序列化"));

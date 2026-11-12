@@ -618,7 +618,7 @@ flowchart LR
 
 purge 给模型的入口有三条，共用同一张契约表（`lib/model-tools.js`，10 个工具：status / align / apply / revert / patch / update / rules / skills / override / drill）：
 
-**能力账（只放机器算得出的数，全部由 `check-package` 第 21 项对账）**：10 个工具、`purge_drill` 18 op、22 个实体（读 10 + 写 12）、端到端情景 45 步、九道闸门。写方法覆盖 27/31（87%），剩下 4 个（`close`、`seedStages`、`seedScorePoints`、`writePromptManifest`）是有意豁免——理由见上面三面矩阵与 release-notes，不是没查。
+**能力账（只放机器算得出的数，全部由 `check-package` 第 21 项对账）**：10 个工具、`purge_drill` 18 op、22 个实体（读 10 + 写 12）、端到端情景 46 步、九道闸门。写方法覆盖 27/31（87%），剩下 4 个（`close`、`seedStages`、`seedScorePoints`、`writePromptManifest`）是有意豁免——理由见上面三面矩阵与 release-notes，不是没查。
 
 1. **dsh 会话内**：插件激活时直接 `ctx.tools.register`，模型看到 `purge_*`。
 2. **MCP over stdio**：`node bin/dsh-purge.js --mcp`，任何 MCP 客户端可连，不需要 dsh 在跑。

@@ -606,7 +606,7 @@ Eight third-party dsh plugins are installed in this desktop profile; each owns o
 
 Purge hands capabilities to models through three entrances, all built from one contract table (`lib/model-tools.js`, 10 tools: status / align / apply / revert / patch / update / rules / skills / override / drill):
 
-**Capability ledger (only numbers a machine can compute; every one of them is reconciled by check-package item 21)**: 10 tools, `purge_drill` 18 op, 22 entities (10 read + 12 write), 45 end-to-end scenario steps, nine gates. Write-method coverage is 27 of 31 (87%); the remaining four (`close`, `seedStages`, `seedScorePoints`, `writePromptManifest`) are deliberate exemptions - see the three-entrance matrix above and release-notes, not an un-checked gap.
+**Capability ledger (only numbers a machine can compute; every one of them is reconciled by check-package item 21)**: 10 tools, `purge_drill` 18 op, 22 entities (10 read + 12 write), 46 end-to-end scenario steps, nine gates. Write-method coverage is 27 of 31 (87%); the remaining four (`close`, `seedStages`, `seedScorePoints`, `writePromptManifest`) are deliberate exemptions - see the three-entrance matrix above and release-notes, not an un-checked gap.
 
 1. **Inside a dsh session**: registered via `ctx.tools` on activation, so the model sees `purge_*`.
 2. **MCP over stdio**: `node bin/dsh-purge.js --mcp`, connectable by any MCP client, no running dsh required.

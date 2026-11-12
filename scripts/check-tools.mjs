@@ -3,11 +3,13 @@
  * 用途：工具面闸门——契约表的结构完整性 + 描述/返回值成本都上预算，防止「聚合入口」悄悄退化回堆叠。
  * 用法：node scripts/check-tools.mjs [--json]
  * 依赖：Node ≥18；只执行只读工具（status/align/patch/update/rules/skills/drill），绝不碰 apply/revert（那俩会改宿主文件）。
- * 验证：2026-11-09 实跑通过（exit=0）——结构 9/9 无缺陷；工具面描述 2938 字符（预算 3600）；单工具最大 1214（预算 1600）；默认返回值最大 538 字符（预算 1500）。
+ * 验证：2026-11-12 实跑通过（exit=0）——结构 10/10 无缺陷；工具面描述 3461 字符（预算 3600）；单工具最大 1417（预算 1600）；默认返回 空库 624 / 有数据 815 字符（预算 1500 / 2200）。
+ * 隔离：返回值测量**必须**在临时 REDTEAM_HOME 里跑。早先读 ~/.dsh/redteam，用户一开靶标闸门就从绿变红（第 135 轮实测），结论随用户数据漂移等于没有闸门。
  *
  * 为什么单独一道门：drill 一度占到全工具面 45%，是我手量出来的。没有闸门，下次它涨到 70% 也没人知道。
  */
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -23,7 +25,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const asJson = process.argv.includes("--json");
 
 // 预算：按 2026-11-09 实测值放宽约 20-30%，只防失控增长，不做常红灯。
-const BUDGET = { tools_min: 9, tools_max: 12, surface_max: 3600, per_tool_max: 1600, output_max: 1500, output_lines_max: 20, drill_ops_max: 18 };
+const BUDGET = { tools_min: 9, tools_max: 12, surface_max: 3600, per_tool_max: 1600, output_max: 1500, output_max_with_data: 2200, output_lines_max: 20, drill_ops_max: 18 };
 
 const tools = buildModelTools({ core, rules, hostctl, updater, renderStatus, rejectIfNeedPrompt: () => null });
 const problems = [];
@@ -62,21 +64,50 @@ notes.push(`描述成本 ${surface}（预算 ${BUDGET.surface_max}），最大 $
 
 // 3) 只读工具的默认返回值体量（apply/revert 会改文件，不参与）
 const READ_ONLY = ["purge_status", "purge_align", "purge_patch", "purge_update", "purge_rules", "purge_skills", "purge_drill"];
-const outMax = { chars: 0, lines: 0, name: "" };
-for (const t of tools.filter((x) => READ_ONLY.includes(x.name))) {
-  let text = "";
-  try {
-    text = String((await t.execute({})).text ?? "");
-  } catch (e) {
-    problems.push(`${t.name} 默认调用抛错：${String(e?.message ?? e).slice(0, 90)}`);
-    continue;
+/* **必须隔离到临时库**：早先这里直接读 ~/.dsh/redteam，于是「用户开了一个靶标」就能让本闸门从绿变红
+   （实测第 135 轮：14:17 库空 → 通过；15:09 用户开了「测试靶」→ purge_drill 默认返回 1760 字符 → 红灯）。
+   闸门结论随用户数据漂移，等于没有闸门。这里把 REDTEAM_HOME 指到临时目录，空库那份量的是
+   「没数据时不许啰嗦」；随后再灌一份有数据的库，量「有数据时不许倾倒」——两种形态都要有界。 */
+const tmpRedteam = fs.mkdtempSync(path.join(os.tmpdir(), "tools-gate-"));
+const prevRedteamHome = process.env.REDTEAM_HOME;
+process.env.REDTEAM_HOME = tmpRedteam;
+
+const measureDefault = async (budget) => {
+  const worst = { chars: 0, lines: 0, name: "" };
+  for (const t of tools.filter((x) => READ_ONLY.includes(x.name))) {
+    let text = "";
+    try {
+      text = String((await t.execute({})).text ?? "");
+    } catch (e) {
+      problems.push(`${t.name} 默认调用抛错：${String(e?.message ?? e).slice(0, 90)}`);
+      continue;
+    }
+    const lines = text.split("\n").length;
+    if (text.length > worst.chars) Object.assign(worst, { chars: text.length, lines, name: t.name });
+    if (text.length > budget) problems.push(`${t.name} 默认返回 ${text.length} 字符，超预算 ${budget}（无界倾倒会烧上下文）`);
+    if (lines > BUDGET.output_lines_max) problems.push(`${t.name} 默认返回 ${lines} 行，超预算 ${BUDGET.output_lines_max}`);
   }
-  const lines = text.split("\n").length;
-  if (text.length > outMax.chars) Object.assign(outMax, { chars: text.length, lines, name: t.name });
-  if (text.length > BUDGET.output_max) problems.push(`${t.name} 默认返回 ${text.length} 字符，超预算 ${BUDGET.output_max}（无界倾倒会烧上下文）`);
-  if (lines > BUDGET.output_lines_max) problems.push(`${t.name} 默认返回 ${lines} 行，超预算 ${BUDGET.output_lines_max}`);
-}
-notes.push(`返回值最大 ${outMax.chars} 字符 / ${outMax.lines} 行（${outMax.name || "无"}）`);
+  return worst;
+};
+
+const emptyWorst = await measureDefault(BUDGET.output_max);
+
+/* 3b) 有数据的真实形态。空库那份只能证明「不啰嗦」，证明不了「不倾倒」——
+   真实靶标下 summary 要带靶标清单、授权边界、下一步、管道、计分机会，长度天然更长，
+   所以这一档单独给预算（BUDGET.output_max_with_data），而不是把空库的预算放宽了事。 */
+const { RedteamStore } = await import("../lib/redteam/store-core.js");
+const seedStore = new RedteamStore(tmpRedteam);
+const seedEng = seedStore.openEngagement("闸门夹具", "203.0.113.0/24", { bindCurrent: true });
+seedStore.importBundle(seedEng.id, { assets: [{ ip: "203.0.113.10" }, { ip: "203.0.113.11" }] });
+seedStore.addCredential(seedEng.id, { host: "203.0.113.10:8080", username: "admin", privilege: "管理员", note: "OA 后台" });
+seedStore.addVuln(seedEng.id, { target: "203.0.113.10", title: "Fastjson 反序列化", severity: "high", evidence: "JNDI 回显" });
+seedStore.addScoreHit(seedEng.id, { code: "terminal-access", evidence: "拿到一台摄像头后台", points: 10 });
+const dataWorst = await measureDefault(BUDGET.output_max_with_data);
+
+process.env.REDTEAM_HOME = prevRedteamHome;
+try { fs.rmSync(tmpRedteam, { recursive: true, force: true }); } catch { /* 临时目录清不掉不影响结论 */ }
+
+notes.push(`返回值 空库 ${emptyWorst.chars} 字符/${emptyWorst.lines} 行（${emptyWorst.name || "无"}）｜有数据 ${dataWorst.chars} 字符/${dataWorst.lines} 行（${dataWorst.name || "无"}）`);
 
 // 4) 摘要版与宿主版都要有界（同一工具两种消费方，不能只测一边）
 const state = await core.gatherState();
