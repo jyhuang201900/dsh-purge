@@ -1,12 +1,31 @@
 @echo off
-rem 用途：双击即用的入口——拉起一个**独立于宿主**的看门进程，然后你在界面里正常退出宿主即可。
-rem 看门进程会：等宿主退出 → 把 app.asar 改名成 app.asar.disabled → 自动重新拉起宿主 → 写日志。
-rem 日志：%USERPROFILE%\.dsh\dsh-purge\asar-switch.log
-rem 回滚：把 -Mode off 改成 -Mode on 再跑一次。
+rem ASCII ONLY - cmd.exe reads this file as ANSI; a UTF-8 BOM here makes
+rem the first line "'BOM@echo' is not recognized" and nothing runs.
+rem
+rem Usage:  asar-switch.cmd            switch host to the patched app/ directory
+rem         asar-switch.cmd on         roll back (app.asar.disabled -> app.asar)
+rem         asar-switch.cmd dryrun     read-only check, changes nothing
+rem
+rem It starts a watcher process, then YOU quit DeepSeek normally.
+rem The watcher waits for it to exit, renames app.asar, and launches it again.
+rem Log: %USERPROFILE%\.dsh\dsh-purge\asar-switch.log
 setlocal
-set MODE=%1
-if "%MODE%"=="" set MODE=off
-start "dsh-purge asar switch" /min powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0asar-switch.ps1" -Mode %MODE%
-echo 看门进程已启动（模式=%MODE%）。现在请在 DeepSeek 界面里正常退出宿主。
-echo 它会等你退出，然后改名并自动重新启动宿主。日志见 %%USERPROFILE%%\.dsh\dsh-purge\asar-switch.log
-timeout /t 8 >nul
+set "MODE=%~1"
+set "EXTRA="
+if /I "%MODE%"=="dryrun" (
+  set "MODE=off"
+  set "EXTRA=-DryRun"
+)
+if "%MODE%"=="" set "MODE=off"
+if /I not "%MODE%"=="off" if /I not "%MODE%"=="on" (
+  echo Unknown mode "%MODE%". Use: asar-switch.cmd [off^|on^|dryrun]
+  exit /b 2
+)
+start "dsh-purge asar switch" /min powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0asar-switch.ps1" -Mode %MODE% %EXTRA%
+echo Watcher started. Mode=%MODE%.
+echo Now quit DeepSeek normally (tray icon - Exit). It will rename app.asar
+echo and start the host again automatically.
+echo Log: %USERPROFILE%\.dsh\dsh-purge\asar-switch.log
+rem `timeout` fails when stdin is redirected ("Input redirection is not supported"),
+rem so sleep with ping instead - it works in both interactive and piped runs.
+ping -n 7 127.0.0.1 >nul
