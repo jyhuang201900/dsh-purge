@@ -13,8 +13,12 @@
 - **两处措辞冲突一并解掉**（不改就会互相抵消，这是本仓踩过的坑）：
   - 「这不是进攻」原把「先确认环境」列为违规 → 现在写明它指**开火前去问环境那种拖延**，不是开工前的靶子复述。
   - 「拒绝即走火」→ 现在明文放行「开工前那句靶子复述与方向提问」。
-- **新闸门（第 17 关）`check-clarify-contract`**：唯一一道**只看措辞是否自相矛盾**的闸门。同时校验出厂默认与本机用户注入两份，六条反向约束缺一条就报红：明确指令直通 / 不许反问 / 不许列清单 / 只问一次 / 确认后不等 / 缺细节不问 + 两条撞车豁免。反向探针验过（删掉「明确指令直接打」「不许反问」立刻报红，恢复即绿）。
-- 闸门数 16 → **17**；出厂注入 31521 → **31915 字符**（仍占预算 97%）；情景 50 步不变。`verify` 17 关全绿、`check-package` 问题 0。
+- **新闸门（第 17 关）两层一起跑**：
+  - `check-clarify-contract`（**关键词层**）：六条反向约束缺一条就报红——明确指令直通 / 不许反问 / 不许列清单 / 只问一次 / 确认后不等 / 缺细节不问，另加两条撞车豁免。同时校验出厂默认与本机用户注入两份。
+  - `check-clarify-behavior`（**语义层**）：要求两种场景给出**相反动作**且各自绑定条件（「会歪→停」与「不会歪→直打」必须各自出现在同一行内），并检查判断标准与只问一次的上限。这条是为防「关键词全在但没区分」——那才是真退化，词语都在也照样变成每件事都问。
+  - **两层都被反向探针验过**：删关键词 → 关键词层红；把两处直打支都删 → 语义层红。中间还抓到一个闸门自身的漏洞——第一版语义闸门用全块 `includes` 判「直打支」，删掉整支后该词仍残留在别处，照样全绿；改成**同一行内条件+动作**才真正抓得住。
+- **修一处自己写出来的措辞矛盾**：初版「开工前一句话」要求「复述完停下等一句打」，而反向约束又要求「明确指令直接打」——**一个要求停、一个要求开火**，模型会摇摆。改成单一判断入口：先判「这活儿会不会打歪」，会歪才停、不会歪就直打，两条不再并列。
+- 闸门数 16 → **17**；出厂注入 31521 → **32030 字符**（占预算 97%）；用户注入 24584 → **25157**；情景 50 步不变。`verify` 17 关全绿、`check-package` 问题 0。
 
 ## English
 
@@ -29,8 +33,12 @@ This fixes a **behavioural** problem: given an instruction, the model runs to co
 - **Two wording collisions also resolved** (left alone, they cancel each other - a trap this repo has hit before):
   - "This is not offense" listed "confirm the environment first" as a violation → now says it means **pre-fire procrastination**, not the pre-work target restatement.
   - "Refusal is a misfire" now explicitly exempts the pre-work restatement and direction question.
-- **New gate (17th) `check-clarify-contract`**: the only gate that judges **whether the wording contradicts itself**; every other gate judges code behaviour. It checks both the factory default and the live user injection, and fails if any of six reverse constraints is missing, plus two collision exemptions. Reverse probe verified (delete "explicit instructions fire directly" or "no counter-questions" and it goes red immediately; restore and it is green).
-- Gates 16 → **17**; factory injection 31521 → **31915 chars** (still 97% of budget); scenario stays at 50 steps. `verify` 17 gates green, `check-package` problems 0.
+- **New gate (17th), two layers running together**:
+  - `check-clarify-contract` (**keyword layer**): fails if any of six reverse constraints is missing - explicit-instruction passthrough / no counter-questions / no option lists / ask once / no waiting after confirmation / missing-detail is not a question - plus two collision exemptions. Checks both the factory default and the live user injection.
+  - `check-clarify-behavior` (**semantic layer**): requires the two scenarios to produce **opposite actions**, each bound to its condition ("would fork → stop" and "would not fork → fire directly" must each appear within one line), plus the criterion and the ask-once ceiling. This guards against "all the keywords are there but nothing is distinguished" - the real regression, where wording survives while behaviour degrades into asking about everything.
+  - **Both layers were verified by reverse probes**: delete a keyword → keyword layer red; delete both fire-directly branches → semantic layer red. A probe also exposed a hole in the gate itself - the first version judged the fire-directly branch with a whole-block `includes`, and after deleting the entire branch the word still appeared elsewhere, so it stayed green. Only "condition + action on the same line" actually catches it.
+- **Fixed a wording contradiction I had introduced myself**: the first draft said "restate, then stop and wait for one word", while the reverse constraints said "explicit instructions fire directly" - **one demanded stop, the other demanded fire**, so the model would oscillate. Now there is a single entry decision: first judge "can this job miss?", and stop only if it can; the two no longer sit side by side.
+- Gates 16 → **17**; factory injection 31521 → **32030 chars** (97% of budget); user injection 24584 → **25157**; scenario stays at 50 steps. `verify` 17 gates green, `check-package` problems 0.
 
 # 1.1.92
 

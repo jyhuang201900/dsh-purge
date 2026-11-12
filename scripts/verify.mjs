@@ -152,12 +152,22 @@ if (!skip("tools")) {
 // 单独成关的理由：这是唯一一道**只看措辞是否自相矛盾**的闸门，其余各关都看代码行为。
 // 提示词层的缺陷不会让任何测试变红，只会让模型变啰嗦——那种退化只能靠读文本抓。
 if (!skip("clarify")) {
-  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-clarify-contract.mjs")], { encoding: "utf8" });
-  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
-  if (res.status !== 0) {
-    const bad = out.filter((l) => l.includes("✗")).slice(0, 2).join(" / ");
-    failures.push(`确认条款反面闸门未过：${bad || (res.stderr || "").trim().split("\n")[0]}`);
-  } else notes.push(`确认条款：${out.filter((l) => l.startsWith("  · ")).length} 条约束在位（明确指令不变问卷）`);
+  /* 两层一起跑，缺一不可：
+     ① check-clarify-contract：关键词层——六条反向约束在不在（防「条款被删掉」）
+     ② check-clarify-behavior：语义层——两种场景是否给出**相反动作**且都绑定了条件
+        （防「都写了但没区分」：那才是真退化，关键词全在也不管用）
+     反向探针两次都验过：删关键词 → ① 红；两处直打支都删 → ② 红。 */
+  for (const [script, label] of [
+    ["check-clarify-contract.mjs", "关键词层"],
+    ["check-clarify-behavior.mjs", "语义层"],
+  ]) {
+    const res = spawnSync(process.execPath, [path.join(root, "scripts", script)], { encoding: "utf8" });
+    const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+    if (res.status !== 0) {
+      const bad = out.filter((l) => l.includes("✗")).slice(0, 2).join(" / ");
+      failures.push(`确认条款反面闸门未过（${label}）：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+    } else notes.push(`确认条款·${label} ✓`);
+  }
 }
 
 // 关 7：端到端情景——把 drill 的 18 个 op 串成一条真实流程逐步断言回读（组合期最容易出「说谎的回读」）。
