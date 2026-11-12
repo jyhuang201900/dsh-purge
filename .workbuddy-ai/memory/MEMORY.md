@@ -29,6 +29,9 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（116 
 - **多条降权规则会互相抵消**：加新加成前先想它和已有 rank 是不是同一件事（1.1.92 名字加成 +10 vs 专项 rank −6 就冲突过一次）。
 
 ## 关键机制
+- **用户 override 整份替换出厂条令**：`~/.dsh/prompt-inject.md` 存在且 `override_status: custom` 时，改出厂 `lib/default-prompt-inject.md` **对实际行为零影响**。改提示词必须两处都改。
+- **改提示词要挂两层闸**（1.1.93 定型）：关键词层（条款在不在）+ 语义层（两种场景是否给出相反动作、条件与动作是否同一行）。只挂关键词层会漏「都写了但没区分」。
+- **闸门的反向探针必须真删整段**，不能只改关键词——否则测的是闸门不是内容。1.1.93 第一版语义闸门就是这么假的。
 - 0.2.1-rc.2 起提示词变量只注册 provider/model，**段文本含 `{{cwd}}` 会组装期 throw**。
 - JS 模板字符串里的 `${...}` 必须转义（store-core.js 曾因 `${IFS}` 炸掉导入）。
 - 补丁状态核对：`DSH_SURFACE=desktop DSH_BASE="E:\Program Files\harness\resources\app\dsh\node_modules\@deepseek-ai" node bin/dsh-purge.js --status`（bash 探测不到桌面端）。
