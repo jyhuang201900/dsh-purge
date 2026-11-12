@@ -472,6 +472,7 @@ npm run verify
 | `npm run check:manifest` | 自更新拷贝清单与发布白名单不分叉 |
 | `npm run check:package` | manifest 字段、发布文件、全仓数量声明、生态 tag、闸门数、注入体积与平面基线 |
 | `npm run check:tools` | 工具面预算：结构、描述成本、返回值、可发现性 |
+| `npm run check:toolkit` | toolkit 巡检：目录在但零 `.exe` ＝ 装过被删（先加白名单再重装）；可挂定时任务，红了才看 |
 | `npm run scenario` | 端到端情景：串 drill 的 op 逐步断言回读 + 真机只读探针 |
 | `npm run probe:gates` | 闸门反向探针总表：逐关改坏即红（没咬过的门等于不知道真假的门） |
 | `npm run audit:skills` | 弹药层一致性：技能正文引用的 `redteam_*` 工具名、条令点名的技能，都必须真实存在 |

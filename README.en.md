@@ -464,6 +464,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run check:manifest` | self-update copy list must not diverge from the publish whitelist |
 | `npm run check:package` | manifest fields, published files, every user-facing count, ecosystem tags, gate count, injection size, plane baselines |
 | `npm run check:tools` | tool-surface budget: structure, description cost, return size, discoverability |
+| `npm run check:toolkit` | toolkit watch: a directory with zero `.exe` means "installed then deleted" (allowlist first, then reinstall); safe to run on a schedule |
 | `npm run scenario` | end-to-end drill scenario with read-back assertions plus a live read-only probe |
 | `npm run probe:gates` | reverse-probe table: every gate must turn red when broken (an unprobed gate is an unknown gate) |
 | `npm run audit:skills` | ammo-layer consistency: every `redteam_*` tool name cited by skills and every skill named by the doctrine must actually exist |

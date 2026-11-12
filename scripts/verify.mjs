@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 用途：发版前一键自检——语法、体积预算、双语文案、清单一致性、包自证、工具面、端到端情景、弹药层审计、JSON 合法性九关一起过（替代 README 里那串手工 node --check）。
- * 用法：node scripts/verify.mjs [--root PATH] [--skip-size]     # 默认跑全部三关
+ * 用法：node scripts/verify.mjs [--root PATH] [--skip-size] [--skip write,cli] [--host <ai_base>]     # 默认跑全部关
  * 依赖：Node ≥18；内部调用 node --check 与 scripts/check-size.mjs，零第三方包。
  * 验证：2026-11-09 在 dsh-purge 实跑通过（exit=0，五关全绿：语法 / 体积 / 双语 2×328 key 零漂移 / 清单 COPY_NAMES 全覆盖 / JSON 全合法）。各关计数以实跑输出为准，不写死在注释里。
  */
@@ -12,6 +12,10 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const argv = process.argv.slice(2);
+// 收集器必须**先**声明：下面的宿主探测里就会写 failures（面判定模块读不到要报红），
+// 声明放在 78 行会让那条分支落进 TDZ —— 平时不触发，一触发就是 ReferenceError（比原缺陷更糟）。
+const failures = [];
+const notes = [];
 const rootIdx = argv.indexOf("--root");
 const root = rootIdx >= 0 ? path.resolve(argv[rootIdx + 1]) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // **宿主自动探测**（第 145 轮）：write-smoke / tools-smoke 需要宿主 ai_base 当拷源，
@@ -20,6 +24,15 @@ const root = rootIdx >= 0 ? path.resolve(argv[rootIdx + 1]) : path.resolve(path.
 // 并显式 env 传给子进程（spawnSync 默认继承 process.env，但探测结果要写回才生效）。
 {
   const cands = [];
+  // `--host <ai_base>`：宿主装在非常规位置（不在 Get-Process 路径、也不在 E:/D: Program Files）时
+  // 唯一的出路。不设 DSH_BASE 而探测又落空 → 两关冒烟只会红，用户却没有入口，这条参数就是那个入口。
+  const hostIdx = argv.indexOf("--host");
+  if (hostIdx >= 0) {
+    const given = String(argv[hostIdx + 1] || "").trim();
+    if (!given) failures.push("--host 后面没有给路径（用法：--host \"X:/路径/resources/app/dsh/node_modules/@deepseek-ai\"）");
+    else if (!fs.existsSync(given)) failures.push(`--host 指向不存在的路径：${given}`);
+    else process.env.DSH_BASE = given;
+  }
   try {
     const out = spawnSync("powershell", ["-NoProfile", "-Command",
       "(Get-Process -Name 'DeepSeek Harness' -ErrorAction SilentlyContinue | Select-Object -First 1).Path"], { encoding: "utf8", timeout: 8000 });
@@ -41,7 +54,11 @@ const root = rootIdx >= 0 ? path.resolve(argv[rootIdx + 1]) : path.resolve(path.
   try {
     const { adoptSurfaceForAiBase } = await import("../lib/surface.js");
     adoptSurfaceForAiBase(process.env.DSH_BASE);
-  } catch { /* 判不出来就走默认面 */ }
+  } catch (e) {
+    // **不许空 catch**（第 150 轮）：导入失败会让面判定停在 web，接着两关冒烟「跳过」、
+    // 包自证「映射 52 键」——现象全指向宿主，真凶却在这里。失败本身必须报出来。
+    failures.push(`面判定模块读不到（lib/surface.js）：${String(e && e.message || e).slice(0, 90)}｜后果：桌面宿主会被判成 web，冒烟与包自证一起缩水`);
+  }
 }
 const skipSize = argv.includes("--skip-size");
 // 按名点跳：--skip write,cli（名字取自下面各关的短名）。
@@ -70,9 +87,6 @@ function walk(dir, out = []) {
   }
   return out;
 }
-
-const failures = [];
-const notes = [];
 
 // 关 1：语法。逐个 node --check，失败即记文件名（不中断，一次看全）。
 const files = walk(root);

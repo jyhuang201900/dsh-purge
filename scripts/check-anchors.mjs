@@ -281,6 +281,7 @@ for (const r of results) {
 
 // notInEither 有两种成因：补丁目标压根不在这个核对面内（桌面壳 main.js、YAML 预设、非 npm 包路径），
 // 或者锚点在哪一版都不存在（可疑，要人判）。分不清这两类，17 条噪音会淹没 5 条信号。
+// 分桶在下面用严格划分一次算清（每条只进一个桶），这里不再单独维护 structuralRaw，避免两处口径打架。
 // core 的 file 键→路径映射直接 import 来用（不 import 就会自己猜一套，猜错就误判面外）。
 const coreMod = await import("../lib/core.js").catch(() => null);
 const TF = (coreMod && coreMod.targetFiles(process.env.DSH_BASE || "E:/Program Files/harness/resources/app/dsh/node_modules/@deepseek-ai")) || {};
@@ -295,11 +296,10 @@ const outOfScope = (keys) => {
   const sp = pathOf(k0);
   if (/main\.js$/.test(sp) && sp.includes("/lib/")) return "桌面壳 main.js";
   if (/\.ya?ml$/i.test(sp)) return "YAML 预设";
-  if (!sp.includes("@deepseek-ai/")) return "非 npm 包路径";
+  if (!sp.includes("@deepseek-ai/") && !sp.includes("@earendil-works/")) return "非 npm 包路径";
   return null;
 };
-const structural = results.filter((r) => r.status === "notInEither" && outOfScope(r.files));
-// 剩下两支靠证据自动归类，别留给人肉：
+// 剩下几支靠证据自动归类，别留给人肉：
 //   · 打后形态：锚点文本本身就是我们注入的那段话（特征串 dsh-purge/dshPurge/DSH_PURGE，
 //     以及 scope 段的自有句式 "ACTIVE and MANDATORY"）——pristine 里当然没有，不是破损。
 //     写新的注入句时如果没带这些特征，会落到「真待判」，这是有意的保守失败：宁可多报一条也不漏判。
@@ -323,14 +323,55 @@ const presentLoose = (pat) => {
 };
 const postPatch = (r) => (r.patterns || []).some((p) => OURS.test(String(p)));
 const whitespaceOnly = (r) => !postPatch(r) && (r.patterns || []).some((p) => presentLoose(p));
-const asPostPatch = results.filter((r) => r.status === "notInEither" && !outOfScope(r.files) && postPatch(r));
-const asWhitespace = results.filter((r) => r.status === "notInEither" && !outOfScope(r.files) && !postPatch(r) && whitespaceOnly(r));
-const suspect = results.filter((r) => r.status === "notInEither"
-  && !outOfScope(r.files) && !postPatch(r) && !whitespaceOnly(r));
+// **第五支：已打补丁（文件里真有我们的标记）** —— 第 150 轮补的判据。
+// 旧逻辑只问「锚点文本在不在」，于是所有「纯替换型」补丁在打完之后必然 notInEither：
+// 原文被我们换掉了，old/new 两版当然都不命中，于是全堆进「真待判」，看上去像升级破损。
+// 实测 6 条（#45 #46 #47 #49 #82 #83 #84）全属此类：宿主文件里 dshPurgeHandoffDesktopUpdate(this);
+// / dshPurgeWshLiteral / [dsh-purge-82] / [dsh-purge] OAuth… / signal kill 标记一个不少。
+// 判据：目标文件存在且含 [dsh-purge 标记；若标记里带该补丁编号（[dsh-purge-<id>）则更强。
+const fileCache = new Map();
+const readTarget = (p) => {
+  if (fileCache.has(p)) return fileCache.get(p);
+  let t = "";
+  try { t = fs.readFileSync(p, "utf8"); } catch { t = ""; }
+  fileCache.set(p, t);
+  return t;
+};
+const patchedFile = (r) => {
+  const keys = Array.isArray(r.files) ? r.files : [r.files];
+  for (const k of keys) {
+    const v = TF[k];
+    for (const p of (Array.isArray(v) ? v : [v]).filter(Boolean)) {
+      const t = readTarget(p);
+      if (!t) continue;
+      if (t.includes(`[dsh-purge-${r.id}]`)) return `已打补丁（[dsh-purge-${r.id}] 在文件里）`;
+      if (t.includes("[dsh-purge")) return "已打补丁（文件含 [dsh-purge 标记）";
+    }
+  }
+  return "";
+};
+// 分桶必须是**严格划分**：每条 notInEither 只进一个桶，所有桶加起来必须等于 notInEither 总数。
+// 上一版条件互相排斥得不干净（structural 排除了 patchedFile，asWhitespace 又排除了 outOfScope），
+// 三条（#21 #46 #80）掉进桶与桶的缝里：分类行合计 15，汇总却写 18。**数字对不上比分类错更糟。**
+const notInEitherAll = results.filter((r) => r.status === "notInEither");
+const asPostPatch = [];
+const asPatched = [];
+const asWhitespace = [];
+const structural = [];
+const suspect = [];
+for (const r of notInEitherAll) {
+  if (postPatch(r)) { asPostPatch.push(r); continue; }
+  // 「已打补丁」先于「结构性面外」：桌面壳 main.js 既在面外、也真的被我们改过（#45 #46 #82-84
+  // 的标记都在）。先判面外会把「已经落地」说成「压根不在核对面上」，等于把证据丢掉。
+  if (patchedFile(r)) { asPatched.push(r); continue; }
+  if (whitespaceOnly(r)) { asWhitespace.push(r); continue; }
+  if (outOfScope(r.files)) { structural.push(r); continue; }
+  suspect.push(r);
+}
 if (structural.length || asPostPatch.length || asWhitespace.length || suspect.length) {
   const seg = (label, list) => (list.length ? `${label} ${list.length}${list.length && list.length < 8 ? `（${list.map((r) => `#${r.id}`).join(" ")}）` : ""}` : null);
-  const parts = [seg("结构性面外", structural), seg("打后形态", asPostPatch), seg("空白不同构", asWhitespace)].filter(Boolean);
-  console.log(`\n分类：notInEither ${structural.length + asPostPatch.length + asWhitespace.length + suspect.length} 条 = ${parts.join(" + ") || "0"} + 真待判 ${suspect.length}${suspect.length ? `：${suspect.map((r) => `#${r.id}`).join(" ")}` : ""}`);
+  const parts = [seg("结构性面外", structural), seg("打后形态", asPostPatch), seg("已打补丁", asPatched), seg("空白不同构", asWhitespace)].filter(Boolean);
+  console.log(`\n分类：notInEither ${notInEitherAll.length} 条 = ${parts.join(" + ") || "0"} + 真待判 ${suspect.length}${suspect.length ? `：${suspect.map((r) => `#${r.id}`).join(" ")}` : ""}`);
   if (!suspect.length) console.log("  → 真待判为 0：这些 notInEither 全部有可复核的成因，不是升级破损。");
 }
 

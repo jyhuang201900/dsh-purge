@@ -222,13 +222,50 @@ if (hostPresent && !process.env.DSH_SURFACE) {
     if (adoptSurfaceForAiBase(process.env.DSH_BASE)) {
       notes.push("宿主是桌面安装：按 desktop 面判定（否则 resources/app 下的目标会被自身白名单筛掉，映射假缩水）");
     }
-  } catch { /* 判不出来就走默认面 */ }
+  } catch (e) {
+    // 空 catch 会把「模块读不到」伪装成「映射缩水」——审阅点名过，这里直接报红。
+    problems.push(`读不到 lib/surface.js 的面判定：${String(e && e.message || e).slice(0, 90)}（导入失败只会退化成「映射 52 键，基线 56」的误导）`);
+  }
 }
 const fileKeys = (() => { if (!hostPresent) return -2; try { return Object.keys(targetFiles(process.env.DSH_BASE) || {}).length; } catch { return -1; } })();
 if (fileKeys === -2) notes.push("映射基线：本机未装宿主（DSH_BASE 不存在），跳过对账而非判红");
 else if (fileKeys < 0) problems.push("targetFiles 调用失败（基线无从对账）");
 else if (fileKeys !== PLANE_BASELINE.targetFileKeys) problems.push(`targetFiles ${fileKeys} 个键，基线 ${PLANE_BASELINE.targetFileKeys}：文件映射增减要同步状态文案`);
 notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 ${fileKeys === -2 ? "跳过" : fileKeys}（与文档一致）`);
+
+// 19b) 运行时实效（只报不判红）：Electron 优先加载 `resources/app.asar`，而补丁写在解开目录
+//      `resources/app/**`。asar 比补丁旧 = 补丁只存在于没人加载的那份里。
+//      2026-11-12 实测：app.asar（203.3MB）里搜 `[dsh-purge]` 零命中，解开目录里 9 处命中。
+//      只报不判红，是因为修它要拆 asar + 重启宿主（会断会话），不是一次提交能关掉的事；
+//      但「闸门全绿而补丁没生效」这种认知不能继续藏着。
+{
+  const base = String(process.env.DSH_BASE || "").replace(/\\/g, "/");
+  const at = base.toLowerCase().indexOf("/resources/");
+  if (at > 0) {
+    const resDir = base.slice(0, at + "/resources".length);
+    const asar = path.join(resDir, "app.asar");
+    try {
+      if (fs.existsSync(asar)) {
+        const asarTime = fs.statSync(asar).mtimeMs;
+        let newest = 0;
+        let newestFile = "";
+        for (const [k, v] of Object.entries(targetFiles(process.env.DSH_BASE) || {})) {
+          for (const f of (Array.isArray(v) ? v : [v]).filter(Boolean)) {
+            try {
+              const t = fs.statSync(f).mtimeMs;
+              if (t > newest) { newest = t; newestFile = `${k}`; }
+            } catch { /* 跳过 */ }
+          }
+        }
+        if (newest && asarTime < newest) {
+          notes.push(`运行时实效：app.asar（${Math.round(fs.statSync(asar).size / 1048576)}MB）早于最新补丁（${newestFile}）——Electron 优先加载 asar，补丁只写进解开目录，宿主读到的仍是原版。修它要拆 asar + 重启宿主`);
+        } else {
+          notes.push("运行时实效：app.asar 不比补丁旧（或不存在）——补丁与加载源一致");
+        }
+      }
+    } catch { /* 读不到就不报 */ }
+  }
+}
 
 // 20) 命令面对账：/purge 的每个非别名子命令都必须出现在它的 hint 里。
 //     本轮补 align/update 时最容易漏的就是 hint 字符串 —— 漏了就是「命令存在但没人知道」。

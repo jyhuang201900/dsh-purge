@@ -17,6 +17,7 @@ import * as hostctl from "../lib/host.js";
 import * as updater from "../lib/update.js";
 import { buildModelTools, defaultRenderStatus } from "../lib/model-tools.js";
 import { renderStatus } from "../lib/index.js";
+import { scanToolkit, describeToolkit, shellAdvice } from "../lib/toolkit-health.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const asJson = process.argv.includes("--json");
@@ -137,23 +138,12 @@ if (known.length > BUDGET.drill_ops_max) problems.push(`drill 已有 ${known.len
 //    第 148 轮实测：suo5 目录 01:59 建立、当晚文件已被清空（腾讯电脑管家/Defender 实时防护），
 //    而所有闸门都绿——因为没人查「目录存在但为空」。两类情形处置完全不同：
 //    没装 → 直接 `npm run toolkit:windows -- --only <name>`；装过被删 → 重装会被再删一次，**必须先加白名单**。
+//    判据已抽到 lib/toolkit-health.js，与定时巡检 scripts/watch-toolkit.mjs 共用一套口径。
 {
-  const tk = path.join(process.env.DSH_HOME || path.join(process.env.USERPROFILE || "", ".dsh"), "redteam", "toolkit");
-  const shells = [];
-  let installed = 0;
-  try {
-    for (const e of fs.readdirSync(tk, { withFileTypes: true })) {
-      if (!e.isDirectory()) continue;
-      let exes = 0;
-      try { exes = fs.readdirSync(path.join(tk, e.name)).filter((f) => /\.exe$/i.test(f)).length; } catch { /* 读不到按 0 算 */ }
-      if (exes) installed += 1;
-      else shells.push(e.name);
-    }
-  } catch { /* 本机没有 toolkit 目录 = 一个工具都没装，不算缺陷 */ }
-  if (shells.length) {
-    problems.push(`toolkit 空壳目录 ${shells.join("、")}：目录在但没有任何 .exe——多为安全软件静默删除（实测 20 秒内）。先把 ${tk} 加进信任区/排除项，再 npm run toolkit:windows -- --only ${shells.join(",")}；直接重装会被再删一次`);
-  }
-  notes.push(`toolkit 实况：${installed} 个目录有可执行文件${shells.length ? `，空壳 ${shells.length} 个（${shells.join("、")}）` : "，无空壳"}`);
+  const scan = scanToolkit();
+  const advice = shellAdvice(scan);
+  if (advice) problems.push(advice);
+  notes.push(describeToolkit(scan));
 }
 
 if (asJson) process.stdout.write(`${JSON.stringify({ problems, notes, surface, worst }, null, 2)}\n`);

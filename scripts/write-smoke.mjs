@@ -43,6 +43,7 @@ const { adoptSurfaceForAiBase, findHostAiBase } = await import(toUrl(path.join(r
 const hostBase = findHostAiBase();
 if (!hostBase) {
   console.log("写路径冒烟：未跑（本机找不到宿主 ai_base；跳过不是通过，exit 2）");
+  console.log("  宿主装在非常规位置时用：node scripts/verify.mjs --host \"<...>/resources/app/dsh/node_modules/@deepseek-ai\"");
   process.exit(2);
 }
 if (!process.env.DSH_BASE) process.env.DSH_BASE = hostBase;
