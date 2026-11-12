@@ -95,9 +95,8 @@ TLS       curl 的 JA3 与浏览器不同，被 JS 挑战时改用真浏览器
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`sqlmap`、`openssl`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`sqlmap`
 - `sqlmap`：`python -m pip install sqlmap`（本机有 python）
-- `openssl`：Git for Windows 的 bash 自带 openssl；或 PowerShell 证书命令（`New-SelfSignedCertificate` 等）
 
 runnability:end -->
 

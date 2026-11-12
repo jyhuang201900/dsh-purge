@@ -129,7 +129,7 @@ runnability:end -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
 
-1. **同类替代**（链路里的互补技能，手法最接近）：`graphql-testing`、`http-smuggling`
+1. **同类替代**（链路里的互补技能，手法最接近）：`cn-oa-exploit`、`graphql-testing`、`http-smuggling`
 
 2. **前提没满足就先回去**：`asset-correlation`、`cn-proxy-pool`、`web-fingerprint` —— 上一环没做实，本环再试也是空打
 
@@ -146,7 +146,7 @@ second-shot:end -->
 - **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
 - **上游**（先做完这些再进来）：`web-fingerprint`、`asset-correlation`
 - **下游**（产出交给谁）：`nuclei-scan`、`unauth-exploit`
-- **互补**（同类场景一起用）：`graphql-testing`、`http-smuggling`
+- **互补**（同类场景一起用）：`cn-oa-exploit`、`graphql-testing`、`http-smuggling`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
 <!-- /skill-link-graph -->

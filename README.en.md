@@ -4,10 +4,10 @@
 
 <h1 align="center">⚔️ DeepSeek Harness red-team security tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.1.89</strong></p>
+<p align="center"><strong>Version 1.1.90</strong></p>
 
 <p align="center">
-  <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 114 drill skills (32 offense-flow plus 16 reverse/specialty).</em>
+  <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 116 drill skills (organised by five phases: recon / asset mapping / vulnerability discovery / exploitation / intranet, plus 9 chain overviews).</em>
 </p>
 
 <p align="center">
@@ -57,10 +57,10 @@ The plugin registers **ten tools globally** (`ctx.tools.register` in `lib/index.
 | **What to do next** | yes | yes | `purge_drill` (no args = summary) reads the ledger state and returns **one** targeted next action naming the skill to load: no assets -> (1) `recon-pipeline`; assets -> (3) `asset-correlation` + `nuclei-scan`; vulns -> (4) `injection-payloads` / `webshell-toolkit`; access -> build a tunnel with `suo5-tunnel`; tunnel but no internal -> (5) `gogo-intranet`; internal assets -> `fscan-intranet`. **Daily sessions get the five-phase discipline without the preset** |
 | **Find skills by stage** | yes | yes | `purge_skills all=1..5` or `all=flow` lists the skills for that phase |
 | **Browse the skill library / read a skill body** | yes | yes | `purge_skills` lists and checks the whole library; `purge_skills id=<name>` returns **chain position + body head + full path** - the only way to read a skill in a daily session, since red-team skills are absent from its `<available_skills>` |
-| **Loading those 114 skills via the `skill` tool** | no | yes | Skills are discovered through the drill preset's `customSkillDirs`; daily sessions do not see them, which keeps 114 descriptions out of the standing context |
+| **Loading those 116 skills via the `skill` tool** | no | yes | Skills are discovered through the drill preset's `customSkillDirs`; daily sessions do not see them, which keeps 116 descriptions out of the standing context |
 | **The injected doctrine** (five phases / rules / chain discipline) | no | yes | Gated by `isRedteamSession(context)`, injected only in drill sessions |
 
-**Why the split**: putting 114 skills into every daily session means reading 114 skill descriptions before each conversation - the preset comment says exactly this, and `includeDefaultRoots: false` is deliberate.
+**Why the split**: putting 116 skills into every daily session means reading 116 skill descriptions before each conversation - the preset comment says exactly this, and `includeDefaultRoots: false` is deliberate.
 
 **Two ways to use red-team capability in a daily session**: call the tools directly (including the drill ledger - open a target and go), or read a skill body on demand with `purge_skills id=<name>`. Switch to the drill preset only when you want the model-facing skill catalog and the doctrine constraints.
 
@@ -134,7 +134,7 @@ The plugin hub still 404s if it looks up the npm package name. Use the GitHub ar
 For the desktop client you can also click the button (`dsh://` deep link):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.89&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.90&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
 </p>
 
 ### After the command: three steps

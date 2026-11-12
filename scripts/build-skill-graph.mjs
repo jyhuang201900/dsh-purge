@@ -53,7 +53,7 @@ const ROLES = {
 const STAGE_RULES = [
   [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce)$/, "1", "recon"],
   [/^(web-fingerprint|asset-correlation)$/, "2", "assess"],
-  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|database-security|email-security|llm-security)$/, "3", "vuln-scan"],
+  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|database-security|email-security|llm-security|ai-infra-attack|cn-oa-exploit)$/, "3", "vuln-scan"],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell|privesc-persistence|secdev-boundary|iot-iiot-netdev)$/, "4", "exploit"],
   [/^(gogo-intranet|fscan-intranet|netexec-scan|lateral-movement|windows-ad|identity-federation|cloud-k8s|ot-ics|edr-bypass-re|threat-hunting|wifi-wireless|hardware-security|radio-sdr)$/, "5", "internal"],
   [/^(suo5-tunnel|chisel-tunnel|frp-tunnel)$/, "4", "exploit"],
@@ -89,10 +89,10 @@ const TRUNK = {
   "recon-pipeline": { up: ["fofa-recon"], down: ["web-fingerprint", "active-scan"] },
   "active-scan": { up: ["recon-pipeline"], down: ["web-fingerprint", "nuclei-scan"] },
   "subdomain-bruteforce": { up: ["passive-recon"], down: ["active-scan"] },
-  "web-fingerprint": { up: ["recon-pipeline", "active-scan"], down: ["asset-correlation", "dir-bruteforce", "nuclei-scan"] },
+  "web-fingerprint": { up: ["recon-pipeline", "active-scan"], down: ["asset-correlation", "dir-bruteforce", "nuclei-scan", "cn-oa-exploit", "ai-infra-attack"] },
   "asset-correlation": { up: ["fofa-recon", "web-fingerprint"], down: ["dir-bruteforce", "nuclei-scan"] },
   "dir-bruteforce": { up: ["web-fingerprint", "asset-correlation"], down: ["nuclei-scan", "unauth-exploit"] },
-  "nuclei-scan": { up: ["dir-bruteforce", "asset-correlation"], down: ["injection-payloads", "web-vuln-payloads", "unauth-exploit"] },
+  "nuclei-scan": { up: ["dir-bruteforce", "asset-correlation"], down: ["injection-payloads", "web-vuln-payloads", "unauth-exploit", "cn-oa-exploit", "ai-infra-attack"] },
   "unauth-exploit": { up: ["dir-bruteforce", "nuclei-scan"], down: ["webshell-toolkit", "shell-handler"] },
   "credential-attack": { up: ["nuclei-scan", "netexec-scan"], down: ["netexec-scan", "lateral-movement"] },
   "injection-payloads": { up: ["nuclei-scan"], down: ["webshell-toolkit", "oob-verification"] },
@@ -144,6 +144,8 @@ const TRUNK = {
   "protocol-reverse": { up: ["reverse-engineering"], down: ["competition-custom-protocol-replay"] },
   "thick-client": { up: ["dotnet-reverse", "js-reverse"], down: ["protocol-reverse"] },
   "secdev-boundary": { up: ["nuclei-scan"], down: ["webshell-toolkit", "credential-attack"] },
+  "cn-oa-exploit": { up: ["web-fingerprint", "nuclei-scan"], down: ["webshell-toolkit", "credential-attack"] },
+  "ai-infra-attack": { up: ["web-fingerprint", "nuclei-scan"], down: ["credential-attack", "webshell-toolkit", "llm-security"] },
   "database-security": { up: ["api-security"], down: ["credential-attack"] },
   "email-security": { up: ["recon-pipeline"], down: ["credential-attack"] },
   "llm-security": { up: ["api-security"], down: ["competition-prompt-injection"] },
@@ -164,7 +166,7 @@ const LEDGER_ENTITIES = new Set(["vuln", "credential", "access", "webshell", "tu
 /** 技能域：链路用。默认全落到 misc 就等于没分类（第 108 轮实测 57/114 是 misc），所以逐组显式列。 */
 const DOMAIN_RULES = [
   [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation)$/, "recon"],
-  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification)$/, "web"],
+  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|cn-oa-exploit)$/, "web"],
   [/^(credential-attack)$/, "credential"],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell|privesc-persistence)$/, "payload"],
   [/tunnel$/, "tunnel"],
@@ -177,6 +179,7 @@ const DOMAIN_RULES = [
   [/^(js-reverse|browser-extension-reverse|thick-client)$/, "client"],
   [/^(edr-bypass-re|threat-hunting|digital-forensics|malware-analysis)$/, "defense"],
   [/^(api-security|code-audit|database-security|email-security|llm-security|supply-chain-security)$/, "appsec"],
+  [/^(ai-infra-attack)$/, "ai"],
   [/^(secdev-boundary)$/, "boundary"],
   [/^(attack-chain|pentest-tools|case-review|ctf-sandbox|ctf-sandbox-orchestrator|redteam-setup|browser-automation|kimi-webbridge|cn-proxy-pool)$/, "flow"],
   [/^competition-/, "surface"],
@@ -185,7 +188,7 @@ const DOMAIN_RULES = [
 /** 3) 落库工具映射：技能产出该落到哪个演练台实体（值必须 ∈ LEDGER_ENTITIES，否则模型照做就撞空） */
 const RECORD_RULES = [
   [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation|netexec-scan|gogo-intranet|fscan-intranet)$/, ["asset"]],
-  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|api-security|code-audit|database-security|email-security|llm-security|secdev-boundary|iot-iiot-netdev|competition-.*)$/, ["vuln"]],
+  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|api-security|code-audit|database-security|email-security|llm-security|secdev-boundary|iot-iiot-netdev|ai-infra-attack|cn-oa-exploit|competition-.*)$/, ["vuln"]],
   [/^(credential-attack|privesc-persistence|netexec-scan|lateral-movement|windows-ad|identity-federation)$/, ["credential", "access"]],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell)$/, ["webshell", "access"]],
   [/^(suo5-tunnel|chisel-tunnel|frp-tunnel)$/, ["tunnel"]],

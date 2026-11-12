@@ -116,7 +116,7 @@ runnability:end -->
 
 - **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
 - **上游**（先做完这些再进来）：`dir-bruteforce`、`asset-correlation`
-- **下游**（产出交给谁）：`injection-payloads`、`web-vuln-payloads`、`unauth-exploit`
+- **下游**（产出交给谁）：`injection-payloads`、`web-vuln-payloads`、`unauth-exploit`、`cn-oa-exploit`、`ai-infra-attack`
 - **互补**（同类场景一起用）：`http-smuggling`、`injection-payloads`、`oob-verification`、`race-conditions`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

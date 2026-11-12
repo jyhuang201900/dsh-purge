@@ -264,7 +264,7 @@ _共 1 份 HackerOne 已披露 High/Critical 报告命中本类，按 (赏金 + 
 
 ## 第二发（主力打不出去时，按这个顺序换）
 
-1. **同类替代**（链路里的互补技能，手法最接近）：`dir-bruteforce`、`http-smuggling`、`injection-payloads`
+1. **同类替代**（链路里的互补技能，手法最接近）：`cn-oa-exploit`、`dir-bruteforce`、`http-smuggling`、`injection-payloads`
 
 2. **前提没满足就先回去**：`web-fingerprint` —— 上一环没做实，本环再试也是空打
 
@@ -281,7 +281,7 @@ second-shot:end -->
 - **阶段**：3 漏洞发现｜**角色**：`vuln-scan`
 - **上游**（先做完这些再进来）：`web-fingerprint`
 - **下游**（产出交给谁）：`api-security`、`injection-payloads`
-- **互补**（同类场景一起用）：`dir-bruteforce`、`http-smuggling`、`injection-payloads`
+- **互补**（同类场景一起用）：`cn-oa-exploit`、`dir-bruteforce`、`http-smuggling`、`injection-payloads`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 
 <!-- /skill-link-graph -->

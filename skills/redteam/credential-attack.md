@@ -172,7 +172,7 @@ runnability:end -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
 
-1. **前提没满足就先回去**：`nuclei-scan`、`database-security`、`email-security` —— 上一环没做实，本环再试也是空打
+1. **前提没满足就先回去**：`ai-infra-attack`、`cn-oa-exploit`、`nuclei-scan` —— 上一环没做实，本环再试也是空打
 
 2. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
 

@@ -41,8 +41,10 @@
       "name": "漏洞发现",
       "stage": "3",
       "skills": [
+        "ai-infra-attack",
         "api-security",
         "browser-automation",
+        "cn-oa-exploit",
         "cn-proxy-pool",
         "code-audit",
         "credential-attack",
@@ -63,7 +65,7 @@
         "waf-bypass",
         "web-vuln-payloads"
       ],
-      "fromStage": 19,
+      "fromStage": 21,
       "fromProse": 9
     },
     "exploit": {

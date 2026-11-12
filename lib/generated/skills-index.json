@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "totalSkills": 114,
+  "totalSkills": 116,
   "stages": {
     "1": "信息收集",
     "2": "资产梳理",
@@ -29,6 +29,28 @@
       "downstream": [
         "web-fingerprint",
         "nuclei-scan"
+      ]
+    },
+    {
+      "id": "ai-infra-attack",
+      "summary": "AI 基础设施攻击面：Ollama/vLLM/llama.cpp 推理引擎、Langflow/Dify/RAGFlow 低代码 Agent 平台、向量库、训练调度（Jupyter/MLflow/Ray/Triton）、MCP server 的暴露面直取与利用",
+      "whenToUse": "扫到 11434/8000/7860/6333/19530/8265/8888 这类端口，或页面是 AI 对话/RAG 知识库/工作流编排界面；靶标含\"智能体/大模型/知识库/算力\"字样",
+      "stage": "3",
+      "stageName": "漏洞发现",
+      "role": "vuln-scan",
+      "domain": "ai",
+      "targetTypes": [],
+      "records": [
+        "vuln"
+      ],
+      "upstream": [
+        "web-fingerprint",
+        "nuclei-scan"
+      ],
+      "downstream": [
+        "credential-attack",
+        "webshell-toolkit",
+        "llm-security"
       ]
     },
     {
@@ -212,6 +234,27 @@
       "downstream": [
         "competition-k8s-control-plane",
         "competition-cloud-metadata-path"
+      ]
+    },
+    {
+      "id": "cn-oa-exploit",
+      "summary": "国产 OA 与信创系统前台洞：泛微/致远/用友/通达/万户/若依/帆软/宏景/深澜/蓝凌/金蝶的指纹识别、版本判定与对应入口，含 Shiro/Fastjson/Log4j2/Actuator/Druid 通用中间件面",
+      "whenToUse": "靶标是国内单位，扫到 80/8080/7001/9090 上的办公系统、门户、报表、HR、计费系统；或指纹里出现 Weaver/Seeyon/yonyou/通达/RuoYi/FineReport 等字样",
+      "stage": "3",
+      "stageName": "漏洞发现",
+      "role": "vuln-scan",
+      "domain": "web",
+      "targetTypes": [],
+      "records": [
+        "vuln"
+      ],
+      "upstream": [
+        "web-fingerprint",
+        "nuclei-scan"
+      ],
+      "downstream": [
+        "webshell-toolkit",
+        "credential-attack"
       ]
     },
     {
@@ -1483,7 +1526,9 @@
       "downstream": [
         "injection-payloads",
         "web-vuln-payloads",
-        "unauth-exploit"
+        "unauth-exploit",
+        "cn-oa-exploit",
+        "ai-infra-attack"
       ]
     },
     {
@@ -1953,7 +1998,9 @@
       "downstream": [
         "asset-correlation",
         "dir-bruteforce",
-        "nuclei-scan"
+        "nuclei-scan",
+        "cn-oa-exploit",
+        "ai-infra-attack"
       ]
     },
     {

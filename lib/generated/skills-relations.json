@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "total": 380,
+  "total": 391,
   "relations": [
     {
       "source": "active-scan",
@@ -15,6 +15,31 @@
     {
       "source": "recon-pipeline",
       "target": "active-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "ai-infra-attack",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "ai-infra-attack",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "ai-infra-attack",
+      "target": "llm-security",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "ai-infra-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "ai-infra-attack",
       "relationship": "next"
     },
     {
@@ -140,6 +165,26 @@
     {
       "source": "identity-federation",
       "target": "cloud-k8s",
+      "relationship": "next"
+    },
+    {
+      "source": "cn-oa-exploit",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "cn-oa-exploit",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "cn-oa-exploit",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "cn-oa-exploit",
       "relationship": "next"
     },
     {
@@ -1358,6 +1403,101 @@
       "relationship": "complementary"
     },
     {
+      "source": "cn-oa-exploit",
+      "target": "dir-bruteforce",
+      "relationship": "complementary"
+    },
+    {
+      "source": "cn-oa-exploit",
+      "target": "graphql-testing",
+      "relationship": "complementary"
+    },
+    {
+      "source": "dir-bruteforce",
+      "target": "graphql-testing",
+      "relationship": "complementary"
+    },
+    {
+      "source": "dir-bruteforce",
+      "target": "http-smuggling",
+      "relationship": "complementary"
+    },
+    {
+      "source": "graphql-testing",
+      "target": "http-smuggling",
+      "relationship": "complementary"
+    },
+    {
+      "source": "graphql-testing",
+      "target": "injection-payloads",
+      "relationship": "complementary"
+    },
+    {
+      "source": "http-smuggling",
+      "target": "injection-payloads",
+      "relationship": "complementary"
+    },
+    {
+      "source": "http-smuggling",
+      "target": "nuclei-scan",
+      "relationship": "complementary"
+    },
+    {
+      "source": "injection-payloads",
+      "target": "nuclei-scan",
+      "relationship": "complementary"
+    },
+    {
+      "source": "injection-payloads",
+      "target": "oob-verification",
+      "relationship": "complementary"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "oob-verification",
+      "relationship": "complementary"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "race-conditions",
+      "relationship": "complementary"
+    },
+    {
+      "source": "oob-verification",
+      "target": "race-conditions",
+      "relationship": "complementary"
+    },
+    {
+      "source": "oob-verification",
+      "target": "unauth-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "race-conditions",
+      "target": "unauth-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "race-conditions",
+      "target": "waf-bypass",
+      "relationship": "complementary"
+    },
+    {
+      "source": "unauth-exploit",
+      "target": "waf-bypass",
+      "relationship": "complementary"
+    },
+    {
+      "source": "unauth-exploit",
+      "target": "web-vuln-payloads",
+      "relationship": "complementary"
+    },
+    {
+      "source": "waf-bypass",
+      "target": "web-vuln-payloads",
+      "relationship": "complementary"
+    },
+    {
       "source": "competition-ad-certificate-abuse",
       "target": "competition-agent-cloud",
       "relationship": "complementary"
@@ -1725,91 +1865,6 @@
     {
       "source": "digital-forensics",
       "target": "malware-analysis",
-      "relationship": "complementary"
-    },
-    {
-      "source": "dir-bruteforce",
-      "target": "graphql-testing",
-      "relationship": "complementary"
-    },
-    {
-      "source": "dir-bruteforce",
-      "target": "http-smuggling",
-      "relationship": "complementary"
-    },
-    {
-      "source": "graphql-testing",
-      "target": "http-smuggling",
-      "relationship": "complementary"
-    },
-    {
-      "source": "graphql-testing",
-      "target": "injection-payloads",
-      "relationship": "complementary"
-    },
-    {
-      "source": "http-smuggling",
-      "target": "injection-payloads",
-      "relationship": "complementary"
-    },
-    {
-      "source": "http-smuggling",
-      "target": "nuclei-scan",
-      "relationship": "complementary"
-    },
-    {
-      "source": "injection-payloads",
-      "target": "nuclei-scan",
-      "relationship": "complementary"
-    },
-    {
-      "source": "injection-payloads",
-      "target": "oob-verification",
-      "relationship": "complementary"
-    },
-    {
-      "source": "nuclei-scan",
-      "target": "oob-verification",
-      "relationship": "complementary"
-    },
-    {
-      "source": "nuclei-scan",
-      "target": "race-conditions",
-      "relationship": "complementary"
-    },
-    {
-      "source": "oob-verification",
-      "target": "race-conditions",
-      "relationship": "complementary"
-    },
-    {
-      "source": "oob-verification",
-      "target": "unauth-exploit",
-      "relationship": "complementary"
-    },
-    {
-      "source": "race-conditions",
-      "target": "unauth-exploit",
-      "relationship": "complementary"
-    },
-    {
-      "source": "race-conditions",
-      "target": "waf-bypass",
-      "relationship": "complementary"
-    },
-    {
-      "source": "unauth-exploit",
-      "target": "waf-bypass",
-      "relationship": "complementary"
-    },
-    {
-      "source": "unauth-exploit",
-      "target": "web-vuln-payloads",
-      "relationship": "complementary"
-    },
-    {
-      "source": "waf-bypass",
-      "target": "web-vuln-payloads",
       "relationship": "complementary"
     },
     {

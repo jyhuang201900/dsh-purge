@@ -4,10 +4,10 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.1.89</strong></p>
+<p align="center"><strong>Version 1.1.90</strong></p>
 
 <p align="center">
-  <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 114 个演练技能（32 个进攻流程 + 16 个逆向与专项纵深）。</em>
+  <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 116 个演练技能（按五阶段组织：信息收集 / 资产梳理 / 漏洞发现 / 漏洞利用 / 内网渗透，另有 9 条链路总览）。</em>
 </p>
 
 <p align="center">
@@ -58,10 +58,10 @@
 | **下一步该干什么** | ✓ | ✓ | `purge_drill`（不带参数=summary）按事实库状态给**一句**针对性指引并点名该加载的技能：无资产 → ①`recon-pipeline`；有资产 → ③`asset-correlation`+`nuclei-scan`；有漏洞 → ④`injection-payloads`/`webshell-toolkit`；有权限 → 建隧道 `suo5-tunnel`；有隧道无内网 → ⑤`gogo-intranet`；有内网 → `fscan-intranet` 打点。**日常会话不开演练预设也有五阶段纪律** |
 | **按阶段找技能** | ✓ | ✓ | `purge_skills all=1..5` 或 `all=flow`，按信息收集/资产梳理/漏洞发现/漏洞利用/内网渗透列该段技能 |
 | **查技能库 / 读技能正文** | ✓ | ✓ | `purge_skills` 列全库与体检；`purge_skills id=<技能名>` 回**链路位置 + 正文头部 + 完整路径**——日常读技能的**唯一入口**（红队技能不在日常的 `<available_skills>` 里） |
-| **用 `skill` 工具加载这 114 个技能** | ✗ | ✓ | 技能由演练预设的 `customSkillDirs` 发现；日常会话看不到它们，避免 114 条描述常驻上下文 |
+| **用 `skill` 工具加载这 116 个技能** | ✗ | ✓ | 技能由演练预设的 `customSkillDirs` 发现；日常会话看不到它们，避免 116 条描述常驻上下文 |
 | **注入条令**（五阶段 / 军规 / 链路纪律） | ✗ | ✓ | `isRedteamSession(context)` 判定，只在演练会话注入 |
 
-**为什么这么切**：把 114 个技能塞进每个日常会话，等于每次对话都先读 114 条技能描述 —— 预设注释里写得很清楚，这是刻意关掉的（`includeDefaultRoots: false`）。
+**为什么这么切**：把 116 个技能塞进每个日常会话，等于每次对话都先读 116 条技能描述 —— 预设注释里写得很清楚，这是刻意关掉的（`includeDefaultRoots: false`）。
 
 **日常要用红队能力，两条路**：① 直接调工具（含演练台，开个靶标就能跑）；② `purge_skills id=<技能名>` 按需读技能正文，不必切预设。需要模型的技能目录与条令约束时，再切演练预设。
 
@@ -133,7 +133,7 @@ dsh plugin --profile desktop add https://github.com/jyhuang201900/dsh-purge/arch
 插件市场里按 npm 包名搜会 404（npm 上没有这个包），用上面的 GitHub 归档命令。桌面客户端也可以点按钮（`dsh://` 唤起，下载地址已是 GitHub）：
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.89&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>唤起客户端一键安装</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.90&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>唤起客户端一键安装</strong></a>
 </p>
 
 ### 装完都要做这三步
