@@ -13,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { ALL_PATCHES, defaultOverrideText, targetFiles } from "../lib/core.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -554,6 +555,67 @@ try {
   notes.push("清洗判据自测（3 形态 + 看门脚本同源）✓");
 } catch (e) {
   problems.push(`清洗判据自测跑不起来：${String((e && e.message) || e).slice(0, 80)}`);
+}
+
+// ---- 第 14 项：profile patch 自愈判据（1.1.87 的病灶：模型显示名被当包名 → 自愈恒不执行）----
+try {
+  const { pathToFileURL } = await import("node:url");
+  const guard = await import(pathToFileURL(path.join(root, "lib", "profile-guard.js")).href);
+  const tmpRoot = path.join(root, "runs", ".tmp-guard-selftest");
+  const RESET = "# 由宿主重置\n[]\n";
+  const withDisplayNames = [
+    "plugins:",
+    '  - name: "@deepseek-ai/dsh-llm-pi-ai"',
+    "models:",
+    "  - provider: pi-ai",
+    "    name: DeepSeek V4.1 Flash",
+    "presets:",
+    "  - name: Super Code 模式",
+    "",
+  ].join("\n");
+  const withGhostPlugin = `${withDisplayNames}  - name: dsh-ghost-plugin/tool\n`;
+  const fixture = (backup) => {
+    fs.rmSync(tmpRoot, { recursive: true, force: true });
+    fs.mkdirSync(path.join(tmpRoot, "node_modules"), { recursive: true });
+    fs.writeFileSync(path.join(tmpRoot, "cordis.patch.yml"), RESET, "utf8");
+    if (backup) fs.writeFileSync(path.join(tmpRoot, "cordis.patch.yml.bak-x"), backup, "utf8");
+    return tmpRoot;
+  };
+  // ① 显示名不是包名
+  if (guard.missingPackages(withDisplayNames, fixture()).length) {
+    problems.push("profile 自愈判据：把模型/预设显示名当成了缺失包（自愈会因此永远不执行）");
+  }
+  // ② 干净备份要真恢复
+  const okDir = fixture(withDisplayNames);
+  if (guard.guardProfilePatch(okDir, () => {}).action !== "restored") {
+    problems.push("profile 自愈判据：干净备份没有被恢复");
+  }
+  // ③ 脏备份：删掉缺失条目后恢复，且不再残留
+  const dirtyDir = fixture(withGhostPlugin);
+  const dirtyRes = guard.guardProfilePatch(dirtyDir, () => {});
+  if (dirtyRes.action !== "sanitized") problems.push(`profile 自愈判据：脏备份应删块后恢复，实得 ${dirtyRes.action}`);
+  else if (guard.missingPackages(fs.readFileSync(path.join(dirtyDir, "cordis.patch.yml"), "utf8"), dirtyDir).length) {
+    problems.push("profile 自愈判据：删块后仍残留缺失包引用");
+  }
+  fs.rmSync(tmpRoot, { recursive: true, force: true });
+  notes.push("profile 自愈判据自测（显示名不算包 / 干净恢复 / 脏备份删块恢复）✓");
+} catch (e) {
+  problems.push(`profile 自愈判据自测跑不起来：${String((e && e.message) || e).slice(0, 80)}`);
+}
+
+// 15) asar 切换形态：混合态是 2026-11-12 连崩三次的根因，工具缝隙里最容易再犯。
+// 闸门不读源码猜，直接在夹具上跑一遍（真磁盘三态 + 退出码）——README 里那行 npm run check:asar 就是它。
+try {
+  const r = spawnSync(process.execPath, [path.join(root, "scripts", "check-asar-switch.mjs")], { encoding: "utf8", timeout: 120000 });
+  const out = `${r.stdout || ""}${r.stderr || ""}`;
+  if (r.status !== 0) {
+    const last = out.trim().split("\n").filter((l) => l.includes("✗")).slice(0, 3).join(" / ") || out.trim().slice(-120);
+    problems.push(`asar 切换形态闸门报红：${last}`);
+  } else {
+    notes.push("asar 切换形态闸门（混合态解混合 / skip 不动文件 / 不完整目录拒绝 / 健康快照认混合态）✓");
+  }
+} catch (e) {
+  problems.push(`asar 切换形态闸门跑不起来：${String((e && e.message) || e).slice(0, 80)}`);
 }
 
 if (asJson) process.stdout.write(`${JSON.stringify({ real: REAL, claims, problems, notes }, null, 2)}\n`);

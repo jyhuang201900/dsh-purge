@@ -26,19 +26,19 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const toUrl = (p) => new URL("file:///" + String(p).replace(/\\/g, "/")).href;
 const core = await import(toUrl(path.join(root, "lib", "core.js")));
 
-const { adoptSurfaceForAiBase, findHostAiBase } = await import(toUrl(path.join(root, "lib", "surface.js")));
+const { adoptSurfaceForAiBase, findHostAiBase, findResourcesDir } = await import(toUrl(path.join(root, "lib", "surface.js")));
 // 面跟着宿主走（第 148 轮）：单跑时没有 DSH_BASE → gatherState 取不到 ai_base → 旧写法「跳过」按 exit 0 放行。
 // 跳过的意思是这一关没跑，所以现在自己解析宿主，解析不到就 exit 2，由 verify 判失败。
 const hostBase = findHostAiBase();
 if (!hostBase) {
   // 密封 asar 且没有解包源树：本关不适用（没东西可测），记 note 而不是冒充通过。
   const sealed = (() => {
-    for (const root of [process.env.ProgramFiles, "E:\\Program Files", "D:\\Program Files"]) {
-      if (!root) continue;
-      const p = path.join(root, "harness", "resources", "app.asar");
-      try { if (fs.existsSync(p)) return p; } catch { /* 下一个 */ }
-    }
-    return "";
+    // 共享探测（审计 M1）：宿主装在非常规目录时本地硬编码扫不到，会误判 exit 2（闸门红）；
+    // 「没装在这」应该是 exit 3（不适用），两件事必须分开。
+    const r = findResourcesDir();
+    if (!r) return "";
+    const p = path.join(r, "app.asar");
+    try { return fs.existsSync(p) ? p : ""; } catch { return ""; }
   })();
   if (sealed) {
     console.log("工具层冒烟：不适用（宿主是密封 asar、没有解包源树）；解开目录或跑一次 apply 后再跑");

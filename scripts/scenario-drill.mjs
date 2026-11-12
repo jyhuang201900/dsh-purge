@@ -148,7 +148,10 @@ const main = async () => {
   //      ④ 必须有「差一步」（有资产/漏洞却没对应得分点时）。
   await run("radar 计分机会", { op: "radar" },
     has("得分机会雷达"), has("已记分"), has("terminal-access"), has("可拿未拿"), has("web-app"),
-    has("建议先打"), has("op=score_add point="), has("差一步"));
+    has("建议先打"), has("op=score_add point="), has("差一步"),
+    // 数字锚点（审计 M3）：只断言子串时，雷达把已记分算成 120 分（真实 10 分）照样「45 步 0 失败」。
+    // 这三行把口径钉在实测值上——改口径会立刻红，而不是静默虚高。
+    has("已记分 10 分（1 类）"), has("可拿未拿 150 分（2 类）"), has("差一步 2 类"));
   // 一行版必须内嵌进缺省 summary（只放 op=radar 里等于「有机会但没人看」）
   await run("summary 内嵌雷达", { op: "summary" }, has("计分机会："));
 

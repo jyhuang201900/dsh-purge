@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.1.87</strong></p>
+<p align="center"><strong>Version 1.1.88</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 114 个演练技能（32 个进攻流程 + 16 个逆向与专项纵深）。</em>
@@ -133,7 +133,7 @@ dsh plugin --profile desktop add https://github.com/jyhuang201900/dsh-purge/arch
 插件市场里按 npm 包名搜会 404（npm 上没有这个包），用上面的 GitHub 归档命令。桌面客户端也可以点按钮（`dsh://` 唤起，下载地址已是 GitHub）：
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.87&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>唤起客户端一键安装</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.88&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>唤起客户端一键安装</strong></a>
 </p>
 
 ### 装完都要做这三步
@@ -473,6 +473,7 @@ npm run verify
 | `npm run check:package` | manifest 字段、发布文件、全仓数量声明、生态 tag、闸门数、注入体积与平面基线 |
 | `npm run check:tools` | 工具面预算：结构、描述成本、返回值、可发现性 |
 | `npm run check:toolkit` | toolkit 巡检：目录在但零 `.exe` ＝ 装过被删（先加白名单再重装）；可挂定时任务，红了才看 |
+| pm run check:asar | asar 切换形态闸门：混合态解混合 / 不完整目录拒绝切换 / 健康快照认混合态（夹具实跑，不碰真实安装） |
 | `npm run scenario` | 端到端情景：串 drill 的 op 逐步断言回读 + 真机只读探针 |
 | `npm run probe:gates` | 闸门反向探针总表：逐关改坏即红（没咬过的门等于不知道真假的门） |
 | `npm run audit:skills` | 弹药层一致性：技能正文引用的 `redteam_*` 工具名、条令点名的技能，都必须真实存在 |

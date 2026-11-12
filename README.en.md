@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness red-team security tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.1.87</strong></p>
+<p align="center"><strong>Version 1.1.88</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 114 drill skills (32 offense-flow plus 16 reverse/specialty).</em>
@@ -134,7 +134,7 @@ The plugin hub still 404s if it looks up the npm package name. Use the GitHub ar
 For the desktop client you can also click the button (`dsh://` deep link):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.87&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.88&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
 </p>
 
 ### After the command: three steps
@@ -465,6 +465,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run check:package` | manifest fields, published files, every user-facing count, ecosystem tags, gate count, injection size, plane baselines |
 | `npm run check:tools` | tool-surface budget: structure, description cost, return size, discoverability |
 | `npm run check:toolkit` | toolkit watch: a directory with zero `.exe` means "installed then deleted" (allowlist first, then reinstall); safe to run on a schedule |
+| pm run check:asar | asar switch-form gate: resolves the hybrid state, refuses to switch an incomplete dir, and the health snapshot reports hybrid (fixtures only, never touches the real install) |
 | `npm run scenario` | end-to-end drill scenario with read-back assertions plus a live read-only probe |
 | `npm run probe:gates` | reverse-probe table: every gate must turn red when broken (an unprobed gate is an unknown gate) |
 | `npm run audit:skills` | ammo-layer consistency: every `redteam_*` tool name cited by skills and every skill named by the doctrine must actually exist |

@@ -18,28 +18,12 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { spawnSync } from "node:child_process";
+import { findResourcesDir } from "../lib/surface.js";
 
 const argv = process.argv.slice(2);
 const mode = argv.includes("--off") ? "off" : argv.includes("--on") ? "on" : "status";
 
-function resourcesDir() {
-  const i = argv.indexOf("--resources");
-  if (i >= 0) {
-    const given = String(argv[i + 1] || "").trim();
-    if (given) return path.resolve(given);
-  }
-  const base = String(process.env.DSH_BASE || "").replace(/\\/g, "/");
-  const at = base.toLowerCase().indexOf("/resources/");
-  if (at > 0) return base.slice(0, at + "/resources".length);
-  for (const root of [process.env.ProgramFiles, "E:\\Program Files", "D:\\Program Files"]) {
-    if (!root) continue;
-    const p = path.join(root, "harness", "resources");
-    if (fs.existsSync(p)) return p;
-  }
-  return "";
-}
-
-const res = resourcesDir();
+const res = findResourcesDir(argv);
 if (!res) {
   console.log("找不到 resources 目录（设 DSH_BASE 或确认桌面端安装路径）");
   process.exit(2);
@@ -49,6 +33,9 @@ const parked = path.join(res, "app.asar.disabled");
 const appDir = path.join(res, "app");
 
 const isRunning = () => {
+  // 测试缝：夹具跑在真实宿主进程里（Agent 自己就住在宿主里），伪造不了「已退出」。
+  // 只影响本脚本的判定，不碰任何文件；生产路径默认不设这个变量。
+  if (process.env.DSH_PURGE_TOGGLE_ASSUME_STOPPED === "1") return false;
   try {
     const r = spawnSync("tasklist", ["/FI", "IMAGENAME eq DeepSeek Harness.exe", "/NH"], { encoding: "utf8", timeout: 8000 });
     return /DeepSeek Harness\.exe/i.test(String(r.stdout || ""));
@@ -109,6 +96,25 @@ if (mode === "off") {
 }
 
 // --on
+// **混合态本身就是 --on 要消除的终局形态**：asar 与 resources/app 并存时，
+// 以前的代码只判 parked，一看到没有 .disabled 就打印「无需回滚」exit 0 ——
+// skip 当 pass，和同脚本 --status 的 exit 5 自相矛盾（审计 C1 实测复现）。
+// 所以先解混合：把目录挪成 stale，让加载源只剩 asar。
+if (fs.existsSync(asar) && fs.existsSync(appDir)) {
+  if (isRunning()) {
+    console.log("宿主还在跑：混合态只能在宿主退出后解（运行中改目录名会被文件锁拒绝）");
+    process.exit(3);
+  }
+  const stale = path.join(res, `app.dshpurge-stale-${Date.now()}`);
+  fs.renameSync(appDir, stale);
+  console.log(`已把 resources/app 挪开 → ${path.basename(stale)}（混合态解除，加载源只剩 app.asar）`);
+  console.log("混合态已消除：以 app.asar 为加载源启动即可（此时不启动也不崩）");
+  if (fs.existsSync(parked)) {
+    console.log("另：app.asar.disabled 还在 —— 先确认它是不是上一轮残留，别直接删（node scripts/prune-host-leftovers.mjs 默认只列）");
+  }
+  process.exit(0);
+}
+
 if (!fs.existsSync(parked)) {
   console.log("没有 app.asar.disabled，无需回滚");
   process.exit(0);

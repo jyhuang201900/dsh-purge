@@ -1,3 +1,25 @@
+# 1.1.88
+
+## 中文
+
+这一版只修 1.1.87 里那副**没上膛的枪**：`lib/profile-guard.js` 的 profile 自愈。
+
+1.1.87 加它的理由是实情——宿主遇到加载不动的 profile patch（典型是引用了已卸载的插件）会把它静默重置成 `[]`，provider / UI / 预设一起没，11-12 一天发生了两次。但判据写错了：`missingPackages()` 用 `\bname:` 抓包名，而 patch 文件里的 `name:` 有两个身份——插件条目（`@deepseek-ai/…`、`dsh-super-code/super-code`）和**模型/预设显示名**（`name: DeepSeek V4.1 Flash`、`name: Super Code 模式`）。显示名被当成包名去 node_modules 里找，永远找不到，于是每一份备份都被判成「脏」，自愈恒不执行。
+
+- **判据收紧**：带空格的值必然是显示名；裸词（`atomcode`、`loomy` 这类 provider 别名）不算包；真正的插件条目要么 `@scope/name`，要么带 `/` 子路径。实机三份备份复判：从「每份都缺 3 个包」收敛到「只缺真正没装的 `dsh-super-code`」。
+- **脏备份不再整份放弃**：新增 `sanitizePatchText()`，把引用缺失包的条目**整块**删掉再写回（连同 `config:` 子行与嵌套条目）。删块分两级——条目自身提到缺失包就整条删（实机里 `name: file:///…/.super-code-recovery/…` + `owner: dsh-super-code` 就是这种，name 看着像路径、加载时照样炸）；只有嵌套子条目提到，就保留容器、递归清子条目（预设本身留下，只去掉它的 super-code 子项）。实机 dry-run：28 条 → 23 条，4726 → 3461 字节，残留 `dsh-super-code` 引用 0 行，`yaml.safe_load` 解析通过，预设的 11 个官方子项原样保留。
+- **闸门补第 14 项**（`check-package`）：显示名不算包 / 干净备份必须真恢复 / 脏备份删块后不得残留。反向探针实测——把 `packageOf` 的收窄判据删掉，两条立刻报红（「把显示名当成了缺失包」「干净备份没有被恢复」），复原后归零。
+
+## English
+
+This release fixes the **unloaded gun** shipped in 1.1.87: the profile self-heal in `lib/profile-guard.js`.
+
+The reason for that guard was real - the host silently resets `cordis.patch.yml` to `[]` when an entry cannot load (typically a reference to an uninstalled plugin), taking providers, UI settings and presets with it; that happened twice on 11-12. The predicate was wrong: `missingPackages()` matched packages with `\bname:`, but `name:` has two identities in that file - plugin entries (`@deepseek-ai/...`, `dsh-super-code/super-code`) and **model/preset display names** (`name: DeepSeek V4.1 Flash`, `name: Super Code 模式`). Display names were looked up in `node_modules`, never found, so every backup was judged dirty and the guard never fired.
+
+- **Tighter predicate**: a value containing a space is a display name; bare words (`atomcode`, `loomy` provider aliases) are not packages; a real plugin entry is either `@scope/name` or carries a `/` subpath. Re-judging the three live backups: from "every backup misses 3 packages" to "only the genuinely uninstalled `dsh-super-code`".
+- **Dirty backups are no longer discarded wholesale**: the new `sanitizePatchText()` drops the offending entries **as whole blocks** (with their `config:` children and nested items) and writes the rest back. Two levels: an entry that mentions a missing package in its own body is dropped entirely (the live file has `name: file:///.../.super-code-recovery/...` + `owner: dsh-super-code`, which looks like a path and still explodes on load); if only nested children mention it, the container is kept and its children are sanitized recursively. Live dry-run: 28 items → 23, 4726 → 3461 bytes, zero remaining `dsh-super-code` references, `yaml.safe_load` parses, and the preset keeps its 11 official children.
+- **New gate 14 in `check-package`**: display names are not packages / a clean backup must actually be restored / a sanitized backup must keep no missing references. Reverse probe verified: removing the narrowed predicate in `packageOf` turns two checks red immediately, and they go green again after restoring.
+
 # 1.1.87
 
 ## 中文

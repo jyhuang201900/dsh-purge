@@ -1,4 +1,4 @@
-﻿# 用途：在「宿主加载 app.asar」与「宿主加载 resources/app 目录」之间切换，且**不依赖任何会话**。
+# 用途：在「宿主加载 app.asar」与「宿主加载 resources/app 目录」之间切换，且**不依赖任何会话**。
 # 为什么要有它：这条命令必须由宿主之外的进程执行——改名的前提是宿主已退出，而 Agent 本身跑在宿主里，
 # 宿主一退 Agent 就没了，没人去改名、也没人去重新拉起。所以把它做成一个独立看门进程：
 #   ① 由你启动 → ② 你在界面里正常退出宿主 → ③ 它检测到进程消失 → ④ 改名 → ⑤ 自动拉起宿主 → ⑥ 写日志。
@@ -84,7 +84,14 @@ for ($i = 1; $i -le 10; $i++) {
   }
 }
 if (-not $done) {
-  Log "改名失败——什么都没变，宿主可以照常启动（回滚点未动）"
+  # 审计 C2：on 模式在前面已经把 resources\app 挪成 stale，这里再打印「什么都没变」就是撒谎——
+  # 此刻两边都没有（目录被挪走、asar 仍叫 .disabled），宿主起来只会二次崩。所以先放回目录，再按真实三态报。
+  $restored = $false
+  if ($staleDir -and (Test-Path $staleDir) -and -not (Test-Path $appDir)) {
+    try { Rename-Item -LiteralPath $staleDir -NewName 'app' -ErrorAction Stop; $restored = $true }
+    catch { Log "放回 resources\\app 也失败：$($_.Exception.Message)" }
+  }
+  Log "改名失败，宿主未启动。真实形态：app.asar=$(Test-Path $asar)｜app.asar.disabled=$(Test-Path $parked)｜resources\\app=$(Test-Path $appDir)｜目录已放回=$restored"
   exit 5
 }
 if ($Mode -eq 'off') { Log "已改名：app.asar → app.asar.disabled（内容未动）" }
@@ -108,6 +115,13 @@ if ($up) {
 Log "宿主 90 秒内没起来 —— 自动回滚到已知可用形态（asar 密封）"
 try {
   if ($Mode -eq 'off') {
+    # 审计 C3：这里原来只把 parked 改回 app.asar，不挪 resources\app → 正好造出混合态，
+    # 然后按该形态重启，日志还说「已按回滚形态重新启动」。先把目录挪开，再恢复 asar。
+    if (Test-Path $appDir) {
+      $lateStale = Join-Path $resources ("app.dshpurge-stale-" + [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
+      try { Rename-Item -LiteralPath $appDir -NewName (Split-Path $lateStale -Leaf) -ErrorAction Stop; Log "已把 resources\\app 挪开 → $(Split-Path $lateStale -Leaf)（避免回滚造出混合态）" }
+      catch { Log "挪开 resources\\app 失败：$($_.Exception.Message)"; exit 8 }
+    }
     if (Test-Path $parked) { Rename-Item -LiteralPath $parked -NewName 'app.asar' -ErrorAction Stop; Log "已恢复 app.asar" }
   } else {
     if (Test-Path $asar) { Rename-Item -LiteralPath $asar -NewName 'app.asar.disabled' -ErrorAction Stop; Log "已放回 app.asar.disabled" }
