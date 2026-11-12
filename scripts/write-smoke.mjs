@@ -42,6 +42,19 @@ const { adoptSurfaceForAiBase, findHostAiBase } = await import(toUrl(path.join(r
 // 解析不到就 exit 2（verify 把 2 判失败），不再用「跳过」冒充通过。
 const hostBase = findHostAiBase();
 if (!hostBase) {
+  // 密封 asar 且没有解包源树：本关**不适用**（没有可当拷源的宿主文件树），不是「通过」，也不是「失败」。
+  const sealed = (() => {
+    for (const root of [process.env.ProgramFiles, "E:\\Program Files", "D:\\Program Files"]) {
+      if (!root) continue;
+      const p = path.join(root, "harness", "resources", "app.asar");
+      try { if (fs.existsSync(p)) return p; } catch { /* 下一个 */ }
+    }
+    return "";
+  })();
+  if (sealed) {
+    console.log("写路径冒烟：不适用（宿主是密封 asar、没有解包源树可当夹具）；解开目录或跑一次 apply 后再跑");
+    process.exit(3);
+  }
   console.log("写路径冒烟：未跑（本机找不到宿主 ai_base；跳过不是通过，exit 2）");
   console.log("  宿主装在非常规位置时用：node scripts/verify.mjs --host \"<...>/resources/app/dsh/node_modules/@deepseek-ai\"");
   process.exit(2);

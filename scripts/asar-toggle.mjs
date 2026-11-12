@@ -23,6 +23,11 @@ const argv = process.argv.slice(2);
 const mode = argv.includes("--off") ? "off" : argv.includes("--on") ? "on" : "status";
 
 function resourcesDir() {
+  const i = argv.indexOf("--resources");
+  if (i >= 0) {
+    const given = String(argv[i + 1] || "").trim();
+    if (given) return path.resolve(given);
+  }
   const base = String(process.env.DSH_BASE || "").replace(/\\/g, "/");
   const at = base.toLowerCase().indexOf("/resources/");
   if (at > 0) return base.slice(0, at + "/resources".length);
@@ -56,27 +61,36 @@ const sizeMB = (p) => { try { return Math.round(fs.statSync(p).size / 1048576); 
 
 if (mode === "status") {
   const running = isRunning();
+  const hasAsar = fs.existsSync(asar);
+  const hasApp = fs.existsSync(appDir);
+  const hybrid = hasAsar && hasApp;
   console.log(`resources: ${res}`);
-  console.log(`app.asar: ${fs.existsSync(asar) ? `在（${sizeMB(asar)}MB）` : "不在"}`);
+  console.log(`app.asar: ${hasAsar ? `在（${sizeMB(asar)}MB）` : "不在"}`);
   console.log(`app.asar.disabled: ${fs.existsSync(parked) ? `在（${sizeMB(parked)}MB）` : "不在"}`);
-  console.log(`resources/app 目录: ${fs.existsSync(appDir) ? "在" : "不在"}`);
+  console.log(`resources/app 目录: ${hasApp ? "在" : "不在"}`);
   console.log(`宿主进程: ${running ? "在跑" : "未运行"}`);
-  // 注意：Node 的 fs.open 默认允许共享，用它测「被占用」会得到假阴性（实测本机报「否」，
-  // 而 .NET FileShare.None 一开就报 being used）。这里不猜占用，只按 Electron 的加载规则判：
-  // 启动时 app.asar 存在即优先加载——asr 在 = 加载源是 asar。
-  const verdict = !fs.existsSync(asar) && fs.existsSync(appDir)
-    ? "当前加载源 = resources/app 目录（补丁生效形态）"
-    : fs.existsSync(asar)
-      ? "当前加载源 = app.asar（补丁只写在解开目录，不生效）"
-      : "两种形态都不完整，别切";
+  // **两者并存 = 已知会崩的形态**（2026-11-12 实测：shell 与 host 子进程来自不同根，
+  // 首个 IPC 事件不合 schema，三次启动全挂在这条上）。所以这一行必须是结论，不是提示。
+  const verdict = hybrid
+    ? "⚠ 混合态：app.asar 与 resources/app 同时存在 —— shell 与 host 子进程可能来自不同根，启动会报 invalid IPC event。先移走其中一个"
+    : hasApp
+      ? "当前加载源 = resources/app 目录（补丁生效形态）"
+      : hasAsar
+        ? "当前加载源 = app.asar（补丁只写在解开目录，不生效）"
+        : "两种形态都不完整，别切";
   console.log(`判定: ${verdict}`);
-  process.exit(0);
+  process.exit(hybrid ? 5 : 0);
 }
 
 if (mode === "off") {
   if (!fs.existsSync(asar)) {
     console.log(`已经是目录形态（app.asar 不在）${fs.existsSync(parked) ? "，回滚文件在 app.asar.disabled" : ""}`);
     process.exit(0);
+  }
+  // 关掉 asar 的前提是目录形态**已经完整存在**，否则关完两边都没有 → 宿主直接起不来。
+  if (!fs.existsSync(path.join(appDir, "package.json"))) {
+    console.log("resources/app 不完整（缺 package.json）：不能先关 asar，否则两种形态都不全。先跑一次应用/解包再切。");
+    process.exit(6);
   }
   if (isRunning()) {
     console.log("宿主还在跑：请先退出 DeepSeek Harness（托盘退出或任务管理器结束进程），再执行 --off");
@@ -107,6 +121,15 @@ if (fs.existsSync(asar)) {
   console.log("app.asar 已经在了，先确认是否要覆盖");
   process.exit(4);
 }
+// **回滚必须同时把目录挪走**（2026-11-12 崩机教训）：只把 asar 改回来、留着 resources/app，
+// 就造出「两种形态并存」的混合态 —— shell 与 host 子进程可能来自不同根，首个 IPC 事件对不上 schema，
+// 三次启动全报 `invalid IPC event`。所以先给目录改名（复用插件自己的 stale 命名，便于追溯），再恢复 asar。
+if (fs.existsSync(appDir)) {
+  const stale = path.join(res, `app.dshpurge-stale-${Date.now()}`);
+  fs.renameSync(appDir, stale);
+  console.log(`已把 resources/app 挪开 → ${path.basename(stale)}（避免混合态）`);
+}
 fs.renameSync(parked, asar);
 console.log(`已回滚：app.asar.disabled → app.asar（${sizeMB(asar)}MB）`);
+console.log(`如需清理挪开的目录：node scripts/prune-host-leftovers.mjs（默认只列，--apply 才删）`);
 process.exit(0);

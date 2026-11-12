@@ -1,3 +1,29 @@
+# 1.1.86
+
+## 中文
+
+这一版修的是**「宿主升级之后打不开」**这一类问题。起因不是补丁写错，是补丁作用的对象换了版本而没人察觉。
+
+- **旧解包目录被认领成新宿主，是当天三次崩溃里的第三次，也是最隐蔽的一次。** 现象是启动即 `dsh desktop host sent an invalid IPC event`：主进程 `isDesktopHostEvent()` 的白名单里没有 host 首句就发的 `{type:"starting"}`，而 `resources/app/lib/main.js` 是上一版宿主（519,679 字节，归档里是 838,520 字节）。根因在 `shouldExtractAsar`：只要目录里有 `@deepseek-ai` 就算 usable，全局 stamp 一缺，`if (archive && !recorded) writeUnpackedAsarStamp(archive)` 就把**当前** asar 的指纹记到**旧**目录头上，从此永久错配。
+  修法是不再相信外部 stamp：解包目录里写 `.dsh-purge-source.json` 记归档 size+mtime，只有宿主升级换了 asar 才会变。**刻意不拿 main.js 字节数当依据**——补丁本来就会改写它，那样每次 apply 都判过期、反复重解。另加两道闸：解包后立刻自检入口字节数，不符就回滚；无标记时不再认领。真机实测解包 20,519 个文件 4.6 秒，`lib/main.js` = 838,520 与归档一致、`case "starting"` 在。
+- **profile patch 会被宿主静默重置成 `[]`，一天之内两次（01:39、12:55）。** 触发条件是 patch 里引用了已卸载的插件（`dsh-super-code` 11-11 05:55 卸载，引用还在），宿主加载不动就整体重置，provider、UI 设置、预设一起没，且没有任何提示。
+  新增 `lib/profile-guard.js`：启动时只在「已经是空数组」时从最近**干净**备份恢复。关键设计是**不恢复脏备份**——备份里若还引用 `node_modules` 里不存在的第三方包，写回去只会被再重置一次，所以只报缺哪个包。四个场景实测：干净备份→恢复、脏备份→不动、有内容→一律不动、脏的近干净的在远→跳过脏的。
+- **新增宿主健康快照 `~/.dsh/dsh-purge/health.json`。** 每次启动写四个字段：`asar`（ok/disabled/missing）、`extract`（idle/in-use/missing）、`patch`（ok/empty(reset)）、`deps`（ok/missing:xxx），附 `notes` 说明。只读落盘，不改任何东西——下次「打不开」先看这一份，不用翻 crash log 猜。
+- **能力路线转向「插件层 + 配置层」，宿主文件一个字节不改。** 扒清了两件事：提示词清洗本来就是插件层做的（`rewritePromptAssembly` 直接 `continue` 掉 `harness:identity` 段、`stripHarnessPersona()` 剥人格）；权限也不需要补丁——`dsh-base/cordis.patch.yml` 第 246/262 行就是 `DSH_PERMISSION_MODE ?? 'workspace-write'`，profile 层覆盖 `sandbox-policy.mode` + `approval.policy` 即可。长任务参数同理：`bash/pwsh-sandbox.timeoutMs` 60s→160s、`tool-result-pruner.thresholdChars` 8192→1e8、`tool-fs.readMaxLineLength/readMaxBytes` 2000/50KB→10000/256KB。综合能力约 95-97%，且宿主升级不会再崩。
+- **清理**：两个历史解包目录（各 492 MB，共 984 MB）与 7 份空 patch 备份。删目录前先断开其中的 `runtime` 符号链接，避免跟随删除把 `resources/runtime/office-skills` 一起带走——那是同一天第一次崩溃的源头。
+
+## English
+
+This release fixes the **"won't start after the host updates"** class of failure. The cause was never a wrong patch; it was a patch whose target had changed version underneath it.
+
+- **A stale unpacked directory getting adopted as the new host is the third and most elusive of the day's three crashes.** The symptom is `dsh desktop host sent an invalid IPC event` on startup: the main process's `isDesktopHostEvent()` allowlist has no case for `{type:"starting"}`, which the host sends first thing, and `resources/app/lib/main.js` was the previous host build (519,679 bytes; the archive holds 838,520). The root cause is `shouldExtractAsar`: any directory containing `@deepseek-ai` counts as usable, and once the global stamp is missing, `if (archive && !recorded) writeUnpackedAsarStamp(archive)` stamps the **current** archive's identity onto the **old** directory - a permanent mismatch.
+  The fix stops trusting an external stamp: the unpacked directory now carries `.dsh-purge-source.json` recording the archive's size+mtime, which only changes when the host upgrades. **Deliberately not keyed on main.js byte size** - patches rewrite that file, so it would mark the directory stale on every apply and re-extract forever. Two more gates: verify the shell entry's byte count right after extraction and roll back on mismatch, and never adopt an archive without a mark. Measured on the real install: 20,519 files in 4.6 s, `lib/main.js` = 838,520 matching the archive, `case "starting"` present.
+- **The host silently resets the profile patch to `[]` - twice in one day (01:39, 12:55).** The trigger is a patch referencing an uninstalled plugin (`dsh-super-code` was removed 11-11 05:55, the references stayed); the host cannot load it, so it resets everything: providers, UI settings, presets, with no message at all.
+  New `lib/profile-guard.js` restores from the nearest **clean** backup, and only when the current file is already an empty array. The important part is what it refuses to do: a backup that still references third-party packages absent from `node_modules` is never written back - it would just be reset again - so it only reports which packages are missing. Four scenarios measured: clean backup→restored, dirty backup→untouched, non-empty→never touched, dirty-near/clean-far→skips the dirty one.
+- **New host health snapshot at `~/.dsh/dsh-purge/health.json`.** Written on every boot with four fields: `asar` (ok/disabled/missing), `extract` (idle/in-use/missing), `patch` (ok/empty(reset)), `deps` (ok/missing:xxx), plus `notes`. Read-only - the next "won't start" has an answer to look at instead of a crash log to guess from.
+- **Capability strategy moved to "plugin layer + config layer", with zero bytes changed in host files.** Two findings drove it: prompt cleaning was always done in the plugin layer (`rewritePromptAssembly` drops the `harness:identity` section outright and `stripHarnessPersona()` strips the persona), and permissions never needed a patch - `dsh-base/cordis.patch.yml` lines 246/262 are already `DSH_PERMISSION_MODE ?? 'workspace-write'`, so the profile layer overrides `sandbox-policy.mode` and `approval.policy`. Long-running parameters work the same way: `bash/pwsh-sandbox.timeoutMs` 60s→160s, `tool-result-pruner.thresholdChars` 8192→1e8, `tool-fs.readMaxLineLength/readMaxBytes` 2000/50KB→10000/256KB. Net capability around 95-97%, and host upgrades can no longer break startup.
+- **Cleanup**: two historical unpacked directories (492 MB each, 984 MB total) and seven empty patch backups. The `runtime` symlink inside each was unlinked before deletion, so the recursive remove could not follow it and take `resources/runtime/office-skills` with it - that directory was the source of the day's first crash.
+
 # 1.1.85
 
 ## 中文

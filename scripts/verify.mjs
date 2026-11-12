@@ -67,12 +67,14 @@ const skipSize = argv.includes("--skip-size");
 const skipSet = new Set((argv[argv.indexOf("--skip") + 1] || process.env.DSH_VERIFY_SKIP || "").split(",").map((x) => String(x).trim().toLowerCase()).filter(Boolean));
 const skip = (name) => skipSize || skipSet.has(name);
 // **「跳过」不是通过**（第 148 轮）：子进程用 exit 2 表示「这一关没跑」；禁止再出现「带病绿」。
-// 同时兜另一种形态——exit 0 但最后一行写「跳过/未跑」（历史遗留写法）。命中即判失败并返回 true。
-const gateNotRun = (status, out, name) => {
+// 返回三态字符串，别用布尔：exit 3（本关在当前宿主形态下不适用，例：密封 asar 没有解包源树）
+// 既不是失败也不是通过 —— 只记 note，绝不写 ✓。布尔返回值上一次就因此把「不适用」又判成了失败。
+const gateVerdict = (status, out, name) => {
   const last = (out[out.length - 1] || "").trim();
-  if (status === 2) { failures.push(`${name}：未跑（本机找不到宿主 ai_base；跳过不是通过）`); return true; }
-  if (status === 0 && /跳过|未跑/.test(last)) { failures.push(`${name}：未跑——${last.slice(0, 110)}`); return true; }
-  return false;
+  if (status === 3) { notes.push(`${name}：不适用——${last.replace(/^[^：]*：/, "").slice(0, 110)}`); return "na"; }
+  if (status === 2) { failures.push(`${name}：未跑（本机找不到宿主 ai_base；跳过不是通过）`); return "fail"; }
+  if (status === 0 && /跳过|未跑/.test(last)) { failures.push(`${name}：未跑——${last.slice(0, 110)}`); return "fail"; }
+  return "run";
 };
 if (argv.includes("--skip") && !argv[argv.indexOf("--skip") + 1]) {
   console.log("--skip 需要名单，例如：node scripts/verify.mjs --skip write,cli（可用：size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json）");
@@ -148,7 +150,8 @@ if (!skip("tools")) {
 if (!skip("scenario")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "scenario-drill.mjs")], { encoding: "utf8" });
   const tail = (res.stdout || "").trim().split("\n").filter(Boolean);
-  if (gateNotRun(res.status, tail, "情景测试")) { /* 已记入 failures */ }
+  const v3 = gateVerdict(res.status, tail, "情景测试");
+  if (v3 === "na") { /* 不适用，已记 note */ }
   else if (res.status !== 0) {
     const bad = (res.stdout || "").split("\n").filter((l) => l.includes("✗")).slice(0, 3).join(" / ");
     failures.push(`情景测试未过：${bad || (tail.slice(-1)[0] || "") || (res.stderr || "").trim().split("\n")[0]}`);
@@ -186,7 +189,8 @@ if (!skip("cli")) {
 if (!skip("write")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "write-smoke.mjs")], { encoding: "utf8", timeout: 300000 });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
-  if (gateNotRun(res.status, out, "写路径冒烟")) { /* 已记入 failures */ }
+  const v1 = gateVerdict(res.status, out, "写路径冒烟");
+  if (v1 === "na") { /* 不适用，已记 note */ }
   else if (res.status !== 0) {
     failures.push(`写路径冒烟未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
   } else notes.push((out[out.length - 1] || "").trim());
@@ -196,7 +200,8 @@ if (!skip("write")) {
 if (!skip("toolsmoke")) {
   const res = spawnSync(process.execPath, [path.join(root, "scripts", "tools-smoke.mjs")], { encoding: "utf8", timeout: 180000 });
   const out = ((res.stdout || "") + (res.stderr || "")).trim().split(/[\r\n]+/);
-  if (gateNotRun(res.status, out, "工具层冒烟")) { /* 已记入 failures */ }
+  const v2 = gateVerdict(res.status, out, "工具层冒烟");
+  if (v2 === "na") { /* 不适用，已记 note */ }
   else if (res.status !== 0) {
     failures.push(`工具层冒烟未过：${out.filter((l) => l.includes("✗")).slice(0, 2).map((l) => l.trim()).join(" / ").slice(0, 150) || out[out.length - 1]}`);
   } else notes.push((out[out.length - 1] || "").trim());

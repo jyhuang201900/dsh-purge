@@ -30,7 +30,8 @@ $appDir = Join-Path $resources 'app'
 $procName = 'DeepSeek Harness'
 
 Log "模式=$Mode｜resources=$resources｜DryRun=$DryRun"
-if (-not (Test-Path (Join-Path $appDir 'package.json'))) {
+# 只在「切到目录形态」时要求目录完整；回滚（on）时本来就要把目录挪走，不能要求它还在。
+if ($Mode -eq 'off' -and -not (Test-Path (Join-Path $appDir 'package.json'))) {
   Log "resources\app 不完整（缺 package.json）——不切，避免把宿主切成起不来的形态"
   exit 3
 }
@@ -63,6 +64,14 @@ Log "宿主已退出（等待 ${waited}s），开始改名"
 
 # 进程刚退时文件句柄可能还没完全释放，重试几次而不是一次失败就放弃。
 $done = $false
+# 回滚（on）必须先把目录挪走：asar 与 resources/app 并存是**已知会崩**的形态
+# （2026-11-12 实测：shell 与 host 子进程来自不同根，首个 IPC 事件不合 schema，三次启动全报 invalid IPC event）。
+$staleDir = ""
+if ($Mode -eq 'on' -and (Test-Path $appDir)) {
+  $staleDir = Join-Path $resources ("app.dshpurge-stale-" + [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
+  try { Rename-Item -LiteralPath $appDir -NewName (Split-Path $staleDir -Leaf) -ErrorAction Stop; Log "已把 resources\app 挪开 → $(Split-Path $staleDir -Leaf)（避免混合态）" }
+  catch { Log "挪开 resources\app 失败：$($_.Exception.Message)——中止，不做半切换"; exit 6 }
+}
 for ($i = 1; $i -le 10; $i++) {
   try {
     if ($Mode -eq 'off') { Rename-Item -LiteralPath $asar -NewName 'app.asar.disabled' -ErrorAction Stop }
@@ -83,4 +92,31 @@ else { Log "已回滚：app.asar.disabled → app.asar" }
 
 Log "启动宿主：$Exe"
 Start-Process -FilePath $Exe
-Log "完成。若宿主起不来：直接再跑一次 -Mode on 即回到原状（或手动把 app.asar.disabled 改回 app.asar）"
+
+# **看门狗**：切完如果 90 秒内起不来，自动回到已知可用形态（asar 密封）。
+# 为什么要有它：2026-11-12 那次崩机就是切完起不来、而人不在旁边，只能事后手工修。
+$up = $false
+for ($i = 1; $i -le 45; $i++) {
+  Start-Sleep -Seconds 2
+  if (Get-Process $procName -ErrorAction SilentlyContinue) { $up = $true; break }
+}
+if ($up) {
+  Log "宿主已启动 ✓ 切换完成（模式=$Mode）"
+  exit 0
+}
+
+Log "宿主 90 秒内没起来 —— 自动回滚到已知可用形态（asar 密封）"
+try {
+  if ($Mode -eq 'off') {
+    if (Test-Path $parked) { Rename-Item -LiteralPath $parked -NewName 'app.asar' -ErrorAction Stop; Log "已恢复 app.asar" }
+  } else {
+    if (Test-Path $asar) { Rename-Item -LiteralPath $asar -NewName 'app.asar.disabled' -ErrorAction Stop; Log "已放回 app.asar.disabled" }
+    if ($staleDir -and (Test-Path $staleDir)) { Rename-Item -LiteralPath $staleDir -NewName 'app' -ErrorAction Stop; Log "已把挪开的目录放回 resources\app" }
+  }
+} catch {
+  Log "回滚失败：$($_.Exception.Message)（手工修：把 app.asar.disabled 改回 app.asar，再删/改名 resources\app）"
+  exit 8
+}
+Start-Process -FilePath $Exe
+Log "已按回滚形态重新启动宿主，请检查是否能打开"
+exit 7
