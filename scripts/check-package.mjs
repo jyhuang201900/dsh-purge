@@ -618,6 +618,43 @@ try {
   problems.push(`asar 切换形态闸门跑不起来：${String((e && e.message) || e).slice(0, 80)}`);
 }
 
+// 16) 雷达「指纹 → 技能」指向：1.1.90 给国产 OA 单开一条与 web-app 共用 code 的规则时踩过——
+// 取值处按 code 反查规则，共用 code 就会拿到排在前面的那条，普通 nginx 也被指到 cn-oa-exploit。
+// 技能名必须跟着**实际命中的规则**走。这里用假状态直接跑真函数，正向与反向都断言。
+try {
+  const { pathToFileURL } = await import("node:url");
+  const radar = await import(pathToFileURL(path.join(root, "lib", "redteam", "score-radar.js")).href);
+  const rulesMod = await import(pathToFileURL(path.join(root, "lib", "redteam", "score-rules.js")).href);
+  const pts = (rulesMod.DEFAULT_SCORE_POINTS || []).map((p) => ({ ...p, enabled: 1 }));
+  const one = (port) => radar.scoreRadar({
+    assets: [{ id: 1, ip: port.ip, hostname: "" }],
+    ports: [{ ...port }],
+    vulns: [], credentials: [], accesses: [], webshells: [], tunnels: [], webs: [], hits: [],
+  }, pts, { top: 8 });
+  // gap 里取「指纹点名」的那条（todo 以「已经看到」开头），技能名从反引号里取
+  const skillOf = (r) => {
+    const g = (r.gap || []).find((x) => /^已经看到/.test(String(x.todo)));
+    return g ? ((String(g.todo).match(/技能 `([^`]+)`/) || [])[1] || "") : "";
+  };
+  const CASES = [
+    { label: "泛微 OA", port: { ip: "10.0.0.2", port: 80, service: "http", title: "泛微协同管理平台 e-cology" }, want: "cn-oa-exploit" },
+    { label: "致远 A8", port: { ip: "10.0.0.4", port: 8080, service: "http", title: "致远A8 协同管理" }, want: "cn-oa-exploit" },
+    { label: "Ollama", port: { ip: "10.0.0.1", port: 11434, service: "http", banner: "Ollama is running" }, want: "ai-infra-attack" },
+    { label: "Langflow", port: { ip: "10.0.0.10", port: 7860, service: "http", title: "Langflow" }, want: "ai-infra-attack" },
+    // 反向：共用 code 的普通 Web 站**不许**被指到 OA 技能
+    { label: "普通 nginx", port: { ip: "10.0.0.3", port: 80, service: "http", title: "Welcome to nginx!" }, want: "" },
+  ];
+  const bad = [];
+  for (const c of CASES) {
+    const got = skillOf(one(c.port));
+    if (got !== c.want) bad.push(`${c.label} 期望「${c.want || "无"}」实得「${got || "无"}」`);
+  }
+  if (bad.length) problems.push(`雷达技能指向自测失败：${bad.join("；")}`);
+  else notes.push("雷达技能指向自测（OA→cn-oa-exploit / AI→ai-infra-attack / 普通 Web 不串技能）✓");
+} catch (e) {
+  problems.push(`雷达技能指向自测跑不起来：${String((e && e.message) || e).slice(0, 80)}`);
+}
+
 if (asJson) process.stdout.write(`${JSON.stringify({ real: REAL, claims, problems, notes }, null, 2)}\n`);
 else {
   process.stdout.write(`包自证：实况 补丁 ${REAL.patches} 条 / 技能 ${REAL.skills} 个｜绿项 ${notes.length} 条（条数随实况增减，不是固定项数），问题 ${problems.length}\n`);
