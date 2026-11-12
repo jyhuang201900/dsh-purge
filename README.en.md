@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness red-team security tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.1.90</strong></p>
+<p align="center"><strong>Version 1.1.91</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 116 drill skills (organised by five phases: recon / asset mapping / vulnerability discovery / exploitation / intranet, plus 9 chain overviews).</em>
@@ -134,7 +134,7 @@ The plugin hub still 404s if it looks up the npm package name. Use the GitHub ar
 For the desktop client you can also click the button (`dsh://` deep link):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.90&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.91&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
 </p>
 
 ### After the command: three steps
@@ -606,7 +606,7 @@ Eight third-party dsh plugins are installed in this desktop profile; each owns o
 
 Purge hands capabilities to models through three entrances, all built from one contract table (`lib/model-tools.js`, 10 tools: status / align / apply / revert / patch / update / rules / skills / override / drill):
 
-**Capability ledger (only numbers a machine can compute; every one of them is reconciled by check-package item 21)**: 10 tools, `purge_drill` 18 op, 22 entities (10 read + 12 write), 46 end-to-end scenario steps, nine gates. Write-method coverage is 27 of 31 (87%); the remaining four (`close`, `seedStages`, `seedScorePoints`, `writePromptManifest`) are deliberate exemptions - see the three-entrance matrix above and release-notes, not an un-checked gap.
+**Capability ledger (only numbers a machine can compute; every one of them is reconciled by check-package item 21)**: 10 tools, `purge_drill` 18 op, 22 entities (10 read + 12 write), 50 end-to-end scenario steps, nine gates. Write-method coverage is 27 of 31 (87%); the remaining four (`close`, `seedStages`, `seedScorePoints`, `writePromptManifest`) are deliberate exemptions - see the three-entrance matrix above and release-notes, not an un-checked gap.
 
 1. **Inside a dsh session**: registered via `ctx.tools` on activation, so the model sees `purge_*`.
 2. **MCP over stdio**: `node bin/dsh-purge.js --mcp`, connectable by any MCP client, no running dsh required.

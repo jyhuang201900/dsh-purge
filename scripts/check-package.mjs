@@ -340,7 +340,11 @@ notes.push(`平面基线 注册 ${regCount} / 得分点 ${scoreCount} / 映射 $
   const realRead = countKeys(readEnt);
   const realWrite = countKeys(writeEnt);
   const scenSrc = fs.readFileSync(path.join(root, "scripts", "scenario-drill.mjs"), "utf8");
-  const realSteps = (scenSrc.match(/await run\(/g) || []).length;
+  /* 步数 = 所有「带断言的情景步」，不是只数 `await run(`。
+     1.1.91 加了技能检索的 4 步，它们走 runQ(（purge_skills 与 purge_drill 是两个工具，
+     没法共用同一个 runner），闸门只认 run( → 报「README 写 50 步、实际 46」。
+     错的不是文档，是闸门把「步」定义成了一种实现细节。改为同时计 run( 与 runQ(。 */
+  const realSteps = (scenSrc.match(/await run\(/g) || []).length + (scenSrc.match(/await runQ\(/g) || []).length;
   for (const rel of ["README.md", "README.en.md"]) {
     const fp = path.join(root, rel);
     if (!fs.existsSync(fp)) continue;

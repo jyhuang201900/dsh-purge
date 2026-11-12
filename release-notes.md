@@ -1,3 +1,45 @@
+# 1.1.91
+
+## 中文
+
+这一版只做一件事：**让技能被找到**。不加技能、不改注入、不碰宿主。
+
+- **问题**：116 个技能、正文合计 **666,612 字**，而 `purge_skills` 只有两个入口——`id=`（必须精确知道技能名）和 `all=1..5`（按阶段列名，阶段 3 一行 **42 个名字**）。技能越多越难挑中，「库里有 116 个」和「只用得上几个」于是变成同一件事。**所有闸门都看不见这个洞**：它们只量结构健康（零入边 0、工具引用一致），不量可检索性。
+- **新能力 `purge_skills q=<关键词或症状>`**：模糊命中，回前 8 个技能 + 每个的命中理由（一句 whenToUse）。实测：`ollama`→`ai-infra-attack`、`泛微`→`cn-oa-exploit`、`webshell`→`webshell-toolkit`、`域控`→`windows-ad`、`横向移动`→`lateral-movement`、`拿不到 shell`→`shell-handler`。空结果不空转，给可用方向词 + 阶段表。
+- **索引离线生成**（`lib/generated/skills-search.json`，116 条、平均 36 关键词，不占注入预算）：关键词从**现有** frontmatter（description / whenToUse）与标题自动抽取，含 CVE 号、端口、产品名。为什么不手写关键词表——技能库还会继续加，手写表一定会漏，这是「生成物即资产」的老问题。
+- **排序上花了真功夫，每条规则都是被实测推翻后改出来的**：
+  - 技能名命中压过正文里的偶然提及（原先问 `webshell` 会把 `chisel-tunnel` 排第一，只因它 whenToUse 写着「suo5 不适用（非 WebShell 入口）」——一句排除性说明成了最强命中）。
+  - 英文按**词边界**匹配：`domain` 不许命中 `subdomain`（否则「域控」把子域爆破顶到第一）；两字母缩写（`AD`）一律不做子串匹配（会撞 `Read`/`headless`/`metadata`/`jadx`）。
+  - 层级折进分值而非 tie-break：专项 −6、流程 −15。早先只在同分时比层级，结果 `attack-chain` 靠英文描述拿 70 分、具体打法技能只有 58 分，分不同就轮不到层级生效，「横向移动」永远把流程技能排第一。
+  - 同义词只在**查询侧**展开，不在索引侧灌入。试过索引侧：`graphql-testing` 正文里提了一次「横向」（讲横向扩展查询），就被当成内网横向技能。索引侧扩张让一个词污染一堆技能，查询侧只影响这一次查询。
+- **三条新闸门**（这是本版真正的价值——把「找不到」变成红灯）：
+  - `check-tools` 新增「技能检索」项：索引 116/116 覆盖、零关键词 0、4 个典型查询必须命中、空结果必须给方向。
+  - `build-skill-graph` 自检：零关键词技能直接进 problems。
+  - `check-package` 步数口径修正：原先只数 `await run(`，新加的 `runQ(` 4 步不计入 → 报「README 写 50 步、实际 46」。错的是闸门不是文档。
+- **按用户决定取消工具面总长硬顶**：`surface_max 3600` 改为 `surface_watch`（只观测、不判红，现 3560）。单工具 1600 的硬顶保留——单个工具吃掉整面预算才是真失控，与总长是两件事。
+- **回滚前提已实现并验证**：删掉索引后 `q=` 走「索引不在 → 跑 build:skills-graph 重建」的降级提示，不崩。实测删文件→提示→恢复。
+- 情景 46 → **50 步**（端口词/产品名/症状/乱码四类）；`verify` 16 关全绿、`check-package` 问题 0。
+
+## English
+
+This release does one thing: **make the skills findable**. No new skills, no injection changes, no host edits.
+
+- **The problem**: 116 skills totalling **666,612 characters** of body text, while `purge_skills` offered only two entrances - `id=` (you must already know the exact name) and `all=1..5` (list by stage, with **42 names** on one line for stage 3). The more skills, the harder to pick one, so "we have 116 skills" and "only a few ever get used" became the same statement. **Every existing gate was blind to this**: they measured structural health (zero-inbound 0, tool references consistent), not reachability.
+- **New `purge_skills q=<keyword or symptom>`**: fuzzy match, returns the top 8 with a one-line reason each. Verified: `ollama`→`ai-infra-attack`, `泛微`→`cn-oa-exploit`, `webshell`→`webshell-toolkit`, `域控`→`windows-ad`, `横向移动`→`lateral-movement`, `拿不到 shell`→`shell-handler`. Empty results do not stall - they list usable direction words and the stage table.
+- **Index generated offline** (`lib/generated/skills-search.json`, 116 entries, ~36 keywords each, outside the injection budget): keywords are extracted from the **existing** frontmatter (description / whenToUse) and headings, including CVE ids, ports and product names. Why not hand-write a keyword table - the library keeps growing, a hand-written table will fall behind; it is the same "generated artifacts are assets" problem this repo has hit before.
+- **Ranking took real work, and every rule came from being proven wrong by a test**:
+  - A skill-name hit must outweigh a passing mention in body text (asking `webshell` used to return `chisel-tunnel` first, only because its whenToUse says "suo5 does not apply (not a WebShell entrance)" - an exclusion note became the strongest hit).
+  - English matching respects **word boundaries**: `domain` must not match `subdomain` (otherwise "域控" puts subdomain-bruteforce first); two-letter abbreviations (`AD`) never do substring matching (they collide with `Read`/`headless`/`metadata`/`jadx`).
+  - Hierarchy is folded into the score rather than used as a tie-break: specialties −6, flow −15. As a tie-break it never fired - `attack-chain` scored 70 from its English description while the concrete technique skill scored 58, so "横向移动" always surfaced the orchestration skill first.
+  - Synonyms expand on the **query side only**, never written into the index. The index-side attempt made `graphql-testing` an intranet-lateral skill because its body mentions "横向" once (in "horizontal scaling"). Index-side expansion lets one word pollute many skills; query-side affects only that one query.
+- **Three new gates** (the real value of this release - turning "unfindable" into a red light):
+  - `check-tools` gains a skill-search check: 116/116 index coverage, zero-keyword 0, four canonical queries must hit, empty results must give direction.
+  - `build-skill-graph` self-check: zero-keyword skills go straight into problems.
+  - `check-package` step-count fix: it only counted `await run(`, so the four new `runQ(` steps were invisible and it claimed "README says 50, actual 46". The gate was wrong, not the docs.
+- **Tool-surface hard cap removed per the user's decision**: `surface_max 3600` becomes `surface_watch` (observed, never fails; currently 3560). The per-tool 1600 cap stays - one tool eating the whole surface is real runaway, a different thing from total length.
+- **The rollback precondition is implemented and tested**: delete the index and `q=` falls back to "index missing - run build:skills-graph", without crashing. Verified by deleting, seeing the hint, restoring.
+- Scenario 46 → **50 steps** (port word / product name / symptom / garbage); `verify` 16 gates green, `check-package` problems 0.
+
 # 1.1.90
 
 ## 中文

@@ -164,6 +164,35 @@ const main = async () => {
   const sum = await run("summary 复核", { op: "summary" }, has("靶标 1 个｜当前=示例靶"), has("chainSteps=1"));
   await run("report 链条数一致", { op: "report" }, has("chainSteps=1"));
   await run("chain 计数一致", { op: "chain" }, has("共 1 条"));
+
+  /* 12) 技能检索（q=）：116 个技能、66.6 万字，旧接口只能按精确名或按阶段列——
+      「库里有 116 个」和「只用得上几个」是同一件事。这四步钉住检索真的能用：
+      ① 端口词 → AI 基础设施技能  ② 中文产品名 → 国产 OA 技能
+      ③ 症状描述 → 该症状对应的技能  ④ 乱码 → 必须给可用方向，不许空转 */
+  const skillsTool = buildModelTools({ core, rules, hostctl, updater, rejectIfNeedPrompt: () => null, redteamStore: store })
+    .find((x) => x.name === "purge_skills");
+  const runQ = async (label, q, ...asserts) => {
+    let text = "";
+    try {
+      text = String((await skillsTool.execute({ q })).text ?? "");
+    } catch (e) {
+      failures.push(`${label} 抛异常：${String(e?.message ?? e).slice(0, 80)}`);
+      steps.push({ label, ok: false, text: "抛异常" });
+      return;
+    }
+    for (const a of asserts) {
+      const r = a(text);
+      if (r !== true) failures.push(`${label}：${r}`);
+    }
+    steps.push({ label, ok: !asserts.length || asserts.every((a) => a(text) === true), text: text.split("\n")[0] });
+  };
+  await runQ("检索 端口词→AI 设施", "ollama", has("ai-infra-attack"));
+  await runQ("检索 产品名→国产 OA", "泛微", has("cn-oa-exploit"));
+  /* 「拿不到 shell」这种症状式问法，正确答案是 shell-handler（把一次性命令执行变成会话），
+     不是 webshell-toolkit（那个是拿到上传点之后落地）。断言最初写错成 webshell-toolkit，
+     跑红后才发现：症状查询的价值恰恰在于它能给出**对的**那个，而不是名字最像的那个。 */
+  await runQ("检索 症状→具体打法", "拿不到 shell", has("shell-handler"));
+  await runQ("检索 乱码给方向", "zzzz不存在的词", has("换个说法"), has("按阶段列"), not("命中 "));
   return 0;
 };
 

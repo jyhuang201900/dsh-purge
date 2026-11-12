@@ -353,6 +353,140 @@ console.log(`  未被任何角色挂载: ${unassigned.length}${unassigned.length
 const zeroIn = skills.filter((s) => !relations.some((r) => r.target === s.id)).map((s) => s.id);
 const zeroOut = skills.filter((s) => !relations.some((r) => r.source === s.id)).map((s) => s.id);
 console.log(`  零入边 ${zeroIn.length}${zeroIn.length ? "：" + zeroIn.slice(0, 8).join(", ") : " ✓"}｜零出边 ${zeroOut.length}${zeroOut.length ? "：" + zeroOut.slice(0, 6).join(", ") : " ✓"}`);
+
+/* ── 检索索引：让模型按「症状/关键词」找到技能，而不是先猜对名字 ──
+ *
+ * 为什么要有它：116 个技能、正文 66.6 万字，而 purge_skills 原先只有 id=（精确名）和
+ * all=1..5（按阶段列名）。阶段 3 一行要列 42 个名字——技能越多，模型越难从名字里挑中，
+ * 「有 116 个技能」和「只有几个会被用到」就成了同一件事（与第 106 轮零入边同源）。
+ *
+ * 为什么不手写关键词表：技能库还会继续加，手写表每加一个技能就要人记得补，一定会漏。
+ * 这里从**现有** frontmatter（description / whenToUse）离线抽取，加技能自动跟上。
+ * 产物 skills-search.json 不占注入预算（不进提示词，只在 purge_skills 调用时读）。
+ */
+const SEARCH_STOP = new Set([
+  "本技能", "技能", "使用", "进行", "可以", "需要", "一个", "这个", "以及", "相关", "部分",
+  "以下", "说明", "注意", "方法", "步骤", "内容", "情况", "问题", "时候", "目标", "结果",
+  "攻击", "测试", "渗透", "常见", "工具", "命令", "示例", "参考", "第一", "第二", "第三",
+  "第二发", "链路位置", "本机可执行性", // 生成块的标题，不是检索词
+  "the", "and", "for", "with", "this", "that", "from", "into", "your", "you", "use",
+]);
+
+/* 中文虚词/连接词：出现在片段首尾就是要剥掉的噪音。
+ * 不这么做会切出「与信创系统前」「的启动与用法」这类碎片——它们永远命中不了有用查询，
+ * 却会把真正的技能挤到结果后面（同一条正则从长句里切 6 字窗口的必然产物）。 */
+const CN_LEAD = /^(?:的|与|和|及|在|对|把|被|为|是|这|那|其|之|用|从|到|将|让|使|有|无|或|再|也|就|都|并|而|则|若|如|先|后|时|按|以|向|由)+/;
+const CN_TAIL = /(?:的|与|和|及|在|对|把|被|为|是|这|那|其|之|了|着|过|等|后|前|时|后|中|上|下|内|外|者|地|得)+$/;
+
+/** 从一段纯文本里抽「专有名词类」关键词：CVE 号、端口、英文/产品名。质量最高的一档。 */
+function extractProper(text) {
+  const out = new Set();
+  const src = String(text || "");
+  // ① CVE / CNVD 编号整串保留（「CVE-2025-3248」是最高价值的检索词）
+  for (const m of src.matchAll(/\b(?:CVE|CNVD|CNNVD)-\d{4}-\d{3,7}\b/gi)) out.add(m[0]);
+  // ② 端口号（11434 这类是实操里最先想到的词）
+  for (const m of src.matchAll(/\b(?:端口\s*)?(\d{2,5})\b/g)) {
+    const n = Number(m[1]);
+    if (n >= 21 && n <= 65535) out.add(m[1]);
+  }
+  // ③ 英文/产品名（Ollama、Langflow、Milvus、e-cology 这种都在这条里）
+  for (const m of src.matchAll(/\b[A-Za-z][A-Za-z0-9][A-Za-z0-9._-]{1,24}\b/g)) {
+    const w = m[0];
+    if (w.length >= 2 && !SEARCH_STOP.has(w.toLowerCase())) out.add(w);
+  }
+  return out;
+}
+
+/* 中文噪音：这些是标题里常见的「动词/连接式」片段，切出来像词其实无检索价值。
+ * 例：「一台就」「打了就」「稳后猛」「图后枪」——都出自我自己写标题时的口语化短语。
+ * 与其逐个加黑名单（永远不全），不如用「必须含名词性汉字」这条正面规则。 */
+const CN_NOISE = new Set([
+  "一台就", "打了就", "稳后猛", "图后枪", "先判", "判是什么", "认产品", "稳后", "再猛",
+  "适用场景", "任务完成自检", "工具一览", "推荐", "可脚本化", "上传后必须验证",
+]);
+
+/* 名词性提示字：一个候选片段里至少要出现一个，否则多半是「打了就」这类动词碎片。
+ * 这是正面判据（不是黑名单），新技能里出现同型噪音也能挡住。 */
+const CN_NOUN_HINT = /[名平端口服系库台机件数权洞链网码证账令靶面层段点表站牌单书文图型目协议引擎框架平台系统产品漏洞接口服务凭证终端设备数据库主机域名端口]/;
+
+function isGoodCn(s) {
+  if (s.length < 2 || s.length > 8) return false;
+  if (SEARCH_STOP.has(s) || CN_NOISE.has(s)) return false;
+  /* 2-4 字的短词直接放行：产品名常常不含任何「名词提示字」（泛微、致远、蓝凌、
+     深澜、红队、打点…），靠提示字判据会把最有辨识度的词筛掉。
+     5 字以上才要求像个名词短语——长片段是碎句的概率高得多。 */
+  if (s.length <= 4) return true;
+  return CN_NOUN_HINT.test(s);
+}
+
+/** 中文关键词：只从标题取，且必须像「名词短语」而不是动词碎片。 */
+function extractCnFromHeadings(headings) {
+  const out = new Set();
+  for (const h of headings) {
+    /* 标题常用「与」「/」「、」串联两三个名词（「端口与指纹速查」），
+       先按分隔符拆开，避免整条长标题被长度窗口切掉。 */
+    for (const part of String(h).split(/[与和及、/|｜，,。：:（）()\[\]【】“”"'·—]+/)) {
+      for (const seg of part.split(/[^\u4e00-\u9fa5]+/)) {
+        const s = seg.replace(CN_LEAD, "").replace(CN_TAIL, "");
+        if (isGoodCn(s)) out.add(s);
+      }
+    }
+  }
+  return out;
+}
+
+/** 每个技能一条检索记录：id / stage / keys / why（命中时给模型看的理由） */
+/* 同义词**不在索引侧扩张**（这里只留记录，说明为什么不这么做）：
+ * 试过「技能里出现触发词就把整组同义词灌进它的 keys」，结果 graphql-testing 正文里提了一次
+ * 「横向」（讲横向扩展查询），就被当成内网横向技能——「横向移动」直接把它排到第一。
+ * 索引侧扩张让一个词污染一堆技能；查询侧扩张只影响这一次查询，同一件事代价差一个数量级。
+ * 同义词表因此搬到了 lib/model-tools.js 的 QUERY_SYNONYMS（查询时展开）。
+ * 这里保留一个空实现，是为了让「曾经有过这一层」在代码里留痕，别再被重新发明一遍。 */
+function applySynonyms(keys) {
+  return [...keys];
+}
+
+const searchIndex = skills.map((s) => {
+  const raw = fs.readFileSync(path.join(SKILLS, s.id + ".md"), "utf8")
+    .replace(/<!--[\s\S]*?-->/g, ""); // 先剥生成块注释，免得把生成标记当关键词
+  /* 生成块（第二发 / 链路位置 / 本机可执行性）是流水线产物，每个技能都有、内容雷同：
+     「主力打不出去」「结果落哪个库」「漏洞发现」这类词一旦入索引，会让所有技能互相命中，
+     排序立刻失去意义。按标题名剔除，而不是靠关键词黑名单猜。 */
+  const GENERATED_HEAD = /^(第二发|链路位置|本机可执行性)/;
+  const headings = [...raw.matchAll(/^#{2,4}\s+(.+)$/gm)]
+    .map((m) => m[1])
+    .filter((h) => !GENERATED_HEAD.test(h.trim()));
+  /* CVE 号生在正文表格里（不在 frontmatter），所以专有名词要扫全文；
+     但英文名只从摘要+标题取——正文 66.6 万字里扫英文词会引入巨量噪音
+     （普通单词也算「专有名词」），那比没有索引更糟。 */
+  const cve = new Set([...raw.matchAll(/\b(?:CVE|CNVD|CNNVD)-\d{4}-\d{3,7}\b/gi)].map((m) => m[0]));
+  const proper = extractProper(`${s.id} ${s.summary} ${s.whenToUse} ${headings.join(" ")}`);
+  /* 中文产品名（泛微/致远/用友…）主要写在 description 与 whenToUse 里，不在标题里。
+     这两段是**人写的短句**，质量高，所以按分隔符拆开后同样过 isGoodCn——
+     不要图省事把整段 description 丢进长句切窗，那正是噪音的来源。 */
+  const cn = extractCnFromHeadings([...headings, s.summary, s.whenToUse]);
+  const extra = [s.id, s.domain, s.stageName].filter((w) => w && !SEARCH_STOP.has(w));
+  const base = [...new Set([...cve, ...proper, ...cn, ...extra])];
+  const keys = applySynonyms(base);
+  return {
+    id: s.id,
+    stage: s.stage,
+    stageName: s.stageName,
+    domain: s.domain,
+    keys,
+    // why 是「命中时怎么解释」：模型看到的是理由，不只是一个光秃秃的名字
+    why: s.whenToUse || s.summary || "",
+  };
+});
+
+// 可达性自检：零关键词 === 存在于库里但找不到，这是闸门原来完全看不见的盲区
+const unreachable = searchIndex.filter((s) => !s.keys.length).map((s) => s.id);
+if (unreachable.length) problems.push(`检索索引里有 ${unreachable.length} 个技能无任何关键词: ${unreachable.slice(0, 6).join(", ")}`);
+{
+  const avg = searchIndex.length ? Math.round(searchIndex.reduce((n, s) => n + s.keys.length, 0) / searchIndex.length) : 0;
+  console.log(`  检索索引: ${searchIndex.length} 个技能｜平均 ${avg} 条关键词｜零关键词 ${unreachable.length}`);
+}
+
 console.log(`  校验问题: ${problems.length}${problems.length ? "：" + problems.slice(0, 5).join(" | ") : " ✓"}`);
 
 const LINK_MARK = "<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->";
@@ -384,12 +518,16 @@ function renderSection(s) {
   return L.join("\n");
 }
 
+/* ── 检索索引的抽取逻辑与 searchIndex 定义已上移到「校验问题」之前，
+   这样零关键词能在同一行汇总里报出来，不必等写盘后才暴露。 ── */
+
 if (!dry) {
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, "skills-index.json"), JSON.stringify({ schemaVersion: 1, totalSkills: skills.length, stages: STAGES, skills }, null, 2), "utf8");
   fs.writeFileSync(path.join(OUT, "skills-relations.json"), JSON.stringify({ schemaVersion: 1, total: relations.length, relations }, null, 2), "utf8");
   fs.writeFileSync(path.join(OUT, "skills-agents.json"), JSON.stringify({ schemaVersion: 1, roles: agents }, null, 2), "utf8");
-  console.log(`  ✓ 已写 lib/generated/{skills-index,skills-relations,skills-agents}.json`);
+  fs.writeFileSync(path.join(OUT, "skills-search.json"), JSON.stringify({ schemaVersion: 1, total: searchIndex.length, stages: STAGES, skills: searchIndex }, null, 2), "utf8");
+  console.log(`  ✓ 已写 lib/generated/{skills-index,skills-relations,skills-agents,skills-search}.json`);
 
   // 把链路写进技能正文（幂等：先剥旧章节再追加）
   let injected = 0;

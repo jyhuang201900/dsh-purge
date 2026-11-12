@@ -12,7 +12,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import * as core from "../lib/core.js";
 import * as rules from "../lib/rules.js";
 import * as hostctl from "../lib/host.js";
@@ -25,7 +25,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const asJson = process.argv.includes("--json");
 
 // 预算：按 2026-11-09 实测值放宽约 20-30%，只防失控增长，不做常红灯。
-const BUDGET = { tools_min: 9, tools_max: 12, surface_max: 3600, per_tool_max: 1600, output_max: 1500, output_max_with_data: 2200, output_lines_max: 20, drill_ops_max: 18 };
+// 工具面合计只观测不判红（用户 2026-11-12 定：预算不设上限，不许因为预算拒绝加参数）。
+// per_tool_max 仍保留硬顶——单个工具的描述膨胀是真失控（一个工具吃掉整面预算），
+// 与「整面总长」是两件事。合计只打印数字，涨了也不会拦。
+const BUDGET = { tools_min: 9, tools_max: 12, surface_watch: 3600, per_tool_max: 1600, output_max: 1500, output_max_with_data: 2200, output_lines_max: 20, drill_ops_max: 18 };
 
 const tools = buildModelTools({ core, rules, hostctl, updater, renderStatus, rejectIfNeedPrompt: () => null });
 const problems = [];
@@ -59,8 +62,8 @@ for (const t of tools) {
   if (n > worst.n) worst = { name: t.name, n };
   if (n > BUDGET.per_tool_max) problems.push(`${t.name} 描述+schema ${n} 字符，超单工具预算 ${BUDGET.per_tool_max}`);
 }
-if (surface > BUDGET.surface_max) problems.push(`工具面合计 ${surface} 字符，超预算 ${BUDGET.surface_max}`);
-notes.push(`描述成本 ${surface}（预算 ${BUDGET.surface_max}），最大 ${worst.name}=${worst.n}`);
+// 合计超了只提示、不判红：预算不设上限（用户定），留着数字是为了手滑时能看见
+notes.push(`描述成本 ${surface}（观测线 ${BUDGET.surface_watch}${surface > BUDGET.surface_watch ? "，已超但按约定不拦" : ""}），最大 ${worst.name}=${worst.n}`);
 
 // 3) 只读工具的默认返回值体量（apply/revert 会改文件，不参与）
 const READ_ONLY = ["purge_status", "purge_align", "purge_patch", "purge_update", "purge_rules", "purge_skills", "purge_drill"];
@@ -160,6 +163,52 @@ for (const b of blocks) {
   for (const k of keys) { if (seen.has(k)) dup.add(k); seen.add(k); }
   if (dup.size) problems.push(`${b.name} 参数表有重复键 ${[...dup].join("/")}：后写会把前写的说明盖掉`);
 }
+// 5c) 检索可达性：技能存在 ≠ 技能找得到。
+//
+// 为什么这条必须有：116 个技能、正文 66.6 万字，旧接口只能按精确名（id=）或按阶段列（all=1..5，
+// 阶段 3 一行 42 个名字）访问。于是「库里有 116 个技能」和「实际只用得上几个」是同一件事，
+// 而**所有现有闸门都看不见这个洞**——它们只量结构健康（零入边、工具引用一致），不量可检索性。
+//
+// 判据三条，全部跑真函数，不读源码猜：
+//   ① 索引覆盖 116/116，且每个技能至少一条关键词（零关键词 = 存在但找不到）
+//   ② 典型查询必须命中预期技能（端口词、产品名、技能名三类各验一个）
+//   ③ 空结果不许空转（必须给可用方向词）
+{
+  const { buildModelTools } = await import(pathToFileURL(path.join(root, "lib", "model-tools.js")).href);
+  const coreMod = await import(pathToFileURL(path.join(root, "lib", "core.js")).href);
+  const deep = new Proxy(function () {}, { get: (_t, k) => (k === "then" ? undefined : deep), apply: () => deep });
+  const built = buildModelTools({ core: coreMod, rules: deep, hostctl: deep, updater: deep, rejectIfNeedPrompt: () => false });
+  const skillTool = built.find((t) => t.name === "purge_skills");
+  const idxPath = path.join(root, "lib", "generated", "skills-search.json");
+  let idx = null;
+  try { idx = JSON.parse(fs.readFileSync(idxPath, "utf8")); } catch { /* 下面按缺失处理 */ }
+  if (!idx || !Array.isArray(idx.skills)) {
+    problems.push("检索索引缺失：跑 node scripts/build-skill-graph.mjs 生成 lib/generated/skills-search.json（否则 purge_skills q= 只能降级提示）");
+  } else {
+    const skillFiles = fs.readdirSync(path.join(root, "skills", "redteam")).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
+    const indexed = new Set(idx.skills.map((s) => s.id));
+    const missing = skillFiles.filter((id) => !indexed.has(id));
+    const noKeys = idx.skills.filter((s) => !Array.isArray(s.keys) || !s.keys.length).map((s) => s.id);
+    if (missing.length) problems.push(`检索索引漏了 ${missing.length} 个技能：${missing.slice(0, 5).join(", ")}`);
+    if (noKeys.length) problems.push(`检索索引里 ${noKeys.length} 个技能零关键词（存在但找不到）：${noKeys.slice(0, 5).join(", ")}`);
+    // ② 典型查询（三类：端口词 / 产品名 / 技能名），每条都要求预期技能出现在结果里
+    const CASES = [
+      { q: "ollama", want: "ai-infra-attack" },
+      { q: "泛微", want: "cn-oa-exploit" },
+      { q: "webshell", want: "webshell-toolkit" },
+      { q: "域控", want: "windows-ad" },
+    ];
+    for (const c of CASES) {
+      const r = await skillTool.execute({ q: c.q });
+      if (!String(r.text || "").includes(c.want)) problems.push(`检索自测：q=${c.q} 未命中 ${c.want}（检索退化成找不到）`);
+    }
+    // ③ 空结果必须给方向，不许空转
+    const none = await skillTool.execute({ q: "zzzz不存在的词" });
+    if (!/换个说法|按阶段列/.test(String(none.text || ""))) problems.push("检索自测：空结果没有给出可用方向词（模型拿到空字符串会卡住）");
+    notes.push(`技能检索：索引 ${idx.skills.length}/${skillFiles.length} 覆盖｜${CASES.length} 个典型查询全部命中｜空结果给方向 ✓`);
+  }
+}
+
 // 6) 反堆叠：op 数是聚合入口退化的先行指标。规则（2026-11-09 定）：新增 op 必须至少收纳 3 个 store 方法
 //    或一整条流程，否则折进 kind/entity —— 据此抬到 18（op=update 一个 op 收 updateVuln/updateWebshell/updateTunnel 三个方法）。
 //    新面优先折进 kind/entity（如 report kind=targets 零新增参数只涨 109 字符），而不是再加 op。
