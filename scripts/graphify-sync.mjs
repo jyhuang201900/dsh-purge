@@ -18,13 +18,14 @@ const INFERRED_OK = new Set([0.95, 0.85, 0.75, 0.65, 0.55]);
 const ROOT_DEFAULT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
 function parseArgs(argv) {
-  const opts = { root: ROOT_DEFAULT, foldRationale: true, cluster: false, dryRun: false };
+  const opts = { root: ROOT_DEFAULT, foldRationale: true, cluster: false, dryRun: false, refreshBaseline: false };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === "--root") { opts.root = path.resolve(argv[i + 1] ?? "."); i += 1; }
     else if (a === "--no-fold-rationale") opts.foldRationale = false;
     else if (a === "--cluster") opts.cluster = true;
     else if (a === "--dry-run") opts.dryRun = true;
+    else if (a === "--refresh-baseline") opts.refreshBaseline = true;
     else { fail(`未知参数：${a}`); }
   }
   return opts;
@@ -242,6 +243,41 @@ function validate(merged) {
   return { errors, dangle: dangle.length };
 }
 
+/* --refresh-baseline：把「删基线 → 全量重抽 AST → 用新基线合并」这条手工流程固化。
+ *
+ * 为什么需要它（2026-11-13 实测踩过）：
+ *   基线只在**不存在时**冻结一次（见 ensureBaseline 的 fs.existsSync 提前返回）。
+ *   代码改了好几轮之后直接跑 `graphify update` 或 `npm run graphify`，合并出来的
+ *   还是**旧代码**的图谱——节点数只会在原地打转（实测 2726 → 2932 → 2728 → 2861，
+ *   数字变来变去但没有一次真正吃到新代码）。
+ *
+ * 正确姿势原本是三条命令手工串：
+ *   rm graphify-out/ast-baseline.json
+ *   graphify extract . --code-only --no-cluster --force
+ *   npm run graphify
+ * 串错一步就会出现「语义层标签被 AST hub 名覆盖」这种退化——我中途就遇到过
+ * （`default-prompt-inject.md（当前生效的注入正文）` 被覆盖成 `default-prompt-inject.md`），
+ * 因为直接跑 `graphify update` 绕过了语义层合并。
+ *
+ * 现在一条命令做对：先删基线 → 调 graphify extract --force 重抽 → 再走正常合并。
+ */
+function refreshBaselineIfAsked(outDir, root, opts) {
+  if (!opts.refreshBaseline) return;
+  const baseFile = path.join(outDir, "ast-baseline.json");
+  if (fs.existsSync(baseFile)) {
+    fs.rmSync(baseFile, { force: true });
+    warn("已删除旧 AST 基线：接下来会用新抽取结果重冻");
+  }
+  const res = spawnSync("graphify", ["extract", root, "--code-only", "--no-cluster", "--force"], {
+    encoding: "utf8", shell: true, stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (res.status !== 0) {
+    fail(`重抽 AST 失败（exit ${res.status}）：${(res.stderr || res.stdout || "").trim().split("\n").slice(-2).join(" / ")}`);
+  }
+  const tail = (res.stdout || "").trim().split("\n").filter(Boolean).slice(-1)[0] || "";
+  warn(`AST 已全量重抽：${tail.replace(/^\[graphify extract\] /, "")}`);
+}
+
 function main() {
   const opts = parseArgs(process.argv.slice(2));
   const outDir = path.join(opts.root, "graphify-out");
@@ -250,6 +286,8 @@ function main() {
 
   const files = fs.readdirSync(semDir).filter((f) => f.endsWith(".json")).sort();
   if (!files.length) fail(`${semDir} 下没有 *.json`);
+
+  refreshBaselineIfAsked(outDir, opts.root, opts);
 
   const { baseline, created, dropped } = ensureBaseline(outDir, opts.root);
   if (created) warn(`已冻结 AST 基线 ast-baseline.json（从 graph.json 剔除 ${dropped ?? 0} 个语义节点）`);

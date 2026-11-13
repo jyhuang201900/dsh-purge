@@ -72,7 +72,8 @@
     "build:client": "node scripts/build-client.mjs",
     "graphify": "node scripts/graphify-sync.mjs --cluster",
     "host-sync": "node scripts/host-sync.mjs",
-    "check:asar": "node scripts/check-asar-switch.mjs"
+    "check:asar": "node scripts/check-asar-switch.mjs",
+    "graphify:refresh": "node scripts/graphify-sync.mjs --refresh-baseline --cluster"
   },
   "license": "SEE LICENSE IN LICENSE",
   "keywords": [
