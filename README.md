@@ -494,6 +494,8 @@ npm run verify
 | `npm run verify` | 一条命令过八关 |
 | `npm run build:client` | 重打前端 bundle |
 | `npm run graphify` | 重建知识图谱（AST + 手写语义层） |
+| `npm run graphify:refresh` | 同上但**强制重抽 AST**：旧代码改多了必须用这个，否则合并出来还是旧图谱（基线只在不存在时冻结一次） |
+| `npm run graphify:label` | 用 LLM 把社区名从「hub 文件名」换成语义名（`core.js` → `Rules Management`）。凭据在 `.cache/graphify-llm.json`（不入库） |
 | `npm run host-sync` | 把 profile 里的已安装副本指到当前 commit（按内容指纹核对，不看声明） |
 
 跑法：`node scripts/verify.mjs --skip-size` 可跳过体积关快速自检。
@@ -602,6 +604,8 @@ flowchart LR
 版本说明见 [release-notes.md](./release-notes.md) 与 [Releases](https://github.com/jyhuang201900/dsh-purge/releases)。
 
 知识图谱：语义层在 `graphify-out/semantic/`，规范见 [docs/graphify-语义层规范.md](./docs/graphify-语义层规范.md)，重跑一条命令 `node scripts/graphify-sync.mjs --cluster`。
+
+社区名默认是 hub 文件名（`core.js`、`verify.mjs` 这种，可导航但不说明用途）。要换成语义名（`Rules Management`、`Size And Package Gate Checks`）跑 `npm run graphify:label`——它读 `.cache/graphify-llm.json` 里的 OpenAI 兼容端点凭据，本机用的是 `baidu/ernie-5.5-flash-preview:free`。这个免费模型有两个坑，脚本已经兜住：① 它把预算先花在 reasoning 上，`max_tokens` 给小了会出现 `content=null` + `finish_reason=length`，graphify 会判成「返回不可解析 JSON」；② 并发稍高就偶发空返回，且失败时会回写 hub 兜底名（**看着像成功、其实没命名**），所以脚本默认单并发并重试到兜底名为 0 为止。
 
 ## 联动 / 生态
 

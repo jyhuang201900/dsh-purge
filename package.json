@@ -73,7 +73,8 @@
     "graphify": "node scripts/graphify-sync.mjs --cluster",
     "host-sync": "node scripts/host-sync.mjs",
     "check:asar": "node scripts/check-asar-switch.mjs",
-    "graphify:refresh": "node scripts/graphify-sync.mjs --refresh-baseline --cluster"
+    "graphify:refresh": "node scripts/graphify-sync.mjs --refresh-baseline --cluster",
+    "graphify:label": "node scripts/graphify-label.mjs"
   },
   "license": "SEE LICENSE IN LICENSE",
   "keywords": [

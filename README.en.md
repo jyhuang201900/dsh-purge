@@ -486,6 +486,8 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run verify` | one command, eight gates |
 | `npm run build:client` | rebuild the client bundle |
 | `npm run graphify` | rebuild the knowledge graph (AST + hand-written semantic layer) |
+| `npm run graphify:refresh` | same, but **force a full AST re-extract**: after enough code churn this is the only variant that reflects new code (the baseline is frozen once, only when absent) |
+| `npm run graphify:label` | rename communities from hub filenames to semantic names with an LLM (`core.js` → `Rules Management`). Credentials live in `.cache/graphify-llm.json` (not committed) |
 | `npm run host-sync` | point the installed profile copy at the current commit (verified by content fingerprint, not by claim) |
 
 Quick self-check without the size gate: `node scripts/verify.mjs --skip-size`.
@@ -590,6 +592,8 @@ If nothing is found, set `DSH_BASE` / `DSH_DESKTOP_INSTALL`. No files are change
 Release notes: [release-notes.md](./release-notes.md) and [Releases](https://github.com/jyhuang201900/dsh-purge/releases).
 
 Knowledge graph: the hand-written semantic layer lives in `graphify-out/semantic/`, the contract is [docs/graphify-语义层规范.md](./docs/graphify-%E8%AF%AD%E4%B9%89%E5%B1%82%E8%A7%84%E8%8C%83.md), and one command rebuilds everything: `node scripts/graphify-sync.mjs --cluster`.
+
+Community names default to hub filenames (`core.js`, `verify.mjs` - navigable but uninformative). For semantic names (`Rules Management`, `Size And Package Gate Checks`) run `npm run graphify:label`, which reads OpenAI-compatible endpoint credentials from `.cache/graphify-llm.json` (locally `baidu/ernie-5.5-flash-preview:free`). That free model has two traps the script already handles: (1) it spends budget on reasoning first, so a small `max_tokens` yields `content=null` with `finish_reason=length`, which graphify reports as "label response is not parseable JSON"; (2) it returns empty responses intermittently at higher concurrency and writes hub fallback names on failure (**looks like success, names nothing**), so the script runs single-concurrency and retries until no fallback names remain.
 
 ## Ecosystem / who does what
 
