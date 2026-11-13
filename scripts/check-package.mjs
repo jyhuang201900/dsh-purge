@@ -475,8 +475,10 @@ for (const [rel, rex, why] of [
 if (toolCount) notes.push(`工具数 ${toolCount}（文档口径一致）`);
 
 // 12) 注入正文体积预算：这是「不许堆叠」唯一能被机器看的量 —— 默认注入越长，每个会话的固定成本越高。
-//     预算按 2026-11-09 实测 29,777 字放宽到 33,000（约 +11%），只防失控增长，不做常红灯。
-const INJECT_BUDGET = 33000;
+//     2026-11-09 按实测 29,777 放宽到 33,000；2026-11-13 用户定 50,000（当时实际 32,030，占 64%）。
+//     抬顶不等于鼓励堆叠：这条仍是「只防失控增长」的观察线，加条款前先想能不能折进现有段落、
+//     或下沉成技能（技能按需加载，边际成本近零；注入正文是每轮固定成本）。
+const INJECT_BUDGET = 50000;
 let injectLen = 0;
 try { injectLen = String(defaultOverrideText() || "").length; } catch (e) { problems.push(`读不到默认注入正文：${String(e.message).slice(0, 60)}`); }
 if (!injectLen) problems.push("默认注入正文是空的（打包或 asset-table 出问题）");

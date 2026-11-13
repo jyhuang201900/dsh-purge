@@ -448,7 +448,7 @@ npm run verify
 
 **Rule for not mirroring everything**: configuration/state belongs in the model's reach; UI actions (`restart`, rewind, uninstall) are safer left to humans. **Every exemption is written here, not kept as folklore.** `/purge` subcommands vs their hint string are enforced by check-package item 20 (aliases detected by the fall-through rule, no hand-maintained list).
 
-Part of the package self-proof is a family of **self-restraint assertions**: they do not check the outside world, only whether purge has quietly fattened itself - the gate count (whatever the README claims must match the code), publish manifest vs self-update manifest, tool count (the N stated in docs == the number of `purge_*` definitions in source), default injected body size (<= 33,000 chars), prompt-layer net delta (<= 2,000 chars; only this layer actually burns tokens, code-layer changes do not) and the bilingual copy-key count.
+Part of the package self-proof is a family of **self-restraint assertions**: they do not check the outside world, only whether purge has quietly fattened itself - the gate count (whatever the README claims must match the code), publish manifest vs self-update manifest, tool count (the N stated in docs == the number of `purge_*` definitions in source), default injected body size (<= 50,000 chars), prompt-layer net delta (<= 2,000 chars; only this layer actually burns tokens, code-layer changes do not) and the bilingual copy-key count.
 
 All local entry points (14 of them, each with a reason to exist; a documented gap is a missing gate):
 
