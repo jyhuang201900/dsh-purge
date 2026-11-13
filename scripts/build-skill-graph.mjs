@@ -58,6 +58,13 @@ const STAGE_RULES = [
   [/^(gogo-intranet|fscan-intranet|netexec-scan|lateral-movement|windows-ad|identity-federation|cloud-k8s|ot-ics|edr-bypass-re|threat-hunting|wifi-wireless|hardware-security|radio-sdr)$/, "5", "internal"],
   [/^(suo5-tunnel|chisel-tunnel|frp-tunnel)$/, "4", "exploit"],
   [/^(attack-chain|pentest-tools|case-review|ctf-sandbox|ctf-sandbox-orchestrator|redteam-setup)$/, "flow", "flow"],
+  /* 验证层三技能：**跨阶段**，不是某一阶段的专属。
+     verification-discipline 在每个阶段收尾都用（证明打中了）；
+     detection-pairing 在选手法时用（评估响度）；
+     attack-traceability 在规划与交付时用（定坐标、算覆盖度）。
+     挂到 flow 角色（编排/交付）而不是某个攻击阶段——挂在攻击阶段会让
+     模型以为「打完才用」，实际它们应该在**打之前和打之后都用**。 */
+  [/^(verification-discipline|detection-pairing|attack-traceability)$/, "flow", "flow"],
   [/^(browser-automation|kimi-webbridge|cn-proxy-pool)$/, "flow", "aux"],
   [/^(reverse-engineering|ida-reverse|ghidra-reverse|radare2|binary-diff|patch-diff-exploit|pwn-chain|go-rust-reverse|dotnet-reverse|js-reverse|browser-extension-reverse|thick-client|protocol-reverse|firmware-pentest|apk-reverse|mobile-reverse)$/, "4", "exploit"],
   [/^(malware-analysis|digital-forensics|supply-chain-security|api-security|code-audit)$/, "3", "vuln-scan"],
@@ -149,10 +156,16 @@ const TRUNK = {
   "database-security": { up: ["api-security"], down: ["credential-attack"] },
   "email-security": { up: ["recon-pipeline"], down: ["credential-attack"] },
   "llm-security": { up: ["api-security"], down: ["competition-prompt-injection"] },
-  "attack-chain": { up: [], down: ["recon-pipeline"] },
+  "attack-chain": { up: [], down: ["recon-pipeline", "attack-traceability"] },
   "ctf-sandbox-orchestrator": { up: [], down: [] },
   "ctf-sandbox": { up: [], down: ["ctf-sandbox-orchestrator"] },
-  "case-review": { up: ["digital-forensics", "malware-analysis"], down: [] },
+  "case-review": { up: ["digital-forensics", "malware-analysis", "verification-discipline"], down: [] },
+  /* 验证层三技能是「横切」的：不属于某一阶段，而是贯穿「证明 / 评估 / 定位」三件事。
+     链路设计：oob-verification（判定手段）→ verification-discipline（证明成立）
+     → detection-pairing（评估响度）→ attack-traceability（钉坐标）→ case-review（复盘）。 */
+  "verification-discipline": { up: ["oob-verification"], down: ["detection-pairing", "case-review"] },
+  "detection-pairing": { up: ["verification-discipline"], down: ["attack-traceability"] },
+  "attack-traceability": { up: ["attack-chain", "detection-pairing"], down: ["case-review"] },
   "redteam-setup": { up: [], down: ["recon-pipeline"] },
   "pentest-tools": { up: [], down: ["recon-pipeline", "nuclei-scan"] },
   "browser-automation": { up: ["web-fingerprint"], down: ["js-reverse"] },

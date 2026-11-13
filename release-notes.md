@@ -1,3 +1,58 @@
+# 1.1.94
+
+## 中文
+
+这一版治的是**「只会打，不会证明」**。116 个技能（本章升至 119）都会说怎么打穿，但很少说「怎么证明真的打穿了」「对手能不能发现」。
+
+- **怎么发现的**：先量化自己，再广搜社区。量化结果推翻了我之前三次判断——逆向域平均 **8851 字**是全库第二厚（我原以为要补），真正薄的是 `identity`（**1644 字**，2 个技能），而 `windows-ad` 这个域渗透主干只有 **1968 字**，比 `competition-zip-archive`（8067 字）薄 4 倍。
+- **12 维度覆盖矩阵**（机器统计 119 个技能）：
+
+  | 维度 | 覆盖 | 判定 |
+  |---|---|---|
+  | 证据可复现 | 99% | 过饱和——都提一句，成了口头禅 |
+  | 攻击执行 | 78% | 强 |
+  | 检测配对 | **3%** | 空白 |
+  | ATT&CK 映射 | **3%** | 空白 |
+  | 误报验证 | **4%** | 空白 |
+  | 补丁后复测 | **4%** | 空白 |
+
+  四个空白指向同一个根问题：**插件只会打，不会证明，也不会评估隐蔽性。**
+
+- **A 补验证层**（三个新技能）：
+  - `verification-discipline`：误报四类根因、对照组排除法、**五档修复判定**（CLOSED / PARTIAL / NOT FIXED / REGRESSED / BROKEN BY FIX）、显式声明未验证缺口
+  - `detection-pairing`：攻击手法必配检测，Sigma/KQL/SPL/YARA 四方言模板、**响度评级**（🔇静默/🔉低/🔊中/📢高）、被拦后三步定位是谁拦的
+  - `attack-traceability`：14 战术链、20 条高频技术速查、覆盖度算法、三个常见映射错误
+- **A2 攻击技能加检测段**：6 个高响度技能（webshell / 注入 / 提权 / 横向 / 凭据 / EDR 绕过）各加「检测视角」表——防守方在哪个日志、看什么信号。检测段覆盖 3% → 8%。
+- **A3 第 18 关闸门** `check-detection-pairing`：把「攻击必配检测」变成机器检查，不再靠自觉。判据三条：必须带检测段、段内 ≥3 行具体检测点、三类感知源（日志源/进程链/网络）至少命中两类。**反向探针验过**：删掉 webshell 的检测段立刻报红。
+- **B 补薄域**：`windows-ad` 1968 → **8220 字**（补了 8 档坐标定位、Kerberoast/AS-REP、ACL 滥用五条边、AD CS 全 ESC 表、强制认证中继、DCSync、检测视角表）、`identity-federation` 1319 → **5648 字**（SAML XSW 五种手法、OAuth 四类缺陷、JWT 四类攻击、AD 接合点）、`cloud-k8s` 2066 → **6691 字**（IMDS 三云、容器逃逸六条件、K8s RBAC 三条提权路、kubelet 10250）。`identity` 域平均 1644 → **6934**。
+- **C Progressive Disclosure**：`http-smuggling` **962 行 → 220 行**，把 `Payload 库`（11933 字）与 `H1 真实案例`（3134 字）外移到 `references/http-smuggling/`。验证方式：原 H3 标题 8 个**丢失 0**、含空字节的 payload 完整保留。
+- 技能 116 → **119**；闸门 17 → **18**；`verify` 18 关全绿、`check-package` 问题 0。
+
+## English
+
+This release fixes **"it can attack but cannot prove"**. All 116 skills (now 119) explain how to break in, but rarely how to prove it actually worked or whether a defender would notice.
+
+- **How it was found**: measure yourself first, then scan the community. The measurements overturned three of my earlier judgements - the reverse domain averages **8851 chars**, the second thickest in the repo (I had assumed it needed work), while the genuinely thin domain is `identity` (**1644 chars**, 2 skills). `windows-ad`, the AD-pentest trunk, held only **1968 chars** - a quarter the size of `competition-zip-archive` (8067).
+- **12-dimension coverage matrix** (machine-counted across 119 skills):
+
+  | Dimension | Coverage | Verdict |
+  |---|---|---|
+  | Reproducible evidence | 99% | Oversaturated - mentioned everywhere, means nothing |
+  | Attack execution | 78% | Strong |
+  | Detection pairing | **3%** | Blank |
+  | ATT&CK mapping | **3%** | Blank |
+  | False-positive verification | **4%** | Blank |
+  | Post-patch retest | **4%** | Blank |
+
+  The four blanks share one root cause: **the plugin attacks but never proves, and never assesses detectability.**
+
+- **A - verification layer** (three new skills): `verification-discipline` (four false-positive root causes, control-group method, **five-tier fix verdict** CLOSED/PARTIAL/NOT FIXED/REGRESSED/BROKEN BY FIX, explicit unverified gaps), `detection-pairing` (Sigma/KQL/SPL/YARA templates, **loudness rating**, three-step attribution of what blocked you), `attack-traceability` (14-tactic chain, 20 high-frequency techniques, coverage arithmetic, three common mapping errors).
+- **A2 - detection sections on attack skills**: six high-loudness skills each gained a detection table - which log, what signal. Detection coverage 3% → 8%.
+- **A3 - gate 18** `check-detection-pairing` turns "attacks must pair with detection" into a machine check: must have the section, must have ≥3 concrete detection points, must hit ≥2 of three sensing classes (logs / process tree / network). **Reverse probe verified**: deleting the webshell detection section turns it red immediately.
+- **B - thin domains**: `windows-ad` 1968 → **8220 chars**, `identity-federation` 1319 → **5648**, `cloud-k8s` 2066 → **6691**. The `identity` domain average goes 1644 → **6934**.
+- **C - Progressive Disclosure**: `http-smuggling` **962 → 220 lines**, with the payload library and real-case appendix moved to `references/http-smuggling/`. Verified by heading count (8 H3, 0 lost) and the NUL-byte payload surviving intact.
+- Skills 116 → **119**; gates 17 → **18**; `verify` 18 gates green, `check-package` problems 0.
+
 # 1.1.93
 
 ## 中文

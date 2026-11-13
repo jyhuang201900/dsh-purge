@@ -138,13 +138,16 @@
       "stage": "flow",
       "skills": [
         "attack-chain",
+        "attack-traceability",
         "case-review",
         "ctf-sandbox",
         "ctf-sandbox-orchestrator",
+        "detection-pairing",
         "pentest-tools",
-        "redteam-setup"
+        "redteam-setup",
+        "verification-discipline"
       ],
-      "fromStage": 6,
+      "fromStage": 9,
       "fromProse": 0
     },
     "aux": {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "totalSkills": 116,
+  "totalSkills": 119,
   "stages": {
     "1": "信息收集",
     "2": "资产梳理",
@@ -126,7 +126,26 @@
       ],
       "upstream": [],
       "downstream": [
-        "recon-pipeline"
+        "recon-pipeline",
+        "attack-traceability"
+      ]
+    },
+    {
+      "id": "attack-traceability",
+      "summary": "把每个发现钉到 MITRE ATT&CK 技术编号上：打之前用它选路线、打之中用它保证不重复、打之后用它写报告和算覆盖度。含 TTP 编号速查、战术链排序、覆盖度自评",
+      "whenToUse": "规划阶段要选\"打到哪几步\"时；要判断手上这发属于哪个战术阶段时；写报告要给客户\"覆盖了哪些 TTP\"时；复盘要算\"这次演练到底覆盖多少\"时",
+      "stage": "flow",
+      "stageName": "流程/编排",
+      "role": "flow",
+      "domain": "misc",
+      "targetTypes": [],
+      "records": [],
+      "upstream": [
+        "attack-chain",
+        "detection-pairing"
+      ],
+      "downstream": [
+        "case-review"
       ]
     },
     {
@@ -194,7 +213,8 @@
       ],
       "upstream": [
         "digital-forensics",
-        "malware-analysis"
+        "malware-analysis",
+        "verification-discipline"
       ],
       "downstream": []
     },
@@ -1019,6 +1039,23 @@
       ],
       "downstream": [
         "credential-attack"
+      ]
+    },
+    {
+      "id": "detection-pairing",
+      "summary": "攻击手法必配检测：每个打法同时给出防守方在日志里的可见信号（Sigma/YARA/KQL/SPL 四种方言），用于评估\"这一发有多响\"、写报告的影响面、以及被拦后判断是被规则拦还是被配置拦",
+      "whenToUse": "交付前要给每个发现配检测规则时；要评估某一发的隐蔽性、决定用哪条手法时；发现被拦后要判断\"是 WAF 拦的还是 EDR 拦的\"时；蓝队复盘要给检测建议时",
+      "stage": "flow",
+      "stageName": "流程/编排",
+      "role": "flow",
+      "domain": "misc",
+      "targetTypes": [],
+      "records": [],
+      "upstream": [
+        "verification-discipline"
+      ],
+      "downstream": [
+        "attack-traceability"
       ]
     },
     {
@@ -1935,6 +1972,24 @@
       "downstream": [
         "webshell-toolkit",
         "shell-handler"
+      ]
+    },
+    {
+      "id": "verification-discipline",
+      "summary": "交付前的证伪纪律：把\"打中了\"变成\"可被第三方复现的证明\"。误报四类根因、五档修复判定（CLOSED/PARTIAL/NOT FIXED/REGRESSED/BROKEN BY FIX）、显式声明未验证的缺口",
+      "whenToUse": "报出漏洞前要自证不是误报时；补丁后要判断真的修好没有时；客户/审核方要\"可复核证据\"而不是截图时；同名告警复现不出、怀疑自己看错时",
+      "stage": "flow",
+      "stageName": "流程/编排",
+      "role": "flow",
+      "domain": "misc",
+      "targetTypes": [],
+      "records": [],
+      "upstream": [
+        "oob-verification"
+      ],
+      "downstream": [
+        "detection-pairing",
+        "case-review"
       ]
     },
     {

@@ -97,6 +97,21 @@ reg save HKLM\SAM runs\SAM.hive && reg save HKLM\SYSTEM runs\SYSTEM.hive   # 离
 
 
 
+
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+|---|---|---|
+| Linux 提权 | auditd / sudo 日志 | `sudo` 从非常规父进程（如 Web 进程）提权；SUID 文件被非 root 执行 |
+| 内核漏洞提权 | EDR 行为链 | 异常的内存映射 + `commit_creds` 相关系统调用序列；进程 uid 在无 sudo 记录下变 0 |
+| Windows 提权 | 4688 / Sysmon 1 | 服务创建、计划任务创建由低权用户发起 |
+| 持久化落地 | 文件完整性监控 | `cron`/`systemd`/注册表 Run 键/scheduled task 出现新条目 |
+| 凭据落地 | 4656 / Sysmon 10 | 进程打开 `lsass.exe` 或读 `/etc/shadow` |
+
+**实用推论**：提权动作**必然留痕**（权限从低到高是有记录的）。所以提权后第一件事是**确认这个痕迹会不会被自动告警升级**——在演练里这属于「已达成目标」，不必刻意隐藏。
+
+
+
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）

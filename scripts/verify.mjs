@@ -146,6 +146,22 @@ if (!skip("tools")) {
   else notes.push(`工具面：${head.replace(/^工具面闸门：/, "")}`);
 }
 
+// 关 18：验证层闸门——攻击必配检测。第 17 关管「措辞自相矛盾」，这一关管「有没有证明能力」。
+// 由来：2026-11-14 调研实测「检测配对」维度只覆盖 3%、「误报验证」4%——插件只会打、
+// 不会说「怎么证明打穿了」和「对手能不能发现」。加技能能补文档，但**文档不会自己生效**：
+// 下次加技能照样可以只写攻击不写检测，所以把这条约束做成闸门。
+if (!skip("detection")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-detection-pairing.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 2).join(" / ");
+    failures.push(`验证层闸门未过：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const cov = out.find((l) => l.includes("检测段覆盖")) || "";
+    notes.push(`验证层：攻击必配检测 ✓${cov ? `（${cov.replace(/^\s*·\s*/, "")}）` : ""}`);
+  }
+}
+
 // 关 17：确认条款反面闸门——「开工前先复述」不许把明确指令变成问卷。
 // 编号取 17 而不是 6.5：闸门数自证（check-package 第 10 项）按 `// 关 N：` 取最大值，
 // 小数/字母后缀都不认。逻辑位置仍在关 6（工具面）之后，编号只是给自证用的。

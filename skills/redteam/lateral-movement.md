@@ -147,6 +147,21 @@ proxychains4 -f runs/proxychains-1080.conf enum4linux -a 10.0.0.6
 
 
 
+
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+|---|---|---|
+| SMB 横向 | 4624 Type 3 | 同一账号短时间登录多台主机；`Logon Process = NtLmSsp` |
+| PtH | 4624 + 4768 | 有 NTLM 登录但无对应 Kerberos 预认证；同一哈希多机使用 |
+| WinRM / PSExec | 4688 + 7045 | 目标机新建服务（`PSEXESVC`）；`wmic`/`WinRM` 派生进程 |
+| SSH 横向 | auth.log | 同一源 IP 对多台主机尝试；`Accepted publickey` 后立即执行命令 |
+| 隧道建立 | 出站流量 | 长连接、固定心跳间隔、非标准端口上的 TLS 或 SOCKS 握手 |
+
+**实用推论**：横向最难藏的是**账号复用模式**——同一账号在多机的登录时间序列在 SIEM 里是一条明显的斜线。降噪办法是分摊到多个账号、混合业务时段。
+
+
+
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）

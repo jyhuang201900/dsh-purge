@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "total": 391,
+  "total": 400,
   "relations": [
     {
       "source": "active-scan",
@@ -98,6 +98,21 @@
       "relationship": "next"
     },
     {
+      "source": "attack-chain",
+      "target": "attack-traceability",
+      "relationship": "next"
+    },
+    {
+      "source": "attack-traceability",
+      "target": "case-review",
+      "relationship": "next"
+    },
+    {
+      "source": "detection-pairing",
+      "target": "attack-traceability",
+      "relationship": "next"
+    },
+    {
       "source": "binary-diff",
       "target": "reverse-engineering",
       "relationship": "next"
@@ -134,6 +149,11 @@
     },
     {
       "source": "malware-analysis",
+      "target": "case-review",
+      "relationship": "next"
+    },
+    {
+      "source": "verification-discipline",
       "target": "case-review",
       "relationship": "next"
     },
@@ -455,6 +475,11 @@
     {
       "source": "api-security",
       "target": "database-security",
+      "relationship": "next"
+    },
+    {
+      "source": "verification-discipline",
+      "target": "detection-pairing",
       "relationship": "next"
     },
     {
@@ -928,6 +953,11 @@
       "relationship": "next"
     },
     {
+      "source": "oob-verification",
+      "target": "verification-discipline",
+      "relationship": "next"
+    },
+    {
       "source": "vps-reverse-shell",
       "target": "privesc-persistence",
       "relationship": "next"
@@ -1285,6 +1315,21 @@
     {
       "source": "pentest-tools",
       "target": "redteam-setup",
+      "relationship": "complementary"
+    },
+    {
+      "source": "attack-traceability",
+      "target": "detection-pairing",
+      "relationship": "complementary"
+    },
+    {
+      "source": "attack-traceability",
+      "target": "verification-discipline",
+      "relationship": "complementary"
+    },
+    {
+      "source": "detection-pairing",
+      "target": "verification-discipline",
       "relationship": "complementary"
     },
     {

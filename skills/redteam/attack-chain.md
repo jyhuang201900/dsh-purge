@@ -699,7 +699,7 @@ second-shot:end -->
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
 
 - **阶段**：流程/编排｜**角色**：`flow`
-- **下游**（产出交给谁）：`recon-pipeline`
+- **下游**（产出交给谁）：`recon-pipeline`、`attack-traceability`
 - **互补**（同类场景一起用）：`browser-automation`、`case-review`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`stage` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
 

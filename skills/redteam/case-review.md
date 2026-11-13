@@ -180,7 +180,7 @@ second-shot:end -->
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
 
 - **阶段**：流程/编排｜**角色**：`flow`
-- **上游**（先做完这些再进来）：`digital-forensics`、`malware-analysis`
+- **上游**（先做完这些再进来）：`digital-forensics`、`malware-analysis`、`verification-discipline`
 - **专项下游**（同主题更深的靶子面）：`competition-forensic-timeline`
 - **互补**（同类场景一起用）：`attack-chain`、`browser-automation`、`cn-proxy-pool`、`ctf-sandbox-orchestrator`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`stage` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
