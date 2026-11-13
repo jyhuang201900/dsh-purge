@@ -5,6 +5,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（116 
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 发版流程
+- **大改造前先建三层安全点**（1.1.94 定型）：`git tag -a vX-pre-xxx` + `git branch backup/xxx` + 物理 `cp -r skills/` 到仓库外。三者都要推远端。tag 管 commit 回滚、分支管完整树、物理备份管 gitignore 的东西（skills/ 与 .cache/ 不入库）。
 1. 改 lib/default-prompt-inject.md（gitignore 源）→ **必须跑** `node scripts/embed-default-prompt.mjs` 重封入 lib/asset-table.js（加密表入库，明文不入库）；zh 版同步。
 2. package.json + 三份 README（Version 行 + dsh:// 链接 version=）一起 bump；release-notes.md 中英双段置顶。
 3. `node --check` 改动 JS；`node scripts/verify.mjs`（16 关）；`node scripts/check-package.mjs`（问题须 0）。
@@ -27,6 +28,11 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（116 
 - **任何「只在相等时生效」的 tie-break 都要怀疑永远不触发**（1.1.91 实测：rank 做 tie-break 一次也没生效）。
 - **断言必须卡首位，不能只断言「结果里有」**：1.1.91 本地全绿、装到宿主就错，因为断言是 `has(技能名)` 而它一直在列表里只是排第三。排序类断言一律卡首条。
 - **多条降权规则会互相抵消**：加新加成前先想它和已有 rank 是不是同一件事（1.1.92 名字加成 +10 vs 专项 rank −6 就冲突过一次）。
+- **加新技能必须同时改两处**，否则是孤儿：`STAGE_RULES`（挂角色）+ `TRUNK`（注入链路关系）。audit 会报「零入边 + 未被角色挂载」。
+- **判断缺口要用 12 维度覆盖矩阵**（给每维度一组识别词扫全库算命中率），不要只看「哪个域少」。1.1.94 实测：看似要补的逆向域其实 8851 字第二厚，真空白是检测配对 3% / ATT&CK 3% / 误报验证 4%。
+- **渐进披露判据**：单段 >1500 字且是查阅型（payload 库/案例库）才外移到 `references/`；核心工作流不动。验证用「H3 标题丢失 0」，不是比字数。
+- **文档约束必须做成闸门才生效**：「攻击必配检测」光写在技能里无效，第 18 关 `check-detection-pairing` 才让它真拦（1.1.94）。
+- `http-smuggling.md` 含真实 `\x00` 空字节（TE 绕过），grep/git 当二进制——是真技术内容，别当损坏修掉。
 
 ## 关键机制
 - **用户 override 整份替换出厂条令**：`~/.dsh/prompt-inject.md` 存在且 `override_status: custom` 时，改出厂 `lib/default-prompt-inject.md` **对实际行为零影响**。改提示词必须两处都改。
