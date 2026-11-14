@@ -1,3 +1,150 @@
+# 1.1.108
+
+## 中文
+
+`score_add` 修复验证通过，顺带发现报告有个**交付物级缺陷**：目标列是空的。
+
+## 一、score_add 修复确认
+
+新记一条带 `row=<漏洞id>` 的分之后：
+
+```
+withSteps=1 withCommands=1     ← 从 0 变成 1，连上了
+incomplete=1                   ← 剩 1 条是修复前的旧数据（vuln_id=null），正好当对照
+```
+
+数据库对照很直观：
+
+```
+hit id=1  vuln_id=null   ← 修复前
+hit id=2  vuln_id=4      ← 修复后
+```
+
+## 二、新发现：报告「复现索引」的目标列是空的
+
+翻报告正文发现：
+
+```
+| # | 得分点 | 分值 | 目标 | 前置 | 复现入口 |
+| 1 | 数据库凭据 | +50 | `` | — | 复现方式（§3.1） |
+| 2 | 服务器主机 | +50 | `` | — | 命令行（§3.2） |
+```
+
+**两行的目标都是 ``。** 根因：报告第 3195 行 `target: h.target || ''` 直接读
+`score_hit.target`，而它从来没被传过。读者拿到这份报告，**说不清这条分属于哪台机器**。
+
+这不是格式问题，是**交付物缺陷**——报告存在的意义就是让人能复核，目标空白等于无法复核。
+
+## 三、修法：自动推导，不要求模型多填参数
+
+模型本来就知道"这条分对应哪个洞"，让它再填一遍 `asset_id`/`target` 只会多一个漏填机会。
+所以改成：传了 `row`（漏洞 id）时，从漏洞反查 `asset_id` 与 `target` 自动带上。
+
+```js
+const v = store.listVulns(activeId, {})?.items?.find((x) => Number(x.id) === rowNum);
+if (v) { linkAssetId = v.asset_id; linkTarget = v.target; }
+```
+
+`chain_add` 同样处理。
+
+## 四、闸门加强：从「有没有步骤」到「说不说得清打哪台」
+
+第 27 关原来只断言 `withSteps/withCommands/incomplete`。这些指标全对了，目标列却可以是空的
+——**指标过了但交付物仍不可用**。
+
+新增第六项断言 `emptyTargetRows === 0`，直接扫报告正文里有没有 `| `` |` 这种空目标单元格。
+
+反向探针验证有效：撤掉 `addScoreHit` 的 `target` 后
+
+```
+emptyTargetRows=2
+✗ 复现索引有目标（不是空 ``）
+```
+
+## 五、一个反思
+
+我写完第一版探针时以为它没生效，因为撤掉 `asset_id` 后闸门仍然绿。
+实际原因是那次替换的锚点没匹配上（脚本里换行位置和我以为的不同），**探针根本没改到代码**。
+
+改对锚点、重跑后立刻报红，`emptyTargetRows=2`。
+
+**教训：反向探针显示"通过"时，先确认探针真的改到了东西**，别急着相信"闸门不灵敏"或"代码没问题"。
+这次我差点误判成"报告有兜底逻辑"。
+
+## 验证
+
+```
+verify 27 关全绿（报告链路 6/6）
+check-package 问题 0
+报告链路：count=1 points=50 withSteps=1 withCommands=1 incomplete=0 emptyTargetRows=0
+```
+
+## English
+
+The `score_add` fix is verified — and following it revealed a **deliverable-level defect**: the
+target column is empty.
+
+## 1. score_add fix confirmed
+
+After recording a score with `row=<vuln id>`:
+
+```
+withSteps=1 withCommands=1     ← was 0, now connected
+incomplete=1                   ← the remaining one is pre-fix data (vuln_id=null), useful as a control
+```
+
+DB comparison is stark:
+
+```
+hit id=1  vuln_id=null   ← before the fix
+hit id=2  vuln_id=4      ← after
+```
+
+## 2. New finding: the report's reproduction index has an empty target column
+
+Reading the report body:
+
+```
+| # | Scoring point | Points | Target | Prereq | Reproduction |
+| 1 | Database credential | +50 | `` | — | §3.1 |
+| 2 | Server host | +50 | `` | — | §3.2 |
+```
+
+**Both targets are ``.** Cause: line 3195 reads `target: h.target || ''` straight from
+`score_hit.target`, which was never passed. A reader is left unable to tell **which machine this
+score belongs to**.
+
+That is not a formatting issue — it's a **deliverable defect**. The report exists so someone can
+verify the work; a blank target makes verification impossible.
+
+## 3. Fix: derive automatically instead of asking the model for more parameters
+
+The model already knows which vuln a score corresponds to. Making it retype `asset_id`/`target`
+just adds another chance to forget. So when `row` (vuln id) is given, look up `asset_id` and
+`target` from the vuln and pass them along.
+
+## 4. Gate strengthened: from "has steps" to "says which host"
+
+Gate 27 only asserted `withSteps/withCommands/incomplete`. Those can all be perfect while the
+target column is empty — **metrics pass but the deliverable is still unusable**.
+
+Added a sixth assertion, `emptyTargetRows === 0`, scanning the report body for `| `` |` cells.
+
+Reverse probe confirms: dropping `target` from `addScoreHit` yields `emptyTargetRows=2` and fails.
+
+## 5. A reflection
+
+My first probe attempt appeared to do nothing — the gate stayed green after removing
+`asset_id`. The real cause was that the replacement anchor didn't match (the line breaks in the
+script differed from what I assumed), so **the probe never modified the code**.
+
+With the correct anchor it went red immediately: `emptyTargetRows=2`.
+
+**Lesson: when a reverse probe reports "pass", first confirm the probe actually changed
+something.** I nearly mis-concluded that "the report has fallback logic" or "the gate isn't
+sensitive".
+
+verify 27/27 green (report chain 6/6), check-package 0 issues.
 # 1.1.107
 
 ## 中文
