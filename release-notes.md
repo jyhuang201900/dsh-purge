@@ -1,3 +1,146 @@
+# 1.1.100
+
+## 中文
+
+重启验证 + 两个真问题的收尾。这轮的关键发现：**检索不准的根因不是算法，是技能描述没写全**。
+
+## 一、补丁状态：`na` 与「宿主不可达」语义混淆（上轮没修干净）
+
+上轮我加了 `patches_missing` 字段，但重启后实测仍是 `patches_na=76, patches_missing=0`。查到根因在 `gatherState`：
+
+```js
+if (!aiBase) {
+  patches_na += 1;   // 76 条全算成 na
+  continue;
+}
+```
+
+**`na` 的语义是「这个补丁不适用于这个宿主」**（例如补丁只对 web 面生效），
+而 `aiBase` 为空是「根本读不到宿主文件」。两者都算 `na`，于是面板显示「不适用 76」——
+用户会理解成「我的环境不支持这些补丁」，真相是「76 条补丁一条都没法打，文件在 asar 里」。
+
+已分开：`aiBase` 为空时全部记 `patch_missing`、`na` 归零、`total` 仍报 76。
+
+**另外发现第三个渲染器**：`index.js:174` 用 `displayTally`（基于 `display_patches`，
+`ai_base` 为空时是空数组），必然输出 `0/0 applied`。改用 `patchTally` 的真实维度，
+并在有缺文件时把原因写在行尾：
+
+```
+补丁 / patches: 0/76 applied, 0 pending｜缺文件 76（宿主文件不可达：官方宿主在 app.asar 里，需点「应用」解开）
+```
+
+至此补丁状态有 **6 个渲染入口**（core.js / model-tools×2 / index.js / bin / state），
+已统一到同一套字段与措辞。
+
+## 二、检索不准的真根因：描述里没写那些词
+
+重启后实测，检索仍然把 `dotnet-reverse` 排在 `js-reverse` 前面，`windows-ad` 查不到。
+继续调算法之前先查了索引内容，发现：
+
+- `js-reverse` 的描述讲「签名链路定位、观察取证、补环境」，**完全没提「混淆」**
+  —— 而它自己就引用了 `ast-deobfuscation.md` 讲混淆还原
+- `windows-ad` 的 `whenToUse` 被**截断**成 `"...including Kerberos, AD CS"`，
+  丢掉了它实际覆盖的委派 / DPAPI / ACL 滥用
+
+**索引只能从描述抽词，描述没写的词永远抽不到。** 这不是权重问题。
+
+补完描述后（不是调算法），同一批查询全对了：
+
+| 查询 | 修前 | 修后 |
+| --- | --- | --- |
+| 前端有混淆怎么逆向 | dotnet-reverse 第一 | **js-reverse 第一**（6 分） |
+| 内网只拿到一个普通域账号 | 不在列表 | **windows-ad 第一**（19 分） |
+| 域内委派怎么利用 | 只有 competition-* | **windows-ad 第一**（18 分） |
+
+批量扫了全部 119 个技能，只有 1 个还有同类问题（`ghidra-reverse` 截断），已修。
+
+## 三、第 24 关加两条规则
+
+- **`whenToUse` 不能是 `summary` 的复制**——两者语义不同：summary 说「干什么」，
+  whenToUse 说「什么时候加载」。实测 `windows-ad` 的截断就是这样漏掉的。
+- **`whenToUse` 不许以逗号/介词结尾**（截断特征）。
+
+反向探针：造一个 `whenToUse=summary`、一个以 `including decompile,` 结尾，两条都报红。
+
+## 四、上轮那个「一层套一层」的结论要修正
+
+上轮我说索引噪音是「一层套一层」，靠动态频次过滤收口。这轮发现**还有第五层，但性质不同**：
+前四层是「不该进索引的词进去了」，这一层是「**该进索引的词没写出来**」。
+
+前者靠过滤解决，后者只能靠**补内容**。两类问题混在一起看，会让「调算法」变成无效努力
+——这轮如果继续加权重规则，永远不会修好。
+
+## 验证
+
+```
+verify 24 关全绿 ｜ check-package 问题 0
+索引：119 技能 / 平均 29 关键词 / 最高频 17 / summary 119-119 / 零关键词 0
+```
+
+## English
+
+Post-restart verification plus two real fixes. Key finding: **bad search results were caused by
+incomplete skill descriptions, not by the ranking algorithm**.
+
+## 1. Patch status: `na` conflated with "host unreachable"
+
+Last round added `patches_missing`, but after restart it still read `patches_na=76,
+patches_missing=0`. Root cause in `gatherState`: when `aiBase` is empty, all 76 patches were
+counted as `na`. But `na` means "this patch doesn't apply to this host" (e.g. web-surface-only
+patches on desktop), while empty `aiBase` means "the host files can't be read at all".
+
+The panel then showed "不适用 76", which reads as "my environment doesn't support these patches"
+rather than "76 patches, none applicable because the files are inside app.asar".
+
+Separated them, and also found a **third renderer** (`index.js:174`) using `displayTally`, which
+is always `0/0` when `ai_base` is empty. Now uses real `patchTally` dimensions and appends the
+reason:
+
+```
+补丁 / patches: 0/76 applied, 0 pending｜缺文件 76（宿主文件不可达：官方宿主在 app.asar 里，需点「应用」解开）
+```
+
+Six render entry points are now unified.
+
+## 2. Real cause of bad search: the words were never written
+
+After restart, `dotnet-reverse` still ranked above `js-reverse`, and `windows-ad` was missing
+entirely. Before touching the algorithm again, I checked the index contents:
+
+- `js-reverse`'s description covered "signature tracing, runtime sampling, env patching" but
+  **never mentioned "deobfuscation"** — despite it referencing `ast-deobfuscation.md`
+- `windows-ad`'s `whenToUse` was **truncated** at `"...including Kerberos, AD CS"`, dropping
+  delegation / DPAPI / ACL abuse that it actually covers
+
+**The index can only extract words that exist in the description.** No weighting scheme can fix
+a word that was never written.
+
+After fixing descriptions (not the algorithm):
+
+| Query | Before | After |
+| --- | --- | --- |
+| frontend obfuscation reversing | dotnet-reverse first | **js-reverse first** (score 6) |
+| only a plain domain account | absent | **windows-ad first** (score 19) |
+| Kerberos delegation abuse | only competition-* | **windows-ad first** (score 18) |
+
+Scanned all 119 skills; only one more had the same issue (`ghidra-reverse` truncation), fixed.
+
+## 3. Two rules added to gate 24
+
+- `whenToUse` must not be a copy of `summary` (different semantics: what it does vs when to load)
+- `whenToUse` must not end with a comma/preposition (truncation signature)
+
+Reverse probe verified with both injected failures.
+
+## 4. Correcting last round's conclusion
+
+Last round I said index noise comes in layers and frequency filtering closes it. There is a
+fifth layer, but of a different nature: the first four were "words that shouldn't be indexed got
+in", this one is "**words that should be indexed were never written**". The first kind is fixed
+by filtering; the second only by writing content. Conflating them makes "tuning the algorithm"
+a dead end — and that is exactly what this round would have become.
+
+verify 24/24 green, check-package 0 issues.
 # 1.1.99
 
 ## 中文

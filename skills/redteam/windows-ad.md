@@ -1,7 +1,7 @@
 ---
 name: windows-ad
-description: Use for authorized Active Directory and Windows identity attacks including Kerberos, AD CS, BloodHound paths, NTLM relay, and domain privilege escalation research.
-whenToUse: Use for authorized Active Directory and Windows identity attacks including Kerberos, AD CS
+description: 域内渗透与 Windows 身份攻击：Kerberos 委派（非约束/约束/RBCD）、AD CS 证书滥用、BloodHound 攻击路径、ACL 滥用、DPAPI 凭据解密、LSASS 内存物料、NTLM 中继与强制认证、域内横向移动、域管提权。适用于只拿到一个普通域账号、问内网怎么打、域委派怎么利用、或者要从域用户提到 Domain Admin 时。
+whenToUse: 有域环境、域账号（哪怕普通用户）、要查委派/证书模板/ACL 路径、要做 Kerberos 票据攻击、要解 DPAPI 或 LSASS 里的凭据、要从域内一台机器横向到域控时加载
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 

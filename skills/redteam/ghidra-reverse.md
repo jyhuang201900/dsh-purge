@@ -1,7 +1,7 @@
 ---
 name: ghidra-reverse
-description: Use for free/open reverse engineering with Ghidra (headless or GUI), including decompile, cross-refs, and optional Ghidra MCP workflows when IDA is unavailable.
-whenToUse: Use for free/open reverse engineering with Ghidra (headless or GUI), including decompile, 
+description: 用 Ghidra 做二进制逆向（headless 批量分析或 GUI 交互）：反编译、交叉引用、数据类型定义、脚本开发（Java/PyGhidra）、可选 Ghidra MCP 工作流。适用于没有 IDA 授权、需要批量分析多个样本、或要写自动化脚本时。
+whenToUse: 没有 IDA 或只有免费工具、要批量反编译多个二进制、要写 Ghidra 脚本自动化分析、或要从 headless 模式出报告时加载 
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 

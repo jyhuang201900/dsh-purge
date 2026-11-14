@@ -79,6 +79,28 @@ if (leftover.length) {
   problems.push(`模板词残留 ${leftover.length} 处：${leftover.slice(0, 4).join(", ")}`);
 }
 
+/* 5) whenToUse 不能是 summary 的复制。
+   两者语义不同：summary 说"这个技能是干什么的"，whenToUse 说"什么情况下该加载它"。
+   实测 windows-ad 的 whenToUse 被截断成 "...including Kerberos, AD CS"，
+   丢掉了它实际覆盖的委派/DPAPI/ACL，于是查「域内委派怎么利用」时它排不上去 ——
+   索引只能从描述抽词，描述没写的词永远抽不到。
+   判据：完全相同 → 报；英文以逗号/介词结尾 → 报（截断特征）。 */
+const sameDesc = skills.filter((s) => {
+  const w = String(s.whenToUse || "").trim();
+  const d = String(s.summary || "").trim();
+  return w && d && w === d;
+});
+if (sameDesc.length) {
+  problems.push(`${sameDesc.length} 个技能的 whenToUse 与 summary 完全相同（缺独立触发条件）：${sameDesc.slice(0, 4).map((s) => s.id).join(", ")}`);
+}
+const truncated = skills.filter((s) => {
+  const w = String(s.whenToUse || "").trim();
+  return /[,;]$/.test(w) || /\b(including|such as|e\.g\.)$/i.test(w);
+});
+if (truncated.length) {
+  problems.push(`${truncated.length} 个技能的 whenToUse 疑似被截断（以逗号/介词结尾）：${truncated.slice(0, 4).map((s) => s.id).join(", ")}`);
+}
+
 const total = skills.reduce((n, s) => n + (s.keys || []).length, 0);
 const avg = Math.round(total / skills.length);
 console.log(

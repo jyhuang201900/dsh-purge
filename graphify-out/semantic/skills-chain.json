@@ -862,7 +862,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "rationale": "Use for free/open reverse engineering with Ghidra (headless or GUI), including decompile, cross-refs, and optional Ghidra MCP workflows when IDA is unavailable."
+      "rationale": "用 Ghidra 做二进制逆向（headless 批量分析或 GUI 交互）：反编译、交叉引用、数据类型定义、脚本开发（Java/PyGhidra）、可选 Ghidra MCP 工作流。适用于没有 IDA 授权、需要批量分析多个样本、或要写自动化脚本时。"
     },
     {
       "id": "skills_redteam_go_rust_reverse",
@@ -982,7 +982,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "rationale": "在使用 js-reverse-mcp 做前端 JavaScript 逆向时使用，适用于签名链路定位、页面观察取证、运行时采样、本地补环境复现与证据化输出。优先适配当前环境里的 js-reverse_* 工具，需要更强的浏览器/CDP/Hook 面时联动 jshookmcp。"
+      "rationale": "前端 JavaScript 逆向与 JS 混淆还原：签名/加密参数定位、AST 去混淆（obfuscator.io、控制流平坦化、字符串数组还原）、CDP 插桩 Hook、sourcemap 恢复、运行时采样、本地补环境复现与证据化输出。适用于逆向混淆过的前端产物、找出接口签名算法、绕过前端加密。优先适配当前环境里的 js-reverse_* 工具，需要更强"
     },
     {
       "id": "skills_redteam_kimi_webbridge",
@@ -1426,7 +1426,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "rationale": "Use for authorized Active Directory and Windows identity attacks including Kerberos, AD CS, BloodHound paths, NTLM relay, and domain privilege escalation research."
+      "rationale": "域内渗透与 Windows 身份攻击：Kerberos 委派（非约束/约束/RBCD）、AD CS 证书滥用、BloodHound 攻击路径、ACL 滥用、DPAPI 凭据解密、LSASS 内存物料、NTLM 中继与强制认证、域内横向移动、域管提权。适用于只拿到一个普通域账号、问内网怎么打、域委派怎么利用、或者要从域用户提到 Domain Admin 时。"
     },
     {
       "id": "role_recon",

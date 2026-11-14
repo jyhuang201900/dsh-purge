@@ -1,7 +1,7 @@
 ---
 name: js-reverse
-description: 在使用 js-reverse-mcp 做前端 JavaScript 逆向时使用，适用于签名链路定位、页面观察取证、运行时采样、本地补环境复现与证据化输出。优先适配当前环境里的 js-reverse_* 工具，需要更强的浏览器/CDP/Hook 面时联动 jshookmcp。
-whenToUse: 在使用 js-reverse-mcp 做前端 JavaScript 逆向时使用，适用于签名链路定位、页面观察取证、运行时采样、本地补环境复现与证据化输出
+description: 前端 JavaScript 逆向与 JS 混淆还原：签名/加密参数定位、AST 去混淆（obfuscator.io、控制流平坦化、字符串数组还原）、CDP 插桩 Hook、sourcemap 恢复、运行时采样、本地补环境复现与证据化输出。适用于逆向混淆过的前端产物、找出接口签名算法、绕过前端加密。优先适配当前环境里的 js-reverse_* 工具，需要更强浏览器/CDP/Hook 面时联动 jshookmcp。
+whenToUse: 遇到前端 JS 混淆（字符串加密/控制流平坦化/死代码）、源码混淆看不懂、需要还原签名或加密算法、要找 sourcemap、或要在无源码情况下改参数重放时加载
 source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，非照抄）
 ---
 

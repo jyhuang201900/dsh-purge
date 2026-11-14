@@ -1230,8 +1230,8 @@
     },
     {
       "id": "ghidra-reverse",
-      "summary": "Use for free/open reverse engineering with Ghidra (headless or GUI), including decompile, cross-refs, and optional Ghidra MCP workflows when IDA is unavailable.",
-      "whenToUse": "Use for free/open reverse engineering with Ghidra (headless or GUI), including decompile, ",
+      "summary": "用 Ghidra 做二进制逆向（headless 批量分析或 GUI 交互）：反编译、交叉引用、数据类型定义、脚本开发（Java/PyGhidra）、可选 Ghidra MCP 工作流。适用于没有 IDA 授权、需要批量分析多个样本、或要写自动化脚本时。",
+      "whenToUse": "没有 IDA 或只有免费工具、要批量反编译多个二进制、要写 Ghidra 脚本自动化分析、或要从 headless 模式出报告时加载 ",
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
@@ -1416,8 +1416,8 @@
     },
     {
       "id": "js-reverse",
-      "summary": "在使用 js-reverse-mcp 做前端 JavaScript 逆向时使用，适用于签名链路定位、页面观察取证、运行时采样、本地补环境复现与证据化输出。优先适配当前环境里的 js-reverse_* 工具，需要更强的浏览器/CDP/Hook 面时联动 jshookmcp。",
-      "whenToUse": "在使用 js-reverse-mcp 做前端 JavaScript 逆向时使用，适用于签名链路定位、页面观察取证、运行时采样、本地补环境复现与证据化输出",
+      "summary": "前端 JavaScript 逆向与 JS 混淆还原：签名/加密参数定位、AST 去混淆（obfuscator.io、控制流平坦化、字符串数组还原）、CDP 插桩 Hook、sourcemap 恢复、运行时采样、本地补环境复现与证据化输出。适用于逆向混淆过的前端产物、找出接口签名算法、绕过前端加密。优先适配当前环境里的 js-reverse_* 工具，需要更强",
+      "whenToUse": "遇到前端 JS 混淆（字符串加密/控制流平坦化/死代码）、源码混淆看不懂、需要还原签名或加密算法、要找 sourcemap、或要在无源码情况下改参数重放时加载",
       "stage": "4",
       "stageName": "漏洞利用",
       "role": "exploit",
@@ -2120,8 +2120,8 @@
     },
     {
       "id": "windows-ad",
-      "summary": "Use for authorized Active Directory and Windows identity attacks including Kerberos, AD CS, BloodHound paths, NTLM relay, and domain privilege escalation research.",
-      "whenToUse": "Use for authorized Active Directory and Windows identity attacks including Kerberos, AD CS",
+      "summary": "域内渗透与 Windows 身份攻击：Kerberos 委派（非约束/约束/RBCD）、AD CS 证书滥用、BloodHound 攻击路径、ACL 滥用、DPAPI 凭据解密、LSASS 内存物料、NTLM 中继与强制认证、域内横向移动、域管提权。适用于只拿到一个普通域账号、问内网怎么打、域委派怎么利用、或者要从域用户提到 Domain Admin 时。",
+      "whenToUse": "有域环境、域账号（哪怕普通用户）、要查委派/证书模板/ACL 路径、要做 Kerberos 票据攻击、要解 DPAPI 或 LSASS 里的凭据、要从域内一台机器横向到域控时加载",
       "stage": "5",
       "stageName": "内网渗透",
       "role": "internal",
