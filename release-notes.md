@@ -1,3 +1,116 @@
+# 1.1.102
+
+## 中文
+
+展示片段修正 + 工具描述分层（渐进披露）。
+
+## 一、展示片段修好了（1.1.101 没修对）
+
+「域内委派怎么利用」展示成 `片段『么利用』` —— 我上次把「排序权重」和「展示片段」分开了，
+但选展示片段时只看「长度更长」，于是 3 字的 `么利用` 压过了 2 字的 `委派`。
+
+真正的判据是**「这个片段是不是索引里的完整词条」**：`委派` 是 `windows-ad` 的 key，
+`么利用` 不是。已调整为三级优先：
+
+```
+① 完整词条（keys 里有一项恰好等于它）  ← 最强证据
+② keys 里包含它（子串命中）
+③ 长度更长
+```
+
+顺带发现单字虚词表漏了「么」字，导致 `么利用` 被判成"干净片段"。补上。
+
+三条查询的展示片段现在分别是 `委派` / `域账号` / `前端`，都能解释为什么命中。
+
+## 二、工具描述分层：schema 给发现性，报错给详细指引
+
+`purge_drill` 有 15 个参数、20 个 op。原来的 `op` 描述把 op 列表和参数要求全塞在一起，
+而「参数见各自说明」等于没说。
+
+我第一次改成在 schema 里列全「每个 op 需要哪些参数」，结果 schema 涨到 **2281 字符**，
+超了单工具预算 1600，工具面闸门直接报红。
+
+**这个报错是对的。** schema 是每次调用都要吃上下文的固定成本，而这份对照表只在
+填错参数时才有用。正确做法是分层：
+
+- **schema 只给发现性**：有哪些 op、有哪些 entity（闸门核对的 op 18/18、entity 22/22 保留）
+- **详细参数指引放到报错时展开**
+
+而且进一步发现：字段级错误本来就有 `validate-input` 层统一报，它会点名字段、给枚举、
+说清后果（"不给会静默降级成 info，而报告只收中危以上——这条漏洞会整个消失"），
+比我手写的还清楚。所以我在 catch 里**只补跨 op 的信息**，不重复字段级内容。
+
+结果：描述成本 **4424 → 3509**（省 915 字符），最大单工具 **2281 → 1366**（预算 1600 内）。
+比改动前更省，且指引更完整。
+
+## 三、一个判断失误
+
+我一开始怀疑「10 个工具的 `inputSchema` 全无 `required` 字段」是缺陷。
+实测后发现这是**有意设计**：`purge_override` 的 `mode` 默认 `show`（只读）、
+`purge_drill` 的 `op` 默认 `summary`——全部参数可选且缺省安全，
+工具的描述里也明说了「缺参给清单、不抛错」。
+
+所以「没有 required」不是漏洞，是「缺省行为安全」的体现。这条我判断错了。
+
+## 验证
+
+```
+verify 24 关全绿 ｜ check-package 问题 0
+工具面：描述成本 3509（线 3600）｜最大单工具 1366（预算 1600）
+        op 18/18、entity 22/22 可发现性保留
+```
+
+## English
+
+Display fragment fix + tool description layering (progressive disclosure).
+
+## 1. Display fragment (1.1.101 didn't fix it properly)
+
+"域内委派怎么利用" showed `fragment『么利用』`. Last time I separated ranking weight from
+displayed fragment, but the display picker only used "longer is better", so the 3-char `么利用`
+beat the 2-char `委派`.
+
+The real criterion is **"is this fragment a complete key in the index"**: `委派` is a key of
+`windows-ad`, `么利用` is not. Now three-tier priority:
+
+```
+1. exact key match        ← strongest evidence
+2. key contains it        (substring)
+3. longer wins
+```
+
+Also found the single-char particle list was missing 么, so `么利用` was classified as "clean".
+
+## 2. Layering tool descriptions: schema for discovery, error for detail
+
+`purge_drill` has 15 parameters and 20 ops. The original `op` description crammed the op list and
+parameter requirements together, with "参数见各自说明" which explains nothing.
+
+My first attempt listed every op's required parameters in the schema — it ballooned to **2281
+characters**, over the 1600 per-tool budget, and the tool-surface gate failed.
+
+**That failure was correct.** Schema is a fixed cost paid on every call; that table only helps
+when you get parameters wrong. Correct approach:
+
+- **Schema gives discovery only**: which ops, which entities (gate checks op 18/18, entity 22/22)
+- **Detailed guidance expands on error**
+
+Then found that field-level errors are already reported by `validate-input`, which names the field,
+lists the enum, and explains the consequence ("omitting it silently downgrades to info, and the
+report only includes medium and above — this finding would disappear entirely"). Better than
+anything I would have written. So the catch block now **only adds cross-op information**.
+
+Result: description cost **4424 → 3509** (saved 915), largest tool **2281 → 1366** (within 1600).
+Cheaper than before, with more complete guidance.
+
+## 3. One wrong judgment
+
+I initially suspected "all 10 tools' `inputSchema` lack `required`" was a defect. Testing showed
+this is intentional: `purge_override`'s `mode` defaults to `show` (read-only), `purge_drill`'s `op`
+defaults to `summary`, and the description explicitly says "missing args → return a list, don't
+throw".
+
+So no `required` is not a hole — it reflects safe defaults. I called that wrong.
 # 1.1.101
 
 ## 中文
