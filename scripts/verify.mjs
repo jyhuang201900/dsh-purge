@@ -163,6 +163,24 @@ if (!skip("graph")) {
   }
 }
 
+// 关 26：工具 schema 与宿主校验器一致。
+// 由来：宿主 defineTool 在 execute 前强制 validate(args)，且只支持
+// type/enum/required/additionalProperties/items/properties/description/default/oneOf。
+// 用了别的关键字（minLength/pattern/anyOf/type 数组）会让**整个工具注册失败**，
+// 症状是「工具突然不见了」而代码看着完全正常。
+// 本关直接从 app.asar 取宿主自己的校验器来验证，不用重启宿主就能发现。
+if (!skip("schema")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-tool-schema.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`工具 schema 不合宿主子集：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("工具")) || "";
+    notes.push(`工具 schema：${stat.replace(/^\[check-tool-schema\]\s*/, "")}`);
+  }
+}
+
 // 关 25：技能/预设三重同步一致性。
 // 由来：2026-11-14 实测，技能有三个落点，宿主启动时会用「包内副本」覆盖运行时目录。
 // 只同步运行时目录会得到极隐蔽的假成功：grep 得到新内容 → 重启 → 被旧版盖回去，无任何报错。

@@ -1,3 +1,233 @@
+# 1.1.106
+
+## 中文
+
+这轮的改变是**方法**：不再靠"改—重启—探测"，而是直接读宿主源码。有源码就该这么干。
+
+## 一、读源码拿到的确定性结论
+
+从 `app.asar` 里按需提取宿主源码（213MB 整包解压太慢，只取需要的几十个文件）。
+
+### 1. 工具参数校验是强制的，不是建议
+
+`dsh-tools/lib/index.js`：
+
+```js
+async execute(args, exec) {
+  const violations = validate(args);
+  if (violations.length > 0) throw new ToolArgsError(violations);   // 强制，执行前
+  return userExecute(args, exec);
+}
+```
+
+所以 `additionalProperties: false` 会真的拒绝多余参数。我之前担心的"多传参数被静默忽略"不成立。
+
+### 2. 宿主只支持一个很小的 JSON Schema 子集
+
+```
+type / enum / required / additionalProperties / items / properties / description / default / oneOf
+```
+
+**不支持** `minLength`、`pattern`、`minimum`、`anyOf`、类型数组。用了任何一个，**整个工具注册失败**——
+症状是"这个工具突然不见了"，而代码看着完全正常。
+
+### 3. schema 以宿主的中间产物为准
+
+宿主的 `system-prompt` 模块里，section 按名字注册、同名即替换、不得重复，注释明确写着
+agent preset 会 shadow 掉 deployment persona —— 这就是 `override_status: custom` 时
+出厂条令整份失效的机制根源。
+
+## 二、第 26 关：用宿主自己的校验器验证 schema（不重启）
+
+既然知道有源码，就不该靠"改完重启看报错"。这关直接从 `app.asar` 提取宿主自己的
+`assertSupportedJsonSchema` + `validateJsonSchemaValue`，跑我们全部 10 个工具的 parameters。
+
+做法上有个细节：`shared-DTdn5dXO.js` 依赖 `@deepseek-ai/dsh-llm` 和 `dsh-util-values`，
+在本地跑会 module not found。只把这两条 import 换成等价 stub（`HarnessError` 仅用于抛错、
+`assertNever`/`isJsonValue` 是纯判定），**校验逻辑一个字不改** —— 这才叫"与宿主同源"。
+
+反向探针注入 `pattern` 后，闸门用宿主原文报错：
+
+```
+✗ purge_status: unsupported JSON schema: schema.properties.files.pattern is not a supported keyword
+```
+
+结果：10/10 全部落在宿主支持的子集内。
+
+## 三、实测发现的三个真缺陷：`chain_add` 丢字段
+
+按正常流程记一条漏洞+得分后跑报告，得到：
+
+```
+count=1 points=50 withRequests=0 missingRequests=1 withSteps=0 withCommands=0 incomplete=1
+```
+
+能计分，但**复现不了**。查库确认根因：
+
+```
+stage_code = "recon"   ← 传了 stage=exploit，被忽略
+title      = ""        ← 传了 name，没进去
+vuln_id    = null      ← 传了 row=4 关联漏洞，没关联
+tool       = 正确       ← 只有这个对
+```
+
+原代码只传三个字段：
+
+```js
+store.addChainStep(activeId, {
+  stage_code: String(args.stage || "recon"),
+  tool: String(args.tool || "drill"),
+  result: String(args.text),      // text 进了 result，不是 detail
+});
+```
+
+而 store 其实支持完整字段（`title`/`detail`/`vuln_id`/`asset_id`/`point_code`+`evidence`）。
+丢掉 `vuln_id` 直接导致报告 `missingRequests`——**报告取不到原始请求，就没法交付**。
+
+已补全映射，并且在返回值里显式报出「关联漏洞=未关联」和阶段映射告警，
+让缺什么当场可见，而不是等到出报告才发现 incomplete。
+
+### `stage` 是双语义的
+
+合法阶段码只有 `recon/internet/boundary/internal/target`，而 `exploit/access/pivot` 是**旧阶段名**。
+`exploit` 被当阶段码传入 → 校验判非法 → 退到 `LEGACY_STAGE_MAP['other']` → `recon`。
+现在先按"新码 → 旧名映射"两段解析，并把解析结果报给用户。
+
+## 四、闸门当场抓到我自己的错误
+
+改完第一版，`stageNote` 声明在 `if` 块内、在块外被引用：
+
+```
+✗ 情景测试未过：chain_add 抛异常给调用方：stageNote is not defined
+```
+
+情景测试和范围闸同时报红。**这正是闸门的价值**——如果我按老办法"改完重启试一下"，
+这个 ReferenceError 会在真实使用时才炸。
+
+## 五、方法上的修正
+
+前几轮我一直在"改 → 同步 → 让你重启 → 探测 → 发现没生效或发现新问题"。这很浪费你的时间，
+而且源码就在 `app.asar` 里。
+
+现在建立了 `scripts/check-tool-schema.mjs`：**不重启就能验证 schema 合法性**。
+类似地，机制问题应该先读源码确认，而不是用重启去试。
+
+## 验证
+
+```
+verify 26 关全绿（含新增第 26 关）
+check-package 问题 0
+工具 schema：10/10 经宿主校验器确认合法
+```
+
+## English
+
+The change this round is **methodological**: stop "edit → restart → probe" and read the host
+source directly. If the source is available, that's what should be done.
+
+## 1. What reading the source settled
+
+Extracted host source from `app.asar` on demand (unpacking 213 MB is too slow; only dozens of
+files are needed).
+
+### Tool argument validation is enforced, not advisory
+
+```js
+async execute(args, exec) {
+  const violations = validate(args);
+  if (violations.length > 0) throw new ToolArgsError(violations);   // enforced, pre-execution
+  return userExecute(args, exec);
+}
+```
+
+So `additionalProperties: false` really does reject extra arguments.
+
+### The host supports only a small JSON Schema subset
+
+```
+type / enum / required / additionalProperties / items / properties / description / default / oneOf
+```
+
+Not supported: `minLength`, `pattern`, `minimum`, `anyOf`, type arrays. Using any of them makes the
+**entire tool fail to register** — the symptom is "the tool suddenly vanished" while the code looks
+perfectly fine.
+
+### Prompt sections are keyed by name, and same-name replaces
+
+The `system-prompt` module registers sections by name, disallows duplicates, and its comments
+state plainly that an agent preset shadows the deployment persona — that's the mechanism behind
+`override_status: custom` wiping out the factory rules wholesale.
+
+## 2. Gate 26: validate schemas with the host's own validator, no restart
+
+Since the source is available, "restart and read the error" is the wrong loop. This gate extracts
+the host's own `assertSupportedJsonSchema` + `validateJsonSchemaValue` and runs all 10 tool
+parameters through them.
+
+One detail: `shared-DTdn5dXO.js` imports `@deepseek-ai/dsh-llm` and `dsh-util-values`, so it won't
+load locally. Only those two imports are replaced with equivalent stubs (`HarnessError` is used
+solely for throwing; `assertNever`/`isJsonValue` are pure predicates) — **not a character of
+validation logic changes**. That is what "same source of truth" means.
+
+Reverse probe injecting `pattern` reports with the host's own wording:
+
+```
+✗ purge_status: unsupported JSON schema: schema.properties.files.pattern is not a supported keyword
+```
+
+Result: 10/10 within the supported subset.
+
+## 3. Three real defects found by measurement: `chain_add` drops fields
+
+Recording a vuln plus a score, then generating the report:
+
+```
+count=1 points=50 withRequests=0 missingRequests=1 withSteps=0 withCommands=0 incomplete=1
+```
+
+It scores, but **cannot be reproduced**. Checking the DB confirmed the cause:
+
+```
+stage_code = "recon"   ← passed stage=exploit, ignored
+title      = ""        ← passed name, dropped
+vuln_id    = null      ← passed row=4 to link a vuln, not linked
+tool       = correct   ← the only one that worked
+```
+
+The original code passed three fields, and `text` went into `result` rather than `detail`. But the
+store supports the full set. Dropping `vuln_id` alone causes `missingRequests` — **no original
+request means the report isn't deliverable**.
+
+Mapping completed; the return value now explicitly reports "linked vuln = none" and the stage
+resolution note, so gaps surface immediately instead of at report time.
+
+### `stage` carries two meanings
+
+Valid stage codes are only `recon/internet/boundary/internal/target`; `exploit/access/pivot` are
+**legacy stage names**. `exploit` passed as a code fails validation, falls back through
+`LEGACY_STAGE_MAP['other']` to `recon`. Now resolved in two steps (code → legacy map) and reported.
+
+## 4. A gate caught my own error on the spot
+
+After the first edit, `stageNote` was declared inside an `if` block and referenced outside:
+
+```
+✗ scenario test failed: chain_add threw to caller: stageNote is not defined
+```
+
+Scenario tests and the scope gate both went red. **That is the point of gates** — under the old
+"edit then restart and try it", this ReferenceError would have blown up in real use.
+
+## 5. Correcting the method
+
+For several rounds I ran "edit → sync → ask you to restart → probe → discover it didn't take
+effect or find a new issue". That wastes your time, and the source was sitting in `app.asar` the
+whole time.
+
+`scripts/check-tool-schema.mjs` now validates schema legality **without a restart**. More broadly,
+mechanism questions should be settled by reading source, not by restarting to see what happens.
+
+verify 26/26 green, check-package 0 issues, tool schemas 10/10 confirmed by the host validator.
 # 1.1.105
 
 ## 中文
