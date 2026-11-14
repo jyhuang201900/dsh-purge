@@ -1,3 +1,143 @@
+# 1.1.105
+
+## 中文
+
+重启后验证：上一轮的截取修复生效了。这轮顺着实测发现一个**误拦截**——合法的目标被范围闸挡在门外。
+
+## 一、截取修复已验证
+
+`purge_skills id=active-scan` 现在能返回完整链路，包含「配套工具」和「收口必做」：
+
+```
+配套工具（做完这步要落库/查询时用，别只记在上下文里）：`redteam_asset_stats`（收集收口先看断层…）、
+`redteam_asset_get`（深入单个目标：全部端口服务+指纹+采集时间线）、`redteam_asset_graph`…
+```
+
+之前按 460 字符硬切，这两段在末尾被切掉。现在按生成块结束标记截取，884 字符一次带全。
+
+## 二、范围闸误拦：URL 路径被当成 CIDR
+
+实测记漏洞时传 `target="203.0.113.20/api?id=1"`（模型很自然会这么写——target 既是地址也是证据位置），
+结果被拦：
+
+```
+被范围闸拦下｜目标 203.0.113.20/api?id=1：该网段未完全落在任何授权网段内
+```
+
+但 `203.0.113.20` 明确在 `203.0.113.0/24` 里。根因在 `targetHostOf`：
+
+```js
+const url = /^[a-z][a-z0-9+.-]*:\/\/([^/?#\s]+)/i.exec(t);
+if (url) t = url[1];   // 只剥「带协议头」的 URL 路径
+```
+
+无协议的 `host/path` 形态没被处理，`host` 保留成 `203.0.113.20/api?id=1`。
+接着 `checkTarget` 里判据是 `host.includes("/")` → 把它当 **CIDR** 送进 `cidrInsideCidr` → 失败。
+
+修：剥路径时**区分 CIDR 的 `/` 和 URL 路径的 `/`**（真 CIDR 的斜杠后只能是 0-32 数字）。
+
+这条修复的关键在于「不能放宽范围」——所以自测同时加了正反两类：
+
+```
+✓ 203.0.113.20/api?id=1        → 放行（曾误判被拒）
+✓ 203.0.113.20:8080/x          → 放行（带端口+路径）
+✓ api.example.test/v1/users    → 放行
+✗ 198.51.100.9/admin           → 仍然拒绝（范围外的 host/path 不许因修复而放行）
+```
+
+## 三、为什么这类缺陷特别值得修
+
+范围闸是**安全组件**，它的错误有两个方向：
+
+- **误放行**（攻击性）：把越界的打出去 → 这是事故
+- **误拦截**（可用性）：把该打的挡住 → 用户会以为"工具坏了"，然后手动绕过限制
+
+第二种更隐蔽：用户为了完成任务，会去改靶标范围或换个写法绕开，**训练出错误的习惯**。
+而且这次的触发条件极其日常——记一个带路径的 URL 而已。
+
+## 四、闸门抓到了我自己的遗漏
+
+跑 verify 时第 25 关报：
+
+```
+✗ 预设 agent.cordis.yml 仓源与运行时不一致
+```
+
+原因：我上一轮用 `sed` 改 README 后没重跑 `sync-bundled.mjs`。**闸门当场所拦**——
+这正是它存在的意义，而不是"我知道要同步"这种自觉。
+
+## 验证
+
+```
+verify 25 关全绿（范围闸自测 287 项）
+check-package 问题 0
+同步一致性：仓源 119 技能 / 包内 缺0差0 / 运行时 缺0差0 / 预设一致
+```
+
+## English
+
+Post-restart verification: last round's truncation fix works. Following that up led to a
+**false rejection** — a legitimate target was blocked by the scope gate.
+
+## 1. Truncation fix verified
+
+`purge_skills id=active-scan` now returns the full link section including both the
+"companion tools" and "closing checklist" pointers. Previously the 460-character hard cut
+dropped both. Now it slices at the generated-block end marker — 884 chars in one go.
+
+## 2. Scope gate false rejection: URL path parsed as CIDR
+
+Recording a finding with `target="203.0.113.20/api?id=1"` (the natural way to write it — target
+is both the address and the evidence location) got blocked:
+
+```
+blocked by scope gate｜target 203.0.113.20/api?id=1: that subnet is not fully inside any authorized range
+```
+
+But `203.0.113.20` is clearly inside `203.0.113.0/24`. Root cause in `targetHostOf`:
+
+```js
+const url = /^[a-z][a-z0-9+.-]*:\/\/([^/?#\s]+)/i.exec(t);
+if (url) t = url[1];   // only strips paths from URLs that carry a scheme
+```
+
+The scheme-less `host/path` form wasn't handled, leaving `host` as `203.0.113.20/api?id=1`.
+`checkTarget` then tests `host.includes("/")` → treats it as a **CIDR** → `cidrInsideCidr` fails.
+
+Fix: when stripping paths, **distinguish the CIDR slash from the URL-path slash** (a real CIDR
+has only 0-32 digits after the slash).
+
+Critically, the fix must not widen scope — so the self-test covers both directions:
+
+```
+allow:  203.0.113.20/api?id=1  /  203.0.113.20:8080/x  /  api.example.test/v1/users
+reject: 198.51.100.9/admin     (must still be rejected — no widening)
+```
+
+## 3. Why this class of bug matters
+
+The scope gate is a safety component, and its errors run in two directions:
+
+- **False allow** (dangerous): attacking outside scope — a real incident
+- **False reject** (usability): blocking what should be allowed — users conclude "the tool is
+  broken" and then work around the limit manually
+
+The second is more insidious: to finish the task, users widen the target scope or reword the
+input, **training themselves into a bad habit**. And the trigger here was utterly mundane —
+writing a URL with a path.
+
+## 4. The gate caught my own omission
+
+Verify failed on gate 25:
+
+```
+✗ preset agent.cordis.yml differs between repo and runtime
+```
+
+Because I edited README with `sed` last round and forgot to re-run `sync-bundled.mjs`. The gate
+caught it on the spot — which is the whole point, rather than relying on remembering to sync.
+
+verify 25/25 green (scope self-test 287 cases), check-package 0 issues.
 # 1.1.104
 
 ## 中文

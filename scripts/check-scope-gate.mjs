@@ -50,6 +50,16 @@ const CASES = [
   ["example.test.evil.com", false, "后缀不算（反向包含）"],
   ["blocked.example.test", false, "排除域名优先（同时被 *.example.test 覆盖）"],
   ["https://api.example.test:8443/x", true, "URL 取 host 去端口"],
+  /* 无协议的「host/path?query」：这是**模型最容易写的形态**，因为记漏洞时
+     target 既是地址又是证据位置（`203.0.113.20/api?id=1`）。
+     2026-11-14 实测踩坑：targetHostOf 只剥带协议头的 URL 路径，于是 host 留着
+     `/api?id=1`，checkTarget 里 `host.includes("/")` 把它当 **CIDR** 送进
+     cidrInsideCidr → 报「该网段未完全落在任何授权网段内」，把范围内的目标拦下。
+     判据必须区分「CIDR 的 /」和「URL 路径的 /」（真 CIDR 斜杠后只能是 0-32 数字）。 */
+  ["203.0.113.20/api?id=1", true, "无协议 host/path 应取 host（曾误判成 CIDR 被拒）"],
+  ["203.0.113.20:8080/x", true, "无协议 带端口+路径"],
+  ["198.51.100.9/admin", false, "范围外的 host/path 仍要拒（修复不能放宽范围）"],
+  ["api.example.test/v1/users", true, "无协议域名带路径"],
   ["not a target!!", false, "无法判定即不过"],
   ["2001:db8::1", false, "IPv6 判不了即拒"],
   ["", false, "空目标"],
