@@ -1,3 +1,170 @@
+# 1.1.104
+
+## 中文
+
+这轮挖到一个**长期存在的假成功**：技能改了、同步"成功"了、grep 也看到新内容，但宿主一重启就全没了。
+
+## 一、技能有三个落点，我只同步了其中一段
+
+`lib/redteam/index.js:155` 的逻辑是：宿主启动时把**包内** `skills/redteam/*.md` 铺到
+`$DSH_HOME/redteam/skills`。所以真实的流转是：
+
+```
+仓源 skills/redteam/*.md
+  ├─→ $DSH_HOME/redteam/skills/              （直接读）
+  └─→ node_modules/dsh-purge/skills/redteam/ （包内副本）
+        └─→ $DSH_HOME/redteam/skills/        （宿主每次启动铺开，覆盖上一行）
+```
+
+我这几轮一直是「改仓源 → 同步到 `~/.dsh/redteam/skills/` → grep 验证通过」，**从没同步过包内**。
+
+实测后果：
+
+```
+仓源 active-scan.md       6759 字节（含新指路）
+包内 active-scan.md       5543 字节（旧版）
+运行时 active-scan.md     5543 字节（重启后被包内覆盖）
+包内 vs 仓源差异          120 / 120 个文件全部不一致
+```
+
+`purge_skills id=active-scan` 读不到新指路，就是这个原因。
+
+## 二、同步脚本为什么要背一半的锅
+
+`scripts/sync-bundled.mjs` 有两个问题：
+
+**① 只同步一个目标**（`~/.dsh/redteam/skills`），完全不管包内副本。
+
+**② 技能的差异策略是 `onDiff: "add"`** —— 只补**缺失**文件，内容不同不管。
+所以 120 个已存在的旧文件，跑一遍同步脚本报「缺失 0」，一个字都没更新，但看起来成功了。
+
+修：加包内目标（动态发现所有 profile）、技能改成 `overwrite`（它是生成物，仓源为准）、
+预设也改 `overwrite`（里面的「角色→技能」清单同样是生成物）。
+
+顺带发现预设确实过期了：`vuln-scan` 运行时写 21 个、仓源 23 个 —— 差的就是后来新加的技能，
+运行时永远看不到。
+
+## 三、第 25 关：三重同步一致性
+
+判据四条（全部实测，不看脚本自述）：
+
+1. 仓源每个技能文件都能在包内副本找到且内容一致
+2. 仓源每个技能文件都能在运行时目录找到且内容一致
+3. 预设 `agent.cordis.yml` 两处一致
+4. 预设里的角色技能数与 `skills-agents.json` 对得上
+
+用**规范化内容**比较（统一行尾、去行尾空白），不按字节 hash —— CRLF/LF 差异会误判，
+这个项目实测踩过一次。
+
+反向探针：往包内文件追加两行，立刻报
+「包内副本(desktop) 有 1 个技能内容落后仓源（例：active-scan.md）→ 宿主重启会被它覆盖回去」。
+
+## 四、同一处判据我改了三版（这个教训比闸门重要）
+
+第 4 条「角色技能数对账」我写错了三次：
+
+| 版本 | 判据 | 结果 |
+| --- | --- | --- |
+| v1 | 按 `stage` 统计 | 误报 `flow 写 9 实际 12` |
+| v2 | 按 `role` 字段统计 | 误报 `recon 写 13 实际 5` |
+| v3 | 读 `skills-agents.json`（生成器中间产物） | ✓ 全部一致 |
+
+原因：`stage` 和 `role` 是两个维度（`browser-automation` 的 stage=flow 但 role=aux）；
+而生成器用的是 `role ∪ 角色提示词里提及的技能`，比单纯的 `role` 字段多。
+
+**正解是读生成器的中间产物，跟它同源比** —— 任何「自己另算一套」的校验，
+算错的是校验而不是数据。这和前面「用间接计数当代理不如直接数标记」是同一条经验。
+
+## 验证
+
+```
+verify 25 关全绿 ｜ check-package 问题 0
+仓源 119 技能｜包内副本 缺0/差0｜运行时 缺0/差0
+预设一致｜角色技能数与 skills-agents.json 对得上
+```
+
+## English
+
+This round uncovered a **long-standing false success**: skills edited, sync "succeeded", grep
+found the new content — and it all vanished on the next host restart.
+
+## 1. Skills have three landing points; I had only synced one
+
+`lib/redteam/index.js:155` seeds `$DSH_HOME/redteam/skills` from the **in-package** copy at
+startup. So the real flow is:
+
+```
+repo skills/redteam/*.md
+  ├─→ $DSH_HOME/redteam/skills/              (read directly)
+  └─→ node_modules/dsh-purge/skills/redteam/ (in-package copy)
+        └─→ $DSH_HOME/redteam/skills/        (host seeds this at every start, overwriting above)
+```
+
+For several rounds I had been doing "edit repo → sync to `~/.dsh/redteam/skills/` → grep to
+confirm", **never syncing the in-package copy**.
+
+Measured result:
+
+```
+repo active-scan.md       6759 bytes (with new pointers)
+in-package                5543 bytes (stale)
+runtime                   5543 bytes (overwritten after restart)
+in-package vs repo        120 / 120 files differ
+```
+
+That is why `purge_skills id=active-scan` couldn't see the new pointers.
+
+## 2. Why the sync script shares the blame
+
+`scripts/sync-bundled.mjs` had two problems:
+
+**1. Only one destination** (`~/.dsh/redteam/skills`), ignoring the in-package copy entirely.
+
+**2. Skills used `onDiff: "add"`** — only filling in **missing** files, never updating differing
+content. So 120 stale files reported "missing: 0" and not one byte changed, while looking like
+a success.
+
+Fixed: added the in-package target (auto-discovering every profile), switched skills to
+`overwrite` (they are generated artifacts; repo is authoritative), and presets too (their
+"role → skills" table is likewise generated).
+
+The preset was indeed stale: `vuln-scan` said 21 at runtime vs 23 in repo — exactly the skills
+added later, permanently invisible at runtime.
+
+## 3. Gate 25 — three-way sync parity
+
+Four checks, all measured rather than trusting the script's own report:
+
+1. Every repo skill file exists in the in-package copy with identical content
+2. Every repo skill file exists in the runtime directory with identical content
+3. Preset `agent.cordis.yml` matches in both places
+4. Role skill counts in the preset match `skills-agents.json`
+
+Comparison uses **normalized content** (unified line endings, trailing whitespace stripped)
+rather than byte hashes — CRLF/LF differences cause false positives, which this project hit once.
+
+Reverse probe: appending two lines to an in-package file immediately reports
+"in-package copy has 1 skill behind the repo (active-scan.md) → host restart will overwrite it back".
+
+## 4. I rewrote the same check three times (this lesson matters more than the gate)
+
+Check 4 ("role skill count reconciliation") was wrong three times:
+
+| Version | Criterion | Result |
+| --- | --- | --- |
+| v1 | count by `stage` | false alarm `flow says 9, actual 12` |
+| v2 | count by `role` field | false alarm `recon says 13, actual 5` |
+| v3 | read `skills-agents.json` (generator's own output) | all consistent |
+
+Why: `stage` and `role` are different dimensions (`browser-automation` is stage=flow but
+role=aux), and the generator uses `role ∪ skills mentioned in the role prompt`, which is more
+than the `role` field alone.
+
+**The right answer is to compare against the generator's own intermediate artifact.** Any check
+that recomputes its own numbers risks being the thing that's wrong — the same lesson as
+"counting markers directly beats using an indirect count as a proxy".
+
+verify 25/25 green, check-package 0 issues.
 # 1.1.103
 
 ## 中文

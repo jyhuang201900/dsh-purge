@@ -163,6 +163,22 @@ if (!skip("graph")) {
   }
 }
 
+// 关 25：技能/预设三重同步一致性。
+// 由来：2026-11-14 实测，技能有三个落点，宿主启动时会用「包内副本」覆盖运行时目录。
+// 只同步运行时目录会得到极隐蔽的假成功：grep 得到新内容 → 重启 → 被旧版盖回去，无任何报错。
+// 当时包内与仓源 120/120 文件不一致，而同步脚本一直报「已补齐」（onDiff 策略只补缺失）。
+if (!skip("sync")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-sync-parity.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`同步一致性未守住：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("仓源")) || "";
+    notes.push(`同步一致性：${stat.replace(/^\[check-sync-parity\]\s*/, "")}`);
+  }
+}
+
 // 关 24：检索索引质量——泛词、summary 覆盖、模板词残留。
 // 由来：2026-11-14 审阅实测四层噪音叠加（英文模板标题 Workflow×44、生成块正文 ×32、
 // 阶段名「漏洞发现」×43、普通英文词 surface×41），导致任何查询都命中几十个技能、排序失效。

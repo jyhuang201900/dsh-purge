@@ -42,22 +42,55 @@ function walk(dir, base = dir, out = []) {
   return out;
 }
 
+/* 包内技能副本必须在 BUNDLES 之前算出来：宿主启动时 lib/redteam/index.js:155 会用
+   「包内 skills/redteam/*.md」覆盖 $DSH_HOME/redteam/skills。只同步仓源而不管包内，
+   宿主一重启就被旧版盖回去（实测：只同步 ~/.dsh/redteam/skills/ 后重启，新内容消失，
+   因为包内那份还是 5543 字节的旧文件）。
+   动态发现所有 profile 下的 dsh-purge（用户可能装了 desktop 之外的面）。 */
+function pluginSkillDirs() {
+  const out = [];
+  const profilesRoot = path.join(home, "profiles");
+  let names = [];
+  try { names = fs.readdirSync(profilesRoot); } catch { return out; }
+  for (const name of names) {
+    const dir = path.join(profilesRoot, name, "node_modules", "dsh-purge", "skills", "redteam");
+    if (fs.existsSync(dir)) out.push(dir);
+  }
+  return out;
+}
+
 const BUNDLES = [
   {
     label: "技能",
     src: path.join(root, "skills", "redteam"),
     dst: path.join(home, "redteam", "skills"),
     ext: ".md",
-    // 技能是「一个个独立文件」，缺失即补很安全
-    onDiff: "add",
+    /* 技能是**生成物**（build-skill-graph 每次重建「链路位置/配套工具/收口必做」段落），
+       仓源永远是权威，内容不一致就该覆盖。
+       原先这里是 onDiff:"add"（只补缺失），后果很隐蔽：120 个已存在的技能文件
+       内容全部落后仓源，跑 sync 一遍"成功"了，但一个字都没更新。
+       实测 2026-11-14：包内与仓源 120/120 文件不一致，而同步脚本报「已补齐」。 */
+    onDiff: "overwrite",
   },
+  ...pluginSkillDirs().map((d) => ({
+    label: `技能（包内副本 ${path.basename(path.dirname(path.dirname(path.dirname(d))))}）`,
+    src: path.join(root, "skills", "redteam"),
+    dst: d,
+    ext: ".md",
+    onDiff: "overwrite",
+    optional: true,
+  })),
   {
     label: "红队预设",
     src: path.join(root, "presets", "redteam"),
     dst: path.join(home, ".agent-presets", "redteam"),
     ext: "",
-    // 预设是「一个整体」，运行时可能被用户改过；内容不同只报告，--force 才覆盖
-    onDiff: "report",
+    /* 预设也含**生成物**：`agent.cordis.yml` 里的「阶段→技能」清单是按技能库统计出的表，
+       技能数一变它就过期。实测 2026-11-14：运行时那份 `vuln-scan` 只有 21 个技能、
+       仓源已 23 个，`flow` 6 vs 9 —— 差的是新加的技能，运行时永远看不到。
+       原先这里是 report（怕盖掉用户改动）。但这份文件用户不该手改（改的是仓源），
+       所以按生成物处理：覆盖。真要保留本地改动就先提交到仓源。 */
+    onDiff: "overwrite",
   },
 ];
 
@@ -78,7 +111,14 @@ for (const b of BUNDLES) {
     if (!srcFiles.includes(f)) missingInRepo.push(f);
   }
 
-  const willWrite = force ? [...added, ...diffed] : (b.onDiff === "add" ? added : []);
+  /* 三种策略：
+     add       → 只补缺失，内容不同不碰（旧行为，适合"运行时可能被人改过"的资源）
+     overwrite → 仓源为准，缺失补、内容不同也覆盖（**生成物**类资源该用这个）
+     report    → 内容不同只报告，等 --force（最保守）
+   force 一律全量覆盖。 */
+  const willWrite = force
+    ? [...added, ...diffed]
+    : (b.onDiff === "overwrite" ? [...added, ...diffed] : (b.onDiff === "add" ? added : []));
   console.log(`  【${b.label}】仓源 ${srcFiles.length}｜运行时 ${srcFiles.length - added.length + missingInRepo.length}` +
     `｜缺失 ${added.length}｜内容不同 ${diffed.length}${missingInRepo.length ? `｜运行时多余 ${missingInRepo.length}` : ""}`);
   if (diffed.length && !force && b.onDiff === "report") {
@@ -103,5 +143,5 @@ if (dry) {
   console.log(`  【--dry】缺失合计 ${totalAdded}｜内容不同合计 ${totalDiff}（未写盘）`);
 } else {
   console.log(`  合计：缺失 ${totalAdded}｜内容不同 ${totalDiff}`);
-  if (totalDiff && !force) console.log("  提示：预设内容不同时默认不覆盖（怕盖掉你的改动）；确认仓源为准就加 --force。");
+  if (totalDiff && !force) console.log("  提示：内容不同已按 overwrite 策略覆盖（技能与预设都是生成物，仓源为准）。");
 }
