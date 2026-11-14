@@ -88,6 +88,32 @@ try {
       store.addVuln(eid, { asset_id: realId, title: "gate-real-vuln", severity: "high" })
     );
   }
+
+  /* 写入面板的映射必须把 row 传成 asset_id，否则 store 侧的 #assertAssetRef 永远走不到。
+     2026-11-14 实测：assertAssetRef 写好了、单测也过，但从 drill 的 entity_add 写漏洞时
+     build 根本不读 row —— 校验存在而这条路径永远不经过它，等于形同虚设。
+     「校验写了」和「校验会被执行」是两件事，这类死角只有把映射也测了才发现。 */
+  let writeEntities = null;
+  try {
+    const mt = await import(pathToFileURL(path.join(ROOT, "lib", "model-tools.js")).href);
+    writeEntities = mt.DRILL_WRITE_ENTITIES ?? null;
+  } catch { writeEntities = null; }
+  if (writeEntities) {
+    for (const key of ["vuln", "credential", "access"]) {
+      const spec = writeEntities[key];
+      if (!spec || typeof spec.build !== "function") {
+        results.push({ ok: false, label: `写入面板 ${key} 的 build 缺失`, why: "无 build 函数" });
+        continue;
+      }
+      const built = spec.build({ target: "203.0.113.9", name: "gate", kind: "high", text: "e", row: 42 });
+      const hasAsset = built && Number(built.asset_id) === 42;
+      results.push(
+        hasAsset
+          ? { ok: true, label: `写入面板 ${key} 把 row 传成 asset_id` }
+          : { ok: false, label: `写入面板 ${key} 未传 asset_id`, why: "row=42 没进 asset_id，store 的引用校验永远走不到" }
+      );
+    }
+  }
   try { store.closeAll?.(); } catch { /* 无该方法时忽略 */ }
 } catch (e) {
   console.error("[check-store-refs] ✗ 运行失败：" + String(e.message || e).slice(0, 160));
