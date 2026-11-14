@@ -1,14 +1,14 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 113 参考 / 56 工具 / 5 角色 / 25 得分点 / 21 闸门）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 113 参考 / 56 工具 / 5 角色 / 25 得分点 / 23 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 发版流程
 - **大改造前先建三层安全点**（1.1.94 定型）：`git tag -a vX-pre-xxx` + `git branch backup/xxx` + 物理 `cp -r skills/` 到仓库外。三者都要推远端。tag 管 commit 回滚、分支管完整树、物理备份管 gitignore 的东西（skills/ 与 .cache/ 不入库）。
 1. 改 lib/default-prompt-inject.md（gitignore 源）→ **必须跑** `node scripts/embed-default-prompt.mjs` 重封入 lib/asset-table.js（加密表入库，明文不入库）；zh 版同步。
 2. package.json + 三份 README（Version 行 + dsh:// 链接 version=）一起 bump；release-notes.md 中英双段置顶。
-3. `node --check` 改动 JS；`node scripts/verify.mjs`（21 关）；`node scripts/check-package.mjs`（问题须 0）。
+3. `node --check` 改动 JS；`node scripts/verify.mjs`（23 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
    - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 9a180b7 = 1.1.90（1.1.95 需重钉）。
@@ -44,7 +44,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 - **验证层要接进链路生成器才有人用**：手工写技能引用率只有 2/116。改 `build-skill-graph.mjs` 的 `renderSection` 自动指路 → 94%。改生成器，别手工改 114 个文件。
 - **宿主同步要两处**：技能 `~/.dsh/redteam/skills/` + 插件包 `~/.dsh/profiles/desktop/node_modules/dsh-purge/lib/generated/`（索引在此）。技能同步后 MCP 立即反映（读盘）；**代码如 model-tools.js 要重启宿主**。
 - **`timeout N git push | tail` 输出空 + exit 0 是假象**：进程被静默杀掉。核实必须用 `git rev-list --count origin/master..HEAD`。真错误要 `GIT_TERMINAL_PROMPT=0 -c credential.helper=` 才看得见。
-- 审计工具：`node scripts/check-tool-reachability.mjs`（第 20 关）、`node scripts/check-references.mjs`（第 21 关）、`node scripts/check-graph.mjs`（第 19 关）、`node scripts/check-detection-pairing.mjs`（第 18 关）。
+  - 审计工具：`node scripts/check-tool-reachability.mjs`（第 20 关）、`node scripts/check-store-refs.mjs`（第 23 关）、`node scripts/check-path-boundary.mjs`（第 22 关）、`node scripts/check-references.mjs`（第 21 关）、`node scripts/check-graph.mjs`（第 19 关）、`node scripts/check-detection-pairing.mjs`（第 18 关）。
 
 ## references 与渐进披露（1.1.97 定型）
 - **「承诺了却给不出」是最坏的失败模式**：技能写「Load references/xxx.md」而文件不存在，模型分不清「我不知道」和「文件丢了」，会凭猜编内容。1.1.97 实测 149/153 引用指向空气。第 21 关守这条。
@@ -54,6 +54,16 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 - **写 references 的四要素**：真实命令（完整参数）、验伤信号（含「看起来成功其实是假」的反例）、检测视角（具体日志与事件 ID）、常见坑。缺验伤篇等于没写——那是最容易自欺的地方。
 - 体量：113 篇 / 93.7 万字 / 平均 8295 字（1.1.97）。
 - **check-package 的中英文数字映射表只写到 30**：加关超过 30 必须同步扩，否则闸门数自证会假红（改文档也没用）。
+
+## 逻辑审阅（1.1.98 定型）
+- **逻辑审阅必须实测，不能靠审代码**：1.1.98 三次「读代码推断」全错（`?? 0` 会不会挤掉 failed、619 处空 catch 是否系统性吞错、枚举是否死导出）。实测后全部修正。闸门形态也应为「真造 symlink / 真构造非法 id」，不是静态扫描。
+- **对称操作要查默认值是否相反**：`applyPatchesAllHosts` 默认 `discover:false`，`revertAllHosts` 原默认 `discover !== false`（扫全盘）。点应用改一份、点回滚触及其它宿主。凡成对操作（apply/revert、open/close、push/pop）都要核对默认参数。
+- **`?? 0` 兜底会让未知值与最差值同权**：`RANK[x] ?? 0` 表面上安全，实际是「先枚举者赢」。未知值应给显式最低分（-1）并浮上来。
+- **判据顺序会决定检查是否真执行**：`assertPathWithin` 若先字符串后实路径、命中即 break，symlink 检查永远不跑。凡「多级判据」都要确认每一级都有机会执行。
+- **注释声明「与 X 对齐」+ 代码复制值 = 最易骗过 review 的形态**：`validate-input.js` 写「与 store 的 SEVERITIES 对齐」却复制。枚举一律引用单一来源。
+- **路径边界必须实测解析**（`realpathSync`），纯字符串前缀比对挡不住 symlink/junction。`assertPathWithin` 有 8 处调用点（截图/POC/攻击文件），其路径字段可被写库工具影响。
+- **事实库无 FOREIGN KEY**（24 张表，SQLite 默认也不强制）→ 应用层必须自己校验引用。`#assertAssetRef` 守漏洞/凭据/访问会话三处。
+- **有 TTL 语义的状态必须真清理**：只记时间戳不清理 = 崩溃即永久占位。清理数要报出来，静默清理像「东西凭空没了」。
 
 ## 关键机制
 - **用户 override 整份替换出厂条令**：`~/.dsh/prompt-inject.md` 存在且 `override_status: custom` 时，改出厂 `lib/default-prompt-inject.md` **对实际行为零影响**。改提示词必须两处都改。
