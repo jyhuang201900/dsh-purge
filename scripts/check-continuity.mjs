@@ -100,7 +100,43 @@ if (fails.total !== 2) problems.push(`outcome=fail 应筛出 2 条，实际 ${fa
   if (prog.next && prog.next.code !== "boundary") problems.push(`next 应为 boundary，实际 ${prog.next.code}`);
 }
 
-console.log(`[check-continuity] 步骤 ${all.total} 条｜fail 可筛 ${fails.total} 条｜老库补列已验｜阶段进度已验`);
+/* 5) stage_code 必须真落库。
+   实测发现的 bug：score_hit 表有 stage_code 列、addScoreHit 也收到了参数，
+   但 INSERT 语句里**漏了这列** → 永远写 null → scoreStageOf 退化成"按 target 猜"，
+   于是"给 5 个阶段各塞一条分"只有 internet 变 done，其余仍 pending。
+   缺这一列就够隐蔽：不漏报错、不漏字段名，只是阶段归属悄悄全错。
+   同时验旧名映射：store 直达与工具层两条入口必须行为一致（exploit→internet 等）。 */
+{
+  const tmp4 = fs.mkdtempSync(path.join(os.tmpdir(), "dsh-stage-code-"));
+  const s4 = new RedteamStore(tmp4);
+  const e4 = s4.openEngagement("stage_code 验证靶", "203.0.113.0/24").id;
+  s4.importBundle(e4, { scan: { tool: "gate", argv: [] }, assets: [{ ip: "203.0.113.61", state: "live", provenance: "passive", tool: "gate" }] });
+  const a4 = s4.listAssets(e4, { ip: "203.0.113.61", limit: 1 })?.items?.[0]?.id;
+  const p4 = (s4.listScorePoints(e4, {})?.items || []).find((x) => String(x.code) === "server-host");
+  const db4 = s4.db(e4);
+  const cases = [
+    ["boundary", "boundary"],
+    ["exploit", "internet"],   // 旧名必须映射，不能落 null
+    ["access", "internal"],
+    ["pivot", "boundary"],
+    ["乱写的阶段", null],        // 认不出来 → null（不猜）
+  ];
+  for (const [input, want] of cases) {
+    const h = s4.addScoreHit(e4, { point_id: p4.id, evidence: "stage_code 验证", asset_id: a4, stage_code: input });
+    const got = db4.prepare("SELECT stage_code FROM score_hit WHERE id = ?").get(h.id)?.stage_code ?? null;
+    if (got !== want) problems.push(`stage_code 传入「${input}」应落库 ${JSON.stringify(want)}，实际 ${JSON.stringify(got)}`);
+  }
+  /* 五阶段各有分时，stageProgress 必须全 done（这条是上面那个 bug 的端到端体现） */
+  for (const st of ["recon", "internet", "boundary", "internal", "target"]) {
+    s4.addScoreHit(e4, { point_id: p4.id, evidence: "stage_" + st, asset_id: a4, stage_code: st });
+  }
+  const pp = s4.stageProgress(e4);
+  const notDone = pp.items.filter((x) => x.status !== "done").map((x) => x.code);
+  if (notDone.length) problems.push(`五阶段各塞一条分后仍非 done：${notDone.join(",")}（stage_code 没落库会这样）`);
+  if (pp.doneAll !== true) problems.push("五阶段全 done 时 doneAll 应为 true");
+}
+
+console.log(`[check-continuity] 步骤 ${all.total} 条｜fail 可筛 ${fails.total} 条｜老库补列已验｜阶段进度已验｜stage_code 落库已验`);
 if (problems.length) {
   for (const p of problems) console.log(`  ✗ ${p}`);
   console.log("  → 连续性靠落库：没有 outcome，「哪些路已堵死」就不在新会话的视野里，会重走一遍。");

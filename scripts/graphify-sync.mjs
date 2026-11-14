@@ -98,6 +98,75 @@ function ensureBaseline(outDir, root) {
   return { baseline, created: true, dropped: semanticIds.size };
 }
 
+/**
+ * 把 `skills/redteam/references/*.md` 作为节点注入，并连上「技能 → 它引用的 references」边。
+ *
+ * 为什么必须补这一步：graphify 的抽取只到**第 3 层路径**（`lib/redteam/x.js`、`skills/redteam/x.md`），
+ * 而 references 在第 4 层（`skills/redteam/references/x.md`）。实测 117 篇、93.7 万字**一篇都没进图** ——
+ * 技能 md 119/119 全在，references 0/117。
+ *
+ * 后果不是"少几个节点"，而是**技能与深水区的逻辑联系在图谱上不存在**：
+ * 问"这个技能的依据在哪"、按图谱找"改了 references 会影响谁"，全都查不到。
+ *
+ * 只在图里补**结构关系**（节点+边），不读正文 —— 正文抽取仍交给 graphify，
+ * 这里不重复它的职责，只把它漏掉的那层接回来。
+ */
+function injectReferenceEdges(graph, root) {
+  const skillsDir = path.join(root, "skills", "redteam");
+  const refDir = path.join(skillsDir, "references");
+  if (!fs.existsSync(refDir)) return { nodes: 0, edges: 0 };
+  const byId = graph.byId || new Map(graph.nodes.map((n) => [n.id, n]));
+  let addedNodes = 0;
+  let addedEdges = 0;
+
+  /* references 文件名 → 节点（标题取一级标题或文件名） */
+  const refNodes = new Map();
+  for (const f of fs.readdirSync(refDir).filter((x) => x.endsWith(".md"))) {
+    const rel = `skills/redteam/references/${f}`;
+    const id = `ref:${f.replace(/\.md$/, "")}`;
+    if (byId.has(id)) { refNodes.set(f.replace(/\.md$/, ""), id); continue; }
+    let title = f.replace(/\.md$/, "");
+    try {
+      const head = fs.readFileSync(path.join(refDir, f), "utf8").split(/\r?\n/).find((l) => /^#\s+/.test(l));
+      if (head) title = head.replace(/^#\s+/, "").trim().slice(0, 60);
+    } catch { /* 读不到就用文件名 */ }
+    const node = {
+      id, label: title, community: undefined, community_name: undefined,
+      file_type: "markdown", source_file: rel, source_location: "1",
+      _origin: "reference", norm_label: title.toLowerCase(),
+    };
+    graph.nodes.push(node);
+    byId.set(id, node);
+    refNodes.set(f.replace(/\.md$/, ""), id);
+    addedNodes += 1;
+  }
+
+  /* 技能 md → 扫正文里的 `references/<x>.md` 或 `<refs>/<skill>/<x>.md` 引用 */
+  for (const n of graph.nodes) {
+    if (!n.source_file || !n.source_file.startsWith("skills/redteam/") || !n.source_file.endsWith(".md")) continue;
+    if (n.source_file.includes("/references/")) continue;
+    let body = "";
+    try { body = fs.readFileSync(path.join(root, n.source_file), "utf8"); } catch { continue; }
+    const seen = new Set();
+    /* 两种布局都要认（闸门 check-references 两种都收，这里必须一致）：
+         扁平   references/<file>.md
+         独立   references/<skill-id>/<file>.md
+       实测踩过：正则只写 `references/([A-Za-z0-9._-]+)\.md`（不含斜杠），
+       `references/http-smuggling/payload-library.md` 这类 2 处引用一条边都建不出来 ——
+       图上看就是"这个技能没有深水区"，而实际有。 */
+    for (const m of body.matchAll(/references\/([A-Za-z0-9._/-]+)\.md/g)) {
+      const rel = m[1];
+      const base = rel.includes("/") ? rel.split("/").pop() : rel;
+      const tid = refNodes.get(base) ?? refNodes.get(rel.replace(/\//g, "-"));
+      if (tid === undefined || seen.has(tid)) continue;
+      seen.add(tid);
+      graph.edges.push({ source: n.id, target: tid, relation: "references", _origin: "reference", source_file: n.source_file });
+      addedEdges += 1;
+    }
+  }
+  return { nodes: addedNodes, edges: addedEdges };
+}
+
 function merge(baseline, semanticFiles, root) {
   const nodes = baseline.nodes.slice();
   const edges = baseline.edges.slice();
@@ -293,6 +362,11 @@ function main() {
   if (created) warn(`已冻结 AST 基线 ast-baseline.json（从 graph.json 剔除 ${dropped ?? 0} 个语义节点）`);
 
   const merged = merge(baseline, files.map((f) => path.join(semDir, f)), opts.root);
+  /* 补第 4 层：graphify 抽取只到 3 层深，references 全被漏掉（117 篇 0 入图）。 */
+  const refStat = injectReferenceEdges(merged, opts.root);
+  if (refStat.nodes || refStat.edges) {
+    console.log(`[graphify] 补 references 层：+${refStat.nodes} 节点 / +${refStat.edges} 边`);
+  }
   const folded = opts.foldRationale ? foldRationale(merged) : { folded: 0, kept: 0, orphans: [], redirected: 0, deduped: 0, hyperFixed: 0 };
   if (!opts.foldRationale) warn("已按要求跳过 rationale 折叠");
   const { errors } = validate(merged);
