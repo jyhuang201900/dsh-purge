@@ -1,3 +1,184 @@
+# 1.1.109
+
+## 中文
+
+这轮我自己启动宿主调试，踩了两个「秒退且无错误输出」的坑，都已固化进脚本。
+
+## 一、报告目标列修复已验证
+
+上轮的修复在活宿主里确认生效。库里对照：
+
+```
+hit id=1  vuln_id=null  asset_id=null  target=null                      ← 修复前
+hit id=2  vuln_id=4     asset_id=null  target=null                      ← 修复前
+hit id=3  vuln_id=4     asset_id=3     target="203.0.113.30/api?id=1"   ← 修复后，全部自动带上
+```
+
+报告正文里也体现了：
+
+```
+| 3 | 数据库凭据 | +50 | 203.0.113.30/api?id=1 | — | 复现方式（§3.3） |   ← 有目标
+| 1 | 数据库凭据 | +50 | `` | ...                                        ← 旧数据
+```
+
+旧的两条脏数据已清掉。
+
+## 二、自己启动宿主踩的两个坑
+
+### 坑 1：`ELECTRON_RUN_AS_NODE=1`（这个最坑）
+
+环境里存在这个变量时，Electron 会以**纯 Node 模式**运行：不建窗口、不加载 app.asar 主进程、不写 `[boot]` 日志、不开端口。
+
+现象全是误导性的：
+
+```
+直接运行          → EXIT=0，无任何输出
+加 --no-sandbox   → "bad option: --no-sandbox"     ← 其实是 Node 的参数解析在报错
+加 --help         → 打印 Node.js 的用法            ← 铁证
+```
+
+我试了 `Start-Process`、`cmd start`、前台运行、带日志重定向——全部秒退。查系统事件日志没有错误（说明是正常退出），查 `[boot]` 日志没有新记录（说明没走到插件加载），但 GPU 缓存和 Session Storage 有更新（说明 Chromium 确实初始化过）。
+
+**只有把这三个现象拼起来才能定位**：Chromium 起来了 → 但没加载 app → 且把参数当脚本 → 那是 Node 模式。
+
+清掉变量后立刻正常：5 个进程、端口就绪、`[boot]` 有记录。
+
+### 坑 2：`package.json` 没同步，状态端点报旧版本
+
+宿主启动后 `plugin_version` 显示 **1.1.93**，而仓库是 1.1.108。查文件：
+
+```
+仓库 lib/model-tools.js   144608 字节
+宿主 lib/model-tools.js   144608 字节   ← 代码是新的
+宿主 package.json         1.1.93        ← 版本号是旧的
+```
+
+原因：我手工 `cp` 同步时只同步了 `lib/` 和 `skills/`，漏了包根文件。而 `sync-bundled.mjs` 原来只管技能和预设，也不管包根。
+
+**这个坑的伤害在于会误判**：看到版本号是旧的，第一反应是"改动没生效"，可能白折腾很久。
+
+已修：`sync-bundled.mjs` 新增包根同步项（`package.json` / `client.js`，动态发现所有 profile）。
+
+## 三、新增 `scripts/start-host.mjs`
+
+把「启动宿主并等端口就绪」固化下来，一条命令：
+
+```
+node scripts/start-host.mjs [--wait 秒数]
+→ PORT=64117 / 版本 1.1.109 / ready=true
+```
+
+里面写死了两个坑的规避方式（源码注释里都讲了原因）：
+
+- 从子进程环境里删 `ELECTRON_RUN_AS_NODE` 和 `NODE_OPTIONS`
+- 端口探测**不能只判 HTTP 200**——`127.0.0.1` 上还有别的服务也回 200（有的是 HTML 页面），必须校验响应是 JSON 且含 `plugin_version`
+
+写这个脚本时自己又踩了一个：ESM 里用 `require("node:child_process")` 抛 ReferenceError，被 `catch` 吞掉后返回空端口列表，症状是"端口明明开着却探测不到"。改用顶部 import 的 `execSync`。
+
+## 四、这轮的元教训
+
+**"秒退且无输出"的程序，要先分清它到底跑成了什么。**
+
+我一开始按"GUI 程序在受限环境起不来"去查（会话、explorer、AppCompat shim、安全软件），全都不对。真正有效的是**用一个已知参数去试**：`--help` 输出 Node 用法，瞬间定位。
+
+**判据：当程序行为不符合它的身份时，先验证它的身份。** 而不是先怀疑环境。
+
+## 验证
+
+```
+verify 27 关全绿（报告链路 6/6，emptyTargetRows=0）
+check-package 问题 0
+宿主 64117，版本 1.1.109，ready=true
+```
+
+## English
+
+This round I started the host myself to debug, and hit two "exits instantly with no error output"
+traps. Both are now baked into scripts.
+
+## 1. Report target-column fix verified
+
+Confirmed in the live host. DB comparison:
+
+```
+hit id=1  vuln_id=null  asset_id=null  target=null                      ← before
+hit id=2  vuln_id=4     asset_id=null  target=null                      ← before
+hit id=3  vuln_id=4     asset_id=3     target="203.0.113.30/api?id=1"   ← after, all derived automatically
+```
+
+The report body reflects it too. Stale rows cleaned up.
+
+## 2. Two traps from self-starting the host
+
+### Trap 1: `ELECTRON_RUN_AS_NODE=1` (the nastiest)
+
+With this in the environment, Electron runs in **pure Node mode**: no window, no app.asar main
+process, no `[boot]` log lines, no listening port.
+
+Every symptom was misleading:
+
+```
+plain run          → EXIT=0, no output at all
+with --no-sandbox  → "bad option: --no-sandbox"    ← that's Node's arg parser complaining
+with --help        → prints Node.js usage          ← the smoking gun
+```
+
+I tried `Start-Process`, `cmd start`, foreground, log redirection — all exited instantly. No error
+events in the system log (so it exited normally), no new `[boot]` lines (so the plugin never
+loaded), yet GPU cache and Session Storage were updated (so Chromium did initialize).
+
+**Only stitching those three observations together located it**: Chromium came up → didn't load the
+app → and treated arguments as script paths → that's Node mode.
+
+Removing the variable: immediately normal — 5 processes, port ready, `[boot]` logged.
+
+### Trap 2: `package.json` not synced, status endpoint reported an old version
+
+After startup `plugin_version` read **1.1.93** while the repo was at 1.1.108:
+
+```
+repo lib/model-tools.js   144608 bytes
+host lib/model-tools.js   144608 bytes   ← code is current
+host package.json         1.1.93         ← version is stale
+```
+
+My manual `cp` only synced `lib/` and `skills/`, and `sync-bundled.mjs` only handled skills and
+presets — neither touched package-root files.
+
+**The damage is misdiagnosis**: seeing an old version number, the first instinct is "my change
+didn't take effect", which can waste a lot of time.
+
+Fixed: `sync-bundled.mjs` now syncs package-root files (`package.json`, `client.js`) across all
+discovered profiles.
+
+## 3. New `scripts/start-host.mjs`
+
+One command to start the host and wait for readiness:
+
+```
+node scripts/start-host.mjs [--wait seconds]
+→ PORT=64117 / version 1.1.109 / ready=true
+```
+
+It encodes both workarounds (with the reasoning in comments), and one more subtlety: port probing
+**must not accept plain HTTP 200** — other services on 127.0.0.1 also return 200 (some are HTML
+pages), so the response must be JSON containing `plugin_version`.
+
+Writing it, I hit one more: `require("node:child_process")` in ESM throws a ReferenceError that gets
+swallowed by the `catch`, yielding an empty port list — symptom: "the port is clearly open but
+nothing is detected".
+
+## 4. Meta-lesson
+
+**For a program that "exits instantly with no output", first establish what it actually ran as.**
+
+I initially investigated "GUI app can't start in this environment" (session, explorer, AppCompat
+shims, security software) — all wrong. What worked was **trying a known flag**: `--help` printing
+Node.js usage pinned it instantly.
+
+**When a program behaves unlike its identity, verify its identity first** — not the environment.
+
+verify 27/27 green (report chain 6/6, emptyTargetRows=0), host at 64117, version 1.1.109.
 # 1.1.108
 
 ## 中文

@@ -47,14 +47,32 @@ function walk(dir, base = dir, out = []) {
    宿主一重启就被旧版盖回去（实测：只同步 ~/.dsh/redteam/skills/ 后重启，新内容消失，
    因为包内那份还是 5543 字节的旧文件）。
    动态发现所有 profile 下的 dsh-purge（用户可能装了 desktop 之外的面）。 */
-function pluginSkillDirs() {
+function pluginDirs() {
   const out = [];
   const profilesRoot = path.join(home, "profiles");
   let names = [];
   try { names = fs.readdirSync(profilesRoot); } catch { return out; }
   for (const name of names) {
-    const dir = path.join(profilesRoot, name, "node_modules", "dsh-purge", "skills", "redteam");
+    const dir = path.join(profilesRoot, name, "node_modules", "dsh-purge");
     if (fs.existsSync(dir)) out.push(dir);
+  }
+  return out;
+}
+
+/* 包根文件也必须同步。踩过的坑（2026-11-14）：手工 cp 只同步了 lib/ 和 skills/，
+   package.json 停在旧版本 —— 代码是新的但**状态端点报旧版本号**（1.1.93 vs 1.1.108），
+   排查时很容易误判成"改动没生效"。宿主读的包根文件只有这两个：
+     · package.json → 状态端点/面板显示的版本号
+     · client.js    → 面板前端脚本
+   （screenshots.json 是仓库自用清单，宿主不读，不同步） */
+function pluginRootFiles() {
+  const out = [];
+  for (const dir of pluginDirs()) {
+    for (const f of ["package.json", "client.js"]) {
+      const src = path.join(root, f);
+      if (!fs.existsSync(src)) continue;
+      out.push({ src, dst: path.join(dir, f), label: `${f}（${path.basename(path.dirname(path.dirname(dir)))}）` });
+    }
   }
   return out;
 }
@@ -72,10 +90,10 @@ const BUNDLES = [
        实测 2026-11-14：包内与仓源 120/120 文件不一致，而同步脚本报「已补齐」。 */
     onDiff: "overwrite",
   },
-  ...pluginSkillDirs().map((d) => ({
-    label: `技能（包内副本 ${path.basename(path.dirname(path.dirname(path.dirname(d))))}）`,
+  ...pluginDirs().map((d) => ({
+    label: `技能（包内副本 ${path.basename(path.dirname(path.dirname(d)))}）`,
     src: path.join(root, "skills", "redteam"),
-    dst: d,
+    dst: path.join(d, "skills", "redteam"),
     ext: ".md",
     onDiff: "overwrite",
     optional: true,
@@ -95,6 +113,20 @@ const BUNDLES = [
 ];
 
 let totalAdded = 0, totalDiff = 0;
+
+/* 包根文件（package.json / client.js）：直接覆盖，没有"缺失即补"的说法——
+   版本号不对会让状态端点报旧版本，排查时误判成"改动没生效"。
+   这两项在技能/预设循环之前处理，这样即使后面出错也已经同步了版本号。 */
+for (const rf of pluginRootFiles()) {
+  let src = null, dst = null;
+  try { src = fs.readFileSync(rf.src, "utf8"); } catch { continue; }
+  try { dst = fs.readFileSync(rf.dst, "utf8"); } catch { dst = null; }
+  if (dst !== null && norm(src) === norm(dst)) continue;
+  if (dry) { console.log(`  【${rf.label}】需同步（--dry 未写）`); continue; }
+  fs.mkdirSync(path.dirname(rf.dst), { recursive: true });
+  fs.copyFileSync(rf.src, rf.dst);
+  console.log(`  【${rf.label}】已写入`);
+}
 for (const b of BUNDLES) {
   const srcFiles = walk(b.src).filter((f) => !b.ext || f.endsWith(b.ext));
   const added = [], diffed = [], missingInRepo = [];
