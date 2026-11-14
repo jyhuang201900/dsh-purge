@@ -1,3 +1,206 @@
+# 1.1.113
+
+## 中文
+
+从能力面加强：给技能接上 **MITRE ATT&CK v20.1** 映射。
+
+## 一、先量缺口，不靠感觉
+
+用 12 维度矩阵扫全库，但第一版判据太宽 —— 「检测」一词出现在 116/119 个文件里，说明它没有区分度，报出来的 92% 覆盖是**假信号**。
+
+收紧到「专业标记 × 至少出现 2 次」之后，真实情况浮出来：
+
+| 维度 | 收紧后命中 |
+| --- | --- |
+| ATT&CK 技术编号 | **3 / 119**（2.5%） |
+| 云与容器 | 3 个技能 |
+| 取证与报告 | 1 个技能 |
+
+最关键的是第一行：**119 个技能里只有 3 个带 ATT&CK 编号**。之前的 92% 是因为每个技能都有「参考」章节，里面提到 att&ck 字样。
+
+## 二、还发现数据过时
+
+现有 `attack-traceability` 用的是**旧版 14 战术制**（还写「防御规避」）。而 ATT&CK 现在是 **v20.1**，**15 个战术**：
+
+- `TA0005` 由 Defense Evasion 改名为 **Stealth（隐匿）**
+- **新增 `TA0112` Defense Impairment（破坏防御机制）** —— 从原「防御规避」拆出来
+
+区别：Stealth 是"不被看见"，Defense Impairment 是"把防守机制搞坏/搞瞎"（关 EDR、删日志管道、破坏备份）。混着写在按现行标准核对时会对不上。
+
+## 三、建单一来源 + 批量标注
+
+**`lib/redteam/attack-map.js`** 是插件内的唯一来源：
+
+- `TACTICS`：15 个战术（含 TA0112），带 id/英文/中文
+- `TECHNIQUES`：121 条技术 → `{名称, 所属战术}`
+- `normalizeTechniqueId()`：`T1059.001` / `T1059-001` / `T1059_001` 都认（手写容易加小数点，两种写法会让「查不到」变成假红）
+
+**`scripts/build-attack-map.mjs`** 批量给技能追加 `## ATT&CK 映射`：
+
+```
+| 战术 | 编号 | 技术 |
+| 执行 | T1059 | 命令与脚本解释器 |
+| 持久化 | T1505 | 服务组件 |
+| 持久化 | T1505.003 | Web Shell |
+```
+
+标注 **77/119** 个技能（其余是竞赛专项，按需补）。脚本幂等：重复跑不叠加两段。
+
+## 四、我编造了 6 个编号，全被闸门拦下
+
+第一版手工填表时，脚本直接拒写：
+
+```
+✗ dir-bruteforce → T1083
+✗ supply-chain-security → T1195
+✗ browser-extension-reverse → T1185
+✗ firmware-pentest → T1542
+✗ protocol-reverse → T1040
+```
+
+逐个核对 attack.mitre.org 后补进表。**同时发现我已写错的归属**：
+
+| 编号 | 我写的 | 实际 |
+| --- | --- | --- |
+| T1489 | 破坏防御机制 | **Impact（影响）** |
+| T1610 部署容器 | 执行 | **Stealth（TA0005）** |
+| T1611 容器逃逸 | 横向移动 | **提权（TA0004）** |
+| T1669 | 部署容器 | **Wi-Fi Networks（初始访问）** |
+
+第 1669 条错得最远 —— 名称和战术都不对。全部已纠正。
+
+## 五、「加了等于白加」第二次踩点
+
+映射段加到技能末尾，然后实测读技能：
+
+```
+purge_skills id=webshell-toolkit → 总长 2082 字符，找不到「## ATT&CK 映射」
+```
+
+因为 `id=` 只回**正文头部**（前 900 字，防止把 27k 字灌进上下文）。**这不是 bug，是有意的边界** —— 但文末新加的内容永远读不到。
+
+同一位置的旧注释已经记过一次：
+
+> 链路段的截取必须按段落边界，不能按字符数硬切。原来切 li+460 字符，而「配套工具」指路是最后一段 —— 文件明明已经写进去了（grep 得到），模型看到的摘要里却没有这段，于是「加了等于白加」。
+
+我犯了同样的错。修法：`skillBodyFor` 单独摘出 ATT&CK 段（按段落边界取，上限 1000 字），在摘要里一并给出。实测已能读到。
+
+## 六、第 30 关：ATT&CK 映射一致性
+
+五项断言：
+
+1. 战术数 = 15，且含 `TA0005=Stealth`、`TA0112=Defense Impairment`
+2. 表内编号格式合法、tactic 都能在 TACTICS 里找到（无孤儿）
+3. **技能引用的编号必须在表里**（防编造）
+4. **表里的编号必须被技能用到**（防死数据）
+5. 不写旧战术名「防御规避」
+
+第 4 项初版报「56 个死数据」。逐个判断后：**该补的补标注**（`T1003.001 LSASS`、`T1047 WMI`、`T1059.001 PowerShell` 这些正文里明明有），**真用不上的删掉**（`T1584 入侵基础设施`、`T1608 准备能力` 这类资源开发项红队作业不标注）。
+
+最终：**121 技术，双向闭合**（技能 ⊆ 表、表 ⊆ 技能）。
+
+反向探针塞一个 `T9999.999`：
+
+```
+✗ webshell-toolkit.md 引用了表里不存在的编号 T9999.999（防编造：先核对 attack.mitre.org 再补表）
+```
+
+## 验证
+
+```
+verify 30 关全绿 ｜ check-package 问题 0
+ATT&CK v20.1｜战术 15｜技术 121｜技能标注 77/119
+宿主 29726，版本 1.1.113
+```
+
+## English
+
+Strengthening the capability surface: wiring skills to **MITRE ATT&CK v20.1**.
+
+## 1. Measure the gap, not guess it
+
+A 12-dimension matrix over the library — but the first pass used criteria far too loose:
+"检测" appeared in 116/119 files, so it had no discriminating power, and the 92% coverage it
+reported was a **false signal**.
+
+Tightening to "domain-specific marker × at least 2 occurrences" surfaced the real picture:
+
+| Dimension | Hits after tightening |
+| --- | --- |
+| ATT&CK technique IDs | **3 / 119** (2.5%) |
+| Cloud & containers | 3 skills |
+| Forensics & reporting | 1 skill |
+
+The first row matters most: **only 3 of 119 skills carried ATT&CK IDs**. The earlier 92% came from
+every skill having a "参考" section that mentions ATT&CK.
+
+## 2. The data was also stale
+
+The existing `attack-traceability` used the **old 14-tactic model** (still saying "防御规避"). ATT&CK
+is now **v20.1** with **15 tactics**:
+
+- `TA0005` renamed from Defense Evasion to **Stealth**
+- **New `TA0112` Defense Impairment**, split out of the former Defense Evasion
+
+The distinction: Stealth is "don't be seen"; Defense Impairment is "break or blind the defenses"
+(disable EDR, gut logging pipelines, destroy backups). Conflating them fails a check against the
+current standard.
+
+## 3. Single source + bulk annotation
+
+`lib/redteam/attack-map.js` is the only source of truth: 15 tactics (including TA0112), 121
+techniques, and an ID normalizer accepting `T1059.001` / `T1059-001` / `T1059_001`.
+
+`scripts/build-attack-map.mjs` appends a `## ATT&CK 映射` section to each skill. **77/119 annotated**
+(the rest are competition-specific, to be added as needed). Idempotent — re-running never stacks two
+sections.
+
+## 4. I fabricated six IDs; the gate blocked all of them
+
+The script refused to write:
+
+```
+✗ dir-bruteforce → T1083
+✗ supply-chain-security → T1195
+...
+```
+
+Each was checked against attack.mitre.org and added. That check also caught **tactic mistakes I had
+already made**: T1489 belongs to Impact (not Defense Impairment), T1610 Deploy Container to Stealth,
+T1611 Escape to Host to Privilege Escalation, and T1669 is *Wi-Fi Networks* in Initial Access — not
+"deploy container" at all. All corrected.
+
+## 5. "Added but invisible" — second time at the same spot
+
+The mapping landed at the end of each skill file. Reading the skill back:
+
+```
+purge_skills id=webshell-toolkit → 2082 chars, no "## ATT&CK 映射"
+```
+
+Because `id=` only returns the **body head** (first 900 chars, deliberately bounded so 27k chars
+don't flood the context). That boundary is right — but content appended at the end is never visible.
+
+An existing comment had already recorded this exact failure once, for the chain-position section
+being cut mid-paragraph. I repeated it. Fixed by extracting the ATT&CK section by paragraph boundary
+in `skillBodyFor` and including it in the summary. Verified readable.
+
+## 6. Gate 30: ATT&CK mapping consistency
+
+Five assertions: 15 tactics with TA0005=Stealth and TA0112 present; no orphan tactic references;
+**IDs cited by skills must exist in the table** (anti-fabrication); **IDs in the table must be used
+by some skill** (anti-dead-data); no legacy tactic names.
+
+The fourth initially reported 56 dead entries. Judging each: **annotate the ones that belong**
+(`T1003.001 LSASS`, `T1047 WMI`, `T1059.001 PowerShell` are plainly in those skills' text) and
+**delete the ones nothing uses** (`T1584 Acquire Infrastructure`, `T1608 Stage Capabilities` — resource
+development entries red-team work never tags).
+
+Result: **121 techniques, bidirectionally closed** (skills ⊆ table, table ⊆ skills).
+
+Reverse probe with a fake `T9999.999` fails as designed.
+
+verify 30/30 green, ATT&CK v20.1, host at 29726 running 1.1.113.
 # 1.1.112
 
 ## 中文

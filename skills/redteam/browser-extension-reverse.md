@@ -112,3 +112,15 @@ second-shot:end -->
 
 
 <!-- /skill-link-graph -->
+
+## ATT&CK 映射
+
+> 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
+
+| 战术 | 编号 | 技术 |
+| --- | --- | --- |
+| 凭据访问 | T1555 | 从密码存储处获取凭据 |
+| 收集 | T1185 | Browser Session Hijacking（浏览器会话劫持） |
+
+落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
+**没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。

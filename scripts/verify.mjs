@@ -163,6 +163,24 @@ if (!skip("graph")) {
   }
 }
 
+// 关 30：ATT&CK 映射一致性。
+// 由来：ATT&CK 编号是**外部标准**，写错一个数字看不出来，但拿去和防守方核对就露馅。
+// 过去 119 个技能只有 3 个带编号（2.5%），且沿用旧版 14 战术制（TA0005 还叫"防御规避"）。
+// 本轮手工填表时我自己编了 6 个不存在的编号、把 T1489 归错战术 —— 全靠这道闸拦下来。
+// 五项断言：战术结构=15（v20.1）｜表内无孤儿｜技能引用的编号必须在表里（防编造）｜
+//          表里的编号必须被技能用到（防死数据）｜不写旧战术名。
+if (!skip("attack")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-attack-map.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`ATT&CK 映射未对齐：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("ATT&CK v")) || "";
+    notes.push(`ATT&CK：${stat.replace(/^\[check-attack-map\]\s*/, "")}`);
+  }
+}
+
 // 关 29：会话连续性——否定结果必须能被新会话读到。
 // 由来：插件的前提是「会话一断、上下文一清，只有落库的东西还在」，
 // 但过去落库的只有成果（漏洞/凭据/得分），**没有"试过但没通"**：
