@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness red-team security tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.1.109</strong></p>
+<p align="center"><strong>Version 1.1.110</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness jailbreak: make every model answer, swap prompts per model. Ships a built-in attack doctrine and 119 drill skills (organised by five phases: recon / asset mapping / vulnerability discovery / exploitation / intranet, plus 9 chain overviews).</em>
@@ -134,7 +134,7 @@ The plugin hub still 404s if it looks up the npm package name. Use the GitHub ar
 For the desktop client you can also click the button (`dsh://` deep link):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.109&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.110&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>Install in desktop client</strong></a>
 </p>
 
 ### After the command: three steps
@@ -412,7 +412,7 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 
 ## Local checks
 
-One command runs twenty-seven gates (syntax / size budget / bilingual copy incl. source-vs-inline / local runnability / manifest parity / package self-proof / tool surface / verification layer / graph consistency / tool reachability / reference integrity / path boundary / store referential integrity / search index quality / sync parity / schema subset / report chain / clarification contract / end-to-end scenario / ammo-layer audit / hygiene fixtures / CLI smoke / write-path smoke / tool-layer smoke / valid JSON); a non-zero exit means a gate failed:
+One command runs twenty-eight gates (syntax / size budget / bilingual copy incl. source-vs-inline / local runnability / manifest parity / package self-proof / tool surface / verification layer / graph consistency / tool reachability / reference integrity / path boundary / store referential integrity / search index quality / sync parity / schema subset / report chain / replay templates / clarification contract / end-to-end scenario / ammo-layer audit / hygiene fixtures / CLI smoke / write-path smoke / tool-layer smoke / valid JSON); a non-zero exit means a gate failed:
 
 While iterating, skip the heavy ones: `node scripts/verify.mjs --skip write,cli` (or `DSH_VERIFY_SKIP=write,cli`). Measured: 12 gates 22.3 s -> skip `write` 7.6 s -> also skip `cli` 5.1 s. The legacy `--skip-size` really means "skip everything but syntax" (2.4 s); its name does not match its behaviour, so it stays only for compatibility and `--skip` is the new way. Valid short names: `size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json`.
 
@@ -482,7 +482,7 @@ All local entry points (14 of them, each with a reason to exist; a documented ga
 | `npm run smoke:write` | write-path smoke: revert -> apply -> apply -> revert over a temporary fixture, compared byte-by-byte (apply idempotence, revert round-trip, self-restoring) |
 | `npm run smoke:tools` | tool-layer smoke: actually runs `purge_apply` / `purge_revert`, asserting the reported hosts count and that a single apply->revert round trip restores the official bytes |
 | `npm run audit:graph` | graph orphan audit: finds code files with zero inbound edges and no mention in docs/manifest (a named manual CLI is not an orphan) |
-| `npm run report` | Health report: runs the existing twenty-seven gates and probes in order and emits a markdown table (`.cache/report-<date>.md`); `--no-net` skips the three external checks, and `npm run report -- --check-debt` appends an open-items review (route revived by a restart, injection size, this run's residue, real-host sidecar forensics, the four things deliberately not done). Elapsed time is self-measured; before a restart the `--verify-live` row legitimately exits 1 |
+| `npm run report` | Health report: runs the existing twenty-eight gates and probes in order and emits a markdown table (`.cache/report-<date>.md`); `--no-net` skips the three external checks, and `npm run report -- --check-debt` appends an open-items review (route revived by a restart, injection size, this run's residue, real-host sidecar forensics, the four things deliberately not done). Elapsed time is self-measured; before a restart the `--verify-live` row legitimately exits 1 |
 | `npm run verify` | one command, eight gates |
 | `npm run build:client` | rebuild the client bundle |
 | `npm run graphify` | rebuild the knowledge graph (AST + hand-written semantic layer) |

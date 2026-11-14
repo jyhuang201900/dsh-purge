@@ -163,6 +163,23 @@ if (!skip("graph")) {
   }
 }
 
+// 关 28：复现模板占位符审计。
+// 由来：2026-11-14 实测 db-credential 的 script 模板写成 `mysql -h <host> -u <user> -p -e ...`，
+// 丢了 <port> 与 <pass>，而且裸 `-p` 在真实 mysql 里是「交互式提示输密码」——贴进脚本会挂住等输入。
+// 危害在于它看起来像能跑：报告只提示"还有 2 个占位符"，读者以为补齐就能复现，实际会卡住。
+// 判据：script（实际填充用）的占位符不得少于 replay；mysql 里不许出现裸 -p。
+if (!skip("template")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-replay-templates.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`复现模板有问题：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("个模板")) || "";
+    notes.push(`复现模板：${stat.replace(/^✓\s*/, "")}`);
+  }
+}
+
 // 关 27：报告链路完整性——记漏洞/步骤/得分时关联字段是否传全。
 // 由来：2026-11-14 实测 chain_add 只传 stage_code/tool/result，丢了 title/vuln_id；
 // score_add 只传 point_id/evidence，丢了 vuln_id/asset_id。后果是「写入成功但报告无法复现」：
