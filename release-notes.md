@@ -1,3 +1,92 @@
+# 1.1.101
+
+## 中文
+
+重启验证通过，顺手修一个展示瑕疵。
+
+## 验证结果（活宿主实测）
+
+**补丁状态修好了。** state 字段与面板渲染都对了：
+
+```
+na = 0 ｜ missing = 76 ｜ total = 76
+补丁 / patches: 0/76 applied, 0 pending｜缺文件 76（宿主文件不可达：官方宿主在 app.asar 里，需点「应用」解开）
+```
+
+之前是 `0/0 applied` + 「不适用 76」，会被读成「我的环境不支持这些补丁」。
+
+**检索排序修好了。** 三条中文长句查询的首条全部正确：
+
+| 查询 | 结果 |
+| --- | --- |
+| 前端有混淆怎么逆向 | js-reverse 第一 ✓ |
+| 内网只拿到一个普通域账号 | windows-ad 第一 ✓ |
+| 域内委派怎么利用 | windows-ad 第一 ✓ |
+
+## 修了展示瑕疵
+
+`「域内委派怎么利用」` 命中的展示片段是 `委派怎` —— 切片把“怎么”切开了，尾巴带“怎”字。
+
+第一版处理是「含单字虚词的片段降权」，结果更差：`委派怎` 降权后，`么利用` 反而成了最高权重，展示成「片段『么利用』」。
+
+**根因是把「排序权重」和「展示片段」当成同一件事。** 它们目的不同：
+
+- 排序权重：谁更相关（该降权就降权）
+- 展示片段：怎么让人看懂为什么命中（该挑干净的）
+
+已分开：排序用加权值，展示按「不含虚词 > 命中 keys > 长度更长」挑。这样 `「域内委派怎么利用」` 展示的是 `委派`（干净且是 keys 里的词），不再是碎片。
+
+## 这轮的教训
+
+**「降权」不等于「不展示」。** 一个片段可以相关度低（不影响排序结论），但仍然是解释命中的最佳选择。把两件事绑在一起，会在修一个问题时制造另一个。
+
+## English
+
+Post-restart verification passed, plus one display fix.
+
+## Verified in the live host
+
+**Patch status is fixed.** State fields and panel rendering both correct:
+
+```
+na = 0 ｜ missing = 76 ｜ total = 76
+补丁 / patches: 0/76 applied, 0 pending｜缺文件 76（宿主文件不可达：官方宿主在 app.asar 里，需点「应用」解开）
+```
+
+Previously it read `0/0 applied` plus "不适用 76", which parses as "my environment doesn't
+support these patches".
+
+**Search ranking is fixed.** All three Chinese long-sentence queries now return the right first hit:
+
+| Query | First hit |
+| --- | --- |
+| frontend obfuscation reversing | js-reverse ✓ |
+| only a plain domain account | windows-ad ✓ |
+| Kerberos delegation abuse | windows-ad ✓ |
+
+## Display fix
+
+The matched fragment shown for "域内委派怎么利用" was `委派怎` — the sliding window split "怎么"
+mid-word, leaving a dangling 怎.
+
+My first attempt was "down-weight fragments containing single-character particles", which made it
+worse: once `委派怎` was down-weighted, `么利用` became the top-weighted fragment and got displayed
+as "fragment: 么利用".
+
+**Root cause: I treated "ranking weight" and "displayed fragment" as the same thing.** They serve
+different purposes:
+
+- Ranking weight: how relevant (down-weighting is correct)
+- Displayed fragment: how to make the hit understandable (pick the clean one)
+
+Now separated: ranking uses the weighted score; display picks by "no particles > present in keys >
+longer". So the query shows `委派` — clean and present in the index keys.
+
+## Lesson
+
+**"Down-weighted" does not mean "don't show".** A fragment can rank low yet still be the clearest
+explanation of why something matched. Binding those two concerns together means fixing one problem
+by creating another.
 # 1.1.100
 
 ## 中文
