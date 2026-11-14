@@ -1,17 +1,17 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（116 技能 / 56 工具 / 5 角色 / 25 得分点）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 56 工具 / 5 角色 / 25 得分点）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 发版流程
 - **大改造前先建三层安全点**（1.1.94 定型）：`git tag -a vX-pre-xxx` + `git branch backup/xxx` + 物理 `cp -r skills/` 到仓库外。三者都要推远端。tag 管 commit 回滚、分支管完整树、物理备份管 gitignore 的东西（skills/ 与 .cache/ 不入库）。
 1. 改 lib/default-prompt-inject.md（gitignore 源）→ **必须跑** `node scripts/embed-default-prompt.mjs` 重封入 lib/asset-table.js（加密表入库，明文不入库）；zh 版同步。
 2. package.json + 三份 README（Version 行 + dsh:// 链接 version=）一起 bump；release-notes.md 中英双段置顶。
-3. `node --check` 改动 JS；`node scripts/verify.mjs`（16 关）；`node scripts/check-package.mjs`（问题须 0）。
+3. `node --check` 改动 JS；`node scripts/verify.mjs`（19 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 9a180b7 = 1.1.90。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 9a180b7 = 1.1.90（1.1.95 需重钉）。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
    - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。
 
@@ -33,6 +33,9 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（116 
 - **渐进披露判据**：单段 >1500 字且是查阅型（payload 库/案例库）才外移到 `references/`；核心工作流不动。验证用「H3 标题丢失 0」，不是比字数。
 - **文档约束必须做成闸门才生效**：「攻击必配检测」光写在技能里无效，第 18 关 `check-detection-pairing` 才让它真拦（1.1.94）。
 - `http-smuggling.md` 含真实 `\x00` 空字节（TE 绕过），grep/git 当二进制——是真技术内容，别当损坏修掉。
+- **图谱：`graphify:refresh` 会让社区语义名全丢**（聚类 id 变、被 hub 文件名覆盖），用 id/相似度迁移是死路（备份 graph.json 已被覆盖）。**直接重跑 `npm run graphify:label`** 重新 LLM 命名，这是唯一可靠路径。
+- **图谱刷新后必跑 `node scripts/check-graph.mjs`**（第 19 关）：结构/兜底名/三产物同步/社区覆盖四类。反向探针要**整社区改名**才测得出——只改单节点不报红（社区名由多数节点决定）。
+- 图谱产物：2888 节点 / 7477 边 / 118 社区 / 34 超边（1.1.95）。
 
 ## 关键机制
 - **用户 override 整份替换出厂条令**：`~/.dsh/prompt-inject.md` 存在且 `override_status: custom` 时，改出厂 `lib/default-prompt-inject.md` **对实际行为零影响**。改提示词必须两处都改。
@@ -51,4 +54,4 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（116 
 
 ## 用户方向
 欲望强、指向准、链路短、消耗省、汇报简洁、一点就中。
-插件能力只加不减；宿主保持密封（不改宿主文件）；注入预算 33000 字已用 96%，新内容走 `purge_skills` 发现与雷达 `skill:` 指向，不塞条令。
+插件能力只加不减；宿主保持密封（不改宿主文件）；注入预算 50000 字已用 64%，新内容走 `purge_skills` 发现与雷达 `skill:` 指向，不塞条令。
