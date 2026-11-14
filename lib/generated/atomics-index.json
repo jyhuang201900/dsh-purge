@@ -1,0 +1,6317 @@
+{
+ "generated_at": "2026-11-14T16:59:47.743Z",
+ "source": "https://cdn.jsdelivr.net/gh/redcanaryco/atomic-red-team@master/atomics",
+ "techniques": {
+  "T1003": {
+   "tests": 7,
+   "items": [
+    {
+     "name": "Gsecdump",
+     "guid": "96345bfc-8ae7-4b6a-80b7-223200f24ef9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Credential Dumping with NPPSpy",
+     "guid": "9e2173c0-ba26-4cdf-b0ed-8c54b27e3ad6",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump svchost.exe to gather RDP credentials",
+     "guid": "d400090a-d8ca-4be0-982e-c70598a23de9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Retrieve Microsoft IIS Service Account Credentials Using AppCmd (using list)",
+     "guid": "6c7a4fd3-5b0b-4b30-a93e-39411b25d889",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Retrieve Microsoft IIS Service Account Credentials Using AppCmd (using config)",
+     "guid": "42510244-5019-48fa-a0e5-66c3b76e6049",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Dump Credential Manager using keymgr.dll and rundll32.exe",
+     "guid": "84113186-ed3c-4d0d-8a3c-8980c86c1f4a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Send NTLM Hash with RPC Test Connection",
+     "guid": "0b207037-813c-4444-ac3f-b597cf280a67",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1003.001": {
+   "tests": 14,
+   "items": [
+    {
+     "name": "Dump LSASS.exe Memory using ProcDump",
+     "guid": "0be2230c-9ab3-4ac2-8826-3199b9a0ebf8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump LSASS.exe Memory using comsvcs.dll",
+     "guid": "2536dee2-12fb-459a-8c37-971844fa73be",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump LSASS.exe Memory using direct system calls and API unhooking",
+     "guid": "7ae7102c-a099-45c8-b985-4c7a2d05790d",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump LSASS.exe Memory using NanoDump",
+     "guid": "dddd4aca-bbed-46f0-984d-e4c5971c51ea",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump LSASS.exe Memory using Windows Task Manager",
+     "guid": "dea6c349-f1c6-44f3-87a1-1ed33a59a607",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Offline Credential Theft With Mimikatz",
+     "guid": "453acf13-1dbd-47d7-b28a-172ce9228023",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "LSASS read with pypykatz",
+     "guid": "c37bc535-5c62-4195-9cc3-0517673171d8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump LSASS.exe Memory using Out-Minidump.ps1",
+     "guid": "6502c8f0-b775-4dbd-9193-1298f56b6781",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Create Mini Dump of LSASS.exe using ProcDump",
+     "guid": "7cede33f-0acd-44ef-9774-15511300b24b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Powershell Mimikatz",
+     "guid": "66fb0bc1-3c3f-47e9-a298-550ecfefacbc",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Dump LSASS with createdump.exe from .Net v5",
+     "guid": "9d0072c8-7cca-45c4-bd14-f852cfa35cf0",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump LSASS.exe using imported Microsoft DLLs",
+     "guid": "86fc3f40-237f-4701-b155-81c01c48d697",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump LSASS.exe using lolbin rdrleakdiag.exe",
+     "guid": "47a539d1-61b9-4364-bf49-a68bc2a95ef0",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump LSASS.exe Memory through Silent Process Exit",
+     "guid": "eb5adf16-b601-4926-bca7-dad22adffb37",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1003.002": {
+   "tests": 8,
+   "items": [
+    {
+     "name": "Registry dump of SAM, creds, and secrets",
+     "guid": "5c2571d0-1572-416d-9676-812e64ca9f44",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Registry parse with pypykatz",
+     "guid": "a96872b2-cbf3-46cf-8eb4-27e8c0e85263",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "esentutl.exe SAM copy",
+     "guid": "a90c2f4d-6726-444e-99d2-a00cd7c20480",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "PowerDump Hashes and Usernames from Registry",
+     "guid": "804f28fc-68fc-40da-b5a2-e9d0bce5c193",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "dump volume shadow copy hives with certutil",
+     "guid": "eeb9751a-d598-42d3-b11c-c122d9c3f6c7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "dump volume shadow copy hives with System.IO.File",
+     "guid": "9d77fed7-05f8-476e-a81b-8ff0472c64d0",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "WinPwn - Loot local Credentials - Dump SAM-File for NTLM Hashes",
+     "guid": "0c0f5f06-166a-4f4d-bb4a-719df9a01dbb",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Dumping of SAM, creds, and secrets(Reg Export)",
+     "guid": "21df41be-cdd8-4695-a650-c3981113aa3c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1003.003": {
+   "tests": 11,
+   "items": [
+    {
+     "name": "Create Volume Shadow Copy with vssadmin",
+     "guid": "dcebead7-6c28-4b4b-bf3c-79deb1b1fc7f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Copy NTDS.dit from Volume Shadow Copy",
+     "guid": "c6237146-9ea6-4711-85c9-c56d263a6b03",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump Active Directory Database with NTDSUtil",
+     "guid": "2364e33d-ceab-4641-8468-bfb1d7cc2723",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Create Volume Shadow Copy with WMI",
+     "guid": "224f7de0-8f0a-4a94-b5d8-989b036c86da",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Create Volume Shadow Copy remotely with WMI",
+     "guid": "d893459f-71f0-484d-9808-ec83b2b64226",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Create Volume Shadow Copy remotely (WMI) with esentutl",
+     "guid": "21c7bf80-3e8b-40fa-8f9d-f5b194ff2865",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Create Volume Shadow Copy with Powershell",
+     "guid": "542bb97e-da53-436b-8e43-e0a7d31a6c24",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Create Symlink to Volume Shadow Copy",
+     "guid": "21748c28-2793-4284-9e07-d6d028b66702",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Create Volume Shadow Copy with diskshadow",
+     "guid": "b385996c-0e7d-4e27-95a4-aca046b119a7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Copy NTDS in low level NTFS acquisition via MFT parsing",
+     "guid": "f57cb283-c131-4e2f-8a6c-363d575748b2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Copy NTDS in low level NTFS acquisition via fsutil",
+     "guid": "c7be89f7-5d06-4321-9f90-8676a77e0502",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1005": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "Search files of interest and save them to a single zip file (Windows)",
+     "guid": "d3d9af44-b8ad-4375-8b0a-4bff4b7e419c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find and dump sqlite databases (Linux)",
+     "guid": "00cbb875-7ae4-4cf1-b638-e543fd825300",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Copy Apple Notes database files using AppleScript",
+     "guid": "cfb6d400-a269-4c06-a347-6d88d584d5f7",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1008": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1014": {
+   "tests": 4,
+   "items": [
+    {
+     "name": "Loadable Kernel Module based Rootkit",
+     "guid": "dfb50072-e45a-4c75-a17e-a484809c8553",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Loadable Kernel Module based Rootkit",
+     "guid": "75483ef8-f10f-444a-bf02-62eb0e48db6f",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "dynamic-linker based rootkit (libprocesshider)",
+     "guid": "1338bf0c-fd0c-48c0-9e65-329f18e2c0d3",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Loadable Kernel Module based Rootkit (Diamorphine)",
+     "guid": "0b996469-48c6-46e2-8155-a17f8b6c2247",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1016": {
+   "tests": 10,
+   "items": [
+    {
+     "name": "System Network Configuration Discovery on Windows",
+     "guid": "970ab6a1-0157-4f3f-9a73-ec4166754b23",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "List Windows Firewall Rules",
+     "guid": "038263cb-00f4-4b0a-98ae-0696c67e1752",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "System Network Configuration Discovery",
+     "guid": "c141bbdb-7fca-4254-9fd6-f47e79447e17",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "System Network Configuration Discovery (TrickBot Style)",
+     "guid": "dafaf052-5508-402d-bf77-51e0700c02e2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "List Open Egress Ports",
+     "guid": "4b467538-f102-491d-ace7-ed487b853bf5",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Adfind - Enumerate Active Directory Subnet Objects",
+     "guid": "9bb45dd7-c466-4f93-83a1-be30e56033ee",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Qakbot Recon",
+     "guid": "121de5c6-5818-4868-b8a7-8fd07c455c1b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "List macOS Firewall Rules",
+     "guid": "ff1d8c25-2aa4-4f18-a425-fede4a41ee88",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "DNS Server Discovery Using nslookup",
+     "guid": "34557863-344a-468f-808b-a1bfb89b4fa9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "IPv4 Enumeration with GetIpAddrTable",
+     "guid": "7dd47911-b7b9-48c2-bb2c-8e1fad5d6d99",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1018": {
+   "tests": 23,
+   "items": [
+    {
+     "name": "Remote System Discovery - net",
+     "guid": "85321a9c-897f-4a60-9f20-29788e50bccd",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - net group Domain Computers",
+     "guid": "f1bf6c8f-9016-4edf-aff9-80b65f5d711f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - nltest",
+     "guid": "52ab5108-3f6f-42fb-8ba3-73bc054f22c8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - ping sweep",
+     "guid": "6db1f57f-d1d5-4223-8a66-55c9c65a9592",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - arp",
+     "guid": "2d5a61f5-0447-4be4-944a-1f8530ed6574",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - arp nix",
+     "guid": "acb6b1ff-e2ad-4d64-806c-6c35fe73b951",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - sweep",
+     "guid": "96db2632-8417-4dbb-b8bb-a8b92ba391de",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - nslookup",
+     "guid": "baa01aaa-5e13-45ec-8a0d-e46c93c9760f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - adidnsdump",
+     "guid": "95e19466-469e-4316-86d2-1dc401b5a959",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Adfind - Enumerate Active Directory Computer Objects",
+     "guid": "a889f5be-2d54-4050-bd05-884578748bb4",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Adfind - Enumerate Active Directory Domain Controller Objects",
+     "guid": "5838c31e-a0e2-4b9f-b60a-d79d2cb7995e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - ip neighbour",
+     "guid": "158bd4dd-6359-40ab-b13c-285b9ef6fa25",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - ip route",
+     "guid": "1a4ebe70-31d0-417b-ade2-ef4cb3e7d0e1",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - netstat",
+     "guid": "d2791d72-b67f-4615-814f-ec824a91f514",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - ip tcp_metrics",
+     "guid": "6c2da894-0b57-43cb-87af-46ea3b501388",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Enumerate domain computers within Active Directory using DirectorySearcher",
+     "guid": "962a6017-1c09-45a6-880b-adc9c57cb22e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Enumerate Active Directory Computers with Get-AdComputer",
+     "guid": "97e89d9e-e3f5-41b5-a90f-1e0825df0fdf",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Enumerate Active Directory Computers with ADSISearcher",
+     "guid": "64ede6ac-b57a-41c2-a7d1-32c6cd35397d",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Get-DomainController with PowerView",
+     "guid": "b9d2e8ca-5520-4737-8076-4f08913da2c4",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Get-WmiObject to Enumerate Domain Controllers",
+     "guid": "e3cf5123-f6c9-4375-bdf2-1bb3ba43a1ad",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote System Discovery - net group Domain Controller",
+     "guid": "5843529a-5056-4bc1-9c13-a311e2af4ca0",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Enumerate Remote Hosts with Netscan",
+     "guid": "b8147c9a-84db-4ec1-8eee-4e0da75f0de5",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Enumerate SSH Configuration",
+     "guid": "6fc814cb-16d1-43e6-80b3-2ff2a45250d1",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1021": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1021.001": {
+   "tests": 4,
+   "items": [
+    {
+     "name": "RDP to Remote Host",
+     "guid": "355d4632-8cb9-449d-91ce-b566d0253d3e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Changing RDP Port to Non Standard Port via Powershell",
+     "guid": "2f840dd4-8a2e-4f44-beb3-6b2399ea3771",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Changing RDP Port to Non Standard Port via Command_Prompt",
+     "guid": "74ace21e-a31c-4f7d-b540-53e4eb6d1f73",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Disable NLA for RDP via Command Prompt",
+     "guid": "01d1c6c0-faf0-408e-b368-752a02285cb2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1021.002": {
+   "tests": 4,
+   "items": [
+    {
+     "name": "Map admin share",
+     "guid": "3386975b-367a-4fbb-9d77-4dcf3639ffd3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Map Admin Share PowerShell",
+     "guid": "514e9cd7-9207-4882-98b1-c8f791bae3c5",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Copy and Execute File with PsExec",
+     "guid": "0eb03d41-79e4-4393-8e57-6344856be1cf",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Execute command writing output to local Admin Share",
+     "guid": "d41aaab5-bdfe-431d-a3d5-c29e9136ff46",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1021.004": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "ESXi - Enable SSH via PowerCLI",
+     "guid": "8f6c14d1-f13d-4616-b7fc-98cc69fe56ec",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "ESXi - Enable SSH via VIM-CMD",
+     "guid": "280812c8-4dae-43e9-a74e-1d08ab997c0e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1027": {
+   "tests": 11,
+   "items": [
+    {
+     "name": "Decode base64 Data into Script",
+     "guid": "f45df6be-2e1e-4136-a384-8f18ab3826fb",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Execute base64-encoded PowerShell",
+     "guid": "a50d5a97-2531-499e-a1de-5544c74432c6",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Execute base64-encoded PowerShell from Windows Registry",
+     "guid": "450e7218-7915-4be4-8b9b-464a49eafcec",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Execution from Compressed File",
+     "guid": "f8c8a909-5f29-49ac-9244-413936ce6d1f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "DLP Evasion via Sensitive Data in VBA Macro over email",
+     "guid": "129edb75-d7b8-42cd-a8ba-1f3db64ec4ad",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "DLP Evasion via Sensitive Data in VBA Macro over HTTP",
+     "guid": "e2d85e66-cb66-4ed7-93b1-833fc56c9319",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Obfuscated Command in PowerShell",
+     "guid": "8b3f4ed6-077b-4bdd-891c-2d237f19410f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Obfuscated Command Line using special Unicode characters",
+     "guid": "e68b945c-52d0-4dd9-a5e8-d173d70c448f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Snake Malware Encrypted crmlog file",
+     "guid": "7e47ee60-9dd1-4269-9c4f-97953b183268",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Execution from Compressed JScript File",
+     "guid": "fad04df1-5229-4185-b016-fb6010cd87ac",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Obfuscated PowerShell Command via Character Array",
+     "guid": "6683baf0-6e77-4f58-b114-814184ea8150",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1036": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "System File Copied to Unusual Location",
+     "guid": "51005ac7-52e2-45e0-bdab-d17c6d4916cd",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Malware Masquerading and Execution from Zip File",
+     "guid": "4449c89b-ec82-43a4-89c1-91e2f1abeecc",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Masquerading File Extension Restoration via PowerShell and esentutl",
+     "guid": "ba3f1b66-0c42-4cef-b316-12cff72b70db",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1039": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "Copy a sensitive File over Administrative share with copy",
+     "guid": "6ed67921-1774-44ba-bac6-adb51ed60660",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Copy a sensitive File over Administrative share with Powershell",
+     "guid": "7762e120-5879-44ff-97f8-008b401b9a98",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1040": {
+   "tests": 16,
+   "items": [
+    {
+     "name": "Packet Capture Linux using tshark or tcpdump",
+     "guid": "7fe741f7-b265-4951-a7c7-320889083b3e",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Packet Capture FreeBSD using tshark or tcpdump",
+     "guid": "c93f2492-9ebe-44b5-8b45-36574cccfe67",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Packet Capture macOS using tcpdump or tshark",
+     "guid": "9d04efee-eff5-4240-b8d2-07792b873608",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Packet Capture Windows Command Prompt",
+     "guid": "a5b2f6a0-24b4-493e-9590-c699f75723ca",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows Internal Packet Capture",
+     "guid": "b5656f67-d67f-4de8-8e62-b5581630f528",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows Internal pktmon capture",
+     "guid": "c67ba807-f48b-446e-b955-e4928cd1bf91",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows Internal pktmon set filter",
+     "guid": "855fb8b4-b8ab-4785-ae77-09f5df7bff55",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Packet Capture macOS using /dev/bpfN with sudo",
+     "guid": "e6fe5095-545d-4c8b-a0ae-e863914be3aa",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Filtered Packet Capture macOS using /dev/bpfN with sudo",
+     "guid": "e2480aee-23f3-4f34-80ce-de221e27cd19",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Packet Capture FreeBSD using /dev/bpfN with sudo",
+     "guid": "e2028771-1bfb-48f5-b5e6-e50ee0942a14",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Filtered Packet Capture FreeBSD using /dev/bpfN with sudo",
+     "guid": "a3a0d4c9-c068-4563-a08d-583bd05b884c",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Packet Capture Linux socket AF_PACKET,SOCK_RAW with sudo",
+     "guid": "10c710c9-9104-4d5f-8829-5b65391e2a29",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Packet Capture Linux socket AF_INET,SOCK_RAW,TCP with sudo",
+     "guid": "7a0895f0-84c1-4adf-8491-a21510b1d4c1",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Packet Capture Linux socket AF_INET,SOCK_PACKET,UDP with sudo",
+     "guid": "515575ab-d213-42b1-aa64-ef6a2dd4641b",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Packet Capture Linux socket AF_PACKET,SOCK_RAW with BPF filter for UDP with sudo",
+     "guid": "b1cbdf8b-6078-48f5-a890-11ea19d7f8e9",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "PowerShell Network Sniffing",
+     "guid": "9c15a7de-de14-46c3-bc2a-6d94130986ae",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1041": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "C2 Data Exfiltration",
+     "guid": "d1253f6e-c29b-49dc-b466-2147a6191932",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Text Based Data Exfiltration using DNS subdomains",
+     "guid": "c9207f3e-213d-4cc7-ad2a-7697a7237df9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1046": {
+   "tests": 13,
+   "items": [
+    {
+     "name": "Port Scan",
+     "guid": "68e907da-2539-48f6-9fc9-257a78c05540",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Port Scan Nmap",
+     "guid": "515942b0-a09f-4163-a7bb-22fefb6f185f",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Port Scan NMap for Windows",
+     "guid": "d696a3cb-d7a8-4976-8eb5-5af4abf2e3df",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Port Scan using python",
+     "guid": "6ca45b04-9f15-4424-b9d3-84a217285a5c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - spoolvulnscan",
+     "guid": "54574908-f1de-4356-9021-8053dd57439a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - MS17-10",
+     "guid": "97585b04-5be2-40e9-8c31-82157b8af2d6",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - bluekeep",
+     "guid": "1cca5640-32a9-46e6-b8e0-fabbe2384a73",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - fruit",
+     "guid": "bb037826-cbe8-4a41-93ea-b94059d6bb98",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Network Service Discovery for Containers",
+     "guid": "06eaafdb-8982-426e-8a31-d572da633caa",
+     "platforms": [
+      "containers"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Port-Scanning /24 Subnet with PowerShell",
+     "guid": "05df2a79-dba6-4088-a804-9ca0802ca8e4",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote Desktop Services Discovery via PowerShell",
+     "guid": "9e55750e-4cbf-4013-9627-e9a045b541bf",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Port Scan using nmap (Port range)",
+     "guid": "0d5a2b03-3a26-45e4-96ae-89485b4d1f97",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows - Port Scan using RustScan (Port list)",
+     "guid": "32c268dd-96a7-4530-817c-848534a39d09",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1047": {
+   "tests": 12,
+   "items": [
+    {
+     "name": "WMI Reconnaissance Users",
+     "guid": "c107778c-dcf5-47c5-af2e-1d058a3df3ea",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "WMI Reconnaissance Processes",
+     "guid": "5750aa16-0e59-4410-8b9a-8a47ca2788e2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "WMI Reconnaissance Software",
+     "guid": "718aebaa-d0e0-471a-8241-c5afa69c7414",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "WMI Reconnaissance List Remote Services",
+     "guid": "0fd48ef7-d890-4e93-a533-f7dedd5191d3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WMI Execute Local Process",
+     "guid": "b3bdfc91-b33e-4c6d-a5c8-d64bee0276b3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "WMI Execute Remote Process",
+     "guid": "9c8ef159-c666-472f-9874-90c8d60d136b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Create a Process using WMI Query and an Encoded Command",
+     "guid": "7db7a7f9-9531-4840-9b30-46220135441c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Create a Process using obfuscated Win32_Process",
+     "guid": "10447c83-fc38-462a-a936-5102363b1c43",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "WMI Execute rundll32",
+     "guid": "00738d2a-4651-4d76-adf2-c43a41dfb243",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Application uninstall using WMIC",
+     "guid": "c510d25b-1667-467d-8331-a56d3e9bc4ff",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Impacket wmiexec.py",
+     "guid": "a3ddaf15-d1a1-4bc3-8683-84c7c67120fe",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "AveMaria/Warzone program.bat WMIC Process Creation",
+     "guid": "778b54b0-ae7a-4f80-b74b-59eddee87ad5",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1048": {
+   "tests": 4,
+   "items": [
+    {
+     "name": "Exfiltration Over Alternative Protocol - SSH",
+     "guid": "f6786cc8-beda-4915-a4d6-ac2f193bb988",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Exfiltration Over Alternative Protocol - SSH",
+     "guid": "7c3cb337-35ae-4d06-bf03-3032ed2ec268",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "DNSExfiltration (doh)",
+     "guid": "c943d285-ada3-45ca-b3aa-7cd6500c6a48",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Exfiltrate Data using DNS Queries via dig",
+     "guid": "a27916da-05f2-4316-a3ee-feec67a437be",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1053": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1055": {
+   "tests": 13,
+   "items": [
+    {
+     "name": "Shellcode execution via VBA",
+     "guid": "1c91e740-1729-4329-b779-feba6e71d048",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remote Process Injection in LSASS via mimikatz",
+     "guid": "3203ad24-168e-4bec-be36-f79b13ef8a83",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Section View Injection",
+     "guid": "c6952f41-6cf0-450a-b352-2ca8dae7c178",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dirty Vanity process Injection",
+     "guid": "49543237-25db-497b-90df-d0a0a6e8fe2c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Read-Write-Execute process Injection",
+     "guid": "0128e48e-8c1a-433a-a11a-a5387384f1e1",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Process Injection with Go using UuidFromStringA WinAPI",
+     "guid": "2315ce15-38b6-46ac-a3eb-5e21abef2545",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Process Injection with Go using EtwpCreateEtwThread WinAPI",
+     "guid": "7362ecef-6461-402e-8716-7410e1566400",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Remote Process Injection with Go using RtlCreateUserThread WinAPI",
+     "guid": "a0c1725f-abcd-40d6-baac-020f3cf94ecd",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Remote Process Injection with Go using CreateRemoteThread WinAPI",
+     "guid": "69534efc-d5f5-4550-89e6-12c6457b9edd",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Remote Process Injection with Go using CreateRemoteThread WinAPI (Natively)",
+     "guid": "2a4ab5c1-97ad-4d6d-b5d3-13f3a6c94e39",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Process Injection with Go using CreateThread WinAPI",
+     "guid": "2871ed59-3837-4a52-9107-99500ebc87cb",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Process Injection with Go using CreateThread WinAPI (Natively)",
+     "guid": "2a3c7035-d14f-467a-af94-933e49fe6786",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "UUID custom process Injection",
+     "guid": "0128e48e-8c1a-433a-a11a-a5304734f1e1",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1057": {
+   "tests": 10,
+   "items": [
+    {
+     "name": "Process Discovery - ps",
+     "guid": "4ff64f0b-aaf2-4866-b39d-38d9791407cc",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Process Discovery - tasklist",
+     "guid": "c5806a4f-62b8-4900-980b-c7ec004e9908",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Process Discovery - Get-Process",
+     "guid": "3b3809b6-a54b-4f5b-8aff-cb51f2e97b34",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Process Discovery - get-wmiObject",
+     "guid": "b51239b4-0129-474f-a2b4-70f855b9f2c2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Process Discovery - wmic process",
+     "guid": "640cbf6d-659b-498b-ba53-f6dd1a1cc02c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Discover Specific Process - tasklist",
+     "guid": "11ba69ee-902e-4a0f-b3b6-418aed7d7ddb",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Process Discovery - Process Hacker",
+     "guid": "966f4c16-1925-4d9b-8ce0-01334ee0867d",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Process Discovery - PC Hunter",
+     "guid": "b4ca838d-d013-4461-bf2c-f7132617b409",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Launch Taskmgr from cmd to View running processes",
+     "guid": "4fd35378-39aa-481e-b7c4-e3bf49375c67",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Check Process Token Elevation via GetTokenInformation",
+     "guid": "668f1d74-4bdb-4209-91e3-b31df0e4fbb7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1059": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "AutoIt Script Execution",
+     "guid": "a9b93f17-31cb-435d-a462-5e838a2a6026",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1059.001": {
+   "tests": 22,
+   "items": [
+    {
+     "name": "Mimikatz",
+     "guid": "f3132740-55bc-48c4-bcc0-758a459cd027",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Run BloodHound from local disk",
+     "guid": "a21bb23e-e677-4ee7-af90-6931b57b6350",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Run Bloodhound from Memory using Download Cradle",
+     "guid": "bf8c1441-4674-4dab-8e4e-39d93d08f9b7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Mimikatz - Cradlecraft PsSendKeys",
+     "guid": "af1800cf-9f9d-4fd1-a709-14b1e6de020d",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Invoke-AppPathBypass",
+     "guid": "06a220b6-7e29-4bd8-9d07-5b4d86742372",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Powershell MsXml COM object - with prompt",
+     "guid": "388a7340-dbc1-4c9d-8e59-b75ad8c6d5da",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Powershell XML requests",
+     "guid": "4396927f-e503-427b-b023-31049b9b09a6",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Powershell invoke mshta.exe download",
+     "guid": "8a2ad40b-12c7-4b25-8521-2737b0a415af",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Powershell Invoke-DownloadCradle",
+     "guid": "cc50fa2a-a4be-42af-a88f-e347ba0bf4d7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "PowerShell Fileless Script Execution",
+     "guid": "fa050f5e-bc75-4230-af73-b6fd7852cd73",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "NTFS Alternate Data Stream Access",
+     "guid": "8e5c5532-1181-4c1d-bb79-b3a9f5dbd680",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "PowerShell Session Creation and Use",
+     "guid": "7c1acec2-78fa-4305-a3e0-db2a54cddecd",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "ATHPowerShellCommandLineParameter -Command parameter variations",
+     "guid": "686a9785-f99b-41d4-90df-66ed515f81d7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "ATHPowerShellCommandLineParameter -Command parameter variations with encoded arguments",
+     "guid": "1c0a870f-dc74-49cf-9afc-eccc45e58790",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "ATHPowerShellCommandLineParameter -EncodedCommand parameter variations",
+     "guid": "86a43bad-12e3-4e85-b97c-4d5cf25b95c3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "ATHPowerShellCommandLineParameter -EncodedCommand parameter variations with encoded arguments",
+     "guid": "0d181431-ddf3-4826-8055-2dbf63ae848b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "PowerShell Command Execution",
+     "guid": "a538de64-1c74-46ed-aa60-b995ed302598",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "PowerShell Invoke Known Malicious Cmdlets",
+     "guid": "49eb9404-5e0f-4031-a179-b40f7be385e3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "PowerUp Invoke-AllChecks",
+     "guid": "1289f78d-22d2-4590-ac76-166737e1811b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Abuse Nslookup with DNS Records",
+     "guid": "999bff6d-dc15-44c9-9f5c-e1051bfc86e1",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "SOAPHound - Dump BloodHound Data",
+     "guid": "6a5b2a50-d037-4879-bf01-43d4d6cbf73f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "SOAPHound - Build Cache",
+     "guid": "4099086c-1470-4223-8085-8186e1ed5948",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1059.003": {
+   "tests": 6,
+   "items": [
+    {
+     "name": "Create and Execute Batch Script",
+     "guid": "9e8894c0-50bd-4525-a96c-d4ac78ece388",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Writes text to a file and displays it.",
+     "guid": "127b4afe-2346-4192-815c-69042bec570e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Suspicious Execution via Windows Command Shell",
+     "guid": "d0eb3597-a1b3-4d65-b33b-2cda8d397f20",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Simulate BlackByte Ransomware Print Bombing",
+     "guid": "6b2903ac-8f36-450d-9ad5-b220e8a2dcb9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Command Prompt read contents from CMD file and execute",
+     "guid": "df81db1b-066c-4802-9bc8-b6d030c3ba8e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Command prompt writing script to file then executes it",
+     "guid": "00682c9f-7df4-4df8-950b-6dcaaa3ad9af",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1059.004": {
+   "tests": 17,
+   "items": [
+    {
+     "name": "Create and Execute Bash Shell Script",
+     "guid": "7e7ac3ed-f795-4fa5-b711-09d6fbe9b873",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Command-Line Interface",
+     "guid": "d0c88567-803d-4dca-99b4-7ce65e7b257c",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Harvest SUID executable files",
+     "guid": "46274fc6-08a7-4956-861b-24cbbaa0503c",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "LinEnum tool execution",
+     "guid": "a2b35a63-9df1-4806-9a4d-5fe0500845f2",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "New script file in the tmp directory",
+     "guid": "8cd1947b-4a54-41fb-b5ea-07d0ace04f81",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "What shell is running",
+     "guid": "7b38e5cc-47be-44f0-a425-390305c76c17",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "What shells are available",
+     "guid": "bf23c7dc-1004-4949-8262-4c1d1ef87702",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Command line scripts",
+     "guid": "b04ed73c-7d43-4dc8-b563-a2fc595cba1a",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Obfuscated command line scripts",
+     "guid": "5bec4cc8-f41e-437b-b417-33ff60acf9af",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Change login shell",
+     "guid": "c7ac59cb-13cc-4622-81dc-6d2fee9bfac7",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Environment variable scripts",
+     "guid": "bdaebd56-368b-4970-a523-f905ff4a8a51",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Detecting pipe-to-shell",
+     "guid": "fca246a8-a585-4f28-a2df-6495973976a1",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Current kernel information enumeration",
+     "guid": "3a53734a-9e26-4f4b-ad15-059e767f5f14",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Shell Creation using awk command",
+     "guid": "ee72b37d-b8f5-46a5-a9e7-0ff50035ffd5",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Creating shell using cpan command",
+     "guid": "bcd4c2bc-490b-4f91-bd31-3709fe75bbdf",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Shell Creation using busybox command",
+     "guid": "ab4d04af-68dc-4fee-9c16-6545265b3276",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "emacs spawning an interactive system shell",
+     "guid": "e0742e38-6efe-4dd4-ba5c-2078095b6156",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1068": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "Scattered Spider BYOVD (CVE-2015-2291 for Intel Ethernet Diagnostics Driver)",
+     "guid": "1c9ef3e6-bde6-402c-83bc-d89ea8bfd372",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Turla Snake Malware Privilege Escalation Through VM Driver",
+     "guid": "97f621a5-851c-484f-b784-4a9c475006ec",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1070": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "Indicator Removal using FSUtil",
+     "guid": "b4115c7a-0e92-47f0-a61e-17e7218b2435",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Indicator Manipulation using FSUtil",
+     "guid": "96e86706-6afd-45b6-95d6-108d23eaf2e9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1070.004": {
+   "tests": 11,
+   "items": [
+    {
+     "name": "Delete a single file - FreeBSD/Linux/macOS",
+     "guid": "562d737f-2fc6-4b09-8c2a-7f8ff0828480",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Delete an entire folder - FreeBSD/Linux/macOS",
+     "guid": "a415f17e-ce8d-4ce2-a8b4-83b674e7017e",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Overwrite and delete a file with shred",
+     "guid": "039b4b10-2900-404b-b67f-4b6d49aa6499",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Delete a single file - Windows cmd",
+     "guid": "861ea0b4-708a-4d17-848d-186c9c7f17e3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Delete an entire folder - Windows cmd",
+     "guid": "ded937c4-2add-42f7-9c2c-c742b7a98698",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Delete a single file - Windows PowerShell",
+     "guid": "9dee89bd-9a98-4c4f-9e2d-4256690b0e72",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Delete an entire folder - Windows PowerShell",
+     "guid": "edd779e4-a509-4cba-8dfa-a112543dbfb1",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Delete Filesystem - Linux",
+     "guid": "f3aa95fe-4f10-4485-ad26-abf22a764c52",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Delete Prefetch File",
+     "guid": "36f96049-0ad7-4a5f-8418-460acaeb92fb",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Delete TeamViewer Log Files",
+     "guid": "69f50a5f-967c-4327-a5bb-e1a9a9983785",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Clears Recycle bin via rd",
+     "guid": "f723d13d-48dc-4317-9990-cf43a9ac0bf2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1071": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Telnet C2",
+     "guid": "3b0df731-030c-4768-b492-2a3216d90e53",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1071.001": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "Malicious User Agents - Powershell",
+     "guid": "81c13829-f6c9-45b8-85a6-053366d55297",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Malicious User Agents - CMD",
+     "guid": "dc3488b0-08c7-4fea-b585-905c83b48180",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Malicious User Agents - Nix",
+     "guid": "2d7c471a-e887-4b78-b0dc-b0df1f2e0658",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1074": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1078": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1082": {
+   "tests": 41,
+   "items": [
+    {
+     "name": "System Information Discovery",
+     "guid": "66703791-c902-4560-8770-42b8a91f7667",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "System Information Discovery",
+     "guid": "edff98ec-0f73-4f63-9890-6b117092aff6",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "List OS Information",
+     "guid": "cccb070c-df86-4216-a5bc-9fb60c74e27c",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Linux VM Check via Hardware",
+     "guid": "31dad7ad-2286-4c02-ae92-274418c85fec",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Linux VM Check via Kernel Modules",
+     "guid": "8057d484-0fae-49a4-8302-4812c4f1e64e",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "FreeBSD VM Check via Kernel Modules",
+     "guid": "eefe6a49-d88b-41d8-8fc2-b46822da90d3",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Hostname Discovery (Windows)",
+     "guid": "85cfbf23-4a1e-4342-8792-007e004b975f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Hostname Discovery",
+     "guid": "486e88ea-4f56-470f-9b57-3f4d73f39133",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows MachineGUID Discovery",
+     "guid": "224b4daf-db44-404e-b6b2-f4d1f0126ef8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Griffon Recon",
+     "guid": "69bd4abe-8759-49a6-8d21-0f15822d6370",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Environment variables discovery on windows",
+     "guid": "f400d1c0-1804-4ff8-b069-ef5ddd2adbf3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Environment variables discovery on freebsd, macos and linux",
+     "guid": "fcbdd43f-f4ad-42d5-98f3-0218097e2720",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Show System Integrity Protection status (MacOS)",
+     "guid": "327cc050-9e99-4c8e-99b5-1d15f2fb6b96",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - winPEAS",
+     "guid": "eea1d918-825e-47dd-acc2-814d6c58c0e1",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - itm4nprivesc",
+     "guid": "3d256a2f-5e57-4003-8eb6-64d91b1da7ce",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Powersploits privesc checks",
+     "guid": "345cb8e4-d2de-4011-a580-619cf5a9e2d7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "WinPwn - General privesc checks",
+     "guid": "5b6f39a2-6ec7-4783-a5fd-2c54a55409ed",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - GeneralRecon",
+     "guid": "7804659b-fdbf-4cf6-b06a-c03e758590e8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Morerecon",
+     "guid": "3278b2f6-f733-4875-9ef4-bfed34244f0a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - RBCD-Check",
+     "guid": "dec6a0d8-bcaf-4c22-9d48-2aee59fb692b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - PowerSharpPack - Watson searching for missing windows patches",
+     "guid": "07b18a66-6304-47d2-bad0-ef421eb2e107",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - PowerSharpPack - Sharpup checking common Privesc vectors",
+     "guid": "efb79454-1101-4224-a4d0-30c9c8b29ffc",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - PowerSharpPack - Seatbelt",
+     "guid": "5c16ceb4-ba3a-43d7-b848-a13c1f216d95",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Azure Security Scan with SkyArk",
+     "guid": "26a18d3d-f8bc-486b-9a33-d6df5d78a594",
+     "platforms": [],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Linux List Kernel Modules",
+     "guid": "034fe21c-3186-49dd-8d5d-128b35f181c7",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "FreeBSD List Kernel Modules",
+     "guid": "4947897f-643a-4b75-b3f5-bed6885749f6",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "System Information Discovery with WMIC",
+     "guid": "8851b73a-3624-4bf7-8704-aa312411565c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "System Information Discovery",
+     "guid": "4060ee98-01ae-4c8e-8aad-af8300519cc7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Check computer location",
+     "guid": "96be6002-9200-47db-94cb-c3e27de1cb36",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "BIOS Information Discovery through Registry",
+     "guid": "f2f91612-d904-49d7-87c2-6c165d23bead",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "ESXi - VM Discovery using ESXCLI",
+     "guid": "2040405c-eea6-4c1c-aef3-c2acc430fac9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "ESXi - Darkside system information discovery",
+     "guid": "f89812e5-67d1-4f49-86fa-cbc6609ea86a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "sysctl to gather macOS hardware info",
+     "guid": "c8d40da9-31bd-47da-a497-11ea55d1ef6c",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "operating system discovery",
+     "guid": "70e13ef4-5a74-47e4-9d16-760b41b0e2db",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Check OS version via \"ver\" command",
+     "guid": "f6ecb109-df24-4303-8d85-1987dbae6160",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Display volume shadow copies with \"vssadmin",
+     "guid": "7161b085-816a-491f-bab4-d68e974b7995",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Identify System Locale and Regional Settings with PowerShell",
+     "guid": "ce479c1a-e8fa-42b2-812a-96b0f2f4d28a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Enumerate Available Drives via gdr",
+     "guid": "c187c9bc-4511-40b3-aa10-487b2c70b6a5",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Discover OS Product Name via Registry",
+     "guid": "be3b5fe3-a575-4fb8-83f6-ad4a68dd5ce7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Discover OS Build Number via Registry",
+     "guid": "acfcd709-0013-4f1e-b9ee-bc1e7bafaaec",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Get System Hardware UUID Via wmic.exe",
+     "guid": "cd6fc00d-ad6e-431c-832c-33e97ab9218f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1083": {
+   "tests": 9,
+   "items": [
+    {
+     "name": "File and Directory Discovery (cmd.exe)",
+     "guid": "0e36303b-6762-4500-b003-127743b80ba6",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "File and Directory Discovery (PowerShell)",
+     "guid": "2158908e-b7ef-4c21-8a83-3ce4dd05a924",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Nix File and Directory Discovery",
+     "guid": "ffc8b249-372a-4b74-adcd-e4c0430842de",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Nix File and Directory Discovery 2",
+     "guid": "13c5e1ae-605b-46c4-a79f-db28c77ff24e",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Simulating MAZE Directory Enumeration",
+     "guid": "c6c34f61-1c3e-40fb-8a58-d017d88286d8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Launch DirLister Executable",
+     "guid": "c5bec457-43c9-4a18-9a24-fe151d8971b7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "ESXi - Enumerate VMDKs available on an ESXi Host",
+     "guid": "4a233a40-caf7-4cf1-890a-c6331bbc72cf",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Identifying Network Shares - Linux",
+     "guid": "361fe49d-0c19-46ec-a483-ccb92d38e88e",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Recursive Enumerate Files And Directories By Powershell",
+     "guid": "95a21323-770d-434c-80cd-6f6fbf7af432",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1087": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1090": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1090.001": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "Connection Proxy",
+     "guid": "0ac21132-4485-4212-a681-349e8a6637cd",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Connection Proxy for macOS UI",
+     "guid": "648d68c1-8bcd-4486-9abe-71c6655b6a2c",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "portproxy reg key",
+     "guid": "b8223ea9-4be2-44a6-b50a-9657a3d4e72a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1090.003": {
+   "tests": 4,
+   "items": [
+    {
+     "name": "Psiphon",
+     "guid": "14d55ca0-920e-4b44-8425-37eedd72b173",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Tor Proxy Usage - Windows",
+     "guid": "7b9d85e5-c4ce-4434-8060-d3de83595e69",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Tor Proxy Usage - Debian/Ubuntu/FreeBSD",
+     "guid": "5ff9d047-6e9c-4357-b39b-5cf89d9b59c7",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Tor Proxy Usage - MacOS",
+     "guid": "12631354-fdbc-4164-92be-402527e748da",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1098": {
+   "tests": 17,
+   "items": [
+    {
+     "name": "Admin Account Manipulate",
+     "guid": "5598f7cb-cf43-455e-883a-f6008c5d46af",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Domain Account and Group Manipulate",
+     "guid": "a55a22e9-a3d3-42ce-bd48-2653adb8f7a9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "AWS - Create a group and add a user to that group",
+     "guid": "8822c3b0-d9f9-4daf-a043-49f110a31122",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure AD - adding user to Azure AD role",
+     "guid": "0e65ae27-5385-46b4-98ac-607a8ee82261",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure AD - adding service principal to Azure AD role",
+     "guid": "92c40b3f-c406-4d1f-8d2b-c039bf5009e4",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure - adding user to Azure role in subscription",
+     "guid": "1a94b3fc-b080-450a-b3d8-6d9b57b472ea",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure - adding service principal to Azure role in subscription",
+     "guid": "c8f4bc29-a151-48da-b3be-4680af56f404",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure AD - adding permission to application",
+     "guid": "94ea9cc3-81f9-4111-8dde-3fb54f36af4b",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Password Change on Directory Service Restore Mode (DSRM) Account",
+     "guid": "d5b886d9-d1c7-4b6e-a7b0-460041bf2823",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Domain Password Policy Check: Short Password",
+     "guid": "fc5f9414-bd67-4f5f-a08e-e5381e29cbd1",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Domain Password Policy Check: No Number in Password",
+     "guid": "68190529-069b-4ffc-a942-919704158065",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Domain Password Policy Check: No Special Character in Password",
+     "guid": "7d984ef2-2db2-4cec-b090-e637e1698f61",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Domain Password Policy Check: No Uppercase Character in Password",
+     "guid": "b299c120-44a7-4d68-b8e2-8ba5a28511ec",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Domain Password Policy Check: No Lowercase Character in Password",
+     "guid": "945da11e-977e-4dab-85d2-f394d03c5887",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Domain Password Policy Check: Only Two Character Classes",
+     "guid": "784d1349-5a26-4d20-af5e-d6af53bae460",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Domain Password Policy Check: Common Password Use",
+     "guid": "81959d03-c51f-49a1-bb24-23f1ec885578",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "GCP - Delete Service Account Key",
+     "guid": "7ece1dea-49f1-4d62-bdcc-5801e3292510",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1102": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1105": {
+   "tests": 39,
+   "items": [
+    {
+     "name": "rsync remote file copy (push)",
+     "guid": "0fc6e977-cb12-44f6-b263-2824ba917409",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "rsync remote file copy (pull)",
+     "guid": "3180f7d5-52c0-4493-9ea0-e3431a84773f",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "scp remote file copy (push)",
+     "guid": "83a49600-222b-4866-80a0-37736ad29344",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "scp remote file copy (pull)",
+     "guid": "b9d22b9a-9778-4426-abf0-568ea64e9c33",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "sftp remote file copy (push)",
+     "guid": "f564c297-7978-4aa9-b37a-d90477feea4e",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "sftp remote file copy (pull)",
+     "guid": "0139dba1-f391-405e-a4f5-f3989f2c88ef",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "certutil download (urlcache)",
+     "guid": "dd3b61dd-7bbc-48cd-ab51-49ad1a776df0",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "certutil download (verifyctl)",
+     "guid": "ffd492e3-0455-4518-9fb1-46527c9f241b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows - BITSAdmin BITS Download",
+     "guid": "a1921cd3-9a2d-47d5-a891-f1d0f2a7a31b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows - PowerShell Download",
+     "guid": "42dc4460-9aa6-45d3-b1a6-3955d34e1fe8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "OSTAP Worming Activity",
+     "guid": "2ca61766-b456-4fcf-a35a-1233685e1cad",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "svchost writing a file to a UNC path",
+     "guid": "fa5a2759-41d7-4e13-a19c-e8f28a53566f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Download a File with Windows Defender MpCmdRun.exe",
+     "guid": "815bef8b-bf91-4b67-be4c-abe4c2a94ccc",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "whois file download",
+     "guid": "c99a829f-0bb8-4187-b2c6-d47d1df74cab",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "File Download via PowerShell",
+     "guid": "54a4daf1-71df-4383-9ba7-f1a295d8b6d2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "File download with finger.exe on Windows",
+     "guid": "5f507e45-8411-4f99-84e7-e38530c45d01",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Download a file with IMEWDBLD.exe",
+     "guid": "1a02df58-09af-4064-a765-0babe1a0d1e2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Curl Download File",
+     "guid": "2b080b99-0deb-4d51-af0f-833d37c4ca6a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Curl Upload File",
+     "guid": "635c9a38-6cbf-47dc-8615-3810bc1167cf",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Download a file with Microsoft Connection Manager Auto-Download",
+     "guid": "d239772b-88e2-4a2e-8473-897503401bcc",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "MAZE Propagation Script",
+     "guid": "70f4d07c-5c3e-4d53-bb0a-cdf3ada14baf",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Printer Migration Command-Line Tool UNC share folder into a zip file",
+     "guid": "49845fc1-7961-4590-a0f0-3dbcf065ae7e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Lolbas replace.exe use to copy file",
+     "guid": "54782d65-12f0-47a5-b4c1-b70ee23de6df",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Lolbas replace.exe use to copy UNC file",
+     "guid": "ed0335ac-0354-400c-8148-f6151d20035a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "certreq download",
+     "guid": "6fdaae87-c05b-42f8-842e-991a74e8376b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Download a file using wscript",
+     "guid": "97116a3f-efac-4b26-8336-b9cb18c45188",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Linux Download File and Run",
+     "guid": "bdc373c5-e9cf-4563-8a7b-a9ba720a90f3",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Nimgrab - Transfer Files",
+     "guid": "b1729c57-9384-4d1c-9b99-9b220afb384e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "iwr or Invoke Web-Request download",
+     "guid": "c01cad7f-7a4c-49df-985e-b190dcf6a279",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Arbitrary file download using the Notepad++ GUP.exe binary",
+     "guid": "66ee226e-64cb-4dae-80e3-5bf5763e4a51",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "File download via nscurl",
+     "guid": "5bcefe5f-3f30-4f1c-a61a-8d7db3f4450c",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "File Download with Sqlcmd.exe",
+     "guid": "6934c16e-0b3a-4e7f-ab8c-c414acd32181",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Remote File Copy using PSCP",
+     "guid": "c82b1e60-c549-406f-9b00-0a8ae31c9cfe",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows push file using scp.exe",
+     "guid": "2a4b0d29-e5dd-4b66-b729-07423ba1cd9d",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows pull file using scp.exe",
+     "guid": "401667dc-05a6-4da0-a2a7-acfe4819559c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows push file using sftp.exe",
+     "guid": "205e676e-0401-4bae-83a5-94b8c5daeb22",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows pull file using sftp.exe",
+     "guid": "3d25f1f2-55cb-4a41-a523-d17ad4cfba19",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Download a file with OneDrive Standalone Updater",
+     "guid": "3dd6a6cf-9c78-462c-bd75-e9b54fc8925b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Curl Insecure Connection from a Pod",
+     "guid": "7e2ad0db-1efa-4af2-a77c-bc6e87d7b3f3",
+     "platforms": [
+      "containers"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1110": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1110.003": {
+   "tests": 9,
+   "items": [
+    {
+     "name": "Password Spray all Domain Users",
+     "guid": "90bc2e54-6c84-47a5-9439-0a2a92b4b175",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Password Spray (DomainPasswordSpray)",
+     "guid": "263ae743-515f-4786-ac7d-41ef3a0d4b2b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Password spray all Active Directory domain users with a single password via LDAP against domain controller (NTLM or Kerberos)",
+     "guid": "f14d956a-5b6e-4a93-847f-0c415142f07d",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Password spray all Azure AD users with a single password",
+     "guid": "a8aa2d3e-1c52-4016-bc73-0f8854cfa80a",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - DomainPasswordSpray Attacks",
+     "guid": "5ccf4bbd-7bf6-43fc-83ac-d9e38aff1d82",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Password Spray Invoke-DomainPasswordSpray Light",
+     "guid": "b15bc9a5-a4f3-4879-9304-ea0011ace63a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Password Spray Microsoft Online Accounts with MSOLSpray (Azure/O365)",
+     "guid": "f3a10056-0160-4785-8744-d9bd7c12dc39",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Password Spray using Kerbrute Tool",
+     "guid": "c6f25ec3-6475-47a9-b75d-09ac593c5ecb",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "AWS - Password Spray an AWS using GoAWSConsoleSpray",
+     "guid": "9c10d16b-20b1-403a-8e67-50ef7117ed4e",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1114": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1134": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1136": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1137": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Office Application Startup - Outlook as a C2",
+     "guid": "bfe6ac15-c50b-4c4f-a186-0fc6b8ba936c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1140": {
+   "tests": 11,
+   "items": [
+    {
+     "name": "Deobfuscate/Decode Files Or Information",
+     "guid": "dc6fe391-69e6-4506-bd06-ea5eeb4082f8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Certutil Rename and Decode",
+     "guid": "71abc534-3c05-4d0c-80f7-cbe93cb2aa94",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Base64 decoding with Python",
+     "guid": "356dc0e8-684f-4428-bb94-9313998ad608",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Base64 decoding with Perl",
+     "guid": "6604d964-b9f6-4d4b-8ce8-499829a14d0a",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Base64 decoding with shell utilities",
+     "guid": "b4f6a567-a27a-41e5-b8ef-ac4b4008bb7e",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Base64 decoding with shell utilities (freebsd)",
+     "guid": "b6097712-c42e-4174-b8f2-4b1e1a5bbb3d",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "FreeBSD b64encode Shebang in CLI",
+     "guid": "18ee2002-66e8-4518-87c5-c0ec9c8299ac",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Hex decoding with shell utilities",
+     "guid": "005943f9-8dd5-4349-8b46-0313c0a9f973",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Linux Base64 Encoded Shebang in CLI",
+     "guid": "3a15c372-67c1-4430-ac8e-ec06d641ce4d",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "XOR decoding and command execution using Python",
+     "guid": "c3b65cd5-ee51-4e98-b6a3-6cbdec138efc",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Expand CAB with expand.exe",
+     "guid": "9f8b1c54-cb76-4d5e-bb1f-2f5c0e8f5a11",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1176": {
+   "tests": 4,
+   "items": [
+    {
+     "name": "Chrome/Chromium (Developer Mode)",
+     "guid": "3ecd790d-2617-4abf-9a8c-4e8d47da9ee1",
+     "platforms": [
+      "linux",
+      "windows",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Firefox",
+     "guid": "cb790029-17e6-4c43-b96f-002ce5f10938",
+     "platforms": [
+      "linux",
+      "windows",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Edge Chromium Addon - VPN",
+     "guid": "3d456e2b-a7db-4af8-b5b3-720e7c4d9da5",
+     "platforms": [
+      "windows",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Google Chrome Load Unpacked Extension With Command Line",
+     "guid": "7a714703-9f6b-461c-b06d-e6aeac650f27",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1185": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1187": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "PetitPotam",
+     "guid": "485ce873-2e65-4706-9c7e-ae3ab9e14213",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - PowerSharpPack - Retrieving NTLM Hashes without Touching LSASS",
+     "guid": "7f06b25c-799e-40f1-89db-999c9cc84317",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Trigger an authenticated RPC call to a target server with no Sign flag set",
+     "guid": "81cfdd7f-1f41-4cc5-9845-bb5149438e37",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1190": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1195": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Octopus Scanner Malware Open Source Supply Chain",
+     "guid": "82a9f001-94c5-495e-9ed5-f530dbded5e2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1200": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1203": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1204": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1213": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1218": {
+   "tests": 16,
+   "items": [
+    {
+     "name": "mavinject - Inject DLL into running process",
+     "guid": "c426dacf-575d-4937-8611-a148a86a5e61",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Register-CimProvider - Execute evil dll",
+     "guid": "ad2c17ed-f626-4061-b21e-b9804a6f3655",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "InfDefaultInstall.exe .inf Execution",
+     "guid": "54ad7d5a-a1b5-472c-b6c4-f8090fb2daef",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "ProtocolHandler.exe Downloaded a Suspicious File",
+     "guid": "db020456-125b-4c8b-a4a7-487df8afb5a2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Microsoft.Workflow.Compiler.exe Payload Execution",
+     "guid": "7cbb0f26-a4c1-4f77-b180-a009aa05637e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Renamed Microsoft.Workflow.Compiler.exe Payload Executions",
+     "guid": "4cc40fd7-87b8-4b16-b2d7-57534b86b911",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Invoke-ATHRemoteFXvGPUDisablementCommand base test",
+     "guid": "9ebe7901-7edf-45c0-b5c7-8366300919db",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "DiskShadow Command Execution",
+     "guid": "0e1483ba-8f0c-425d-b8c6-42736e058eaa",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Load Arbitrary DLL via Wuauclt (Windows Update Client)",
+     "guid": "49fbd548-49e9-4bb7-94a6-3769613912b8",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Lolbin Gpscript logon option",
+     "guid": "5bcda9cd-8e85-48fa-861d-b5a85d91d48c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Lolbin Gpscript startup option",
+     "guid": "f8da74bb-21b8-4af9-8d84-f2c8e4a220e3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Lolbas ie4uinit.exe use as proxy",
+     "guid": "13c0804e-615e-43ad-b223-2dfbacd0b0b3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "LOLBAS CustomShellHost to Spawn Process",
+     "guid": "b1eeb683-90bb-4365-bbc2-2689015782fe",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Provlaunch.exe Executes Arbitrary Command via Registry Key",
+     "guid": "ab76e34f-28bf-441f-a39c-8db4835b89cc",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "LOLBAS Msedge to Spawn Process",
+     "guid": "e5eedaed-ad42-4c1e-8783-19529738a349",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "System Binary Proxy Execution - Wlrmdr Lolbin",
+     "guid": "7816c252-b728-4ea6-a683-bd9441ca0b71",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1484": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1485": {
+   "tests": 5,
+   "items": [
+    {
+     "name": "Windows - Overwrite file with SysInternals SDelete",
+     "guid": "476419b5-aebf-4366-a131-ae3e8dae5fc2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "FreeBSD/macOS/Linux - Overwrite file with DD",
+     "guid": "38deee99-fd65-4031-bec8-bfa4f9f26146",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Overwrite deleted data on C drive",
+     "guid": "321fd25e-0007-417f-adec-33232252be19",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "GCP - Delete Bucket",
+     "guid": "4ac71389-40f4-448a-b73f-754346b3f928",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "ESXi - Delete VM Snapshots",
+     "guid": "1207ddff-f25b-41b3-aa0e-7c26d2b546d1",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1486": {
+   "tests": 10,
+   "items": [
+    {
+     "name": "Encrypt files using gpg (FreeBSD/Linux)",
+     "guid": "7b8ce084-3922-4618-8d22-95f996173765",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Encrypt files using 7z (FreeBSD/Linux)",
+     "guid": "53e6735a-4727-44cc-b35b-237682a151ad",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Encrypt files using ccrypt (FreeBSD/Linux)",
+     "guid": "08cbf59f-85da-4369-a5f4-049cffd7709f",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Encrypt files using openssl (FreeBSD/Linux)",
+     "guid": "142752dc-ca71-443b-9359-cf6f497315f1",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "PureLocker Ransom Note",
+     "guid": "649349c7-9abf-493b-a7a2-b1aa4d141528",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Encrypt files using 7z utility - macOS",
+     "guid": "645f0f5a-ef09-48d8-b9bc-f0e24c642d72",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Encrypt files using openssl utility - macOS",
+     "guid": "1a01f6b8-b1e8-418e-bbe3-78a6f822759e",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Data Encrypted with GPG4Win",
+     "guid": "4541e2c2-33c8-44b1-be79-9161440f1718",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Data Encrypt Using DiskCryptor",
+     "guid": "44b68e11-9da2-4d45-a0d9-893dabd60f30",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Akira Ransomware drop Files with .akira Extension and Ransomnote",
+     "guid": "ab3f793f-2dcc-4da5-9c71-34988307263f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1489": {
+   "tests": 9,
+   "items": [
+    {
+     "name": "Windows - Stop service using Service Controller",
+     "guid": "21dfb440-830d-4c86-a3e5-2a491d5a8d04",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows - Stop service using net.exe",
+     "guid": "41274289-ec9c-4213-bea4-e43c4aa57954",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows - Stop service by killing process",
+     "guid": "f3191b84-c38b-400b-867e-3a217a27795f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Linux - Stop service using systemctl",
+     "guid": "42e3a5bd-1e45-427f-aa08-2a65fa29a820",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Linux - Stop service by killing process using killall",
+     "guid": "e5d95be6-02ee-4ff1-aebe-cf86013b6189",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Linux - Stop service by killing process using kill",
+     "guid": "332f4c76-7e96-41a6-8cc2-7361c49db8be",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Linux - Stop service by killing process using pkill",
+     "guid": "08b4718f-a8bf-4bb5-a552-294fc5178fea",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Abuse of linux magic system request key for Send a SIGTERM to all processes",
+     "guid": "6e76f56f-2373-4a6c-a63f-98b7b72761f1",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows - iisreset.exe to stop Internet services",
+     "guid": "0f752206-61b2-4f2f-b397-e883a503968b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1490": {
+   "tests": 13,
+   "items": [
+    {
+     "name": "Windows - Delete Volume Shadow Copies",
+     "guid": "43819286-91a9-4369-90ed-d31fb4da2c01",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows - Delete Volume Shadow Copies via WMI",
+     "guid": "6a3ff8dd-f49c-4272-a658-11c2fe58bd88",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows - wbadmin Delete Windows Backup Catalog",
+     "guid": "263ba6cb-ea2b-41c9-9d4e-b652dadd002c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows - Disable Windows Recovery Console Repair",
+     "guid": "cf21060a-80b3-4238-a595-22525de4ab81",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows - Delete Volume Shadow Copies via WMI with PowerShell",
+     "guid": "39a295ca-7059-4a88-86f6-09556c1211e7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows - Delete Backup Files",
+     "guid": "6b1dbaf6-cc8a-4ea6-891f-6058569653bf",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows - wbadmin Delete systemstatebackup",
+     "guid": "584331dd-75bc-4c02-9e0b-17f5fd81c748",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Windows - Disable the SR scheduled task",
+     "guid": "1c68c68d-83a4-4981-974e-8993055fa034",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Disable System Restore Through Registry",
+     "guid": "66e647d1-8741-4e43-b7c1-334760c2047f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows - vssadmin Resize Shadowstorage Volume",
+     "guid": "da558b07-69ae-41b9-b9d4-4d98154a7049",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Modify VSS Service Permissions",
+     "guid": "a4420f93-5386-4290-b780-f4f66abc7070",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Disable Time Machine",
+     "guid": "ed952f70-91d4-445a-b7ff-30966bfb1aff",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Windows - Delete Volume Shadow Copies via Diskshadow",
+     "guid": "42111a6f-7e7f-482c-9b1b-3cfd090b999c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1491": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1497": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1505": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1505.003": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Web Shell Written to Disk",
+     "guid": "0a2ce662-1efa-496f-a472-2fe7b080db16",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1518": {
+   "tests": 6,
+   "items": [
+    {
+     "name": "Find and Display Internet Explorer Browser Version",
+     "guid": "68981660-6670-47ee-a5fa-7e74806420a4",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Applications Installed",
+     "guid": "c49978f6-bd6e-4221-ad2c-9e3e30cc1e3b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Find and Display Safari Browser Version",
+     "guid": "103d6533-fd2a-4d08-976a-4a598565280f",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Dotnetsearch",
+     "guid": "7e79a1b6-519e-433c-ad55-3ff293667101",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - DotNet",
+     "guid": "10ba02d0-ab76-4f80-940d-451633f24c5b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - powerSQL",
+     "guid": "0bb64470-582a-4155-bde2-d6003a95ed34",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1525": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1526": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "Azure - Dump Subscription Data with MicroBurst",
+     "guid": "1e40bb1d-195e-401e-a86b-c192f55e005c",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "AWS - Enumerate common cloud services",
+     "guid": "aa8b9bcc-46fa-4a59-9237-73c7b93a980c",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Azure - Enumerate common cloud services",
+     "guid": "58f57c8f-db14-4e62-a4d3-5aaf556755d7",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1528": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "Azure - Functions code upload - Functions code injection via Blob upload",
+     "guid": "9a5352e4-56e5-45c2-9b3f-41a46d3b3a43",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure - Functions code upload - Functions code injection via File Share modification to retrieve the Functions identity access token",
+     "guid": "67aaf4cb-54ce-42e2-ab56-e0a9bcc089b1",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1530": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "AWS - Scan for Anonymous Access to S3",
+     "guid": "979356b9-b588-4e49-bba4-c35517c484f5",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure - Dump Azure Storage Account Objects via Azure CLI",
+     "guid": "67374845-b4c8-4204-adcc-9b217b65d4f1",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1531": {
+   "tests": 8,
+   "items": [
+    {
+     "name": "Change User Password - Windows",
+     "guid": "1b99ef28-f83c-4ec5-8a08-1a56263a5bb2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Delete User - Windows",
+     "guid": "f21a1d7d-a62f-442a-8c3a-2440d43b19e5",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Remove Account From Domain Admin Group",
+     "guid": "43f71395-6c37-498e-ab17-897d814a0947",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Change User Password via passwd",
+     "guid": "3c717bf3-2ecc-4d79-8ac8-0bfbf08fbce6",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Delete User via dscl utility",
+     "guid": "4d938c43-2fe8-4d70-a5b3-5bf239aa7846",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Delete User via sysadminctl utility",
+     "guid": "d3812c4e-30ee-466a-a0aa-07e355b561d6",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure AD - Delete user via Azure AD PowerShell",
+     "guid": "4f577511-dc1c-4045-bcb8-75d2457f01f4",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure AD - Delete user via Azure CLI",
+     "guid": "c955c1c7-3145-4a22-af2d-63eea0d967f0",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1542": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1543": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1547": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "Add a driver",
+     "guid": "cb01b3da-b0e7-4e24-bf6d-de5223526785",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Driver Installation Using pnputil.exe",
+     "guid": "5cb0b071-8a5a-412f-839d-116beb2ed9f7",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Leverage Virtual Channels to execute custom DLL during successful RDP session",
+     "guid": "fdd45306-74f6-4ade-9a97-0a4895961228",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1548": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1550": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1550.002": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "Mimikatz Pass the Hash",
+     "guid": "ec23cef9-27d9-46e4-a68d-6f75f7b86908",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "crackmapexec Pass the Hash",
+     "guid": "eb05b028-16c8-4ad8-adea-6f5b219da9a9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Invoke-WMIExec Pass the Hash",
+     "guid": "f8757545-b00a-4e4e-8cfb-8cfb961ee713",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1552": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "AWS - Retrieve EC2 Password Data using stratus",
+     "guid": "a21118de-b11e-4ebd-b655-42f11142df0c",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Search for Passwords in Powershell History",
+     "guid": "f9c3d0ab-479b-4019-945f-22ace2b1731a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1552.001": {
+   "tests": 32,
+   "items": [
+    {
+     "name": "Find AWS credentials",
+     "guid": "37807632-d3da-442e-8c2e-00f44928ff8f",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Extract Browser and System credentials with LaZagne",
+     "guid": "9e507bb8-1d30-4e3b-a49b-cb5727d7ea79",
+     "platforms": [
+      "macos"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Extract passwords with grep",
+     "guid": "bd4cf0d1-7646-474e-8610-78ccf5a097c4",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Extracting passwords with findstr",
+     "guid": "0e56bf29-ff49-4ea5-9af4-3b81283fd513",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Access unattend.xml",
+     "guid": "367d4004-5fc0-446d-823f-960c74ae52c3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Find and Access Github Credentials",
+     "guid": "da4f751a-020b-40d7-b9ff-d433b7799803",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "WinPwn - sensitivefiles",
+     "guid": "114dd4e3-8d1c-4ea7-bb8d-8d8f6aca21f0",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Snaffler",
+     "guid": "fdd0c913-714b-4c13-b40f-1824d6c015f2",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - powershellsensitive",
+     "guid": "75f66e03-37d3-4704-9520-3210efbe33ce",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - passhunt",
+     "guid": "00e3e3c7-6c3c-455e-bd4b-461c7f0e7797",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "WinPwn - SessionGopher",
+     "guid": "c9dc9de3-f961-4284-bd2d-f959c9f9fda5",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Loot local Credentials - AWS, Microsoft Azure, and Google Compute credentials",
+     "guid": "aaa87b0e-5232-4649-ae5c-f1724a4b2798",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "List Credential Files via PowerShell",
+     "guid": "0d4f2281-f720-4572-adc8-d5bb1618affe",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "List Credential Files via Command Prompt",
+     "guid": "b0cdacf6-8949-4ffe-9274-a9643a788e55",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Find Azure credentials",
+     "guid": "a8f6148d-478a-4f43-bc62-5efee9f931a4",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find GCP credentials",
+     "guid": "aa12eb29-2dbb-414e-8b20-33d34af93543",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find OCI credentials",
+     "guid": "9d9c22c9-fa97-4008-a204-478cf68c40af",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Access Travis CI Config File",
+     "guid": "5312c7c3-775b-4437-a8b0-914b30cfebd4",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Access Gitlab CI Config File",
+     "guid": "98618067-a2c7-4d4b-9c89-403a90f43656",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find Terraform credential files",
+     "guid": "c3372ae9-b9bf-427a-b330-cb04fecb9c1d",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find Docker credentials",
+     "guid": "5a668739-3a2f-4265-895f-c0e1e0b09eaa",
+     "platforms": [
+      "macos",
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find HashiCorp Vault token files",
+     "guid": "2951c09f-b4f9-4248-ba75-6373709ebd55",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Access Drone CI Config File",
+     "guid": "a11f22fb-a037-4cc2-bcfc-a133b287aa1b",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump GitHub Actions Runner Environment Variables from procfs",
+     "guid": "51cde30c-0311-449a-8e15-542b59f95939",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Search for Git Credential Files",
+     "guid": "c8367142-cbb0-47a4-96c7-ff9969fd64ea",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find .env Files Containing Application Credentials",
+     "guid": "bcf8e58a-1cb7-4988-9227-3d3c70751811",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find database credential files",
+     "guid": "e62bccc4-0200-47e9-b40a-4ea5328495b3",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find system database configuration files",
+     "guid": "d1665562-c389-49fc-9cbe-92236816a105",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find npm registry credential files",
+     "guid": "2a24627b-061b-43e6-bece-a5b0638841dd",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Access Jenkinsfile",
+     "guid": "18318786-e0c0-4bdf-979f-f022e6f5f2ef",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find Kubernetes user configuration files",
+     "guid": "14575d1f-16b3-4a0b-8986-540e42e6a6cc",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Find Kubernetes cluster configuration files",
+     "guid": "af664fc0-0772-4866-a661-d49a22a13487",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1553": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1555": {
+   "tests": 9,
+   "items": [
+    {
+     "name": "Extract Windows Credential Manager via VBA",
+     "guid": "234f9b7c-b53d-4f32-897b-b880a6c9ea7b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Dump credentials from Windows Credential Manager With PowerShell [windows Credentials]",
+     "guid": "c89becbe-1758-4e7d-a0f4-97d2188a23e3",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Dump credentials from Windows Credential Manager With PowerShell [web Credentials]",
+     "guid": "8fd5a296-6772-4766-9991-ff4e92af7240",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Enumerate credentials from Windows Credential Manager using vaultcmd.exe [Windows Credentials]",
+     "guid": "36753ded-e5c4-4eb5-bc3c-e8fba236878d",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Enumerate credentials from Windows Credential Manager using vaultcmd.exe [Web Credentials]",
+     "guid": "bc071188-459f-44d5-901a-f8f2625b2d2e",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Loot local Credentials - lazagne",
+     "guid": "079ee2e9-6f16-47ca-a635-14efcd994118",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Loot local Credentials - Wifi Credentials",
+     "guid": "afe369c2-b42e-447f-98a3-fb1f4e2b8552",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Loot local Credentials - Decrypt Teamviewer Passwords",
+     "guid": "db965264-3117-4bad-b7b7-2523b7856b92",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Warzone/AveMaria RAT Style Credential Theft via Outlook Registry",
+     "guid": "4a16a770-c1fc-494a-8131-022a0b147b3a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1557": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1558": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1558.001": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "Crafting Active Directory golden tickets with mimikatz",
+     "guid": "9726592a-dabc-4d4d-81cd-44070008b3af",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Crafting Active Directory golden tickets with Rubeus",
+     "guid": "e42d33cd-205c-4acf-ab59-a9f38f6bad9c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1558.002": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Crafting Active Directory silver tickets with mimikatz",
+     "guid": "385e59aa-113e-4711-84d9-f637aef01f2c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1558.003": {
+   "tests": 7,
+   "items": [
+    {
+     "name": "Request for service tickets",
+     "guid": "3f987809-3681-43c8-bcd8-b3ff3a28533a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Rubeus kerberoast",
+     "guid": "14625569-6def-4497-99ac-8e7817105b55",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Extract all accounts in use as SPN using setspn",
+     "guid": "e6f4affd-d826-4871-9a62-6c9004b8fe06",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Request A Single Ticket via PowerShell",
+     "guid": "988539bc-2ed7-4e62-aec6-7c5cf6680863",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "Request All Tickets via PowerShell",
+     "guid": "902f4ed2-1aba-4133-90f2-cff6d299d6da",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - Kerberoasting",
+     "guid": "78d10e20-c874-45f2-a9df-6fea0120ec27",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - PowerSharpPack - Kerberoasting Using Rubeus",
+     "guid": "29094950-2c96-4cbd-b5e4-f7c65079678f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1558.004": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "Rubeus asreproast",
+     "guid": "615bd568-2859-41b5-9aed-61f6a88e48dd",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Get-DomainUser with PowerView",
+     "guid": "d6139549-7b72-4e48-9ea1-324fc9bdf88a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "WinPwn - PowerSharpPack - Kerberoasting Using Rubeus",
+     "guid": "8c385f88-4d47-4c9a-814d-93d9deec8c71",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1560": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Compress Data for Exfiltration With PowerShell",
+     "guid": "41410c60-614d-4b9d-b66e-b0192dd9c597",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1562": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1562.001": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1562.008": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1563": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1564": {
+   "tests": 5,
+   "items": [
+    {
+     "name": "Extract binary files via VBA",
+     "guid": "6afe288a-8a8b-4d33-a629-8d03ba9dad3a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Create a Hidden User Called \"$",
+     "guid": "2ec63cc2-4975-41a6-bf09-dffdfb610778",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Create an \"Administrator \" user (with a space on the end)",
+     "guid": "5bb20389-39a5-4e99-9264-aeb92a55a85c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Create and Hide a Service with sc.exe",
+     "guid": "333c7de0-6fbe-42aa-ac2b-c7e40b18246a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Command Execution with NirCmd",
+     "guid": "2748ab4a-1e0b-4cf2-a2b0-8ef765bec7be",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1566": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1567": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1568": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1569": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1570": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "Exfiltration Over SMB over QUIC (New-SmbMapping)",
+     "guid": "d8d13303-159e-4f33-89f4-9f07812d016f",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Exfiltration Over SMB over QUIC (NET USE)",
+     "guid": "183235ca-8e6c-422c-88c2-3aa28c4825d9",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1571": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "Testing usage of uncommonly used port with PowerShell",
+     "guid": "21fe622f-8e53-4b31-ba83-6d333c2583f4",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Testing usage of uncommonly used port",
+     "guid": "5db21e1d-dd9c-4a50-b885-b1e748912767",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1572": {
+   "tests": 9,
+   "items": [
+    {
+     "name": "DNS over HTTPS Large Query Volume",
+     "guid": "ae9ef4b0-d8c1-49d4-8758-06206f19af0a",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "DNS over HTTPS Regular Beaconing",
+     "guid": "0c5f9705-c575-42a6-9609-cbbff4b2fc9b",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "DNS over HTTPS Long Domain Query",
+     "guid": "748a73d5-cea4-4f34-84d8-839da5baa99c",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "run ngrok",
+     "guid": "4cdc9fc7-53fb-4894-9f0c-64836943ea60",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Microsoft Dev tunnels (Linux/macOS)",
+     "guid": "9f94a112-1ce2-464d-a63b-83c1f465f801",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "VSCode tunnels (Linux/macOS)",
+     "guid": "b877943f-0377-44f4-8477-f79db7f07c4d",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Cloudflare tunnels (Linux/macOS)",
+     "guid": "228c336a-2f79-4043-8aef-bfa453a611d5",
+     "platforms": [
+      "linux",
+      "macos"
+     ],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": true
+    },
+    {
+     "name": "Install and Run frpc Reverse Proxy Client",
+     "guid": "f54179ee-c782-4fe3-b836-213d3bda66a2",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Install and Run gost Tunnel Proxy",
+     "guid": "3afc90c4-90b3-44af-8d14-52852abe7258",
+     "platforms": [
+      "linux"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1583": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1587": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1590": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1592": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1593": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1594": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1595": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1595.002": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1596": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1606": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  },
+  "T1610": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Deploy Docker container",
+     "guid": "59aa6f26-7620-417e-9318-589e0fb7a372",
+     "platforms": [
+      "containers"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1611": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "Deploy container using nsenter container escape",
+     "guid": "0b2f9520-a17a-4671-9dba-3bd034099fff",
+     "platforms": [
+      "containers"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Mount host filesystem to escape privileged Docker container",
+     "guid": "6c499943-b098-4bc6-8d38-0956fc182984",
+     "platforms": [
+      "containers"
+     ],
+     "elevation": true,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Privilege Escalation via Docker Volume Mapping",
+     "guid": "39fab1bc-fcb9-406f-bc2e-fe03e42ff0e4",
+     "platforms": [
+      "containers"
+     ],
+     "elevation": true,
+     "deps": 1,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1613": {
+   "tests": 2,
+   "items": [
+    {
+     "name": "Docker Container and Resource Discovery",
+     "guid": "ea2255df-d781-493b-9693-ac328f9afc3f",
+     "platforms": [
+      "containers"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Podman Container and Resource Discovery",
+     "guid": "fc631702-3f03-4f2b-8d8a-6b3d055580a1",
+     "platforms": [
+      "containers"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1619": {
+   "tests": 4,
+   "items": [
+    {
+     "name": "AWS S3 Enumeration",
+     "guid": "3c7094f8-71ec-4917-aeb8-a633d7ec4ef5",
+     "platforms": [],
+     "elevation": false,
+     "deps": 1,
+     "hasCleanup": false
+    },
+    {
+     "name": "Azure - Enumerate Storage Account Objects via Shared Key authorization using Azure CLI",
+     "guid": "070322a4-2c60-4c50-8ffb-c450a34fe7bf",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure - Scan for Anonymous Access to Azure Storage (Powershell)",
+     "guid": "146af1f1-b74e-4aa7-9895-505eb559b4b0",
+     "platforms": [],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    },
+    {
+     "name": "Azure - Enumerate Azure Blobs with MicroBurst",
+     "guid": "3dab4bcc-667f-4459-aea7-4162dd2d6590",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1620": {
+   "tests": 3,
+   "items": [
+    {
+     "name": "WinPwn - Reflectively load Mimik@tz into memory",
+     "guid": "56b9589c-9170-4682-8c3d-33b86ecb5119",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": false
+    },
+    {
+     "name": "Reflective PE Injection via PowerSploit",
+     "guid": "114c2b95-d992-4c03-8c38-fc58420a3eb5",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    },
+    {
+     "name": "Turla Mosquito (CommanderDLL.dll) Dynamic Export Address Table (EAT) Patching",
+     "guid": "7c3e0b89-09e6-4f3c-a1e8-1c1dfa9288ce",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1622": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Detect a Debugger Presence in the Machine",
+     "guid": "58bd8c8d-3a1a-4467-a69c-439c75469b07",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": true,
+     "deps": 0,
+     "hasCleanup": false
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1648": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Lambda Function Hijack",
+     "guid": "87a4a141-c2bb-49d1-a604-8679082d8b91",
+     "platforms": [],
+     "elevation": false,
+     "deps": 2,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1649": {
+   "tests": 1,
+   "items": [
+    {
+     "name": "Staging Local Certificates via Export-Certificate",
+     "guid": "eb121494-82d1-4148-9e2b-e624e03fbf3d",
+     "platforms": [
+      "windows"
+     ],
+     "elevation": false,
+     "deps": 0,
+     "hasCleanup": true
+    }
+   ],
+   "fetch_status": "200"
+  },
+  "T1669": {
+   "tests": 0,
+   "items": [],
+   "fetch_status": "404",
+   "note": "AT 无此技术"
+  }
+ }
+}

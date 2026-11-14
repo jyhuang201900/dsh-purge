@@ -62,6 +62,7 @@ vol -f mem.dmp windows.cmdline
 ## 参考
 
 - `references/forensics-triage.md`
+- `references/forensics-evidence-chain.md`（**让报告经得起复核**：先哈希后复制、ctime 比 mtime 可信、`/proc` vs `ps` 差异找隐藏进程、时区必须统一、一条合格结论的写法）
 - `../malware-analysis/` `../threat-hunting/` `../protocol-reverse/`
 
 ## 路由上下文

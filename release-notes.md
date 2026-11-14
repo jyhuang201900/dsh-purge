@@ -1,3 +1,169 @@
+# 1.1.114
+
+## 中文
+
+三条线一起推进：原子测试接入、技能标注补全、两个薄弱维度加深。
+
+## 一、Atomic Red Team 接入（550 个可执行原子测试）
+
+**缺口**：插件有 119 个技能教「怎么做」，但「打没打通」只能靠自我判断。AT 的原子测试把
+「这个技术长什么样」从文档变成**可执行命令 + 清理命令**。
+
+**通道问题**：本机 `raw.githubusercontent.com` 被 TLS 拦（curl exit 35 / unexpected eof，
+直连和 7890 代理都不通）。**jsdelivr CDN 可用**：
+
+```
+https://cdn.jsdelivr.net/gh/redcanaryco/atomic-red-team@master/atomics/<T>/<T>.yaml
+```
+
+**新能力**：`purge_skills atomic=T1558.003`
+
+```
+T1558.003 Kerberoasting（凭据访问）｜Atomic Red Team 用例 7 个
+  · Request for service tickets｜windows · 依赖1
+  · Rubeus kerberoast｜windows · 依赖2 · 带清理
+  · WinPwn - PowerSharpPack - Kerberoasting Using Rubeus｜windows
+```
+
+`run=1` 给出真正能跑的命令 + 清理命令：
+
+```
+▸ Dump LSASS.exe Memory using comsvcs.dll
+C:\Windows\System32\rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump ...
+  清理：Remove-Item $env:TEMP\lsass-comsvcs.dmp -ErrorAction Ignore
+```
+
+**同时标注占位符**：AT 命令带 `#{procdump_exe}`、`PathToAtomicsFolder`，
+与 1.1.110 修的「模板当可跑命令」是同一个坑，逐个点名并说明填法。
+
+**索引结果**：124 技术 → **75 个有原子测试、49 个 AT 未收录、0 个抓取失败、555 个用例**。
+
+## 二、技能标注补全：77 → 119/119
+
+补完 42 个（41 个 competition-* + iot-iiot-netdev）。过程中**脚本又拦下 3 个我编造的编号**：
+
+- `T1649`（实为 Steal or Forge Authentication Certificates，凭据访问）
+- `T1176`（实为 Browser Extensions，持久化）
+- `T1553`（实为 Subvert Trust Controls，属**破坏防御机制**——我原本归到了溯源类）
+
+全部核对 attack.mitre.org 后补进表。现在 **124 技术、119/119 标注、双向闭合**。
+
+## 三、两个薄弱维度：补 references 深水区
+
+12 维度矩阵显示云容器仅 3 个技能、取证仅 1 个，且**这两篇 references 一片空白**（115 篇里 0 篇）。
+
+补了两篇，都按既有质量标准（真实命令 + 验伤信号 + 检测视角 + 常见坑）：
+
+**`references/cloud-container-escape.md`** —— 容器逃逸的判据与假成功：
+
+- `cgroup release_agent` 在 **cgroup v2 上已废**，创建了文件 ≠ 逃逸成功
+- `docker.sock` 只列出一个容器（自己）**不算控宿主**
+- `nsenter` 后必须看到**宿主完整进程树**（几百个进程含 kubelet）才算进去
+- K8s 六条提权路（hostPath / create pods / clusterrolebinding / 读 Secret / pods-exec / kubelet 10250）
+- 云凭据到手后的三步确认（`sts get-caller-identity` 过不了就是没用）
+- 检测视角表（CloudTrail / audit log / Falco 分别看到什么）
+
+**`references/forensics-evidence-chain.md`** —— 让报告经得起复核：
+
+- **先哈希后复制**，顺序反了证据链从第一步就断
+- `ctime` 比 `mtime` 可信（`touch -d` 能改 mtime，改不了 ctime）
+- 用 `/proc` 与 `ps` 的**差异**找隐藏进程（比扫描器更硬）
+- 时区必须统一（Windows 本地 / CloudTrail UTC 混排是常见事故）
+- 一条合格结论的写法（时间+来源+哈希+复现+检测覆盖）
+
+## 四、四个校验器自身的缺陷（都是这次暴露的）
+
+**① 数字映射表只写到 30**
+加到第 31 关时闸门假红（报「README 没写「过undefined关」」），而文档其实写对了。
+改成**按算法生成到 99**，以后不会再撞。
+
+**② 解析器假设 YAML 缩进统一**
+74 个文件是 `- name:`（零缩进），T1176 是 `  - name:`（两空格）→ 解析出 0 用例，
+而 `fetch_status=200`，闸门按「200 必须有用例」当场报自相矛盾。
+放宽后平台字段也修了（原来 `^  supported_platforms:` 写死两空格，T1176 在 6 空格处）。
+
+**③ 闸门按 note 判失败，而不按事实**
+note 改成 `抓取失败：http403-after-retry` 后，正则 `/^http/` 匹配不上（开头是中文），
+统计显示「抓取失败 0」而实际有 5 个。
+改成按 `fetch_status` 判——**能被机器判的事实就按事实判，别按人写的解释判**。
+
+**④ 限流伪装成「没有」**
+CDN 403 与 404 只差一个状态码，含义完全相反。初版把 403 记成「AT 无此技术」，
+反向探针改 note 后闸门仍绿。
+加 `fetch_status` 字段后闸门能断言「404 才算没有，其它一律算没取到」，
+反向探针立刻报「这是把「没取到」伪装成「没有」」。
+
+## 五、第 31 关：原子测试索引一致性
+
+五项断言：与攻击表双向闭合、`tests` 与 `items` 计数一致、`fetch_status` 必须存在、
+200 必须有用例、404 不许有用例、抓取失败不许标成「AT 无此技术」。
+
+## 验证
+
+```
+verify 31 关全绿 ｜ check-package 问题 0
+ATT&CK v20.1｜124 技术｜技能标注 119/119
+原子测试：75 技术有用例｜49 AT 未收录｜0 抓取失败｜555 用例
+references：157 处引用全部指向真实文件
+宿主 40492，版本 1.1.114
+```
+
+## English
+
+Three tracks in parallel: Atomic Red Team integration, completing skill annotations, deepening the
+two thinnest dimensions.
+
+## 1. Atomic Red Team (550 executable atomic tests)
+
+**Gap**: 119 skills taught *how*, but "did it actually work" was self-assessment. AT turns a technique
+from documentation into **runnable commands plus cleanup commands**.
+
+**Channel**: `raw.githubusercontent.com` is TLS-blocked on this machine (curl exit 35; direct and a
+7890 proxy both fail). **jsdelivr CDN works.**
+
+**New capability**: `purge_skills atomic=T1558.003` lists real tests with platform/dependency flags;
+`run=1` returns runnable commands with cleanup, and **names the `#{...}` placeholders** that must be
+filled first — the same trap as the "template treated as runnable" bug fixed in 1.1.110.
+
+**Index**: 124 techniques → **75 with tests, 49 not in AT, 0 fetch failures, 555 tests**.
+
+## 2. Annotations completed: 77 → 119/119
+
+Filling in the remaining 42 (41 competition-* plus iot-iiot-netdev), the script **blocked three more
+IDs I had fabricated**: T1649 (actually Steal or Forge Authentication Certificates), T1176 (Browser
+Extensions), and T1553 (Subvert Trust Controls — which belongs to Defense Impairment, not the
+attribution area I first guessed). All verified against attack.mitre.org first.
+
+## 3. Two thin dimensions: reference deep-dives
+
+The 12-dimension matrix showed cloud/containers at 3 skills and forensics at 1 — and **neither had
+any reference file** (0 of 115). Added two, to the existing quality bar (real commands, verification
+signals, detection view, pitfalls):
+
+- **cloud-container-escape.md**: `release_agent` is dead on cgroup v2; a `docker.sock` listing only
+  your own container doesn't mean host control; `nsenter` must show the full host process tree; six
+  K8s escalation paths; three-step cloud credential confirmation; a detection-coverage table.
+- **forensics-evidence-chain.md**: hash before copying; `ctime` beats `mtime`; find hidden processes
+  by diffing `/proc` against `ps`; unify time zones; how to write one defensible finding.
+
+## 4. Four validator bugs this work exposed
+
+1. **Number table stopped at 30** — adding gate 31 made the check falsely red (`过undefined关`)
+   while the docs were correct. Now generated algorithmically to 99.
+2. **Parser assumed uniform YAML indentation** — 74 files use `- name:`, T1176 uses `  - name:`,
+   parsing zero tests with `fetch_status=200` (gate caught the self-contradiction).
+3. **Gate judged failures by `note` rather than fact** — after note became
+   `抓取失败：http403-after-retry`, `/^http/` no longer matched, reporting "0 failures" when there
+   were 5. Now keyed on `fetch_status`: **judge machine-decidable facts by the fact, not by prose.**
+4. **Rate limits masquerading as "absent"** — a 403 differs from a 404 by one digit but means the
+   opposite. The gate now asserts "only 404 counts as absent"; the reverse probe fails loudly.
+
+## 5. Gate 31
+
+Five assertions on the atomics index, including bidirectional closure with the ATT&CK table and the
+200/404 consistency rules above.
+
+verify 31/31 green, ATT&CK v20.1, 124 techniques, 119/119 annotated, 555 atomic tests, host at 40492.
 # 1.1.113
 
 ## 中文

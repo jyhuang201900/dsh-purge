@@ -508,8 +508,35 @@ const ver = fs.readFileSync(path.join(root, "scripts", "verify.mjs"), "utf8");
 const gateNums = [...ver.matchAll(/^\/\/ 关 (\d+)：/gm)].map((m) => Number(m[1]));
 const gateCount = gateNums.length ? Math.max(...gateNums) : 0;
 if (!gateCount) problems.push("verify.mjs 里读不到关卡编号（注释格式变了？门禁要跟着改）");
-const CN = { 1: "一", 2: "两", 3: "三", 4: "四", 5: "五", 6: "六", 7: "七", 8: "八", 9: "九", 10: "十", 11: "十一", 12: "十二", 13: "十三", 14: "十四", 15: "十五", 16: "十六", 17: "十七", 18: "十八", 19: "十九", 20: "二十", 21: "二十一", 22: "二十二", 23: "二十三", 24: "二十四", 25: "二十五", 26: "二十六", 27: "二十七", 28: "二十八", 29: "二十九", 30: "三十" };
-const EN = { 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen", 14: "fourteen", 15: "fifteen", 16: "sixteen", 17: "seventeen", 18: "eighteen", 19: "nineteen", 20: "twenty", 21: "twenty-one", 22: "twenty-two", 23: "twenty-three", 24: "twenty-four", 25: "twenty-five", 26: "twenty-six", 27: "twenty-seven", 28: "twenty-eight", 29: "twenty-nine", 30: "thirty" };
+/* 中文数字：**按算法生成到 99**，不再手工列到 30。
+   踩过的坑：表只写到 30，加到第 31 关时闸门自证假红（「README 没写「过undefined关」」），
+   而文档其实已经写对了 —— 校验工具自己成了故障点。凡是"枚举到某个数"的表都会这样崩。 */
+const CN = (() => {
+  const d = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+  const out = { 1: "一", 2: "两" };
+  for (let n = 3; n <= 99; n += 1) {
+    if (n < 10) { out[n] = d[n]; continue; }
+    const t = Math.floor(n / 10), u = n % 10;
+    if (t === 1) out[n] = u === 0 ? "十" : "十" + d[u];
+    else out[n] = d[t] + "十" + (u === 0 ? "" : d[u]);
+  }
+  return out;
+})();
+/* 英文同理：生成到 99，避免"加到 31 就假红"。 */
+const EN = (() => {
+  const one = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  const ten = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  const out = {};
+  for (let n = 1; n <= 99; n += 1) {
+    if (n < 20) out[n] = one[n];
+    else {
+      const t = Math.floor(n / 10), u = n % 10;
+      out[n] = ten[t] + (u === 0 ? "" : "-" + one[u]);
+    }
+  }
+  return out;
+})();
 if (gateCount) {
   const zh = fs.readFileSync(path.join(root, "README.md"), "utf8");
   const en = fs.readFileSync(path.join(root, "README.en.md"), "utf8");

@@ -94,3 +94,16 @@ Use this skill when the decisive bug is not just "there is a JWT," but how heade
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
+
+## ATT&CK 映射
+
+> 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
+
+| 战术 | 编号 | 技术 |
+| --- | --- | --- |
+| 凭据访问 | T1528 | 窃取应用访问令牌 |
+| 凭据访问 | T1606 | 伪造凭据 |
+| 横向移动 | T1550 | 使用备用认证材料 |
+
+落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
+**没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。

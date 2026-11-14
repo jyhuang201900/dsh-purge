@@ -201,6 +201,7 @@ etcdctl --endpoints=http://<node>:2379 get / --prefix --keys-only | head
 ## 参考
 
 - `references/k8s-cloud-checklist.md`
+- `references/cloud-container-escape.md`（**逃逸判据 + 验伤信号 + 假成功**：cgroup v2 已废 release_agent、docker.sock 只列出一个容器不算控宿主、`nsenter` 要看到宿主完整进程树才算进去）
 - CTF 对照：`../../CTF-Sandbox-Orchestrator/competition-agent-cloud/`
 - `../supply-chain-security/` `../pentest-tools/`
 

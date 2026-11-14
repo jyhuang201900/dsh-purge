@@ -163,6 +163,23 @@ if (!skip("graph")) {
   }
 }
 
+// 关 31：原子测试索引一致性（Atomic Red Team）。
+// 由来：技能教"怎么做"，但"打没打通"过去只能靠自我判断；AT 的 550 个原子测试补上了
+// "可直接跑的命令 + 清理命令"。索引是能不能跑验证的唯一依据，错一条就误导。
+// 关键判据：**"AT 没有"与"没取到"必须由机器可判的 fetch_status 区分**，不能只看 note ——
+// 反向探针实测过：把 403 那条的 note 改写成"AT 无此技术"，只查 note 的闸门仍绿。
+if (!skip("atomics")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-atomics.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`原子测试索引不一致：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("索引")) || "";
+    notes.push(`原子测试：${stat.replace(/^\[check-atomics\]\s*/, "")}`);
+  }
+}
+
 // 关 30：ATT&CK 映射一致性。
 // 由来：ATT&CK 编号是**外部标准**，写错一个数字看不出来，但拿去和防守方核对就露馅。
 // 过去 119 个技能只有 3 个带编号（2.5%），且沿用旧版 14 战术制（TA0005 还叫"防御规避"）。
