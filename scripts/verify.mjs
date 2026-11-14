@@ -163,6 +163,37 @@ if (!skip("graph")) {
   }
 }
 
+// 关 33：枚举兜底语义（未知值不许沉到最差 —— 1.1.116 踩过）。
+// 由来：REVERT_RANK[x] ?? 0 把未登记状态当成 missing（最小值），
+// 于是 worseRevertHit('failed','applied') 返回 'applied' —— 坏结果被成功覆盖，
+// 而这正是该函数注释承诺要防的事。兜底值把承诺反着做了。
+// 判据：未知值必须给显式最高分浮上来；排名表不许出现 ?? 0。
+if (!skip("rank")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-rank-fallback.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`枚举兜底语义未守住：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    notes.push("枚举兜底：坏结果压过成功｜未知值浮上来｜排名表无 ?? 0");
+  }
+}
+
+// 关 32：INSERT 列完整性（表有列/代码收参数/语句漏写 —— 1.1.115 踩过）。
+// 判据：所有 INSERT 的关键列必须覆盖，且写入后回读值 == 入参。
+// 真值来源用**真实库 PRAGMA**，不解析 DDL 文本（正则会被表体注释截断，把已有列误报成缺失）。
+if (!skip("insert")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "audit-insert-cols.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`INSERT 列不完整：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const n = out.filter((l) => l.includes("✓")).length;
+    notes.push(`INSERT 列审计：${n} 项通过（关键列全覆盖 + 回读一致）`);
+  }
+}
+
 // 关 31：原子测试索引一致性（Atomic Red Team）。
 // 由来：技能教"怎么做"，但"打没打通"过去只能靠自我判断；AT 的 550 个原子测试补上了
 // "可直接跑的命令 + 清理命令"。索引是能不能跑验证的唯一依据，错一条就误导。
