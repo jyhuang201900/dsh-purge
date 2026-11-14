@@ -63,7 +63,44 @@ if (fails.total !== 2) problems.push(`outcome=fail 应筛出 2 条，实际 ${fa
   }
 }
 
-console.log(`[check-continuity] 步骤 ${all.total} 条｜fail 可筛 ${fails.total} 条｜老库补列已验`);
+/* 4) 阶段进度必须从事实推导，而不是"只列 5 个名字"。
+   过去 op=stages 只回 code+name，新会话看不出做到哪了 —— 与「已试过但不通」是同一类空白。
+   断言：
+     a) 空库时全 pending
+     b) 有得分 → done；只有步骤（哪怕是失败）→ active；只有资产 → started
+     c) next 不能退回到"已被越过"的阶段（实测踩过：internet=done 却建议回去做 recon） */
+{
+  const tmp2 = fs.mkdtempSync(path.join(os.tmpdir(), "dsh-stage-"));
+  const s2 = new RedteamStore(tmp2);
+  const e2 = s2.openEngagement("阶段验证靶", "203.0.113.0/24").id;
+
+  const empty = s2.stageProgress(e2);
+  if (!empty.items.length) problems.push("stageProgress 返回空（阶段没播种）");
+  if (empty.items.some((x) => x.status !== "pending")) problems.push("空库时阶段状态应全部 pending");
+
+  /* 外部资产 + 得分 → internet 应为 done */
+  s2.importBundle(e2, { scan: { tool: "gate", argv: [] }, assets: [{ ip: "203.0.113.91", state: "live", provenance: "passive", tool: "gate" }] });
+  const a2 = s2.listAssets(e2, { ip: "203.0.113.91", limit: 1 })?.items?.[0]?.id;
+  s2.addVuln(e2, { asset_id: a2, title: "SQLi", severity: "high", target: "203.0.113.91/api", evidence: "x" });
+  const v2 = (s2.listVulns(e2, {})?.items || [])[0]?.id;
+  const p2 = (s2.listScorePoints(e2, {})?.items || []).find((x) => String(x.code) === "server-host");
+  s2.addScoreHit(e2, { point_id: p2.id, evidence: "拿到主机", vuln_id: v2, asset_id: a2 });
+  /* 边界阶段只记一条失败步骤 → 应为 active（失败也算进展，且要能看见） */
+  s2.addChainStep(e2, { stage_code: "boundary", title: "打隧道失败", tool: "chisel", outcome: "fail" });
+
+  const prog = s2.stageProgress(e2);
+  const byCode = new Map(prog.items.map((x) => [x.code, x]));
+  if (byCode.get("internet")?.status !== "done") problems.push("有得分的阶段应为 done");
+  if (byCode.get("boundary")?.status !== "active") problems.push("只有失败步骤的阶段应为 active（失败也算进展）");
+  if (byCode.get("boundary")?.fails !== 1) problems.push("阶段应统计失败条数");
+  /* next 不能退回被越过的阶段：internet 已完成，不该建议回去 recon */
+  if (prog.next && prog.next.code === "recon") {
+    problems.push("next 退回到 recon —— 已越过的阶段不该再建议回去（应为 boundary）");
+  }
+  if (prog.next && prog.next.code !== "boundary") problems.push(`next 应为 boundary，实际 ${prog.next.code}`);
+}
+
+console.log(`[check-continuity] 步骤 ${all.total} 条｜fail 可筛 ${fails.total} 条｜老库补列已验｜阶段进度已验`);
 if (problems.length) {
   for (const p of problems) console.log(`  ✗ ${p}`);
   console.log("  → 连续性靠落库：没有 outcome，「哪些路已堵死」就不在新会话的视野里，会重走一遍。");

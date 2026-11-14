@@ -1,3 +1,162 @@
+# 1.1.112
+
+## 中文
+
+接着上一轮的连续性，把最后一个缺口补上：**阶段进度**。
+
+## 一、缺口：`op=stages` 只列了 5 个阶段名
+
+改之前实测：
+
+```
+stages @靶标 测试靶：共 5 条
+  · recon（信息收集）
+  · internet（互联网资产权限）
+  · boundary（边界突破）
+  · internal（内网资产权限）
+  · target（靶标权限）
+```
+
+新会话看完不知道**做到哪了**，也不知道**该从哪个阶段接手**。
+
+## 二、做法：从事实库推导，不让人手填
+
+关键取舍：**不能加一个 `status` 字段让模型自己填"我完成了"**——它会为了显得有进展而提前标完成。事实库里的证据（得分/步骤/资产）不会撒谎。
+
+`stageProgress(id)` 按优先级推导：
+
+| 状态 | 判据 |
+| --- | --- |
+| `done` | 该阶段已有**计分命中**（真拿到成果了） |
+| `active` | 该阶段有攻击步骤（**含失败的**——试过也算进展，且失败要能看见） |
+| `started` | 该阶段有归属资产（开始收集了，但还没动手） |
+| `pending` | 什么都没有 |
+
+阶段归属复用 `scoreStageOf()`——与报告、攻击链**同一套推导**。不能另写一套，否则面板说第 3 阶段、报告说第 2 阶段。
+
+## 三、踩到一个逻辑错：next 会退回已越过的阶段
+
+第一版 `next` 取"第一个非 done"，实测出来：
+
+```
+internet  done      ← 已经拿到分
+boundary  active    ← 正在打
+下一步: recon pending   ← 建议回到第 1 阶段？？？
+```
+
+`recon` 未开始但 `internet` 已完成，说明 recon 是被跳过的前置，**不该回头**。
+
+改成"已越过的不回头"：取最后一个已触达位置之后最近的未完成阶段。现在输出：
+
+```
+✔ internet ｜得分1 步骤1 资产1
+→ 从 boundary（边界突破）接手，当前=pending
+```
+
+## 四、两套指引并存，加了说明
+
+`summary` 里同时有：
+- **阶段进度条**（阶段级，看全局位置）
+- **下一步**（动作级，这一步具体做什么）
+
+实测两者看着矛盾：进度条显示"边界突破未开始"，下一步却写"阶段④ 漏洞利用"——其实漏洞利用是通往边界突破的前置动作。
+
+加了一行点明关系，避免读者以为打架：
+
+```
+（进度条看**阶段位置**；下面「下一步」是补齐当前位置的**具体动作**，两者是同一件事的不同颗粒度）
+```
+
+## 五、输出效果
+
+```
+$ op=stages
+stages @靶标 测试靶：共 5 条
+  · · recon（信息收集）
+  · ✔ internet（互联网资产权限）｜得分1 步骤1 资产1
+  · · boundary（边界突破）
+  · · internal（内网资产权限）
+  · · target（靶标权限）
+→ 从 `boundary`（边界突破）接手，当前=pending。状态图例：✔ 已完成 ｜ ▶ 进行中 ｜ ○ 已开始收集 ｜ · 未开始
+```
+
+## 六、闸门加强
+
+第 29 关从 3 项扩到 8 项，新增阶段进度四类断言：
+
+- 空库时全部 `pending`
+- 有得分 → `done`
+- **只有失败步骤 → `active`**（失败也算进展）
+- `next` 不许退回已越过的阶段
+
+反向探针：把 `next` 改回"第一个非 done"，立刻报两条：
+
+```
+✗ next 退回到 recon —— 已越过的阶段不该再建议回去（应为 boundary）
+✗ next 应为 boundary，实际 recon
+```
+
+## 验证
+
+```
+verify 29 关全绿 ｜ check-package 问题 0
+宿主 25509，版本 1.1.112，ready=true
+```
+
+## English
+
+Continuing last round's continuity work, closing the final gap: **stage progress**.
+
+## 1. Gap: `op=stages` listed only five phase names
+
+A new session could not tell **how far along each phase was**, nor **which phase to pick up from**.
+
+## 2. Approach: derive from the fact store, never let it be hand-declared
+
+Key trade-off: **a `status` field the model fills in itself would be unreliable** — it would mark
+things done to look productive. Evidence in the fact store (scores / steps / assets) does not lie.
+
+`stageProgress(id)` derives by precedence:
+
+| Status | Criterion |
+| --- | --- |
+| `done` | the phase has **scoring hits** (actual results) |
+| `active` | the phase has attack steps (**including failed ones** — trying counts as progress, and failures must stay visible) |
+| `started` | the phase owns assets (collection started, no action yet) |
+| `pending` | nothing |
+
+Phase attribution reuses `scoreStageOf()` — the **same derivation** as the report and attack chain.
+Writing a second one would let the panel say phase 3 while the report says phase 2.
+
+## 3. Hit a logic bug: `next` jumped back to an already-passed phase
+
+First version took "first non-done":
+
+```
+internet  done      ← already scored
+boundary  active    ← currently working
+next: recon pending ← go back to phase 1???
+```
+
+`recon` untouched while `internet` is complete means recon was a skipped prerequisite — **no going
+back**. Now it takes the nearest unfinished phase after the last touched one.
+
+## 4. Two guidance lines coexisting — explained
+
+`summary` has both a **stage progress bar** (stage-level position) and **next step** (action-level
+detail). They looked contradictory: the bar says "boundary not started" while next says "phase 4
+exploit" — because exploitation is the prerequisite action *for* boundary.
+
+Added one line stating the relationship so readers don't think they conflict.
+
+## 5. Gate strengthened
+
+Gate 29 went from 3 to 8 assertions, adding four on stage progress: empty store → all pending;
+scored → done; **failed-steps-only → active**; `next` must not regress to a passed phase.
+
+Reverse probe (restoring "first non-done") fails with exactly the two expected findings.
+
+verify 29/29 green, host at 25509 running 1.1.112.
 # 1.1.111
 
 ## 中文
