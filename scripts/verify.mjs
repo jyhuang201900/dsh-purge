@@ -146,6 +146,23 @@ if (!skip("tools")) {
   else notes.push(`工具面：${head.replace(/^工具面闸门：/, "")}`);
 }
 
+// 关 19：图谱一致性——产物之间不许自相矛盾。
+// 由来：2026-11-14 更新图谱时实测两次退化——① re-cluster 换了社区 id，
+// 1836 个节点的语义名退回 hub 文件名；② 只改 graph.json 不改标签文件，
+// 下次 label 又覆盖回去。这两个错误**任何代码闸门都看不见**（图谱不在代码路径上），
+// 但会让「图谱当文档用」这件事彻底失效。
+if (!skip("graph")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-graph.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 2).join(" / ");
+    failures.push(`图谱校验未过：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("结构：")) || "";
+    notes.push(`图谱：${stat.replace(/^\s*·\s*/, "") || "结构完整、三产物一致"}`);
+  }
+}
+
 // 关 18：验证层闸门——攻击必配检测。第 17 关管「措辞自相矛盾」，这一关管「有没有证明能力」。
 // 由来：2026-11-14 调研实测「检测配对」维度只覆盖 3%、「误报验证」4%——插件只会打、
 // 不会说「怎么证明打穿了」和「对手能不能发现」。加技能能补文档，但**文档不会自己生效**：

@@ -1,3 +1,35 @@
+# 1.1.95
+
+## 中文
+
+这一版只做一件事：**把图谱更新到 1.1.94 的代码，并确保它没有错。**
+
+- **刷新**：`npm run graphify:refresh` 强制重抽 AST（旧基线停在 `998808a`，不强制就吃不到新技能）。结果 **2863 → 2888 节点、7435 → 7477 边、116 → 118 社区**，`validationErrors: []`。1.1.94 新增的三个验证层技能确认已进图（`skills/redteam/*.md` 覆盖 **119/119**）。
+- **更新过程中撞了两次真实退化，都修了**：
+  - **① 语义名丢失**：re-cluster 后社区重新编号，`graphify label` 报「renamed 112 community(ies) by their hub」，**1893 个节点的语义社区名退回 hub 文件名**（`RedteamStore`、`model-js` 这种）。我试过按节点集合相似度做迁移，失败——因为 graphify 的备份目录里 `graph.json` 是当前图快照，拿不到旧社区成员关系。最终用 LLM 重命名 117/118，手工补最后 1 个（`Locale Check And Build`），恢复 **118/118 全语义化、兜底名 0**。
+  - **② 三产物不一致**：只改 `graph.json` 不改 `.graphify_labels.json`，下次 `label` 会把名字又覆盖回去。两个文件必须同一份真相。
+- **新增第 19 关 `check-graph`**（图谱一致性）：这是本版最重要的产出——**之前所有闸门都看不见图谱退化**，因为图谱不在代码路径上。六项机器校验：
+  1. 结构完整（nodes/links/hyperedges 非空）
+  2. **悬空边 0**（每条边的两端都能在 nodes 里找到）
+  3. 社区覆盖（每个节点都有 community 与 community_name）
+  4. **无兜底名**（不是 `Community N`、不是裸文件名、不是裸 `fn()`）
+  5. **三产物一致**（graph.json 与 .graphify_labels.json 逐社区比对）
+  6. 报告与 HTML 已同步（抽样 5 个社区名必须都能找到）
+- **反向探针三连验**（确认闸门不是摆设）：造一个整社区改回 `model-tools.js` → 报红；插一条悬空边 → 报红；从标签文件删一个社区 → 报红。三次恢复后立即转绿。
+- 闸门 18 → **19**；`verify` 19 关全绿、`check-package` 问题 0。
+
+## English
+
+This release does one thing: **bring the graph up to 1.1.94's code and prove it is correct.**
+
+- **Refresh**: `npm run graphify:refresh` forces a full AST re-extract (the old baseline was pinned at `998808a`, so without `--force` new skills never enter the graph). Result: **2863 → 2888 nodes, 7435 → 7477 edges, 116 → 118 communities**, `validationErrors: []`. All three new verification-layer skills are in the graph (`skills/redteam/*.md` coverage **119/119**).
+- **Two real regressions hit during the update, both fixed**:
+  - **Loss of semantic names**: after re-clustering the community ids changed, `graphify label` reported "renamed 112 community(ies) by their hub", and **1893 nodes fell back to hub filenames** (`RedteamStore`, `model-js`). I tried remapping by node-set similarity first - it failed because graphify's backup `graph.json` is a snapshot of the current graph, not the old community membership. LLM relabelling covered 117/118, one hand-fixed (`Locale Check And Build`), restoring **118/118 semantic names, 0 fallbacks**.
+  - **Three artifacts disagreeing**: editing `graph.json` without `.graphify_labels.json` means the next `label` run overwrites the names again. Both files must hold the same truth.
+- **New gate 19 `check-graph`** (graph consistency) - the most important output of this release, because **no previous gate could see graph decay**: the graph is not on any code path. Six machine checks: structure intact, **zero dangling edges**, community coverage, **no fallback names**, **three artifacts agreeing**, and report/HTML synced.
+- **Three reverse probes** confirmed the gate bites: set a whole community back to `model-tools.js` → red; insert a dangling edge → red; delete a community from the labels file → red. All three recovered to green immediately.
+- Gates 18 → **19**; `verify` 19 gates green, `check-package` problems 0.
+
 # 1.1.94
 
 ## 中文
