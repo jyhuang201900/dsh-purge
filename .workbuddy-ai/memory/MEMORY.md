@@ -1,14 +1,14 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 56 工具 / 5 角色 / 25 得分点）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 56 工具 / 5 角色 / 25 得分点 / 20 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 发版流程
 - **大改造前先建三层安全点**（1.1.94 定型）：`git tag -a vX-pre-xxx` + `git branch backup/xxx` + 物理 `cp -r skills/` 到仓库外。三者都要推远端。tag 管 commit 回滚、分支管完整树、物理备份管 gitignore 的东西（skills/ 与 .cache/ 不入库）。
 1. 改 lib/default-prompt-inject.md（gitignore 源）→ **必须跑** `node scripts/embed-default-prompt.mjs` 重封入 lib/asset-table.js（加密表入库，明文不入库）；zh 版同步。
 2. package.json + 三份 README（Version 行 + dsh:// 链接 version=）一起 bump；release-notes.md 中英双段置顶。
-3. `node --check` 改动 JS；`node scripts/verify.mjs`（19 关）；`node scripts/check-package.mjs`（问题须 0）。
+3. `node --check` 改动 JS；`node scripts/verify.mjs`（20 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
    - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 9a180b7 = 1.1.90（1.1.95 需重钉）。
@@ -36,6 +36,15 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 - **图谱：`graphify:refresh` 会让社区语义名全丢**（聚类 id 变、被 hub 文件名覆盖），用 id/相似度迁移是死路（备份 graph.json 已被覆盖）。**直接重跑 `npm run graphify:label`** 重新 LLM 命名，这是唯一可靠路径。
 - **图谱刷新后必跑 `node scripts/check-graph.mjs`**（第 19 关）：结构/兜底名/三产物同步/社区覆盖四类。反向探针要**整社区改名**才测得出——只改单节点不报红（社区名由多数节点决定）。
 - 图谱产物：2888 节点 / 7477 边 / 118 社区 / 34 超边（1.1.95）。
+
+## 审计与同步（1.1.96 定型，最容易反复踩）
+- **改条令后必须两条跑 diff**：字数差 + 逐条 bullet 比对。只看字数不知道缺哪条。1.1.96 实测生效稿缺 18/28 条而字数只差 6729——1.1.94 所有验证层条令在用户稿里零生效。
+- **工具描述 ≠ 使用时机**：模型知道工具干嘛，不等于知道何时调它。第 20 关 `check-tool-reachability` 守这条（曾 31/56 工具零技能提及）。
+- **判据用 `includes` 就是漏洞**：`redteam_chain` 被 `redteam_chain_add` 子串蒙过，闸门报全覆盖。判「是否提到」必须词边界 `\b(?!_)`。
+- **验证层要接进链路生成器才有人用**：手工写技能引用率只有 2/116。改 `build-skill-graph.mjs` 的 `renderSection` 自动指路 → 94%。改生成器，别手工改 114 个文件。
+- **宿主同步要两处**：技能 `~/.dsh/redteam/skills/` + 插件包 `~/.dsh/profiles/desktop/node_modules/dsh-purge/lib/generated/`（索引在此）。技能同步后 MCP 立即反映（读盘）；**代码如 model-tools.js 要重启宿主**。
+- **`timeout N git push | tail` 输出空 + exit 0 是假象**：进程被静默杀掉。核实必须用 `git rev-list --count origin/master..HEAD`。真错误要 `GIT_TERMINAL_PROMPT=0 -c credential.helper=` 才看得见。
+- 审计工具：`node scripts/check-tool-reachability.mjs`（第 20 关）、`node scripts/check-graph.mjs`（第 19 关）、`node scripts/check-detection-pairing.mjs`（第 18 关）。
 
 ## 关键机制
 - **用户 override 整份替换出厂条令**：`~/.dsh/prompt-inject.md` 存在且 `override_status: custom` 时，改出厂 `lib/default-prompt-inject.md` **对实际行为零影响**。改提示词必须两处都改。
