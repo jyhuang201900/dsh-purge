@@ -1,3 +1,100 @@
+# 1.1.97
+
+## 中文
+
+补齐 references：153 处引用全部闭环，113 个技术参考文件从零写出。
+
+**这是全库最大的一处断链。** 技能正文里明确写着「Load `references/xxx.md` 看检查清单，
+含工具命令、验伤判据、常见坑」——但那些文件不存在。全库原本只有 2 个 references
+（http-smuggling 拆出去的两篇），而**153 处引用里有 149 处指向空气**。
+
+这个断链比之前修的任何一条都隐蔽：
+
+- 技能本身语法正确、能加载、能检索，任何代码闸门都看不见
+- references 不在代码路径上，`git status` 也看不出来
+- 模型照着找会扑空，而且**它分不清「我不知道」和「文件丢了」**——只会当成自己没找到，
+  然后凭猜测编内容。这是最坏的失败模式：不是拒绝回答，是自信地编。
+
+根因：这批技能从上游包（`dsh-reverse-skill` 的 CTF-Sandbox-Orchestrator 系列）改写而来，
+**搬了技能正文，没搬附件**。压缩版正文保留了「见 references/xxx.md」的指引，文件留在了原包。
+
+## 怎么补的
+
+113 个文件，93.7 万字，平均每篇 8295 字。按域并行写：
+
+| 组 | 文件数 | 覆盖 |
+| --- | --- | --- |
+| AD / 凭据 / 内网 | 10 | 委派、ADCS（ESC1-15）、DPAPI、LSASS、中继强制认证、横移 |
+| 云 / 固件 / 供应链 | 18 | K8s 控制面、容器逃逸、云 metadata、固件封装、SBOM、CI/CD |
+| 逆向 / 取证 / 移动 | 26 | Ghidra/IDA、Go/Rust、.NET 混淆、堆栈内核 pwn、EDR unhook、iOS/Android hook、时间线、隐写 |
+| Web / API / AI / 流程 | 59 | REST/GraphQL、JWT/OAuth、SSTI、竞态、WebSocket、OWASP LLM、Agent 安全、协议逆向、输出契约 |
+
+**每篇都按同一标准写**（这是质量闸门，不是建议）：
+
+- 真实可执行命令，完整参数与示例值（112/113 篇有代码块）
+- **验伤信号**：怎么证明真的成功，并列「看起来成功其实是假」的反例（107 篇）
+- **检测视角**：防守方在哪个日志、看到什么信号、具体事件 ID（97 篇）
+- **常见坑**：实战最容易失败的 3-6 个点（107 篇）
+
+## 第 21 关：references 引用完整性
+
+把「承诺 vs 实物」做成机器比对。判据：技能正文里每处 `references/xxx.md` 必须有对应文件
+（支持 `<refs>/<rel>` 与 `<refs>/<skill-id>/<rel>` 两种布局，也支持跨技能引用）。
+
+按目标文件聚合输出，一个文件被多个技能引用时只报一次——修一次消多条。
+
+反向探针验过：造一条假引用立刻报红，退出码 1，并指名引用者。
+
+## 顺带修：闸门数自证的数字表
+
+`check-package.mjs` 里中英文数字映射只到 20，闸门到 21 就报「文档口径过期」而无法自动匹配。
+补到 30，以后加关不用再改。
+
+verify 21 关全绿，check-package 问题 0，技能 119，references 113。
+
+## English
+
+Closed the references gap: all 153 citations now resolve, 113 technical reference files written from scratch.
+
+**This was the largest broken link in the library.** Skill bodies explicitly say "Load `references/xxx.md`
+for the checklist, tool commands, verification criteria and pitfalls" — but those files did not exist.
+The repo had only 2 reference files total, while **149 of 153 citations pointed at nothing**.
+
+Why this failure mode is the worst one:
+
+- Skills parse, load and search fine — no code gate can see it
+- references are not on the code path, so `git status` shows nothing either
+- the model follows the pointer, finds nothing, and **cannot distinguish "I don't know" from
+  "the file is missing"** — it treats it as its own failure and proceeds to guess. That is not
+  refusal, that is confident fabrication.
+
+Root cause: these skills were adapted from an upstream package (`dsh-reverse-skill`'s
+CTF-Sandbox-Orchestrator series). The skill bodies were carried over; the attachments were not.
+
+## What was written
+
+113 files, 937k characters, 8,295 average. Written in four parallel domain groups:
+
+| Group | Files | Coverage |
+| --- | --- | --- |
+| AD / credentials / intranet | 10 | delegation, ADCS ESC1-15, DPAPI, LSASS, relay coercion, pivoting |
+| Cloud / firmware / supply chain | 18 | K8s control plane, container escape, cloud metadata, firmware formats, SBOM, CI/CD |
+| Reverse / forensics / mobile | 26 | Ghidra/IDA, Go/Rust, .NET obfuscators, heap/stack/kernel pwn, EDR unhook, iOS/Android hooking, timeline, stego |
+| Web / API / AI / workflow | 59 | REST/GraphQL, JWT/OAuth, SSTI, races, WebSocket, OWASP LLM, agent security, protocol reversing, output contract |
+
+Every file follows one standard: real runnable commands with full parameters (112/113 have code
+blocks); **verification evidence** including "looks successful but is actually fake" counter-examples
+(107); **detection perspective** with concrete log sources and event IDs (97); **pitfalls** — the
+3-6 most common real-world failures (107).
+
+## Gate 21 — reference integrity
+
+Machine-compares promise against reality. Every `references/xxx.md` citation must resolve to a real
+file, supporting both flat and per-skill layouts plus cross-skill references. Grouped by target file
+so one fix clears all citations at once. Reverse probe verified: a fabricated citation fails
+immediately with exit code 1 and names the citing skill.
+
+verify 21/21 green, check-package 0 issues, 119 skills, 113 references.
 # 1.1.96
 
 ## 中文

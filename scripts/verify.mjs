@@ -163,6 +163,24 @@ if (!skip("graph")) {
   }
 }
 
+// 关 21：references 引用完整性——技能里承诺的参考文件必须真的存在。
+// 由来：2026-11-14 实测 153 处 `references/xxx.md` 引用里 149 处指向不存在的文件
+// （全库只有 2 个 references 文件）。技能正文写着「Load references/xxx.md 看检查清单」，
+// 模型照着找会扑空，而且它分不清「我不知道」和「文件丢了」——只会当成自己没找到。
+// 这类断链任何代码闸门都看不见：references 不在代码路径上，技能语法正确、能加载、能检索。
+// 只有「承诺 vs 实物」的比对能发现。
+if (!skip("references")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-references.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`references 引用未闭环：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("引用")) || "";
+    notes.push(`引用完整性：${stat.replace(/^\[check-references\]\s*/, "")}`);
+  }
+}
+
 // 关 20：工具可达性——注册了但没有任何技能说「何时用」，等于哑工具。
 // 由来：2026-11-14 实测 31/56（55%）工具零技能点名。演练台、资产评估、POC 复用、
 // 角色稿这四类几乎无人提及——模型有工具但不知道什么时候该用，只能靠工具描述猜。

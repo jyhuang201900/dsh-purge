@@ -251,7 +251,7 @@ export KRB5CCNAME=administrator.ccache && impacket-psexec -k -no-pass <domain>/a
 ## 参考
 
 - `references/ad-attack-paths.md`
-- `../pentest-tools/references/network-attack-defense.md`
+- `references/network-attack-defense.md`（防守视角：日志留痕与噪声等级）
 - `../attack-chain/`
 - seeds: `落地记录/seed-005_ad-certipy-esc1.md` `seed-007_ntlm-relay-coercer.md` `seed-013_kerberoasting-spn.md`
 
