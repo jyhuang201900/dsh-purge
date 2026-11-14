@@ -1,3 +1,77 @@
+# 1.1.96
+
+## 中文
+
+全功能审计版：把「装了却用不上」的四处断链全接上，并新增第 20 关闸门。
+
+**一、生效稿缺 6729 字（最严重的发现）**
+
+实测宿主里实际生效的 `prompt-inject.md` 只有 25301 字，出厂默认 32030 字。逐条比对：**28 条进攻条令里生效稿只有 9 条**，缺 18 条——火力阶梯、命中即追击、进攻节奏、首发即中、汇报即态势板、最强进攻手优先级、思考链五格弹仓、方向锁定、减少环节、生成物即资产（工程性/连续性/项目性三条）等全部不在。即 1.1.94 补的验证层条令，在你的实际稿里一条都没生效。
+
+已按出厂原文精确插入 18 条（你的自定义措辞一字未改，剩 2 条「听懂长官的话」「反向约束」你的写法已等效覆盖，不重复添加）。生效稿 25301 → 30027 字，占预算 60%。
+
+**二、31/56 工具是哑工具**
+
+模型能看到 56 个 `redteam_*` 工具，但其中 31 个（55%）在任何技能里都没提过"什么时候用"——演练台、资产评估、POC 复用、角色稿这四类几乎无人提及。`redteam-setup` 补「演练台工具全表」，按七类用途把全部 56 个工具的触发时机写清。零点名工具 31 → 0。
+
+**三、验证层建了却没人知道**
+
+1.1.94 建的三个验证元技能（verification-discipline / detection-pairing / attack-traceability），**只有 2/116 的技能引用它们**。改链路生成器，让每个攻击技能收口时自动指路（元技能自身与纯流程类不加，避免自指）。引用率 2% → 94%。四个空白维度同步跃升：
+
+```
+检测配对     3% → 91%
+补丁后复测   5% → 91%
+误报验证     5% → 92%
+ATT&CK 映射  3% → 92%
+```
+
+**四、检索身份混淆（工具名被拆词）**
+
+查 `redteam_score_report` 时，整串在技能名里几乎命不中，被拆成 report/score 去模糊匹配，首屏全是被 `competition-container-runtime` 这类偶然提了一句 "Report" 的技能占据，真正写它用法的 `redteam-setup` 不在列表里。两处根因：
+
+- 索引抽取的英文正则不含下划线，`redteam_score_report` 在 `redteam` 处就断，只剩 `redteam` 进索引
+- `searchSkills` 缺「工具名直查」通道
+
+已修：下划线标识符整体入索引（噪音论证：几乎不存在普通英文单词形态，实测 56 工具名 + 十几个环境变量）+ 查询形如 `redteam_*` 时走精确直查并卡首位。55/56 工具名入索引。
+
+**五、第 20 关：工具可达性闸门**
+
+把「哑工具」做成机器拦截。反向探针验过：删掉工具全表立刻从 0 报回 31/56（55%）；退出码 1。
+
+**该闸门第一版有假阴性**：`redteam_chain` 被 `redteam_chain_add` 的子串蒙过（`includes` 匹配），闸门报"全覆盖"而该工具实际裸奔。改用词边界匹配 `\b(?!_)` 后立刻抓出。记进教训：**用 includes 做「是否提到」的判据，本身就是漏洞**。
+
+**六、宿主同步断裂**
+
+宿主 `~/.dsh/redteam/skills/` 停在 11-12 的 116 个技能，仓库已到 119——三个新技能从未同步进去；`http-smuggling` 宿主里还是 23687 字的旧版（payload 库内联），仓库已拆成 6807 字 + `references/`，宿主连 references 目录都没有。已全量同步，宿主 MCP 实时确认 119/119 可用。
+
+**七、补薄域**
+
+- `database-security` 995 → 5561 字：按库型判型表（MySQL/PG/MSSQL/Mongo/Redis/Oracle 的未授权特征、命令执行路径、读文件路径）、权限边界确认、三条真实命令执行路径 + 逐条验伤信号、Redis 未授权写 cron 完整链、应用账号到 DBA 的横向、只读取证优先
+- `email-security` 1080 → 4064 字：原始头三项一致性、SPF/DKIM/DMARC 看对齐结果不看有无记录、仿冒三特征、邮箱侧持久化（隐藏转发规则 / 委派 / OAuth 同意）——这块比钓鱼本身更值钱
+
+闸门 19 → 20，技能 119。verify 20 关全绿，check-package 问题 0。
+
+## English
+
+Full capability audit: reconnected four broken links where things were installed but never usable, plus gate 20.
+
+**1. Live override was missing 6,729 chars.** The actual `prompt-inject.md` in the host had 25,301 chars vs 32,030 in the factory default. Item by item: only 9 of 28 attack-doctrine clauses were present — 18 missing entirely (fire ladder, pursue-on-hit, one-shot-per-round pacing, first-shot lethality, situation-board reporting, priority ordering, five-slot thinking magazine, direction lock, step reduction, generated-assets-as-assets incl. the three disciplines). Every verification-layer clause added in 1.1.94 was absent from the live copy. Inserted the 18 clauses verbatim from the factory source without touching custom wording; 25,301 → 30,027 chars (60% of budget).
+
+**2. 31 of 56 tools were silent.** Models see 56 `redteam_*` tools but 31 (55%) were never mentioned in any skill, so the model could only guess when to use them — drill-platform, asset assessment, PoC reuse and role-prompt families were almost entirely absent. Added a complete tool table to `redteam-setup` grouped by seven purposes. Silent tools 31 → 0.
+
+**3. Verification layer built but unreachable.** The three meta-skills added in 1.1.94 were referenced by only 2 of 116 skills. Changed the link-graph generator so every attack skill points to them at wrap-up (excluding the meta-skills themselves and pure-flow roles to avoid self-reference). Reference rate 2% → 94%; the four blank dimensions jumped: detection pairing 3% → 91%, post-patch retest 5% → 91%, false-positive validation 5% → 92%, ATT&CK mapping 3% → 92%.
+
+**4. Search identity confusion.** Querying `redteam_score_report` tokenised into report/score and matched irrelevant skills; the skill documenting it was absent. Two root causes: the index extractor's English regex excluded underscores (truncating at `redteam`), and `searchSkills` had no exact tool-name channel. Fixed both: underscore identifiers indexed wholesale, and `redteam_*` queries take an exact-first path. 55/56 tool names indexed.
+
+**5. Gate 20 — tool reachability.** Machine-enforced against silent tools. Reverse probe verified: removing the tool table drops it back to 31/56 with exit code 1. The first version had a false negative — `redteam_chain` was masked by the `redteam_chain_add` substring via `includes`; switching to word-boundary matching exposed it immediately.
+
+**6. Host sync was broken.** `~/.dsh/redteam/skills/` was frozen at 116 skills from 11-12 while the repo had 119; `http-smuggling` was still the 23,687-char inline version. Fully synced; host MCP confirms 119/119 available.
+
+**7. Thin domains expanded.** `database-security` 995 → 5,561 chars (per-engine triage table, privilege-boundary confirmation, three real execution paths with verification signals, Redis write-to-cron chain, app-to-DBA lateral movement, read-only evidence first). `email-security` 1,080 → 4,064 chars (header triple-consistency, alignment results over record existence, impersonation signals, mailbox-side persistence via hidden forwarding rules, delegation and OAuth consent).
+
+Gates 19 → 20, skills 119. verify 20/20 green, check-package 0 issues.
+
+
 # 1.1.95
 
 ## 中文

@@ -94,5 +94,6 @@ Use this skill when the hard part is not "is there Kerberos here," but which del
 - **阶段**：5 内网渗透
 - **互补**（同类场景一起用）：`competition-identity-windows`、`competition-k8s-control-plane`、`competition-kernel-container-escape`、`competition-linux-credential-pivot`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`vuln` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）
 
 <!-- /skill-link-graph -->

@@ -112,6 +112,76 @@ mkdir -p "$DSH_HOME/redteam" && date -Is > "$DSH_HOME/redteam/.setup-complete"
 
 **降级决定要写进汇报**：用户需要知道这次是在什么条件下打的。
 
+## 六、演练台工具全表（56 个里，这些最容易漏用）
+
+演练台不是"记笔记的地方"，是**主会话与子会话共享的唯一事实源**。会话一断、上下文一清，只有落库的东西还在。
+以下工具按用途分组——**括号里是"什么时候必须想起来用它"**，不是可选装饰。
+
+### 靶标与会话（多开会话时最容易串库）
+
+| 工具 | 什么时候用 |
+| --- | --- |
+| `redteam_engagement_open` | 开工第一个动作：建/复用一个靶标，并把**当前会话**绑上去（子会话自动继承） |
+| `redteam_session_bind` | 多会话并行时，给每个会话绑自己的靶标，防止互串写库 |
+| `redteam_session_info` | 派活前先确认"我这会话到底绑的是哪个靶标" |
+| `redteam_sessions` | **每次决策前后都要看**：一屏总览已上线 WebShell、可用隧道（含可达网段）、凭据、访问会话 |
+| `redteam_agent_slot` | 派活前查并发名额（同靶标最多 3 个，`REDTEAM_MAX_AGENTS` 可调） |
+
+### 资产（信息收集的收口动作）
+
+| 工具 | 什么时候用 |
+| --- | --- |
+| `redteam_asset_stats` | 收集收口：看 C 段数、存活资产、端口、服务、指纹、溯源条数，判断有没有断层 |
+| `redteam_asset_get` | 深入分析单个目标：全部端口与服务、指纹、采集时间线、关系边 |
+| `redteam_asset_graph` | 拓扑推理与横向路径规划（C 段 → 资产 → 端口 → 域名解析边） |
+| `redteam_domain_index` | 按域名聚合：主域名、子域与 C 段的关系 |
+| `redteam_asset_timeline` | 回答"这个资产什么时候发现的"、核对本轮收集完整性 |
+| `redteam_asset_assess` | **收口时对每个资产跑一次**：预期成果（账号/ RCE/服务器权限/数据库/敏感数据/边界突破）+ 优先级 + 理由，供指挥者按性价比排序 |
+
+### 漏洞、打击与得分
+
+| 工具 | 什么时候用 |
+| --- | --- |
+| `redteam_vuln_query` | 挑待利用目标、核对误报（按严重级/状态/CVE/资产/C 段过滤） |
+| `redteam_attack_path` | 攻击图谱：资产拓扑 + 漏洞节点 + 已控制资产，用于横向规划与汇报 |
+| `redteam_attack_chain` | 五阶段链路视图（① 信息收集 → ② 互联网资产权限 → ③ 边界突破 → ④ 内网资产权限 → ⑤ 靶标权限） |
+| `redteam_score_report` | **交付报告用这个**：只收"拿到分"的成果，每条附可直接粘贴复现的原始请求 |
+| `redteam_report_targets` / `redteam_report` | **已弃用**，改用 `redteam_score_report`（老靶标兼容才用） |
+| `redteam_score_point_save` | 发现规则里有未记录的分项时补录（带 id 改、不带 id 增） |
+
+### 证据与文件（"没落库的发现等于没发生"）
+
+| 工具 | 什么时候用 |
+| --- | --- |
+| `redteam_shot_add` | 命中当轮登记证据截图，关联得分点；报告会嵌入。批量得分点（如终端权限）每个最多 3 张代表图 |
+| `redteam_shot_list` / `redteam_shot_delete` | 查/删已登记截图 |
+| `redteam_attack_file_list` | **新写脚本前先查**：有现成的就复用改参，禁止同义重写 |
+
+### WebShell 与隧道
+
+| 工具 | 什么时候用 |
+| --- | --- |
+| `redteam_webshell_list` / `redteam_webshell_update` | 查在线状态；被删/掉线/权限变化时更新 |
+| `redteam_tunnel_list` | 查隧道与可达网段。**`legit=false` 表示只在自己 VPS 上开的通道，不算跨越靶标，不计分** |
+
+### POC 知识库（复用比自己造快）
+
+| 工具 | 什么时候用 |
+| --- | --- |
+| `redteam_poc_list` | 盘点手上现成武器（可按 kind/source/component/verified 过滤） |
+| `redteam_poc_use` | 记一次复用（用在哪个靶标），复用多的排前面 |
+| `redteam_poc_update` | **真实目标验证通过后必须回来**把 `verified` 置真并写 `verified_note` |
+
+### 角色稿（子会话的武器）
+
+| 工具 | 什么时候用 |
+| --- | --- |
+| `redteam_roles` | 查有哪几个角色（信息收集 / 漏洞检测 / 漏洞利用 / 内网渗透） |
+| `redteam_role_prompt` | 查某角色当前生效的系统提示词；派活时在 subagent prompt 第一行写 `redteamRole: <code>`，**不要把全文抄进任务** |
+| `redteam_role_prompt_reset` | 老靶标想用上最新版角色提示词时重置（省略 role 则四个全重置） |
+
+**一句话记法**：开工 `engagement_open` → 收集收口 `asset_stats` + `asset_assess` → 每个决策前 `sessions` → 命中即 `vuln_add` + `shot_add` → 交付 `score_report`。
+
 
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->

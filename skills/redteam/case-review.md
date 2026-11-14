@@ -165,7 +165,7 @@ This skill has no third-party dependency. If Python 3 is unavailable, the only a
 
 1. **同类替代**（链路里的互补技能，手法最接近）：`attack-chain`、`browser-automation`、`cn-proxy-pool`、`ctf-sandbox-orchestrator`
 
-2. **前提没满足就先回去**：`digital-forensics`、`malware-analysis` —— 上一环没做实，本环再试也是空打
+2. **前提没满足就先回去**：`attack-traceability`、`digital-forensics`、`malware-analysis` —— 上一环没做实，本环再试也是空打
 
 3. **无回显 / 被拦**：先用 `oob-verification` 确认是不是真没打进去（没回显 ≠ 没命中）；确认被 WAF 拦就转 `waf-bypass`
 

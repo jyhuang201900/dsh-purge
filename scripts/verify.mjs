@@ -163,6 +163,22 @@ if (!skip("graph")) {
   }
 }
 
+// 关 20：工具可达性——注册了但没有任何技能说「何时用」，等于哑工具。
+// 由来：2026-11-14 实测 31/56（55%）工具零技能点名。演练台、资产评估、POC 复用、
+// 角色稿这四类几乎无人提及——模型有工具但不知道什么时候该用，只能靠工具描述猜。
+// 这条与「幽灵引用」（技能提到不存在的工具）是一对反问题：一个是有枪没靶，一个是有靶没枪。
+if (!skip("tools")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-tool-reachability.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`工具可达性未过：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("注册工具")) || "";
+    notes.push(`工具可达性：${stat.replace(/^\[check-tool-reachability\]\s*/, "")}`);
+  }
+}
+
 // 关 18：验证层闸门——攻击必配检测。第 17 关管「措辞自相矛盾」，这一关管「有没有证明能力」。
 // 由来：2026-11-14 调研实测「检测配对」维度只覆盖 3%、「误报验证」4%——插件只会打、
 // 不会说「怎么证明打穿了」和「对手能不能发现」。加技能能补文档，但**文档不会自己生效**：

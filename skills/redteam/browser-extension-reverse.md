@@ -108,5 +108,6 @@ second-shot:end -->
 - **下游**（产出交给谁）：`thick-client`
 - **互补**（同类场景一起用）：`js-reverse`、`thick-client`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）
 
 <!-- /skill-link-graph -->

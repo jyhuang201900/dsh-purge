@@ -1,6 +1,6 @@
 {
   "name": "dsh-purge",
-  "version": "1.1.95",
+  "version": "1.1.96",
   "description": "DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。Jailbreak for every model — swap prompts per model. Built-in red-team attack doctrine and 119 drill skills (five phases plus 9 chain overviews).",
   "type": "module",
   "main": "lib/index.js",

@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.1.95</strong></p>
+<p align="center"><strong>Version 1.1.96</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。内置红队进攻条令与 119 个演练技能（按五阶段组织：信息收集 / 资产梳理 / 漏洞发现 / 漏洞利用 / 内网渗透，另有 9 条链路总览）。</em>
@@ -133,7 +133,7 @@ dsh plugin --profile desktop add https://github.com/jyhuang201900/dsh-purge/arch
 插件市场里按 npm 包名搜会 404（npm 上没有这个包），用上面的 GitHub 归档命令。桌面客户端也可以点按钮（`dsh://` 唤起，下载地址已是 GitHub）：
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.95&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>唤起客户端一键安装</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.96&repo=jyhuang201900%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2Fjyhuang201900%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>唤起客户端一键安装</strong></a>
 </p>
 
 ### 装完都要做这三步
@@ -420,7 +420,7 @@ DSH 会按顺序执行同一批中的 Bash 调用。旧版 dsh-purge 把默认�
 
 ## 本地校验
 
-一条命令过十九关（语法 / 体积预算 / 双语文案（含源↔内联）/ 清单一致性 / 包自证 / 工具面 / 验证层 / 图谱一致性 / 确认条款 / 端到端情景 / 弹药层审计 / 磁盘卫生夹具 / CLI 冒烟 / 写路径冒烟 / 工具层冒烟 / 纸面功夫 / 技能流水线 / 范围闸 / JSON 合法），未通过时退出码非 0：
+一条命令过二十关（语法 / 体积预算 / 双语文案（含源↔内联）/ 清单一致性 / 包自证 / 工具面 / 验证层 / 图谱一致性 / 工具可达性 / 确认条款 / 端到端情景 / 弹药层审计 / 磁盘卫生夹具 / CLI 冒烟 / 写路径冒烟 / 工具层冒烟 / 纸面功夫 / 技能流水线 / 范围闸 / JSON 合法），未通过时退出码非 0：
 
 迭代时可以点跳重活：`node scripts/verify.mjs --skip write,cli`（或 `DSH_VERIFY_SKIP=write,cli`）。实测三档耗时：全量 12 关 22.3 秒 → 跳 `write` 7.6 秒 → 再跳 `cli` 5.1 秒（旧参数 `--skip-size` 实为「除语法外全跳」，2.4 秒；名字与行为不一致，保留兼容但新用法以 `--skip` 为准）。可用短名：`size,locale,manifest,package,tools,scenario,ammo,hygiene,cli,write,json`。
 
@@ -490,7 +490,7 @@ npm run verify
 | `npm run smoke:write` | 写路径冒烟：在临时夹具上跑 revert→apply→apply→revert，逐文件字节对账（apply 幂等、revert 往返、跑完自收尾） |
 | `npm run smoke:tools` | 工具层冒烟：真执行 `purge_apply` / `purge_revert`，断言返回的 hosts 数与「单次往返逐文件回到官方原文」 |
 | `npm run audit:graph` | 图谱孤儿审计：找零入边且无人提名的代码文件（有名分的手动 CLI 不算孤儿） |
-| `npm run report` | 体检报告：按顺序复用十九关与探测器，产出 markdown 汇总表（`.cache/report-<日期>.md`）；`--no-net` 跳过三条外网项，`npm run report -- --check-debt` 追加「挂账复查」段（逐条复查验收单第六节：路由是否随重启转绿、注入字数、本轮残差、真宿主 sidecar 取证、刻意没做的四项）。耗时由脚本自测；未重启时 `--verify-live` 那一行为 exit=1 属常态，不是新缺陷 |
+| `npm run report` | 体检报告：按顺序复用二十关与探测器，产出 markdown 汇总表（`.cache/report-<日期>.md`）；`--no-net` 跳过三条外网项，`npm run report -- --check-debt` 追加「挂账复查」段（逐条复查验收单第六节：路由是否随重启转绿、注入字数、本轮残差、真宿主 sidecar 取证、刻意没做的四项）。耗时由脚本自测；未重启时 `--verify-live` 那一行为 exit=1 属常态，不是新缺陷 |
 | `npm run verify` | 一条命令过八关 |
 | `npm run build:client` | 重打前端 bundle |
 | `npm run graphify` | 重建知识图谱（AST + 手写语义层） |

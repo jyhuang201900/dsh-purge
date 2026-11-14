@@ -403,9 +403,18 @@ function extractProper(text) {
     if (n >= 21 && n <= 65535) out.add(m[1]);
   }
   // ③ 英文/产品名（Ollama、Langflow、Milvus、e-cology 这种都在这条里）
+  //    **必须含下划线**：工具名是 redteam_xxx 这种形式，不含下划线会在 redteam 处断开，
+  //    于是 redteam_score_report 只剩 "redteam" 进索引——查工具名永远命不中写它用法的技能。
+  //    实测：redteam_score_report 的首屏被 competition-container-runtime 占据（它正文里
+  //    偶然有 "Report"），真正写它用法的 redteam-setup 不在列表里。
   for (const m of src.matchAll(/\b[A-Za-z][A-Za-z0-9][A-Za-z0-9._-]{1,24}\b/g)) {
     const w = m[0];
     if (w.length >= 2 && !SEARCH_STOP.has(w.toLowerCase())) out.add(w);
+  }
+  // ③b 下划线标识符整体保留（工具名 / 变量名）：单独一条，避免影响上面产品名的匹配
+  for (const m of src.matchAll(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/gi)) {
+    const w = m[0];
+    if (w.length >= 5 && w.length <= 40) out.add(w);
   }
   return out;
 }
@@ -473,13 +482,23 @@ const searchIndex = skills.map((s) => {
      但英文名只从摘要+标题取——正文 66.6 万字里扫英文词会引入巨量噪音
      （普通单词也算「专有名词」），那比没有索引更糟。 */
   const cve = new Set([...raw.matchAll(/\b(?:CVE|CNVD|CNNVD)-\d{4}-\d{3,7}\b/gi)].map((m) => m[0]));
+  /* 正文里的下划线标识符（工具名 / 环境变量）是**例外**，必须扫全文。
+     为什么：工具名的唯一写处就是正文（表格、命令），frontmatter 里从不出现；
+     而查工具名（redteam_score_report）是模型最自然的用法——「这个工具怎么用」。
+     噪音论证：下划线标识符几乎不存在普通英文单词形态（≤1%，实测 56 个工具名 +
+     十几个环境变量），远低于扫全部英文词的噪音水平，所以这条特例是安全的。 */
+  const underscore = new Set(
+    [...raw.matchAll(/\b[a-zA-Z][a-zA-Z0-9]*(?:_[a-zA-Z0-9]+)+\b/g)]
+      .map((m) => m[0])
+      .filter((w) => w.length >= 5 && w.length <= 40)
+  );
   const proper = extractProper(`${s.id} ${s.summary} ${s.whenToUse} ${headings.join(" ")}`);
   /* 中文产品名（泛微/致远/用友…）主要写在 description 与 whenToUse 里，不在标题里。
      这两段是**人写的短句**，质量高，所以按分隔符拆开后同样过 isGoodCn——
      不要图省事把整段 description 丢进长句切窗，那正是噪音的来源。 */
   const cn = extractCnFromHeadings([...headings, s.summary, s.whenToUse]);
   const extra = [s.id, s.domain, s.stageName].filter((w) => w && !SEARCH_STOP.has(w));
-  const base = [...new Set([...cve, ...proper, ...cn, ...extra])];
+  const base = [...new Set([...cve, ...underscore, ...proper, ...cn, ...extra])];
   const keys = applySynonyms(base);
   return {
     id: s.id,
@@ -526,6 +545,19 @@ function renderSection(s) {
   if (comp.length) L.push("- **互补**（同类场景一起用）：" + comp.map((x) => "`" + x + "`").join("、"));
   if (s.records.length) L.push("- **落库**（做完必须记进演练台，没落库的发现等于没发生）：" + s.records.map((x) => "`" + x + "`").join("、") + " —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据");
   else L.push("- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台");
+  /* 验证层指路：攻击技能只会「打」，不会「证明」和「说清隐蔽性」——这是 2026-11-14
+     12 维度矩阵实测出来的空白（检测配对 3%／误报验证 5%／补丁后复测 5%／ATT&CK 5%）。
+     三个元技能建好后只有 2/116 的技能引用它们，等于建了没人知道。这条自动指路让
+     每个攻击技能在收口时都能被拉到验证层，不必靠作者记得手写。
+     元技能自身、以及纯流程类（flow/aux）不加，避免自指与噪声。 */
+  const VERIFY_META = ["verification-discipline", "detection-pairing", "attack-traceability"];
+  if (!VERIFY_META.includes(s.id) && s.stage !== "flow" && s.stage !== "aux") {
+    L.push(
+      "- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；" +
+        "打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；" +
+        "说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）"
+    );
+  }
   L.push("");
   L.push(LINK_END);
   return L.join("\n");

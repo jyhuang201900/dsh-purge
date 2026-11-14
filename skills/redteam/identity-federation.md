@@ -224,5 +224,6 @@ second-shot:end -->
 - **专项下游**（同主题更深的靶子面）：`competition-oauth-oidc-chain`
 - **互补**（同类场景一起用）：`windows-ad`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`credential`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）
 
 <!-- /skill-link-graph -->
