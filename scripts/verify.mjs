@@ -163,6 +163,23 @@ if (!skip("graph")) {
   }
 }
 
+// 关 27：报告链路完整性——记漏洞/步骤/得分时关联字段是否传全。
+// 由来：2026-11-14 实测 chain_add 只传 stage_code/tool/result，丢了 title/vuln_id；
+// score_add 只传 point_id/evidence，丢了 vuln_id/asset_id。后果是「写入成功但报告无法复现」：
+// withSteps=0、withCommands=0、missingRequests=1、incomplete=1。
+// 这类问题写入时完全看不出来，只有出报告才暴露，所以必须端到端跑一遍。
+if (!skip("report")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-report-chain.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`报告链路不完整：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("指标")) || "";
+    notes.push(`报告链路：${stat.replace(/^\[check-report-chain\]\s*指标\s*/, "")}`);
+  }
+}
+
 // 关 26：工具 schema 与宿主校验器一致。
 // 由来：宿主 defineTool 在 execute 前强制 validate(args)，且只支持
 // type/enum/required/additionalProperties/items/properties/description/default/oneOf。

@@ -1,3 +1,153 @@
+# 1.1.107
+
+## 中文
+
+上一轮的 `chain_add` 修复验证通过，顺着追下去发现**同一个病还有第二处**：`score_add` 也丢关联字段。
+
+## 一、chain_add 修复已验证
+
+传 `stage=exploit name=SQL注入拿库 row=4`：
+
+```
+chain_add 已写入｜末步=internet:SQL注入拿库:回显 3 个库｜关联漏洞=4
+（stage="exploit" 不是阶段码，按旧名映射为 internet；可用码：recon/internet/boundary/internal/target）
+```
+
+数据库确认：`stage_code=internet / title=SQL注入拿库 / detail=回显 3 个库 / vuln_id=4`，全部正确。
+阶段告警也不再被吞——用户当场看到"exploit 是旧名、已映射成 internet"。
+
+## 二、但报告指标没改善 → 追出第二处丢字段
+
+修完 `chain_add` 后报告仍然是 `withSteps=0 withCommands=0 missingRequests=1 incomplete=1`。
+步骤明明写对了，为什么报告还说没有？
+
+查 `score_hit` 表：
+
+```
+{"id":1,"point_id":4,"asset_id":null,"vuln_id":null,"step_id":null,...}
+```
+
+**`score_add` 也只传了 `point_id/value/evidence`**，没传 `vuln_id`。而报告归因链是：
+`step.vuln_id` ← 由 `hit.vuln_id` 驱动 → 两边都是 null，永远连不上。
+
+已补全：`vuln_id`（row）、`target`、`stage_code`。
+
+## 三、第 27 关：报告链路完整性（不重启验证）
+
+这关在进程内跑完整链路「建靶 → 建资产 → 记漏洞 → 记步骤 → 记分 → 出报告」，
+断言五件事：
+
+```
+✓ 有计分条目  ✓ 有得分  ✓ 有复现步骤  ✓ 有复现命令  ✓ 报告完整(incomplete=0)
+```
+
+实测输出：`{"count":1,"points":50,"withSteps":1,"withCommands":1,"incomplete":0}`
+
+**为什么这关必须存在**：关联字段丢失在**写入时完全看不出**——工具返回"已写入 XX"，
+数据也真在库里，只有出报告才会发现"无法复现"。这是最容易让用户白干一整轮的一类问题。
+
+写这个闸门时踩了三个坑，都记在脚本注释里：
+
+1. `openEngagement` 返回**对象** `{id,name,scope}`，取整个对象会生成 `object-object/` 目录
+2. `scoreReport` 的指标在 `.summary` 里，不在顶层
+3. 临时目录不能删——DB 句柄未关会 `EBUSY`
+
+## 四、这一处缺陷的共性
+
+`chain_add` 和 `score_add` 是同一个病：**store 支持完整字段，tool 层只传了三个**。
+
+```
+store.addChainStep(id, { title, detail, vuln_id, asset_id, point_code, evidence, ... })
+store.addScoreHit(id,  { asset_id, vuln_id, step_id, target, ... })
+```
+
+而 tool 层各传了三个。这类"接口比调用方宽，调用方只用了一小部分"的问题，
+静态看代码很难发现——因为调用看起来完全正常，返回值也是成功。
+
+**判据：凡写入类工具，都要问一句「store 这个方法还支持哪些字段？我传全了吗？」**
+现在有了第 27 关，这类问题会当场拦下。
+
+## 验证
+
+```
+verify 27 关全绿
+check-package 问题 0
+报告链路：count=1 points=50 withSteps=1 withCommands=1 incomplete=0
+工具 schema：10/10 经宿主校验器确认
+```
+
+## English
+
+Last round's `chain_add` fix verified — and following it down revealed **the same disease in a
+second place**: `score_add` also drops association fields.
+
+## 1. chain_add fix verified
+
+Passing `stage=exploit name=SQL注入拿库 row=4`:
+
+```
+chain_add written｜last step=internet:SQL注入拿库:回显 3 个库｜linked vuln=4
+（stage="exploit" is not a stage code, mapped to internet by legacy name; valid: recon/internet/boundary/internal/target）
+```
+
+DB confirms `stage_code=internet / title / detail / vuln_id=4` all correct. The stage warning is no
+longer swallowed either.
+
+## 2. But report metrics didn't improve → second dropped-field defect
+
+After fixing `chain_add`, the report still read `withSteps=0 withCommands=0 missingRequests=1
+incomplete=1`. The step was written correctly — why does the report still say it's missing?
+
+Checking `score_hit`:
+
+```
+{"id":1,"point_id":4,"asset_id":null,"vuln_id":null,"step_id":null,...}
+```
+
+**`score_add` also only passed `point_id/value/evidence`** — no `vuln_id`. And the report's
+attribution chain is driven by `hit.vuln_id`; with both sides null, they can never connect.
+
+Fixed: `vuln_id` (from row), `target`, `stage_code`.
+
+## 3. Gate 27: report chain completeness (no restart)
+
+Runs the full chain in-process — open engagement → asset → vuln → step → score → report — and
+asserts five things:
+
+```
+✓ has score entry  ✓ has points  ✓ has steps  ✓ has commands  ✓ complete (incomplete=0)
+```
+
+Measured: `{"count":1,"points":50,"withSteps":1,"withCommands":1,"incomplete":0}`
+
+**Why this gate must exist**: dropped association fields are **invisible at write time**. The tool
+returns "written", the row really is in the DB, and only the report reveals "cannot reproduce".
+That is the class of bug most likely to waste an entire round of a user's work.
+
+Three pitfalls hit while writing it, recorded in the script's comments:
+
+1. `openEngagement` returns an **object** `{id,name,scope}`; passing the whole object creates an
+   `object-object/` directory
+2. `scoreReport`'s metrics live under `.summary`, not at the top level
+3. Don't delete the temp dir — the open DB handle causes `EBUSY`
+
+## 4. The common shape of this defect
+
+`chain_add` and `score_add` are the same disease: **the store supports the full field set, the tool
+layer passed only three each.**
+
+```
+store.addChainStep(id, { title, detail, vuln_id, asset_id, point_code, evidence, ... })
+store.addScoreHit(id,  { asset_id, vuln_id, step_id, target, ... })
+```
+
+This "interface wider than the caller" pattern is hard to see statically — the call looks perfectly
+normal and returns success.
+
+**Rule: for every write tool, ask "what else does this store method accept, and did I pass it all?"**
+Gate 27 now catches this class on the spot.
+
+verify 27/27 green, check-package 0 issues.
 # 1.1.106
 
 ## 中文
