@@ -1,3 +1,166 @@
+# 1.1.103
+
+## 中文
+
+上一轮的两处验证通过，这轮把「工具装了就忘」这个老问题又挖深了一层。
+
+## 验证结果（活宿主实测）
+
+```
+① 展示片段 = 「委派」          （不再是「么利用」）
+② purge_drill schema = 1366 字符（预算 1600，改前 2281）
+③ 仓库与宿主 model-tools.js 均 137237 字节
+```
+
+## 补掉的问题：34 个工具只在「工具表」里登记过一次
+
+上一轮第 20 关守住了「零技能点名为 0」，我就顺着查了一层「只提及 1 次的有多少」——
+
+```
+56 个工具里，34 个只出现 1 次
+```
+
+抽查后发现那唯一的一次，全部来自 `redteam-setup.md` 的工具表：
+
+```
+| `redteam_asset_graph` | 拓扑推理与横向路径规划（C 段 → 资产 → 端口 → 域名解析边） |
+```
+
+**这张表本身写得很好**（每行都有「什么时候用」），但它是「目录式登记」，不是「场景式调用指引」。
+模型在做资产测绘时，不会想到去翻一个叫 `redteam-setup` 的技能查工具名。
+
+这和第 1.1.96 那次的验证层问题一模一样：建好了元技能，但只有 2/116 的技能引用它——
+解药是**改生成器自动指路**，而不是手工改 100+ 个文件。
+
+所以这次同样改 `build-skill-graph.mjs` 的 `renderSection`，按技能**实际产出的实体类型**
+（`s.records`）推出该用哪些数据面工具：
+
+```
+asset     → asset_stats / asset_get / asset_graph / asset_timeline
+vuln      → vuln_query
+credential→ sessions
+access    → sessions
+webshell  → webshell_list + tunnel_list
+tunnel    → tunnel_list
+```
+
+并在「收口必做」那段补上 `redteam_report`（出交付物）和
+`redteam_attack_chain` / `redteam_attack_path`（串整条链路）——
+这两个是收口核心工具，却同样只在 setup 里登记过。
+
+结果：
+
+```
+只提及 1 次：34 → 23
+配套工具指路覆盖：0 → 81 个技能
+收口必做指路覆盖：107 个技能
+```
+
+剩下 23 个多是对会话绑定、角色提示词、得分点、单条 POC 读写这类
+「只在特定时刻用一次」的工具，只提及一次是合理的。
+
+## 闸门也补了
+
+第 20 关原来只查「零提及」。这轮加了三项：
+
+- 「只提及 1 次」计数（上限 30，当前 23）
+- 「收口必做」指路覆盖率（下限 100，当前 107）
+- 「配套工具」指路覆盖率（下限 75，当前 81）
+
+**为什么加覆盖率而不是只加计数**：实测删掉单个技能的指路行，「只提及 1 次」的计数不变
+（同名工具在别处还有指路），探针抓不到单点退化；覆盖率能立刻反映出来（81 → 80）。
+
+阈值留了余量（不是精确卡死），因为闸门该拦系统性退化，不该拦每一次单点改动。
+
+## 一个判断失误
+
+我最初的映射表里写了 `poc` / `domain` / `segment` 三种 records 类型——
+实测 `records` 的真实取值只有 `access/asset/credential/stage/tunnel/vuln/webshell`，
+我那三个**永远不触发**。这类「看起来配了其实空转」的映射最容易骗过 review，已按实际取值重写。
+
+## English
+
+Last round's two fixes verified. This round digs deeper into the recurring "tool exists but nobody
+remembers to use it" problem.
+
+## Verified in the live host
+
+```
+1. Display fragment = 「委派」           (no longer 「么利用」)
+2. purge_drill schema = 1366 chars      (budget 1600, was 2281)
+3. Repo and host model-tools.js both 137237 bytes
+```
+
+## Problem fixed: 34 tools were mentioned exactly once, all in a tool table
+
+Gate 20 guarded "zero-mention tools = 0". I looked one level deeper — how many are mentioned only once:
+
+```
+34 of 56 tools appear exactly once
+```
+
+Sampling showed every single one of those mentions comes from `redteam-setup.md`'s tool table:
+
+```
+| `redteam_asset_graph` | topology inference and lateral path planning (C-segment → asset → port → DNS edge) |
+```
+
+**The table itself is good** (each row says when to use it), but it is a *catalog entry*, not a
+*scenario-based call instruction*. A model doing asset mapping won't think to open a skill called
+`redteam-setup` to look up a tool name.
+
+This is exactly the 1.1.96 verification-layer problem again: meta-skills built, but referenced by
+only 2/116 skills. The cure then was **teaching the generator to emit pointers**, not hand-editing
+100+ files.
+
+So this round changes `renderSection` in `build-skill-graph.mjs` to derive relevant data-plane
+tools from each skill's **actual output entity types** (`s.records`):
+
+```
+asset      → asset_stats / asset_get / asset_graph / asset_timeline
+vuln       → vuln_query
+credential → sessions
+access     → sessions
+webshell   → webshell_list + tunnel_list
+tunnel     → tunnel_list
+```
+
+Also added `redteam_report` (deliverables) plus `redteam_attack_chain` / `redteam_attack_path`
+(end-to-end chain view) to the "closing checklist" section — both are closing-stage core tools
+that had only ever been listed in the setup table.
+
+Results:
+
+```
+Mentioned exactly once: 34 → 23
+「配套工具」pointer coverage: 0 → 81 skills
+「收口必做」pointer coverage: 107 skills
+```
+
+The remaining 23 are session binding, role prompts, score points, single-POC read/write — tools
+used exactly once at a specific moment, so single mention is appropriate.
+
+## Gate 20 extended
+
+Previously it only checked zero-mention. Added:
+
+- "Mentioned exactly once" count (limit 30, current 23)
+- 「收口必做」pointer coverage (floor 100, current 107)
+- 「配套工具」pointer coverage (floor 75, current 81)
+
+**Why coverage rather than just the count**: removing a single skill's pointer does not change the
+"mentioned once" count (the tool is still pointed at elsewhere), so the probe can't see it.
+Coverage drops immediately (81 → 80).
+
+Thresholds leave headroom on purpose — the gate should catch systemic regressions, not every
+single-point edit.
+
+## One wrong judgment
+
+My first mapping table listed `poc` / `domain` / `segment` as records types. Testing showed the
+actual values are only `access/asset/credential/stage/tunnel/vuln/webshell`, so those three
+**would never fire**. That "configured but dead" pattern is the easiest kind to miss in review;
+rewritten against the real values.
 # 1.1.102
 
 ## 中文

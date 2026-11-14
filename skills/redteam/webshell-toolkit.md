@@ -106,6 +106,8 @@ curl -s "https://target.example.com/upload/x.jsp?cmd=id"
 - **下游**（产出交给谁）：`privesc-persistence`、`suo5-tunnel`
 - **互补**（同类场景一起用）：`shell-handler`、`vps-reverse-shell`
 - **落库**（做完必须记进演练台，没落库的发现等于没发生）：`webshell`、`access` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
-- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）
+- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）。**出交付物用 `redteam_report`**（kind=score 出计分战报、kind=targets 出靶标清单），整条链路串起来看用 `redteam_attack_chain` / `redteam_attack_path` —— 这两个只在 `redteam-setup` 的工具表里登记过，做具体攻击时不会想到去翻，所以在这里点名
+
+- **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_webshell_list` 配 `redteam_tunnel_list`（先看已有什么入口，再决定新开还是复用）；`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）
 
 <!-- /skill-link-graph -->

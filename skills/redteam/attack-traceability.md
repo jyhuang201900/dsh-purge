@@ -169,4 +169,5 @@ second-shot:end -->
 - **互补**（同类场景一起用）：`detection-pairing`、`verification-discipline`
 - **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
 
+
 <!-- /skill-link-graph -->

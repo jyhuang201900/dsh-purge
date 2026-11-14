@@ -660,8 +660,40 @@ function renderSection(s) {
     L.push(
       "- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；" +
         "打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；" +
-        "说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）"
+        "说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）。" +
+        "**出交付物用 `redteam_report`**（kind=score 出计分战报、kind=targets 出靶标清单），" +
+        "整条链路串起来看用 `redteam_attack_chain` / `redteam_attack_path` —— 这两个只在 `redteam-setup` 的工具表里登记过，" +
+        "做具体攻击时不会想到去翻，所以在这里点名"
     );
+  }
+  L.push("");
+  /* 相关工具指路：56 个工具里有 34 个**只在 redteam-setup 的工具表里出现过一次**，
+     属于"目录式登记"而非"场景式调用指引"。模型做资产测绘时不会想到去翻一个叫
+     "redteam-setup" 的技能查工具名，于是这些工具装了却用不上。
+     （1.1.96 那次验证层也有同样的问题：建好元技能但只有 2/116 技能引用，
+     改生成器自动指路后升到 94%。同一条经验在这里再应用一次。）
+
+     按技能**实际产出的实体类型**（s.records）推该用哪些数据面工具，而不是按技能名猜：
+     产出 asset → 提醒图查询/时间线；产出 vuln → 提醒按 CVE 检索与证据关联。
+     只对有落库实体的技能加，纯流程类不加，避免噪声。 */
+  /* 映射只覆盖 records 里**真实存在**的类型（实测全部取值：
+     access / asset / credential / stage / tunnel / vuln / webshell）。
+     写不存在的类型等于永远不触发 —— 这类"看起来配了其实空转"的映射最容易骗过 review。 */
+  const TOOL_BY_RECORD = {
+    asset: "`redteam_asset_stats`（收集收口先看断层：C 段数/存活/端口/服务/指纹/溯源条数）、`redteam_asset_get`（深入单个目标：全部端口服务+指纹+采集时间线）、`redteam_asset_graph`（C 段→资产→端口→域名 的拓扑，找横向路径用它而不是肉眼翻列表）、`redteam_asset_timeline`（发现时间线，判断哪些是新冒出来的）",
+    vuln: "`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）",
+    credential: "`redteam_sessions`（一屏看已上线 WebShell、隧道可达网段、凭据、访问会话）",
+    access: "`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）",
+    webshell: "`redteam_webshell_list` 配 `redteam_tunnel_list`（先看已有什么入口，再决定新开还是复用）",
+    tunnel: "`redteam_tunnel_list`（可达网段是横向的边界，别凭记的 IP 段推算）",
+  };
+  const tips = [];
+  for (const r of s.records) {
+    const tip = TOOL_BY_RECORD[r];
+    if (tip) tips.push(tip);
+  }
+  if (tips.length && s.stage !== "flow" && s.stage !== "aux") {
+    L.push("- **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：" + [...new Set(tips)].join("；"));
   }
   L.push("");
   L.push(LINK_END);
