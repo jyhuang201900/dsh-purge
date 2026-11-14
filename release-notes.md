@@ -1,3 +1,160 @@
+# 1.1.111
+
+## 中文
+
+这轮查**连续性**——插件的前提是「会话一断、上下文一清，只有落库的东西还在」，但我实测发现这个承诺只兑现了一半。
+
+## 一、缺口：落库的只有「成果」，没有「试过但没通」
+
+实测发现两个问题，指向同一个空白：
+
+**① 失败的尝试无处可记，只能被塞进漏洞表**
+
+我试着记「SSRF 试了 3 种 payload 都不通」，唯一能塞的地方是 `entity_add entity=vuln`，结果漏洞表里出现：
+
+```
+· #5 title=尝试但失败的SSRF｜low/candidate
+```
+
+**这条会污染漏洞统计，还可能被后续当成战果。** 而 `VULN_STATUSES` 只有
+`candidate/confirmed/false-positive/exploited/fixed` —— 没有「打了但没打通」这一类。
+
+**② `stages` 只列阶段名，没有进度**
+
+```
+· recon（信息收集）
+· internet（互联网资产权限）
+· boundary（边界突破）
+```
+
+新会话看完不知道哪一步做到哪了。
+
+**根因**：`attack_step` 有 `result`（原始回显），但**没有字段区分成功/失败**。于是「哪些路已经堵死」这件事在库里根本不存在，新会话只能重走一遍。
+
+## 二、修法：给动作加 `outcome`，并让 summary 点名
+
+**① 表结构**：`attack_step` 加 `outcome`（ok / fail / partial）
+
+独立字段而不是复用 `result` 前缀——`result` 是原始回显（报告里要保留原文做证据），
+混进「成功/失败」标记后，那段回显就不再是原始材料了。
+
+**② 老库兼容**：`migrate()` 里加 `ensure('attack_step','outcome','TEXT')`。
+实测验证：库删掉该列后重新打开，自动补回（否则升级即崩）。
+
+**③ 输入归一化**：`ok/success/成功`、`fail/failed/失败/不通`、`partial/部分` 都认。
+写不认识的值就**不写**（而不是存个乱码让下个会话按「未标注」处理）——
+这跟「静默降级」是同一类问题。
+
+**④ summary 点名**：
+
+```
+已试过但不通 2 条（**别重试，换路子**）：
+  · [不通] SSRF 打 AWS metadata｜手法：curl http://169.254.169.254/latest/meta-data/
+  · [不通] gopher 打 Redis｜手法：curl gopher://127.0.0.1:6379/_INFO
+```
+
+**⑤ 返回值确认**：写入时直接告诉用户这条会进「已试过但不通」，下个会话能看到。
+
+## 三、连续性闭环（实机验证）
+
+```
+记失败 → 返回值"结果=不通（已记入「已试过但不通」，下个会话会看到）"
+      → summary 累积显示两条
+      → 新会话据此不再重试
+```
+
+## 四、第 29 关：连续性闸门
+
+三项断言，都是进程内跑、不重启：
+
+1. `outcome` 能写能筛，中文「失败」归一化成 `fail`
+2. 不传 `outcome` 时**不被猜成某个值**（老数据保持未标注）
+3. **老库兼容**：删掉该列后重新打开，自动补回
+
+反向探针：撤掉 `ensure('attack_step','outcome',...)` 后报
+`✗ 老库打开后没自动补 outcome 列（升级即崩）`。
+
+## 五、一处需要说明的取舍
+
+我一开始想给 `attack_step` 加 `listAttackSteps` 方法时，直接写了 `store.listAttackSteps(...)`——
+**那个方法当时并不存在**。这是典型的「假设 API 存在」。
+
+后来按 `listStages` 的写法补上，并刻意加了 `outcome` 筛选参数，
+这样「只看失败」不必把全部步骤取回来再过滤。
+
+## 验证
+
+```
+verify 29 关全绿 ｜ check-package 问题 0
+连续性：步骤 4 条｜fail 可筛 2 条｜老库补列已验
+宿主 18505，版本 1.1.111，ready=true
+```
+
+## English
+
+This round examined **continuity** — the premise is "sessions die, context clears, only what's
+persisted survives" — and found that promise only half kept.
+
+## 1. Gap: only *results* were persisted, never *failed attempts*
+
+Two observations pointing at one blank:
+
+**1. Failed attempts had nowhere to go except the vuln table.** Recording "SSRF tried 3 payloads,
+none worked" could only go through `entity_add entity=vuln`, which produced:
+
+```
+· #5 title=尝试但失败的SSRF｜low/candidate
+```
+
+**That pollutes vuln statistics and can later be mistaken for a finding.** And `VULN_STATUSES`
+only has `candidate/confirmed/false-positive/exploited/fixed` — no "attempted but did not land".
+
+**2. `stages` listed only phase names, no progress.** A new session can't tell how far each phase got.
+
+**Root cause**: `attack_step` had `result` (raw output) but **no field distinguishing success from
+failure**. So "which paths are already dead" simply did not exist in the database, and a new
+session had to walk them all again.
+
+## 2. Fix: add `outcome` to steps, surface it in summary
+
+**1. Schema**: `attack_step` gains `outcome` (ok / fail / partial). A separate field rather than a
+`result` prefix — `result` is the raw output kept verbatim as evidence, and mixing a verdict into it
+would stop it being raw material.
+
+**2. Old-database compatibility**: `ensure('attack_step','outcome','TEXT')` in `migrate()`.
+Verified: drop the column, reopen, it comes back (otherwise upgrading breaks).
+
+**3. Input normalization**: accepts `ok/success/成功`, `fail/failed/失败/不通`, `partial/部分`.
+Unknown values are **not written** rather than stored as garbage that a later session reads as
+"unlabeled" — same class as silent degradation.
+
+**4. Summary names them**:
+
+```
+已试过但不通 2 条（**别重试，换路子**）：
+  · [不通] SSRF 打 AWS metadata｜手法：curl http://169.254.169.254/latest/meta-data/
+```
+
+**5. Write-time confirmation**: the return value states that this row will appear in that list.
+
+## 3. The continuity loop (verified live)
+
+Record a failure → return value confirms → summary accumulates → next session stops retrying.
+
+## 4. Gate 29
+
+Three assertions, all in-process: outcome writable and filterable (Chinese alias normalizes);
+absent outcome is **not guessed**; an old database lacking the column gets it back on open.
+
+Reverse probe reporting `✗ old DB did not get the outcome column` when the migration line is removed.
+
+## 5. One note on an assumption I made
+
+When adding `listAttackSteps`, I wrote `store.listAttackSteps(...)` before that method existed — the
+classic "assume the API exists". Added it following the `listStages` pattern, with an `outcome`
+filter so "show me only failures" doesn't require loading everything first.
+
+verify 29/29 green, host at 18505 running 1.1.111.
 # 1.1.109
 
 ## 中文

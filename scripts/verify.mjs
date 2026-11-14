@@ -163,6 +163,23 @@ if (!skip("graph")) {
   }
 }
 
+// 关 29：会话连续性——否定结果必须能被新会话读到。
+// 由来：插件的前提是「会话一断、上下文一清，只有落库的东西还在」，
+// 但过去落库的只有成果（漏洞/凭据/得分），**没有"试过但没通"**：
+// attack_step 只有 result（原始回显），没字段区分成败；summary 也没有任何地方列出已堵死的路。
+// 后果：新会话不知道「SSRF 试了 3 种 payload 都不通」，重走一遍，一轮白花。
+if (!skip("continuity")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-continuity.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`会话连续性未守住：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("步骤")) || "";
+    notes.push(`连续性：${stat.replace(/^\[check-continuity\]\s*/, "")}`);
+  }
+}
+
 // 关 28：复现模板占位符审计。
 // 由来：2026-11-14 实测 db-credential 的 script 模板写成 `mysql -h <host> -u <user> -p -e ...`，
 // 丢了 <port> 与 <pass>，而且裸 `-p` 在真实 mysql 里是「交互式提示输密码」——贴进脚本会挂住等输入。
