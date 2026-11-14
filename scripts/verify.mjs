@@ -163,6 +163,22 @@ if (!skip("graph")) {
   }
 }
 
+// 关 24：检索索引质量——泛词、summary 覆盖、模板词残留。
+// 由来：2026-11-14 审阅实测四层噪音叠加（英文模板标题 Workflow×44、生成块正文 ×32、
+// 阶段名「漏洞发现」×43、普通英文词 surface×41），导致任何查询都命中几十个技能、排序失效。
+// 索引质量差**不会报错**，只会让模型"找不到对的东西"——症状极隐蔽，必须有闸门。
+if (!skip("search")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-search-index.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`检索索引质量未守住：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("技能")) || "";
+    notes.push(`检索索引：${stat.replace(/^\[check-search-index\]\s*/, "")}`);
+  }
+}
+
 // 关 23：事实库引用完整性——asset_id 不许指向不存在的资产。
 // 由来：2026-11-14 逻辑审阅实测，schema 里 24 张表没有任何 FOREIGN KEY，应用层原先也不校验，
 // asset_id=99999 会写入成功并可查回（asset_ip 为 null）。后果不是"多一条脏数据"：

@@ -1,3 +1,134 @@
+# 1.1.99
+
+## 中文
+
+状态口径与检索质量版：修 3 处缺陷，新增第 24 关。这轮的收获是**索引质量有一层套一层的噪音**。
+
+## 一、补丁状态有 5 种格式，且「缺文件」维度完全丢失
+
+同一个补丁状态在 5 个入口各写一遍：
+
+```
+core.js:7421      补丁 x/y 已清洗｜待清洗 N｜未命中 N｜不适用 N｜缺文件 N
+model-tools:617   明细：x/y 已清洗｜待清洗 N｜未生效 N          ← 少了「缺文件」
+model-tools:627   补丁 x/y 已清洗｜待清洗 N｜锚点未命中 N｜不适用 N  ← 没有「缺文件」
+model-tools:785   补丁 x/y 已清洗｜宿主 N 个｜分层：...          ← 完全不同的维度
+bin:33            补丁 x/y 已清洗, N 待清洗, N 锚点未命中...      ← 逗号分隔
+```
+
+字段不一致（一处叫「未生效」一处叫「锚点未命中」），而且 **三处没有报「缺文件」**。
+
+更要命的是 state 层面就丢了：`patchTally` 里明明有 `missing` 维度，但 `index.js` 写对外状态时只写
+`applied/pending/skipped/ready/na/total`，**没有 `patches_missing`**。密封宿主下实测
+`patches_na=76, patches_total=0` —— 面板显示「0/0 已清洗」，用户看不出「有 76 条补丁、
+一条都没打上，因为目标文件不存在」，只会以为插件坏了。
+
+修：state 补 `patches_missing`；`ai_base` 为空时 `total` 也报真实总数（用 `patch_names` 的条数）；
+`model-tools` 抽出唯一的 `patchLine(state)`，两处共用；`core.js` 的「未命中」统一成「锚点未命中」。
+
+## 二、索引里 119 个技能的 summary / whenToUse 全是空串
+
+这是上一轮我加「中文长词回退」时埋的坑：回退读 `s.summary` / `s.whenToUse` 做片段匹配，
+但 `build-skill-graph` 生成 searchIndex 时**只写了 `why`（两者合成），没写这两个字段本身**。
+
+于是回退永远在空字符串里找片段：
+
+```
+查「内网只拿到一个普通域账号」→ suo5-tunnel（靠「拿到一」）
+查「前端有混淆怎么逆向」      → dotnet-reverse（靠「混淆/逆向」），js-reverse 排第二
+```
+
+修：把 `summary` / `whenToUse` 原样带出。覆盖率 0/119 → 119/119。
+
+## 三、查询侧片段不该同权（「拿到一」和「Kerberos」一个分量）
+
+片段匹配只数命中个数，于是通用虚词和领域词各算一票。改成按「这个词有多像关键词」加权：
+
+- 片段长度 4 字 > 3 字 > 2 字
+- 命中索引 keys（该技能真把它当关键词收录）×2
+- 命中技能名分段 ×2
+- 另加查询侧停用片段（拿到/怎么/如何/一个/普通…）直接丢弃
+
+## 四、第 24 关：检索索引质量
+
+索引质量差**不会报错**，只会让模型「找不到对的东西」——症状极隐蔽。而这轮实测发现噪音
+**是一层套一层的**，每修一层冒出下一层：
+
+| 层 | 噪音 | 出现次数 | 根因 |
+| --- | --- | --- | --- |
+| ① | Workflow / Quick / Start / Reference | 44 / 43 / 42 / 41 | competition-* 从英文上游搬来，`## Quick Start` 被当关键词 |
+| ② | 表会过期 / 命令不会 / 复核 | 各 32 | 只剥了生成块注释标记，没剥正文 |
+| ③ | 漏洞发现 / 漏洞利用 / 内网渗透 | 43 / 31 / 29 | `stageName` 进了 extra，同阶段技能全绑一起 |
+| ④ | surface / Map / Decisive / Reduce | 41 / 27 / 24 / 22 | 英文抽取只判「长度≥2」，句子开头的词全当专有名词 |
+
+靠静态黑名单永远追不上（每修完一层就冒出新的）。最终收口方案是**动态频次过滤**：
+一个词出现在 ≥15% 的技能里（119 → ≥18）就剔除。这条规则自动跟随技能库增长，不需要维护名单。
+
+效果：最高频词 44 → 17，平均关键词 43 → 29，零关键词 0。
+
+闸门守四件事：泛词阈值、summary 覆盖率 100%、零关键词为 0、模板词不残留。
+反向探针：注入泛词×30 + 清空一个 summary，立刻报两条红。
+
+## 验证
+
+```
+verify 24 关全绿 ｜ check-package 问题 0
+索引：119 技能 / 平均 29 关键词 / 最高频 17 / summary 119-119 / 零关键词 0
+```
+
+## English
+
+Status consistency and search-index quality: 3 defects fixed, gate 24 added. The lesson this
+round is that **index noise comes in layers**.
+
+## 1. Patch status had 5 different formats, and "missing file" was lost entirely
+
+The same status was rendered five ways across the codebase, with inconsistent field names
+("未生效" vs "锚点未命中") and **three of them never reported missing files**. Worse, the state
+layer dropped it too: `patchTally` computed `missing` but `index.js` never wrote
+`patches_missing`. On a sealed host this showed as `patches_na=76, patches_total=0` — the panel
+said "0/0 patched", which reads as "the plugin is broken" rather than "76 patches, none applied,
+because the target files are inside a sealed asar".
+
+Fixed: state now carries `patches_missing`; `total` reports the real count even when `ai_base`
+is empty; `model-tools` extracts a single `patchLine(state)` shared by both renderers.
+
+## 2. All 119 skills had empty summary / whenToUse in the index
+
+Self-inflicted last round: the Chinese fallback reads `s.summary` / `s.whenToUse` for fragment
+matching, but the generator only wrote a combined `why` field, never the two fields themselves.
+The fallback was searching empty strings.
+
+Coverage 0/119 → 119/119.
+
+## 3. Query-side fragments were weighted equally
+
+"拿到一" counted the same as "Kerberos". Now weighted by length, index-key membership (×2), and
+skill-name segment membership (×2), plus a query-side stop list.
+
+## 4. Gate 24 — search index quality
+
+Bad index quality never errors; it just makes the model fail to find things. And the noise
+came in layers — every fix surfaced the next one:
+
+| Layer | Noise | Count | Cause |
+| --- | --- | --- | --- |
+| 1 | Workflow / Quick / Start / Reference | 44 / 43 / 42 / 41 | English section headings from upstream packages |
+| 2 | 表会过期 / 命令不会 / 复核 | 32 each | Only comment markers stripped, not the generated body |
+| 3 | 漏洞发现 / 漏洞利用 / 内网渗透 | 43 / 31 / 29 | `stageName` fed into keys, binding whole stages together |
+| 4 | surface / Map / Decisive / Reduce | 41 / 27 / 24 / 22 | English extraction accepted any word ≥2 chars |
+
+Static blocklists can never keep up. The fix that closed it is **dynamic frequency filtering**:
+drop any key appearing in ≥15% of skills (≥18 of 119). This rule follows the library as it grows
+with no list to maintain.
+
+Result: max frequency 44 → 17, average keys 43 → 29, zero keyword-less skills.
+
+The gate enforces: frequency threshold, 100% summary coverage, zero keyword-less skills, no
+template words. Reverse probe verified: injecting a word into 30 skills and clearing one summary
+fails immediately with two findings.
+
+verify 24/24 green, check-package 0 issues.
 # 1.1.98
 
 ## 中文

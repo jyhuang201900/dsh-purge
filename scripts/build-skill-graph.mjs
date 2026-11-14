@@ -407,9 +407,44 @@ function extractProper(text) {
   //    于是 redteam_score_report 只剩 "redteam" 进索引——查工具名永远命不中写它用法的技能。
   //    实测：redteam_score_report 的首屏被 competition-container-runtime 占据（它正文里
   //    偶然有 "Report"），真正写它用法的 redteam-setup 不在列表里。
-  for (const m of src.matchAll(/\b[A-Za-z][A-Za-z0-9][A-Za-z0-9._-]{1,24}\b/g)) {
+  /* ③ 英文/产品名（Ollama、Langflow、Milvus、e-cology 这种都在这条里）
+     必须能量出「这是专有名词」而不是普通英文词。原先判据只有「长度≥2 且不在停用表」，
+     于是 surface / authorized / Decisive / Reduce / Map / MUST 这些正文里的普通词
+     全进了索引 —— 实测 surface 出现 41 次、bundled_skills 37 次、Map 27 次，
+     等于把大批技能绑成一团，撞上就一起冒出来。
+
+     新的正面判据（满足任一条才算专有名词）：
+       · 首字母大写且是小写结尾（Ollama、Milvus、Kerberos、BloodHound）
+       · 全大写缩写 ≥2 字母（RBCD、ADCS、ETW、AMSI、JWT）
+       · 含数字（sha256、base64）
+       · 含点或连字符（e-cology、.NET、node.js、k8s-）
+     纯小写、无数字、无符号的普通词（surface/authorized/reduce）一律不收。 */
+  /* 首字母大写的词里，这些是句子开头的普通英文词，不是专有名词。
+     实测被误收的：Map（37 次）、To（26）、Decisive（24）、Reduce（22）、MUST（19）、
+     Prove、Acceptance、Trust、Abuse、Chain、Identity — 它们来自英文小标题的祈使句
+     （"Prove The Edge"、"Reduce Noise"），全部技能都有，撞上就整片冒出来。
+     判据：**首字母大写且长度≥4 且不在常见词表**才算专有名词。
+     Kerberos/Milvus/Langflow/BloodHound 都在，Map/To/Trust 都被挡掉。 */
+const EN_COMMON = new Set([
+  "map", "to", "the", "and", "for", "with", "from", "into", "your", "this", "that",
+  "reduce", "prove", "trust", "abuse", "chain", "reduce", "decisive", "acceptance",
+  "accept", "identify", "step", "goal", "note", "read", "see", "use", "using", "used",
+  "what", "when", "where", "which", "how", "why", "who", "make", "made", "take", "taken",
+  "must", "should", "could", "would", "will", "can", "may", "might", "need", "needs",
+  "keep", "preserve", "collect", "record", "check", "verify", "test", "tests", "testing",
+  "base", "basic", "common", "general", "quick", "start", "workflow", "reference",
+  "output", "input", "result", "results", "effect", "impact", "risk", "target", "targets",
+  "client", "server", "user", "users", "admin", "host", "hosts", "service", "services",
+  "surface", "evidence", "proof", "report", "status", "state", "mode", "type", "types",
+]);
+  for (const m of src.matchAll(/\b[A-Za-z][A-Za-z0-9._-]{1,24}\b/g)) {
     const w = m[0];
-    if (w.length >= 2 && !SEARCH_STOP.has(w.toLowerCase())) out.add(w);
+    if (w.length < 2 || SEARCH_STOP.has(w.toLowerCase())) continue;
+    const hasDigit = /\d/.test(w);
+    const hasPunct = /[._-]/.test(w);
+    const allCaps = /^[A-Z0-9]{2,}$/.test(w);
+    const capitalized = /^[A-Z][a-z]/.test(w) && w.length >= 4 && !EN_COMMON.has(w.toLowerCase());
+    if (hasDigit || hasPunct || allCaps || capitalized) out.add(w);
   }
   // ③b 下划线标识符整体保留（工具名 / 变量名）：单独一条，避免影响上面产品名的匹配
   for (const m of src.matchAll(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/gi)) {
@@ -468,16 +503,56 @@ function applySynonyms(keys) {
   return [...keys];
 }
 
+/* 剥生成块要连**正文**一起剥，不能只剥注释标记。
+   原先只做 `.replace(/<!--...-->/g,"")`，生成块的正文原样留下 ——
+   于是「本机工具实况」那张表（每个技能都有「表会过期」「命令不会」「复核」
+   「sync-tool-status.mjs」）全进了索引，各出现 32 次，等于把 32 个技能绑成一团。
+   按标题切段剥离：从这些标题开头，到下一个 `## ` 标题为止，整段丢弃。 */
+const GEN_SECTION = /^##\s+(第二发|链路位置|本机可执行性|本机工具实况)/;
+function stripGeneratedSections(text) {
+  const lines = text.split("\n");
+  const out = [];
+  let skipping = false;
+  for (const line of lines) {
+    if (/^##\s/.test(line)) skipping = GEN_SECTION.test(line);
+    if (!skipping) out.push(line);
+  }
+  return out.join("\n");
+}
+
 const searchIndex = skills.map((s) => {
-  const raw = fs.readFileSync(path.join(SKILLS, s.id + ".md"), "utf8")
-    .replace(/<!--[\s\S]*?-->/g, ""); // 先剥生成块注释，免得把生成标记当关键词
-  /* 生成块（第二发 / 链路位置 / 本机可执行性）是流水线产物，每个技能都有、内容雷同：
-     「主力打不出去」「结果落哪个库」「漏洞发现」这类词一旦入索引，会让所有技能互相命中，
-     排序立刻失去意义。按标题名剔除，而不是靠关键词黑名单猜。 */
-  const GENERATED_HEAD = /^(第二发|链路位置|本机可执行性)/;
+  const raw = stripGeneratedSections(
+    fs.readFileSync(path.join(SKILLS, s.id + ".md"), "utf8").replace(/<!--[\s\S]*?-->/g, "")
+  );
+  /* 生成块的**小标题**也要排除（正文已由 stripGeneratedSections 剥过，这里防的是
+     标题本身残留在 headings 里当关键词）。
+     **英文模板标题同样必须剔除。** competition-* 系列从英文上游改写而来，保留着
+     `## Quick Start` / `## Workflow` / `## What To Preserve` / `## Read This Reference`
+     这类结构性小标题。它们此前没被过滤，实测在索引里的出现次数：
+     Workflow 44、Quick 43、Start 42、Reference 41、Read 40 ——
+     任何查询只要撞上这些词就命中几十个技能，检索直接失效。
+     这类标题的共同特征是「讲文档结构、不讲技术内容」，按词剔除比按正则猜可靠。 */
+  const GENERATED_HEAD = /^(第二发|链路位置|本机可执行性|本机工具实况|常见坑|检查清单|工作流|路由上下文)/;
+  const STRUCTURAL_HEAD = new Set([
+    "quick start", "workflow", "what to preserve", "read this reference", "reference",
+    "references", "start", "quick", "what", "read", "preserve", "workflow",
+    "usage", "example", "examples", "notes", "note", "overview", "summary",
+    "introduction", "background", "checklist", "steps", "step",
+  ]);
   const headings = [...raw.matchAll(/^#{2,4}\s+(.+)$/gm)]
     .map((m) => m[1])
-    .filter((h) => !GENERATED_HEAD.test(h.trim()));
+    .filter((h) => {
+      const t = h.trim();
+      if (GENERATED_HEAD.test(t)) return false;
+      // 纯英文/短语形态的结构性标题（Quick Start / Workflow / Read This Reference）
+      if (STRUCTURAL_HEAD.has(t.toLowerCase())) return false;
+      // "Read This Reference"、"What To Preserve" 这类两三个词的祈使式小标题
+      if (/^[A-Z][a-z]+( [A-Za-z]+){1,3}$/.test(t) && !/[A-Z]{2,}/.test(t) && t.split(/\s+/).length <= 4) {
+        const low = t.toLowerCase().split(/\s+/);
+        if (low.some((w) => ["read", "what", "how", "why", "when", "quick", "see", "note", "reference", "preserve", "step", "usage"].includes(w))) return false;
+      }
+      return true;
+    });
   /* CVE 号生在正文表格里（不在 frontmatter），所以专有名词要扫全文；
      但英文名只从摘要+标题取——正文 66.6 万字里扫英文词会引入巨量噪音
      （普通单词也算「专有名词」），那比没有索引更糟。 */
@@ -497,19 +572,49 @@ const searchIndex = skills.map((s) => {
      这两段是**人写的短句**，质量高，所以按分隔符拆开后同样过 isGoodCn——
      不要图省事把整段 description 丢进长句切窗，那正是噪音的来源。 */
   const cn = extractCnFromHeadings([...headings, s.summary, s.whenToUse]);
-  const extra = [s.id, s.domain, s.stageName].filter((w) => w && !SEARCH_STOP.has(w));
+  /* stageName（「漏洞发现」「内网渗透」）**不能进 keys**：同一阶段的技能全都带它，
+     零区分度。实测「漏洞发现」在索引里出现 43 次、「漏洞利用」31 次、「内网渗透」29 次 ——
+     等于把整阶段绑成一团，查任何相关词都会先命中一堆同阶段技能。
+     阶段信息已经由 `stage` / `stageName` 字段单独承载（排序时用 rankOf 调层级），
+     不需要再当检索词。domain 同理：它比阶段更细，但同一域通常也只有几个技能，
+     实测没有造成成团（最大 22），保留它对"按域找"有用。 */
+  const extra = [s.id, s.domain].filter((w) => w && !SEARCH_STOP.has(w));
   const base = [...new Set([...cve, ...underscore, ...proper, ...cn, ...extra])];
-  const keys = applySynonyms(base);
   return {
     id: s.id,
     stage: s.stage,
     stageName: s.stageName,
     domain: s.domain,
-    keys,
+    /* summary / whenToUse 必须原样带出，不能只合成一个 why：
+       model-tools 的中文长词回退读的正是 s.summary / s.whenToUse，
+       而这两个字段此前从未写进索引 —— 于是回退永远在空字符串里找片段。 */
+    summary: s.summary || "",
+    whenToUse: s.whenToUse || "",
+    baseKeys: base,
     // why 是「命中时怎么解释」：模型看到的是理由，不只是一个光秃秃的名字
     why: s.whenToUse || s.summary || "",
   };
 });
+
+/* 动态泛词过滤：出现在过多技能里的词等于没有区分度。
+   为什么必须有这一层：静态黑名单永远不全 —— 我修掉了 Workflow/Quick/Map/Reduce，
+   又冒出 surface / bundled_skills / 工具链 / 声称完成 / 失败分支。这些都是"每个技能都
+   带一点"的通用词，靠人肉加名单追不上新技能的写法。
+   判据：一个词出现在 ≥ 15% 的技能里（119 个技能 → ≥18 个）就没有检索价值，剔除。
+   为什么不是更低的阈值：中文产品名（泛微/致远）和阶段内通用词（Kerberos 在域渗透里
+   出现 8~10 次）都还保有区分度，阈值定太低会误杀。
+   这条规则自动跟随技能库增长，不需要维护名单。 */
+const KEY_SPREAD_LIMIT = Math.max(6, Math.round(searchIndex.length * 0.15));
+const keyFrequency = new Map();
+for (const entry of searchIndex) {
+  for (const k of entry.baseKeys) keyFrequency.set(k, (keyFrequency.get(k) || 0) + 1);
+}
+const overSpread = new Set([...keyFrequency.entries()].filter(([, n]) => n >= KEY_SPREAD_LIMIT).map(([k]) => k));
+
+for (const entry of searchIndex) {
+  entry.keys = applySynonyms(entry.baseKeys.filter((k) => !overSpread.has(k)));
+  delete entry.baseKeys;
+}
 
 // 可达性自检：零关键词 === 存在于库里但找不到，这是闸门原来完全看不见的盲区
 const unreachable = searchIndex.filter((s) => !s.keys.length).map((s) => s.id);
