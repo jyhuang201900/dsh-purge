@@ -163,6 +163,39 @@ if (!skip("graph")) {
   }
 }
 
+// 关 23：事实库引用完整性——asset_id 不许指向不存在的资产。
+// 由来：2026-11-14 逻辑审阅实测，schema 里 24 张表没有任何 FOREIGN KEY，应用层原先也不校验，
+// asset_id=99999 会写入成功并可查回（asset_ip 为 null）。后果不是"多一条脏数据"：
+// 报告里这条记录没有关联主机，「打到了什么」答不出来，而它又确实计入得分与统计。
+// 这类缺陷在正常流程里永远不会暴露（正常用法都先建资产再挂漏洞），必须主动构造非法 id 才看得见。
+if (!skip("store")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-store-refs.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`事实库引用未守住：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("用例")) || "";
+    notes.push(`事实库引用：${stat.replace(/^\[check-store-refs\]\s*/, "")}`);
+  }
+}
+
+// 关 22：路径边界自测——symlink 逃逸。
+// 由来：2026-11-14 逻辑审阅实测，`assertPathWithin` 只做字符串前缀比对，在靶标目录里放一个
+// 指向根外的符号链接就能通过并读出根外文件，而它有 8 处调用点（截图 / POC / 攻击文件）。
+// 这类缺陷正常路径全绿、只有构造 symlink 才暴露，人眼审代码看不出来，必须实测。
+if (!skip("path")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-path-boundary.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`路径边界未守住：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("用例")) || "";
+    notes.push(`路径边界：${stat.replace(/^\[check-path-boundary\]\s*/, "")}`);
+  }
+}
+
 // 关 21：references 引用完整性——技能里承诺的参考文件必须真的存在。
 // 由来：2026-11-14 实测 153 处 `references/xxx.md` 引用里 149 处指向不存在的文件
 // （全库只有 2 个 references 文件）。技能正文写着「Load references/xxx.md 看检查清单」，

@@ -1,3 +1,180 @@
+# 1.1.98
+
+## 中文
+
+逻辑审阅版：把代码当整体读了一遍，找出 6 处真实缺陷并补强，新增 2 道闸门。
+
+## 审阅方法
+
+先刷新图谱（2916 节点 / 120 社区）看全局耦合，再按四类问题逐个实测：
+
+- **跨文件耦合** → `core.js` 被依赖 248 次、`index.js` 依赖别人 279 次，重点看这两个
+- **口径一致性** → 同一枚举在多文件重复定义的地方
+- **错误处理** → 619 处空 catch 逐个分类（结论：绝大多数是合理的探测型调用）
+- **引用完整性** → 数据库层面有没有约束
+
+关键纪律：**每个判断都实测，不靠读代码推断**。这次有 3 次推断是错的（见下）。
+
+## 修了什么
+
+**① 回滚动作面与 apply 不对称**（`core.js` / `uninstall.js`）
+
+`applyPatchesAllHosts` 默认 `discover:false`（只改当前宿主），`revertAllHosts` 默认
+`discover !== false` 即 `true`（扫全盘找所有宿主）。用户点「应用」只改一份，点「回滚」
+却会触及其它安装目录。回滚的语义是「撤销我做过的事」，不是「清理全机器」。
+已对齐为默认不扫盘；卸载场景显式传 `discover:true`（那才是真要清干净）。
+
+**② 多宿主状态合并的顺序依赖**（`core.js`）
+
+`APPLY_STATUS_RANK[row.status] ?? 0` 让任何未登记状态与 `failed` 同权（都是 0），
+于是「谁先被枚举到谁留下」——同一组输入换个宿主顺序就得出不同结论。
+补 `pending` 到表内（3.5，未完成但不算失败），未知状态显式给 -1（最差，必须浮上来）。
+同时保留 `host_statuses`：同一补丁在多宿主上的相异状态全记下来，不再静默丢弃
+「某宿主失败」这条信息。
+
+**③ 路径边界可被符号链接绕过**（`validate.js`，安全问题）
+
+`assertPathWithin` 只做字符串前缀比对。实测在靶标目录里放一个指向根外的软链接
+（`.cache/ptest/allowed/link -> ../secret`），**能通过检查并读出根外文件**。
+它有 **8 处调用点**（截图 / POC / 攻击文件），而这些记录的 file 字段是能被写库工具
+影响的。改成实测解析：目标存在就用实路径判断；目标不存在就按父目录实路径判断；
+父目录也解析不出来才退化成字符串比对（此时文件系统层面还没有实体，穿越只能靠字面路径）。
+
+**判据顺序是关键**：第一版写成「先字符串、命中即 break」，等于 symlink 检查永远不执行。
+
+**④ 事实库允许悬空引用**（`store-core.js`）
+
+schema 里 24 张表**没有任何 FOREIGN KEY**（SQLite 默认也不强制），应用层也没校验。
+实测 `asset_id=99999` 写入成功、能查回、`asset_ip` 为 null。
+后果不是「多一条脏数据」：报告里这条记录没有关联主机，「打到了什么」答不出来，
+而它又确实计入得分与统计——审计方最不能接受的一类错误。
+加 `#assertAssetRef`（漏洞 / 凭据 / 访问会话三处共用），失败时把最近 5 条资产 id 一并报出。
+
+**⑤ 枚举重复定义导致口径漂移**（4 个文件）
+
+`SEVERITIES` / `VULN_STATUSES` 在 6 处各写一遍。`validate-input.js` 的注释写着
+「与 store 的 SEVERITIES 对齐」却复制了一份——**注释声明对齐、代码实际复制**，
+最容易骗过 review 的形态。实测已漂一处：`redteam_poc_save` 的 severity 描述写成
+「critical|high|medium|low」漏了 `info`，而 store 侧是接受的，模型因此以为不能填。
+全部改为引用 store-core 的单一来源。
+
+**⑥ 并发预留永不过期**（`tools.js`）
+
+`redteam_agent_slot` 的预留只记时间戳、从不清理。主会话 acquire 后如果派活失败忘了
+release（或主会话崩了），这条预留永久占位，名额永久少一个，还看不出是谁卡住的。
+加 30 分钟 TTL（长活都要求后台跑并回报，超 30 分钟的单次派活属异常），
+过期数要报出去——静默清理会让人以为「我刚占的名额凭空没了」。
+
+**⑦ cwd 诊断缺失**（`rules.js` / `model-tools.js`）
+
+`purge_rules` 只报「cwd 候选=0」，而这个 0 有三种完全不同的原因：没定位到 cwd /
+cwd 目录不存在（换机器、删目录、盘符变了）/ 目录里确实没有 AGENTS.md。
+用户不知道该修什么。实测本机 `last-cwd.txt` 存的是别的项目路径，状态面只显示 0。
+补 `cwd_source` / `cwd_exists` / `cwd_note` 三个字段并在渲染里显示。
+
+## 新增两道闸门
+
+**第 22 关 `check-path-boundary.mjs`**：在临时目录真造一个 symlink 再测。
+这类缺陷正常路径全绿、只有构造 symlink 才暴露，人眼审代码看不出来。
+反向探针：退回纯字符串判断立刻报「符号链接逃逸未拦截」。
+
+**第 23 关 `check-store-refs.mjs`**：构造非法 asset_id 三处全打一遍。
+这类缺陷在正常流程里永远不会暴露（正常用法都先建资产再挂漏洞）。
+反向探针：注释掉三处校验立刻报 3 个失败。
+
+## 三次推断错了（记下来）
+
+1. **以为 `mergeApplyReports` 的 `?? 0` 会让 failed 被 pending 挤掉** → 实测顺序 A/B 都对。
+   真问题不是「当前会错」，而是「靠巧合正确」：未知状态与 failed 同权，先到者赢。
+2. **以为 619 处空 catch 里有系统性吞错** → 逐个看完，绝大多数是 `catch {}` 跳过不存在的
+   文件/目录，以及原子写的「清理 tmp 后 `throw e`」。错误处理质量高于预期。
+3. **以为 `validate-input.js` 的枚举是死导出** → 它其实在用（`validateEnum`），
+   问题是来源是复制而非引用。
+
+三次都是「读代码推断」得出的结论，实测后修正。**这就是为什么闸门要实测，不能靠审代码。**
+
+verify 23 关全绿，check-package 问题 0。
+
+## English
+
+Logic review pass: read the code as a whole, found and fixed 6 real defects, added 2 gates.
+
+## How it was reviewed
+
+Refreshed the graph first (2916 nodes / 120 communities) to see global coupling, then tested
+four classes of problems empirically:
+
+- **Cross-file coupling** → `core.js` depended on 248 times, `index.js` depending on 279, focus there
+- **Contract consistency** → same enum redefined across files
+- **Error handling** → 619 empty catch blocks classified one by one (verdict: mostly legitimate probing calls)
+- **Referential integrity** → whether the database enforces anything
+
+Key discipline: **every judgement was measured, not inferred from reading.** Three of my
+inferences turned out wrong (see below).
+
+## What was fixed
+
+**1. Revert scope asymmetric with apply** — `applyPatchesAllHosts` defaults to `discover:false`
+(current host only), `revertAllHosts` defaulted to `discover !== false` i.e. `true` (scan the disk).
+Clicking "apply" touched one host; clicking "revert" touched every install directory found.
+Revert means "undo what I did", not "clean the whole machine". Aligned; uninstall explicitly
+passes `discover:true` since that one genuinely wants everything.
+
+**2. Order-dependent multi-host merge** — `APPLY_STATUS_RANK[row.status] ?? 0` gave any
+unregistered status the same weight as `failed` (both 0), so whichever host was enumerated
+first won. Added `pending` at 3.5, unknown states at -1, and kept `host_statuses` so a
+"host B failed" record is no longer silently dropped.
+
+**3. Path boundary bypassable via symlink** (security) — `assertPathWithin` only compared
+strings. Placing a symlink inside the engagement directory that points outside made it pass
+and read an out-of-root file. It guards **8 call sites** (screenshots, POCs, attack files),
+whose paths are written by tools. Now resolves real paths; falls back to string comparison
+only when nothing exists on disk yet. **Order of checks matters**: my first attempt checked
+strings first and broke on first match, which meant the symlink check never ran.
+
+**4. Fact store allowed dangling references** — 24 tables, **no FOREIGN KEY anywhere**
+(SQLite does not enforce by default either), and no application-level check. `asset_id=99999`
+was accepted, retrievable, with `asset_ip` null. That is not "one dirty row": the report entry
+has no host to attribute the finding to, yet it still counts toward scoring. Added
+`#assertAssetRef` shared by vuln / credential / access, reporting the 5 most recent asset ids
+on failure.
+
+**5. Duplicate enum definitions drifting** — `SEVERITIES` / `VULN_STATUSES` written out in six
+places. `validate-input.js` carried a comment saying "aligned with store's SEVERITIES" while
+copying the values — the pattern most likely to fool review. One drift already existed:
+`redteam_poc_save` described severity as "critical|high|medium|low", missing `info`, while the
+store accepted it. All now import from store-core.
+
+**6. Concurrency reservations never expired** — `redteam_agent_slot` recorded timestamps and
+never cleaned them. A main session that acquired a slot then failed to release (or crashed)
+permanently consumed a slot, and nothing showed who was holding it. Added a 30-minute TTL and
+report the number expired (silent cleanup would look like "my slot vanished").
+
+**7. Missing cwd diagnostics** — `purge_rules` only showed "candidates=0", which has three
+distinct causes: no cwd located / the directory no longer exists / the directory simply has
+no AGENTS.md. Added `cwd_source`, `cwd_exists`, `cwd_note` and surfaced them.
+
+## Two new gates
+
+**Gate 22 — path boundary**: actually creates a symlink in a temp dir and tests. This defect
+is invisible on normal paths and on code reading.
+**Gate 23 — store referential integrity**: constructs invalid asset_ids across all three
+writers. Invisible in normal flows because assets are always created before findings.
+
+Both reverse-probed: reverting the fix makes them fail immediately.
+
+## Three wrong inferences
+
+1. Thought `?? 0` would let `pending` displace `failed` — measured both orders, both correct.
+   The real issue is that it was correct *by coincidence*.
+2. Thought 619 empty catches hid systematic error swallowing — read them all; mostly
+   `catch {}` skipping absent files and atomic-write cleanup that rethrows.
+3. Thought `validate-input.js` enums were dead exports — they are used, just copied not imported.
+
+All three came from reading code instead of measuring. That is precisely why the gates test
+rather than inspect.
+
+verify 23/23 green, check-package 0 issues.
 # 1.1.97
 
 ## 中文
