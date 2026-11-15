@@ -1,19 +1,29 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 113 参考 / 56 工具 / 5 角色 / 25 得分点 / 23 闸门）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 155 参考 / 56 工具 / 8 角色 / 25 得分点 / 34 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
+
+## 宿主启动失败排查（1.1.117 定型，最容易误判）
+- **先看进程树有没有 `dsh-desktop-host` 子进程**：没有 = 启动链后半段失败，不是插件加载问题。主进程活着但只有 gpu/utility/renderer 三四个壳进程就是这种。
+- 崩溃报告：`%APPDATA%/@deepseek-ai/dsh-desktop/logs/crash-*.log`，看 `phase:`。窗口标题「DeepSeek Harness 无法使用」= `messages.startupFailed`，说明弹了致命框。
+- **`desktop welcome: Web authentication failed` 的真实含义极可能不是认证问题**：`connectDesktopWelcome` 只判 `!response.ok`，401（没认证）和 431（请求头太大）归成同一句话。
+- 判断 host 本身健不健康：手工 spawn 子进程（`ELECTRON_RUN_AS_NODE=1` + `--expose-internals` + 六个参数，照 main.js 的 `DesktopHostProcess.start()`），拿 URL 直连看状态码。303 + set-cookie = host 健康，问题在 Electron 主进程网络栈。
+- **1.1.117 实例：71 条陈旧 `dsh-auth-*` cookie 撑爆请求头**。cookie 名 = `dsh-auth-` + sha256(authority)，authority 含**随机端口** → 每次启动新增一条，旧的永不清理。71 条 → Cookie 头 16,178B、总头 16,875B → 越过 Node `http.maxHeaderSize`=16384 → 431。修法：只留最新一条，删其余（每条都是一次性的）。
+- cookie 库被宿主独占（EBUSY），要停进程才能读；`creation_utc` 是 17 位微秒，`CAST(... AS INTEGER)` 会抛 `RangeError`，取成 TEXT 比字典序。
+- **绝不要点「禁用第三方插件」**：它调 `disableAllPlugins()` → `sanitizeProfile()`，把 `cordis.patch.yml` rename 成 `.bak-<ts>` 后写回空 `[]`，并把 `package.json` 的 `dsh.profile.bundles` 从 12 砍回 2（`WEB_PROFILE.bundles`）。而且 rename 出来的备份可能在同一流程里被清掉。它不修启动，只清空配置。
+- asar 手工解析（无 @electron/asar 时）：前 8 字节 + headerSize + JSON 索引，`baseOffset = 8 + headerSize`，`offset` 是相对 baseOffset 的**字符串**。
 
 ## 发版流程
 - **大改造前先建三层安全点**（1.1.94 定型）：`git tag -a vX-pre-xxx` + `git branch backup/xxx` + 物理 `cp -r skills/` 到仓库外。三者都要推远端。tag 管 commit 回滚、分支管完整树、物理备份管 gitignore 的东西（skills/ 与 .cache/ 不入库）。
 1. 改 lib/default-prompt-inject.md（gitignore 源）→ **必须跑** `node scripts/embed-default-prompt.mjs` 重封入 lib/asset-table.js（加密表入库，明文不入库）；zh 版同步。
-2. package.json + 三份 README（Version 行 + dsh:// 链接 version=）一起 bump；release-notes.md 中英双段置顶。
-3. `node --check` 改动 JS；`node scripts/verify.mjs`（23 关）；`node scripts/check-package.mjs`（问题须 0）。
+2. package.json + 三份 README（**Version 行 `<strong>Version X</strong>`** + dsh:// 链接 version=）一起 bump；release-notes.md 中英双段置顶，**标题层级用 `# 1.1.x`**（历史一致），别用 `##`。
+3. `node --check` 改动 JS；`node scripts/verify.mjs`（34 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 9a180b7 = 1.1.90（1.1.95 需重钉）。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 5b3d7d2 = 1.1.117。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
-   - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。
+   - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。临时验证可以 cp，但要记得这只是临时手段，正式版必须走 pnpm。
 
 ## 验证宿主是否真在跑（别只看文件）
 - 状态端点：端口**不固定**，扫本地监听端口找 `curl http://127.0.0.1:<port>/dsh-purge/status` 回 200 的那个（1.1.92 时是 42226）。回 `plugin_version` / `asar_still_sealed` / `patches_na`。
@@ -25,6 +35,9 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 - 雷达 `FINGERPRINT_RULES` 的 **code 不唯一**（国产 OA 与通用 Web 都是 `web-app`），所以**任何 `find(r => r.code === code)` 反查都是错的**——永远拿到排在前面的那条。技能名要存在实际命中的样本上。`check-package` 第 16 项守这条。
 - 技能数由 check-package 对账，改数必须同步 package.json + 3 份 README。
 - **`purge_skills q=`**：技能检索（1.1.91）。索引 `lib/generated/skills-search.json` 由 build-skill-graph 生成，改技能后自动跟上。排序规则见 test-oa 教训：名字压过正文提及、英文词边界、两字母缩写不做子串、层级折进分值、同义词只在查询侧展开。
+- **ATT&CK 编号检索（1.1.117）**：索引有独立 `attack` 字段（精确编号数组），**不许进 keys**。两个理由：出现次数多的编号（T1190 在 28 个技能里）会被「≥15% 泛词过滤」整条剔除，最常见的反而搜不到；keys 走模糊打分，T1059 与 T1059.001 互相包含会互相污染。检索侧 `attackQuery` 通道只做等值 + 父技术带出子技术。排序靠两条：**深度加成 +14**（列出子技术 = 真专精）、**参考表扣分 −26**（编号数 >12 是映射表不是手册，`attack-traceability` 不扣分时是每个查询第一名）。第 34 关 + 第 24 关三条判据守。
+- **`extractProper` 会把 ATT&CK 编号当产品名收下**（`T1562` 首字母大写+含数字符合其判据），实测混进 `edr-bypass-re` 的 keys。编号必须显式从 proper 剔除。
+- **`loadSearchIndex` 的候选顺序里 `$DSH_HOME/dsh-purge/skills-search.json` 优先于仓内 `lib/generated/`**。闸门要验仓内产物时必须把 `DSH_HOME` 指到空目录，否则读宿主旧索引 → 本地绿、装上就错。
 - **任何「只在相等时生效」的 tie-break 都要怀疑永远不触发**（1.1.91 实测：rank 做 tie-break 一次也没生效）。
 - **断言必须卡首位，不能只断言「结果里有」**：1.1.91 本地全绿、装到宿主就错，因为断言是 `has(技能名)` 而它一直在列表里只是排第三。排序类断言一律卡首条。
 - **多条降权规则会互相抵消**：加新加成前先想它和已有 rank 是不是同一件事（1.1.92 名字加成 +10 vs 专项 rank −6 就冲突过一次）。
