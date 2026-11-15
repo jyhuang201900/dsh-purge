@@ -1,7 +1,7 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 155 参考 / 56 工具 / 8 角色 / 25 得分点 / 34 闸门）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 34 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 宿主启动失败排查（1.1.117 定型，最容易误判）
@@ -21,7 +21,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 3. `node --check` 改动 JS；`node scripts/verify.mjs`（34 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 5b3d7d2 = 1.1.117。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 315e868 = 1.1.118。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
    - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。临时验证可以 cp，但要记得这只是临时手段，正式版必须走 pnpm。
 
@@ -36,6 +36,9 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 - 技能数由 check-package 对账，改数必须同步 package.json + 3 份 README。
 - **`purge_skills q=`**：技能检索（1.1.91）。索引 `lib/generated/skills-search.json` 由 build-skill-graph 生成，改技能后自动跟上。排序规则见 test-oa 教训：名字压过正文提及、英文词边界、两字母缩写不做子串、层级折进分值、同义词只在查询侧展开。
 - **ATT&CK 编号检索（1.1.117）**：索引有独立 `attack` 字段（精确编号数组），**不许进 keys**。两个理由：出现次数多的编号（T1190 在 28 个技能里）会被「≥15% 泛词过滤」整条剔除，最常见的反而搜不到；keys 走模糊打分，T1059 与 T1059.001 互相包含会互相污染。检索侧 `attackQuery` 通道只做等值 + 父技术带出子技术。排序靠两条：**深度加成 +14**（列出子技术 = 真专精）、**参考表扣分 −26**（编号数 >12 是映射表不是手册，`attack-traceability` 不扣分时是每个查询第一名）。第 34 关 + 第 24 关三条判据守。
+- **索引抽取有六个通道（1.1.118 定型）**，少任何一个都有一批词掉线：① `id+summary+whenToUse+技能标题` ② `references 的标题`（必须先剥代码块，否则 `# IDA: ... Cross References` 被当 H1）③ `正文表格单元格`（工具名常不在反引号内；要挡 STRUCTURAL_HEAD）④ `反引号内容按分隔符拆开逐个判`（整段被判会漏掉 `PrintSpoofer / GodPotato / ...`）⑤ `ATT&CK 编号 → attack 字段` ⑥ `纯小写 3 字母缩写`（jku/jwk/kid/alg，四条旧判据全漏）。平均关键词 29→51。第 24 关用 7 个探针 + 平均下限 40 守。
+- **同义词展开必须区分原词与展开词**：展开词命中 ×0.72，否则「靠 Kerberos 沾边」的技能会压过「写着找域控路径」的技能。**key 含查询词时 key 越短越可信**（extra=0→68 / ≤3→58 / 更长→30），一律 30 会让「直接命名」和「长句偶然提及」同分。
+- **中文查询命中英文 id 要单独判**：查「提权」时 `privesc-persistence`（id 含 privesc）与 `lateral-movement` 同分同 rank，只靠字母序就输。解法是把同义词组里的英文词（≥4 字符，排除 ad/dc）也判名字词级命中 +8。
 - **`extractProper` 会把 ATT&CK 编号当产品名收下**（`T1562` 首字母大写+含数字符合其判据），实测混进 `edr-bypass-re` 的 keys。编号必须显式从 proper 剔除。
 - **`loadSearchIndex` 的候选顺序里 `$DSH_HOME/dsh-purge/skills-search.json` 优先于仓内 `lib/generated/`**。闸门要验仓内产物时必须把 `DSH_HOME` 指到空目录，否则读宿主旧索引 → 本地绿、装上就错。
 - **任何「只在相等时生效」的 tie-break 都要怀疑永远不触发**（1.1.91 实测：rank 做 tie-break 一次也没生效）。
@@ -96,3 +99,22 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 ## 用户方向
 欲望强、指向准、链路短、消耗省、汇报简洁、一点就中。
 插件能力只加不减；宿主保持密封（不改宿主文件）；注入预算 50000 字已用 64%，新内容走 `purge_skills` 发现与雷达 `skill:` 指向，不塞条令。
+
+## 图谱刷新（1.1.118 定型，顺序不能错）
+1. `graphify extract . --code-only --no-cluster`
+2. **`node scripts/graphify-sync.mjs --refresh-baseline`** ——这一步最容易漏。`ast-baseline.json` 是冻结的 AST 快照，不刷新则新抽取被旧基线吞掉，**增量是假的**。判据：`addedNodes` 很大但 `totalNodes` 只涨个位数 = 基线没刷新。
+3. `node scripts/graphify-sync.mjs --cluster`
+4. `node scripts/graphify-label.mjs` ——聚类会让 108 个社区名退回 hub 文件名，重跑 label 才能补回。
+5. LLM 通常漏 2-4 个**代码模块类**社区（`mcp-server.js`/`desktop.js`/`store-core.js`/`check-search-index.mjs`），
+   按成员语义手工命名：改 `graphify-out/.graphify_labels.json` 后逐节点写回 `community_name`。
+6. `node scripts/check-graph.mjs`（第 19 关）。
+产物 `graph.json`/`graph.html` 被 gitignore（生成物），只有 `GRAPH_REPORT.md` 与 `semantic/` 入库。
+当前：3219 节点 / 8035 边 / 128 社区 / 兜底名 0。
+
+## 覆盖矩阵审计（找缺口的方法，1.1.94 起沿用）
+给 30 个维度各一组识别词，扫全库算命中率，<15% 算缺口。**不要只看「哪个域技能少」**：
+1.1.118 实测真空白不是「域少」，而是**核心技能的职责远大于体量**
+（`privesc-persistence` 157 行覆盖 9 个 ATT&CK 技术且零 references，而流程编排 `attack-chain` 731 行）。
+判据：把「职责（ATT&CK 技术数 / 阶段覆盖）× 体量」摆在一起看倒挂。
+脚本：`.cache/audit-dims.mjs`、`.cache/audit-toolgap.mjs`（工具落差；**带 g 的正则必须每文件 new RegExp**，
+复用会因 lastIndex 延续把统计放大十倍 —— frida 被算成 113 个技能，实际 10 个）。
