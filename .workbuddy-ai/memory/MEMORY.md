@@ -21,7 +21,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 3. `node --check` 改动 JS；`node scripts/verify.mjs`（34 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 e58b249 = 1.1.122。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 21d03cb = 1.1.124。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
    - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。临时验证可以 cp，但要记得这只是临时手段，正式版必须走 pnpm。
 
@@ -190,3 +190,32 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 **噪音极大，必须逐条验证再动手。** 24 个技能的审阅报告里 6 条主要指控只有 1 条成立
 （父子重复标注成立；「有 X 编号但没讲」「把编号堆成一行」全是误判）。
 用法：让它做「批量扫描找候选」，**判定权必须留在自己手里** —— 拿它的结论直接改内容会引入错误。
+
+## 索引抽取的来源权重必须分级（1.1.124 定型，比具体通道更重要）
+索引有六个通道（`id+summary+whenToUse+技能标题` / `references 标题` / `正文表格单元格` / `反引号内容` / `ATT&CK 编号` / `纯小写 3 字母缩写`），
+但**它们不等于同一种证据**。合并进同一个 `keys` 池子是错的：
+- `keys`（技能自己写的词）→ 最高 100。这是「这个技能是什么」。
+- `refKeys`（references 标题里的词）→ **封顶 40**。这是「它引用了什么」。
+40 的依据：高于反含弱档（23，症状式沾边），低于 key 直接命中的最低档（30+）。
+实测三个反例：`子域`→pentest-tools（引用综合手册）、`域控`→scada-hmi-attack（类比说法）、
+`钓鱼`→api-security（OAuth 的"同意钓鱼"）。
+**通则：凡「合并不同来源的词」，先问「它们的证据强度一样吗」。**
+
+### references 中文标题的两个坑
+- **只取 H2 及以下**：H1 是文档名，词跨度极大、区分度极低。
+- **中文标题要过 `extractCnFromHeadings`，不是 `extractProper`**：后者只认英文/数字形态，
+  1.1.118 修「references 不可见」时只补了英文侧，`q=变电站` 一直搜不到。
+- **章节名会变成噪音**（142 个：「落库要求」「注意事项」「六条常见提权路」）。
+  用正面形态判据（`^(怎么|如何|第N|N条)` 或 `(要求|清单|纪律…)$` 且 ≤8 字），不要堆黑名单 ——
+  但**取窄**：宁可漏几个，不误删「抓接口清单」这类真内容。
+
+## 「还差什么」的答法（1.1.123 定型）
+**不能凭印象**。做法：拿覆盖矩阵 30 组识别词逐个 grep 全库算命中数，**命中 0 的是候选**，
+再逐个核实。实测 7 个 0 命中里 **4 真缺 3 是写法差异**
+（AS-REP Roasting 写成 `Pre-Authentication Type = 0`，实际有内容）。
+真缺的四个：Struts2 / ThinkPHP / PrintNightmare / IEC-104 —— 前三类在
+`references/java-php-middleware-payloads.md`，IEC-104 在 `industrial-protocol-deep.md`。
+
+## 图谱刷新必查「基线是否落后」
+`built_at_commit` 是唯一可靠判据。1.1.122 时图谱还停在 6e4108e(1.1.118)，
+**6 个技能 / 9 篇参考 / 2 个闸门脚本全没进图谱** —— 但 `check-graph` 全绿，因为它只查结构不查新鲜度。
