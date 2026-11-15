@@ -84,6 +84,17 @@ Use this skill when the decisive bug is not just "there is a JWT," but how heade
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 令牌冒用 | IdP 审计 | 签发地与使用地不一致；同 token 多 IP |
+| OAuth 滥用 | consent 日志 | 新应用被授权高权 scope 后立刻离线访问 |
+| 异常 token | 应用日志 / WAF | `alg` 变更、`jku` 指向外部域名 |
+| 密钥爆破 | （离线） | **本机 hashcat，目标无日志** |
+
+**实用推论**：**判据是「令牌的地理/设备不一致」**：令牌可以复制，但用它的机器变了。IdP 日志是唯一能看到这件事的地方。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

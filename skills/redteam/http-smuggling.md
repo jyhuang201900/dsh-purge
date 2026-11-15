@@ -183,6 +183,16 @@ HTTP smuggling → 跨用户             = 8.1 High
 
 读取：`skills/redteam/references/http-smuggling/payload-library.md`
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| Web 漏洞利用 | WAF / 应用访问日志 | 请求体含已知 payload 形态；同一 IP 短时多路径探测 |
+| 未授权接口 | 应用日志 401/403 | 同一会话从 200 变 401 再变 200（越权探测） |
+| 反序列化 / 注入 | 应用错误日志 | 异常堆栈；出站 DNS/LDAP 请求（外带验证） |
+
+**实用推论**：**判据是「应用侧日志 + 出口流量」两处同时看**：单看 WAF 会被编码绕过，单看出口会被加密隧道漏掉。Web 攻击必有 HTTP 请求，而它的验证动作（回连/DNS）几乎必然出网。
+
 ## 第二发（主力打不出去时，按这个顺序换）
 
 1. **同类替代**（链路里的互补技能，手法最接近）：`dir-bruteforce`、`graphql-testing`、`injection-payloads`、`nuclei-scan`

@@ -232,9 +232,9 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nikto`、`sqlmap`、`yara`
-- `nikto`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
-- `yara`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `nikto`：Windows 无官方包（Perl 脚本）；**用 `nuclei` 的 `http/misconfiguration` 模板替代**（已装）
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
+- `yara`：Windows 有官方二进制（`yara-<ver>-win64.zip`）；只做规则**语法检查**时也可 `python -m pip install yara-python`
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

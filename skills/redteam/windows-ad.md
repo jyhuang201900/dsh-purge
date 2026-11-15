@@ -343,11 +343,11 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`、`impacket`、`netexec`、`nxc`、`bloodhound`、`mimikatz`
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
-- `impacket`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `nxc`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `bloodhound`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `mimikatz`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
+- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+- `nxc`：同 `netexec`：本机没有。用 `fscan` 初筛 SMB；需要 PtH/WinRM 精确验证时 `python -m pip install netexec`
+- `bloodhound`：采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可
+- `mimikatz`：**只能拷到目标机跑**（它读的是目标内存里的凭据，本机跑没有任何意义）。本机只需准备二进制：`Invoke-Mimikatz` 官方 release 或 `python -m pip install pypykatz`（离线解析目标 dump 出来的 lsass.dmp）
 
 runnability:end -->

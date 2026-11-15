@@ -87,6 +87,16 @@ wc -l runs/live-proxies.txt
 - 用完清掉 `runs/` 下的临时配置（如 `proxychains.tmp.conf`），不要在系统里留下任何代理痕迹。
 - 仅在授权演练范围内使用。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 代理池 | 出口 IP 汇聚 | 同一目标被大量不同 IP 访问但请求指纹一致 |
+| 代理节点探测 | 代理侧日志 | 对节点高频健康检查（不一定到目标） |
+| 出口 IP 汇聚 | NetFlow | 同一目标被大量不同 IP 访问但请求指纹一致 |
+
+**实用推论**：**判据是「IP 变但指纹不变」**：代理能换 IP，换不掉 TLS 指纹与请求特征。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -117,8 +127,8 @@ wc -l runs/live-proxies.txt
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`sqlmap`、`proxychains`
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
-- `proxychains`：Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>` 或 PowerShell `-Proxy`
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
+- `proxychains`：Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>`，或 `chisel`/`ligolo` 自带的本地监听（都已装）
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

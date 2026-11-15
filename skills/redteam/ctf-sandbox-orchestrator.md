@@ -636,6 +636,16 @@ Use this reference for web challenges, API challenges, SSR/frontend issues, queu
 - Missing the real request order because only the visible UI was inspected
 - Ignoring container/proxy routing inputs such as `Host` or forwarded headers
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| Web 漏洞利用 | WAF / 应用访问日志 | 请求体含已知 payload 形态；同一 IP 短时多路径探测 |
+| 未授权接口 | 应用日志 401/403 | 同一会话从 200 变 401 再变 200（越权探测） |
+| 反序列化 / 注入 | 应用错误日志 | 异常堆栈；出站 DNS/LDAP 请求（外带验证） |
+
+**实用推论**：**判据是「应用侧日志 + 出口流量」两处同时看**：单看 WAF 会被编码绕过，单看出口会被加密隧道漏掉。Web 攻击必有 HTTP 请求，而它的验证动作（回连/DNS）几乎必然出网。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -665,10 +675,10 @@ Use this reference for web challenges, API challenges, SSR/frontend issues, queu
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`dirsearch`、`hashcat`、`john`、`jadx`、`binwalk`
-- `dirsearch`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
-- `john`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `jadx`：官方发 `jadx-gui-<ver>-win.zip`（Java 启动器，需 java）
-- `binwalk`：`python -m pip install binwalk`（新版是 python 包）
+- `dirsearch`：本机无。**用 `ffuf`/`feroxbuster` 替代**（都已装）：`ffuf -u http://<t>/FUZZ -w <字典> -mc 200,301,403`；dirsearch 的优势只是内置字典与递归策略
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
+- `john`：`jumbo` 版才有 Windows 二进制（官方 johntheRipper/bleeding-jumbo 的 `run/` 里有 `john.exe`）。同一件事优先用 `hashcat`（本机也没有，见上）
+- `jadx`：官方发 `jadx-gui-<ver>-win.zip`（自带 JRE 的发行版可直接双击）
+- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
 
 runnability:end -->

@@ -109,7 +109,7 @@ curl -s http://TARGET/<bundle>.js | grep -oE '(angular|vue|react|webpack)[^"]{0,
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`gogo`
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

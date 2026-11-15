@@ -37,6 +37,15 @@ curl -o gogo http://<你的VPS_IP>:9100/gogo && chmod +x gogo
 
 **零依赖**：单个静态二进制，指纹与提取规则全部内置，Windows 2003 都能跑。**不需要**额外配置文件。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 内网扫描 | NetFlow | 单源对多主机多端口；SYN 短连接密集 |
+| 服务探测 | 目标连接日志 | 大量 445/3389/22 连接且未完成握手 |
+
+**实用推论**：**判据是「扫描拓扑」**：正常主机访问有明确的目的地，扫描是发散的。NetFlow 上看连接图的形状一眼就能看出来。
+
 ## 纪律
 
 1. **范围**：`--exclude` / `--exclude-file` 排除授权范围外网段，别把办公网和云元数据段扫了。
@@ -281,8 +290,8 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`netexec`、`gogo`
-- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

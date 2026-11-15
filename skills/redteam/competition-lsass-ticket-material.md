@@ -85,6 +85,22 @@ Use this skill when the decisive host artifact lives in LSASS, ticket caches, or
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| LSASS 读取 | 4656 / Sysmon 10 | `GrantedAccess` 含 `0x1010`/`0x1410` |
+| SAM/NTDS 导出 | 4663 | `reg save config\SAM`；`ntds.dit` 被复制 |
+| DPAPI 主密钥 | Sysmon 11 | 读 `Protect\S-1-5-18` 下的 masterkey |
+| LSASS 读取 | 4656 / Sysmon 10 | `GrantedAccess` 含 `0x1010` |
+| 票据文件落地 | 文件审计 | `.kirbi`/`.ccache` 出现在磁盘 |
+| 票据重放 | DC 4768 | 票是旧的，DC 无新签发 |
+| 票据重放 | DC 4768 / 目标 4624 | 旧票被重放（DC 无新签发） |
+| 票据重放 | DC 4768 / 目标 4624 | 旧票被重放：目标有 4624 而 DC 无对应新签发 |
+| 票据类凭据外传 | 出口 / NetFlow 连接日志 | 从该主机到陌生外部地址的连接（票据被带走） |
+
+**实用推论**：**判据同上**：浏览器凭据库只有浏览器自己读，别的东西读就是异常。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

@@ -137,6 +137,16 @@ jku 注入   header 加 jku=你的地址，放自己的 JWKS → OAST 回连 + t
 **两条最容易自欺的**：① RS→HS 失败 90% 是公钥 PEM 字节不对（换行/尾部空格），不是"服务端修了"；
 ② jku 有 OAST 回连只证明 SSRF 存在，**不证明 JWT 被绕过**。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| Web 漏洞利用 | WAF / 应用访问日志 | 请求体含已知 payload 形态；同一 IP 短时多路径探测 |
+| 未授权接口 | 应用日志 401/403 | 同一会话从 200 变 401 再变 200（越权探测） |
+| 反序列化 / 注入 | 应用错误日志 | 异常堆栈；出站 DNS/LDAP 请求（外带验证） |
+
+**实用推论**：**判据是父进程**：命令解释器本身不异常，异常的是「谁启动了它」。Web 服务、Office、数据库进程拉起的 `cmd` 几乎必是入侵。
+
 ## 失败分支
 
 - **CSP 挡 `<script>`** → 找 `unsafe-inline` 之外的口子：JSONP 端点、`<base>` 劫持、已白名单域上的开放重定向、`nonce` 复用。
@@ -186,12 +196,11 @@ jku 注入   header 加 jku=你的地址，放自己的 JWKS → OAST 回连 + t
 
 <!-- /skill-link-graph -->
 
-
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
 
 runnability:end -->

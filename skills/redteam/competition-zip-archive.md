@@ -188,6 +188,17 @@ Do not publish a command with placeholder keys as if it were a successful solve.
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 载荷混淆/加密 | AV/EDR 扫描日志 | 静态特征缺失但行为特征明显（加解密调用 + 内存执行） |
+| 反射加载 / 内存执行 | Sysmon 1 / 7 | 进程镜像未签名、`ImageLoaded` 指向临时目录或无名段 |
+| 脚本混淆（base64 / 加密） | 4688 命令行 / PowerShell 4104 | `-enc` 长串、`FromBase64String`、`IEX` 组合 |
+| 加壳 / 改节区 | AV（文件信誉） | 熵值高 + 节区名异常（`.text` 变 `.data`、新增可执行段） |
+
+**实用推论**：**判据是「静态特征失效但行为仍在」**：混淆只改变检出方式，不改变它要调的系统 API。所以防守方看行为链比看特征更稳 —— 这也是为什么免杀对抗永远打的是 EDR 不是 AV。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

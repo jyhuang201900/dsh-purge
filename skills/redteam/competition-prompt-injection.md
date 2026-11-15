@@ -89,6 +89,15 @@ Use the smallest chain that proves the bug:
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 命令解释器 | 4688 + 父进程 | `cmd`/`powershell` 的父进程是 Web 服务或 Office |
+| 编码命令 | 4104 | `-enc` 长串；`IEX` + 下载调用 |
+
+**实用推论**：**判据是父进程**：命令解释器本身不异常，异常的是「谁启动了它」。Web 服务、Office、数据库进程拉起的 `cmd` 几乎必是入侵。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

@@ -1,3 +1,153 @@
+# 1.1.119 — 全面审阅：三处「有机制但没入口」的空白
+
+这轮是按 30 维度覆盖矩阵 + 职责/体量倒挂 + 工具落差 + 内容结构四路并查的全面审阅。结论和上一轮同类：**不是缺能力，是已有机制缺入口**。三处最伤的地方都不是"少写了什么"，而是"写了但读不到 / 生成了但用不上 / 有落差但给不出出口"。
+
+## 一、107 个技能不知道「自己会被怎么发现」
+
+检测视角段（「我这一发在防守方眼里是什么样」）原来只有 **11/119（9%）**。
+
+闸门早就在跑、数字早就在打，但它是**观测项**——不进 `problems`，覆盖率再低也不会红。所以 9% 这个数字挂了很久没人管。这不是"观测项该有的位置"：检测配对是攻击技能的核心组成部分，一问「对手能发现吗」答不出来，这个技能就只能算半成品。
+
+**补到 107/119（90%）**，按 ATT&CK 技术分组写，不是套模板：
+
+- 同技术的动作在防守方眼里是同一类信号（T1027 永远看 AV/EDR 行为链、T1190 永远看 WAF + 应用日志 + 出口），所以按技术分组是唯一自洽的做法；给 108 个技能各写一段手写稿既做不到也会互相矛盾。
+- 每组带**一句实用推论**，那句才是模型真正会用的东西。例如 T1003 的推论是「判据是谁在碰凭据存储」——凭据库只有特定系统进程会读，任何非系统进程碰 lsass/SAM/masterkey 都是异常，**不需要判断意图**。
+- 剩下 12 个是方法论/配置类技能（`detection-pairing` 本身讲检测、`verification-discipline` 讲验证、`redteam-setup` 讲配置、`threat-hunting` 讲狩猎、`pentest-tools` 讲索引），它们不产生攻击动作。
+
+**闸门从观测项升级为硬拦**：覆盖率下限 85%，且逐个校验已补的段（≥3 条表格 + ≥2 类感知源）。加这条时立刻发现 34 个段**表格只有 1 条数据**——批量补的时候表太短，等于没写。
+
+## 二、用户 override 让「技能链路」整套机制没有读入口
+
+`~/.dsh/prompt-inject.md`（30027 字）**整份替换**出厂条令（32030 字）。逐条比对发现它缺三条：
+
+- 「谁归谁」（8 个角色各挂哪些技能）
+- 「前后接谁」（技能末尾的「链路位置」章节怎么读）
+- 「走链路的纪律」（上游 → 本技能 → 下游，不要跳步；没落库的发现等于没发生）
+
+也就是说，全库 119 个技能末尾精心生成的「链路位置」章节，**在真实运行里没有读入口**。
+
+这正是 1.1.96 踩过的同一个坑（生效稿缺 18/28 条而字数只差 6729），教训写进了记忆却**没做闸门**，所以复发。
+
+已把三条补进用户稿（备份留在 `~/.dsh/prompt-inject.md.bak-before-link-rules-*`），并新增**第 36 关**做读入口锚点比对。闸门只警告不失败（override 是用户资产，插件不该替用户改），但保证它每次都在输出里出现——「记了教训没人看见」是这次复发的直接原因。
+
+## 三、140 条工具落差里 80 条（57%）是空话
+
+「本机可执行性」块对没有替代映射的工具统一写「先确认它是否必要，必要时找官方 Windows 构建」。模型读到只会跳过：既不告诉你能否替代，也不告诉你怎么装。**块存在但零信息量**，这是「承诺了却给不出」的变体。
+
+按三类重写 37 个缺失工具的说明：
+
+- **本机有等价物**：`gogo` → 用 `fscan` 铺面（并说明 gogo 的 DSL/3380 条指纹是它独有）；`katana` → `httpx`+`feroxbuster`（无头渲染是它独有）；`masscan` → `naabu`；`nikto` → `nuclei` 的 misconfiguration 模板；`dirsearch` → `ffuf`
+- **只能在目标机/离线跑**：`mimikatz` 本机跑没有意义（读的是目标内存）；`hashcat` 离线且 CPU 慢；`volatility` 分析的是拷回来的镜像。本机没有是**设计如此**
+- **真装法**：`python -m pip install impacket`（装完用 `python -m impacket.examples.wmiexec`，别指望 PATH 里有）；`ghidra` 需 JDK 17+，但**本机已有 radare2，日常够用**
+
+**闸门**：空话从 57% 降到 0%，并升级为**硬拦**。判据从「猜语义」改成「看有没有具体标识」——说明里必须用反引号点到工具名/命令/包名。第一版要求「用 X 替代」紧邻，把 `nikto→nuclei` 误判成空话；放宽后 `bloodhound`「可本机跑」又漏过。改判据的方向错了两次才定下来：**不该问「属于哪类出口」，该问「有没有点到具体名字」**。
+
+## 四、事务原子性：回滚会留下孤儿运行记录
+
+`importBundle` 里 `scan_run` 的 INSERT 写在 `BEGIN` **之前**。后面的 upsert 一旦抛错走 ROLLBACK，那条已经提交，于是库里留着一条 `status='completed'` 的运行记录，而它关联的资产/端口/漏洞全被回滚。
+
+后果不是"多一行"：报告显示「跑过一次扫描」、统计 count>0，点进去什么都没有，而用户以为是"数据丢了"。
+
+**新增第 35 关**进程内实测：构造非法 bundle（`port` 传对象 → `Number()` 得 NaN → 查不到行 → 抛错），断言回滚后 `scan_run`/`asset`/`port`/`vuln` 数量全不变，且脏状态不阻塞后续合法写入。反向探针精确复现原缺陷：把 `scan_run` 移回事务外 → `scan_run 0 → 1`，闸门立刻红。
+
+## 五、闸门
+
+| 关 | 变更 |
+| --- | --- |
+| 14 纸面功夫 | 新增**空话检测**（硬拦）：块内每条落差必须点到具体工具名/命令/包名 |
+| 18 检测配对 | 从观测项升级为**硬拦**：覆盖率下限 85% + 逐段结构校验 + **重复行检测** |
+| 35 事务原子性 | 新增：中途失败全量回滚 |
+| 36 override 一致性 | 新增：用户 override 必须覆盖 7 个读入口锚点 |
+
+重复行检测是批量补段时撞出来的：多轮脚本注入把同样的行叠两遍，表面"表格 8 行很充实"，实际有效信号只有 3 条。闸门只看行数会认为合格——**重复行挤掉了本该补的观测面**。
+
+## 六、图谱
+
+3241 节点 / 8068 边 / 123 社区。references 118 篇 / 99.6 万字不变。
+
+## 七、这轮没动的（有意为之）
+
+- `ctf-sandbox`（65 行）是唯一「自身无代码且引用也无代码」的技能，但它是 `ctf-sandbox-orchestrator` 的分层引导，有明确链路位置——薄是设计，不是缺陷。
+- 覆盖矩阵里 7 个"缺口维度"（工控 5、提权-Windows 6、社工 6、Web 框架 7、无线 9、被动侦察 12、AD 15）经核查**深度是够的**：ADCS 的 ESC1–ESC15 全覆盖，提权补了 1.7 万字的全路径。命中率低是因为这些域的技能数本来就少，不是内容薄。
+- `credential-attack` / `lateral-movement` 仍零 references，但正文质量本身不差（有失败判据、字典优先级、用户名来源）。优先级低于上面三处"没入口"的问题。
+
+---
+
+## 1.1.119 — Full review: three places where a mechanism existed but had no entry point
+
+This round combined a 30-dimension coverage matrix, responsibility-vs-size inversion, tool-gap audit, and content-structure review. The conclusion matches the previous round: **the capability exists, the entry point does not**. All three worst spots are "written but unreadable / generated but unused / gap reported but no way out".
+
+## 1. 107 skills could not answer "how would a defender see this?"
+
+The detection panel existed in **11/119 (9%)** of skills.
+
+The gate had been running and printing the number all along, but it was an **observation item** — never added to `problems`, so 9% never turned red. That is not where an observation item belongs: detection pairing is a core component of an offensive skill. If "can the opponent detect this?" has no answer, the skill is half-finished.
+
+**Raised to 107/119 (90%)**, grouped by ATT&CK technique rather than templated:
+
+- Actions within the same technique look identical to defenders (T1027 always shows up in AV/EDR behaviour chains; T1190 always in WAF + app logs + egress), so grouping by technique is the only self-consistent approach. Hand-writing 108 panels is neither feasible nor coherent.
+- Each group carries **one practical inference**, and that sentence is what the model actually uses. T1003's is "the criterion is *who touches credential storage*" — only specific system processes read those stores, so any non-system process touching lsass/SAM/masterkey is anomalous **without needing to judge intent**.
+- The remaining 12 are methodology/configuration skills (`detection-pairing` teaches detection, `verification-discipline` teaches verification, `redteam-setup` teaches setup, `threat-hunting` teaches hunting, `pentest-tools` is an index). They produce no attack actions.
+
+**The gate was upgraded from observation to hard failure**: 85% floor plus per-panel structure checks (≥3 table rows + ≥2 sensing classes). Adding it immediately found 34 panels with **only one data row** — the tables were too short to say anything.
+
+## 2. The user override removed the entry point for the whole skill-chain mechanism
+
+`~/.dsh/prompt-inject.md` (30,027 chars) **replaces the factory doctrine entirely** (32,030 chars). Clause-by-clause comparison found three missing:
+
+- "Who owns what" (which of the 8 roles holds which skills)
+- "What connects to what" (how to read each skill's trailing "chain position" section)
+- "Chain discipline" (upstream → this skill → downstream, no skipping; a finding not recorded in the store never happened)
+
+In other words, the "chain position" sections generated at the end of all 119 skills had **no reader in the real running system**.
+
+This is the exact trap 1.1.96 hit (the effective copy was missing 18/28 clauses while the character delta was only 6,729). The lesson went into memory but **no gate was built**, so it recurred.
+
+The three clauses are now in the user copy (backup at `~/.dsh/prompt-inject.md.bak-before-link-rules-*`), and **check 36** compares read-entry anchors. The gate only warns, never fails (the override is the user's asset; a plugin should not rewrite it), but it guarantees the result appears in every run — "the lesson was recorded but nobody looked at it" is the direct cause of this recurrence.
+
+## 3. 80 of 140 tool gaps (57%) said nothing useful
+
+For tools without a substitution mapping, the runnability block always wrote "first confirm whether it is necessary, then find an official Windows build". A model reads that and skips it: it says neither whether something else can do the job nor how to install it. **The block existed with zero information** — the same failure mode as "promises it cannot keep".
+
+Rewrote all 37 missing-tool notes across three categories:
+
+- **Local equivalent exists**: `gogo` → use `fscan` to sweep (noting gogo's DSL and 3,380 fingerprints are unique); `katana` → `httpx` + `feroxbuster` (headless rendering is unique to katana); `masscan` → `naabu`; `nikto` → nuclei's misconfiguration templates; `dirsearch` → `ffuf`
+- **Only runs on target or offline**: running `mimikatz` locally is meaningless (it reads the *target's* memory); `hashcat` is offline and slow on CPU; `volatility` analyses an image you copied back. Absence locally is **by design**
+- **Actual install command**: `python -m pip install impacket` (then use `python -m impacket.examples.wmiexec`, don't expect it on PATH); `ghidra` needs JDK 17+, but **radare2 is already installed and sufficient day to day**
+
+**Gate**: hollow notes went from 57% to 0% and became a **hard failure**. The criterion moved from guessing semantics to "does it name something concrete" — the note must point at a tool/command/package inside backticks. The first version required "用 X 替代" adjacency and misjudged `nikto→nuclei`; loosening it then let `bloodhound` ("runs locally") slip through. Two wrong directions before settling: **don't ask which category of exit it is, ask whether it names anything.**
+
+## 4. Transaction atomicity: rollback left an orphan run record
+
+In `importBundle`, the `scan_run` INSERT sat **before** `BEGIN`. When a later upsert throws and rolls back, that row is already committed — leaving a `status='completed'` run record whose assets/ports/vulns were all rolled back.
+
+The consequence is not "one extra row": the report says "a scan was run", counts are >0, and clicking through shows nothing — while the user thinks data was lost.
+
+**New check 35** tests this in-process: build an illegal bundle (`port` as an object → `Number()` yields NaN → row not found → throws), assert `scan_run`/`asset`/`port`/`vuln` counts are unchanged after rollback, and that the dirty state does not block later valid writes. The reverse probe reproduces the original defect exactly: move `scan_run` back outside the transaction → `scan_run 0 → 1`, gate turns red immediately.
+
+## 5. Gates
+
+| Check | Change |
+| --- | --- |
+| 14 paper-work | New **hollow-note detection** (hard): every gap must name a concrete tool/command/package |
+| 18 detection pairing | Upgraded from observation to **hard failure**: 85% floor + per-panel structure + **duplicate-row detection** |
+| 35 transaction atomicity | New: mid-flight failure rolls back fully |
+| 36 override parity | New: user override must cover 7 read-entry anchors |
+
+Duplicate-row detection came out of the bulk edits: multiple script passes stacked identical rows, so a table looked like "8 substantial rows" while carrying 3 signals. A gate that only counts rows would call it fine — **duplicates crowd out the observations that should have been added**.
+
+## 6. Graph
+
+3241 nodes / 8068 edges / 123 communities. References unchanged at 118 documents / 996k characters.
+
+## 7. Deliberately untouched
+
+- `ctf-sandbox` (65 lines) is the only skill with neither its own code nor any in its references, but it is a layered lead-in to `ctf-sandbox-orchestrator` with an explicit chain position — thin by design, not a defect.
+- The 7 "gap dimensions" in the coverage matrix (OT 5, Windows privesc 6, social engineering 6, web frameworks 7, wireless 9, passive recon 12, AD 15) turned out to be **deep enough** on inspection: ADCS covers ESC1–ESC15 fully, and privesc gained a 17k-character full path last round. Low hit rates reflect few skills per domain, not shallow content.
+- `credential-attack` / `lateral-movement` still have zero references, but their bodies are decent (failure criteria, dictionary priority, username sources). Lower priority than the three "no entry point" problems above.
+
+---
+
 # 1.1.118 — 深水区第一次真正可见 + 两个核心攻击技能补上参考
 
 本轮做两件事：把图谱刷新到最新代码，然后按覆盖矩阵找「显著增强能力」的地方 —— 结论不是缺技能，而是**已有内容读不到**。

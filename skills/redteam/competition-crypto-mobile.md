@@ -81,6 +81,17 @@ Use this skill when the active challenge depends on recovering a transform chain
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 载荷混淆 | AV/EDR | 静态特征缺失但行为特征明显 |
+| 离线逆向 | （无目标侧日志） | **本机分析，目标侧无感** |
+| Hook 调用 | （设备侧） | `frida-server` 进程；内存出现 agent |
+| 离线解码 | （无目标日志） | **本机分析** |
+
+**实用推论**：**判据是「静态特征失效但行为仍在」**：混淆只改变检出方式，不改变它要调的系统 API。所以防守方看行为链比看特征更稳 —— 这也是为什么免杀对抗永远打的是 EDR 不是 AV。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -106,3 +117,13 @@ Use this skill when the active challenge depends on recovering a transform chain
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
+
+runnability:end -->

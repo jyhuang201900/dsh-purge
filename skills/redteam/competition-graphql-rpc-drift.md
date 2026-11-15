@@ -84,6 +84,16 @@ Use this skill when the hard part is matching declared contracts with live handl
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| Web 漏洞利用 | WAF / 应用访问日志 | 请求体含已知 payload 形态；同一 IP 短时多路径探测 |
+| 未授权接口 | 应用日志 401/403 | 同一会话从 200 变 401 再变 200（越权探测） |
+| 反序列化 / 注入 | 应用错误日志 | 异常堆栈；出站 DNS/LDAP 请求（外带验证） |
+
+**实用推论**：**判据是「应用侧日志 + 出口流量」两处同时看**：单看 WAF 会被编码绕过，单看出口会被加密隧道漏掉。Web 攻击必有 HTTP 请求，而它的验证动作（回连/DNS）几乎必然出网。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

@@ -84,6 +84,19 @@ Use this skill when the decisive path runs through live iOS trust boundaries rat
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 凭据管理器读取 | 4663 | 读 `Login Data`、`Local State`、Credential Manager |
+| 钥匙串访问（iOS） | 设备统一日志 | 非自身 bundle id 访问 keychain item |
+| 越狱检测绕过 | 设备统一日志 | `amfid` 校验被绕过 |
+| Keychain 访问 | 设备日志 | 非自身 bundle id 访问 item |
+| 越狱工具落地 | 设备日志 + 文件审计 | `unc0ver`/`palera1n` 残留；`/var/jb` 目录出现 |
+| 越狱工具残留 | 设备文件审计 | `/var/jb` 目录；`unc0ver`/`palera1n` 残留文件（设备侧观测，主机侧确实无感） |
+
+**实用推论**：**判据同上**：浏览器凭据库只有浏览器自己读，别的东西读就是异常。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

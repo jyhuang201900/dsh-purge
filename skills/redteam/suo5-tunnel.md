@@ -49,6 +49,15 @@ curl -s --socks5 127.0.0.1:1080 "http://10.0.0.8:8080/api/user/1" -H "Cookie: JS
 - 速率降到 `-T2 --max-rate 50`，避免 IDS 触发。
 - 新发现的资产全部 `redteam_asset_add`（会自动按 /24 建 C 段），并标 `provenance="active"`、`tool="suo5+nmap"`。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 协议隧道 | 出口流量 | SSH/HTTP 里跑非对应协议；长连到单一外部 IP |
+| HTTP 伪装隧道 | Web 访问日志 | 同一 URL 高频 POST，body 为二进制且长度均匀 |
+
+**实用推论**：**判据是协议错配**。
+
 ## 落库
 - **建好立刻登记（强制）**：`redteam_tunnel_add`（`kind=suo5`、`listen=127.0.0.1:1080`、`entry=<WebShell URL>`、`reach=可达网段`、`command=完整启动命令`），`webshell_id` 指向对应的 WebShell 记录；随后 `redteam_session_check` 实测连通性，确认 status=active 再往下走。
 - 隧道本身写 `redteam_chain_add`（stage=pivot，detail 写隧道端点与本地端口）。
@@ -92,6 +101,6 @@ curl -s --socks5 127.0.0.1:1080 "http://10.0.0.8:8080/api/user/1" -H "Cookie: JS
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`gogo`
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
 
 runnability:end -->

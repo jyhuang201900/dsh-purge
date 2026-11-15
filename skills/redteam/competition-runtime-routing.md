@@ -84,6 +84,15 @@ Use this skill when the decisive question is which sandbox node, proxy rule, or 
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 应用层 C2 | 出口日志 | 固定间隔心跳；单连方向单一（只下发） |
+| WebSocket 长连 | 服务端连接日志 | 单连持续数小时且方向单一 |
+
+**实用推论**：**判据是「规整的心跳」**：C2 需要保持连接，心跳间隔往往过于规律（人类流量不会这么准）。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

@@ -85,6 +85,18 @@ Use this skill when the hard part is proving how an OAuth or OIDC flow is shaped
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 令牌冒用 | IdP 审计 | 签发地与使用地不一致；同 token 多 IP |
+| OAuth 滥用 | consent 日志 | 新应用被授权高权 scope 后立刻离线访问 |
+| OAuth 授权 | IdP consent | 新应用获高权 scope 后立刻离线访问 |
+| token 冒用 | IdP 审计 | 签发地与使用地不一致 |
+| 离线访问 | IdP 审计 | 授权后立刻用 refresh token 从异常 IP 访问 |
+
+**实用推论**：**判据是「令牌的地理/设备不一致」**：令牌可以复制，但用它的机器变了。IdP 日志是唯一能看到这件事的地方。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

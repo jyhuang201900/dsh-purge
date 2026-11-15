@@ -92,6 +92,15 @@ Write the chain explicitly:
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| SMB 横移 | 5140 / 5145 | `ADMIN$`/`C$` 写入后立即起服务 |
+| WinRM 执行 | 5985 + 4688 | 远程 shell 的父进程是 `wsmprovhost.exe` |
+
+**实用推论**：**判据是「写管理共享 + 起服务」的组合**，单独看每一步都不异常。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

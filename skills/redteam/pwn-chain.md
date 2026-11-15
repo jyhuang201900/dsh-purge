@@ -439,6 +439,16 @@ def edit(idx, data):
 - **不要在 attack 链中遗留 unsorted 残留** — main_arena 指针出现在意外的 chunk 里会让后续 show 输出错乱
 - **safe-linking 错误率** — 计算 PROTECT_PTR 时记得是 `pos >> 12`，pos 是要写入的地址不是要指向的地址
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 进程注入 | Sysmon 8/10 | `CreateRemoteThread` 到非自进程 |
+| Hook 框架 | 目标进程行为 | `frida-server` 进程；内存出现 agent 模块 |
+| 离线分析（逆向） | （无目标侧日志） | **静态分析不发生运行时行为** |
+
+**实用推论**：**判据是「跨进程的内存写 + 执行」**：注入的本质是把代码放进别人的地址空间。Sysmon 8/10 对这件事记录得最直接。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -469,9 +479,10 @@ def edit(idx, data):
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`readelf`、`binwalk`、`nc`
-- `readelf`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `binwalk`：`python -m pip install binwalk`（新版是 python 包）
-- `nc`：Windows 无原生 nc；用 PowerShell `TcpClient` 或 nmap 包里的 `ncat.exe`
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`readelf`、`binwalk`、`nc`
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
+- `readelf`：Windows 无 readelf；**用 `objdump`（MinGW 自带）或 `radare2`**（已装）：`radare2 -q -c iI <elf>`
+- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
+- `nc`：Windows 无原生 nc；**用 `nmap` 包里的 `ncat.exe`**（本机 nmap 目录里有，实测存在）或 PowerShell `TcpClient`
 
 runnability:end -->

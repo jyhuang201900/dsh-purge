@@ -128,6 +128,16 @@ LLM 输出可能被下游系统直接消费：
 - [ ] 我是否产出了可复现证据（命令/脚本/截图/报告）？
 - [ ] 我是否完成并回写了 RULES 要求的 Checklist 项？
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 命令解释器执行 | 4688 + 父进程 | `cmd`/`powershell` 的父进程是 Web 服务或 Office（正常运维不会） |
+| 编码命令 | PowerShell 4104 | 脚本块含 `-enc` 解出的可疑片段；`IEX` + 下载调用 |
+| 子进程链 | Sysmon 1（ProcessGuid 链） | `w3wp.exe → cmd.exe → whoami`（WebShell 典型链） |
+
+**实用推论**：**判据是父进程**：命令解释器本身不异常，异常的是「谁启动了它」。Web 服务、Office、数据库进程拉起的 `cmd` 几乎必是入侵。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）

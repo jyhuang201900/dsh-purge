@@ -869,6 +869,17 @@ function findInstances(className) {
 | Objection | Frida 封装工具 | https://github.com/sensepost/objection |
 | r2frida | radare2 + Frida 集成 | https://github.com/nowsecure/r2frida |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 载荷混淆 | AV/EDR | 静态特征缺失但行为特征明显 |
+| 离线逆向 | （无目标侧日志） | **本机分析，目标侧无感** |
+| 样本回传分析 | （离线） | **本机分析，目标侧无日志**；APK 来源靠下载日志回溯 |
+| 样本来源回溯 | 出口 / 下载日志 + 本机进程 | APK 由哪个主机下载、由哪个进程打开（`jadx`/`apktool` 命令行） |
+
+**实用推论**：**判据是「静态特征失效但行为仍在」**：混淆只改变检出方式，不改变它要调的系统 API。所以防守方看行为链比看特征更稳 —— 这也是为什么免杀对抗永远打的是 EDR 不是 AV。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -919,10 +930,10 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`objection`、`apktool`、`jadx`、`ghidra`
-- `frida`：`python -m pip install frida-tools`
-- `objection`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `apktool`：官方只发 `apktool_<ver>.jar`（需 java）；装上后 `java -jar apktool.jar d <apk>`
-- `jadx`：官方发 `jadx-gui-<ver>-win.zip`（Java 启动器，需 java）
-- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
+- `objection`：`python -m pip install objection`（依赖 frida，见上）；它操作的是**连着的目标 App**，本机装客户端即可
+- `apktool`：官方只发 `apktool_<ver>.jar`（**需 java**）；`java -jar apktool.jar d <apk>`
+- `jadx`：官方发 `jadx-gui-<ver>-win.zip`（自带 JRE 的发行版可直接双击）
+- `ghidra`：官方发 `ghidra_<ver>_PUBLIC_<date>.zip`（**需 JDK 17+**，解压后 `ghidraRun.bat`）。**本机已有 `radare2`**：日常反汇编/字符串交叉引用用 `radare2` 够，Ghidra 的优势是反编译成伪 C，只在需要读复杂逻辑时装
 
 runnability:end -->

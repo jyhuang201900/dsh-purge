@@ -84,6 +84,18 @@ vol -f mem.dmp windows.cmdline
 | `volatility` | ❌ 未装（用前先装，或改用等价工具） |
 | `tshark` | ✓ 已装 |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 数据收集 | 4663 / EDR | 批量读用户目录、文档、数据库导出 |
+| 取证镜像 | 4656 + 磁盘 IO | `\\.\PhysicalDrive` 打开；大块顺序读 |
+| 镜像获取 | 4656 + 磁盘 IO | `PhysicalDrive` 打开；大块顺序读 |
+| 离线分析 | （无目标日志） | **本机行为** |
+| 取证工具运行 | 本机进程链 | `volatility`/`foremost`/`tshark` 启动（端点侧可见） |
+
+**实用推论**：**判据是「读取量与读取对象」**：正常业务不会批量顺序读全盘或一次枚举所有用户文档。数据量本身就是信号。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -143,6 +155,6 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`volatility`
-- `volatility`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `volatility`：`python -m pip install volatility3`（Python 3 版，命令是 `vol` 而非 `vol.py`）；本机没有是正常的，它分析的是**拷回来**的内存镜像
 
 runnability:end -->

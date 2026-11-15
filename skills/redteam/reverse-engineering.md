@@ -718,6 +718,19 @@ echo "[+] Done. 在 IDA 中重新分析验证。"
 
 > 关联文档：[[anti-analysis.md]] (反调试/反分析总表)、[[tools-advanced.md]] (高级工具集)、[[elf-analysis.md]] (ELF 文件分析)、[[ai-assisted-re.md]] (AI 辅助逆向)
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 载荷混淆 | AV/EDR | 静态特征缺失但行为特征明显 |
+| 离线逆向 | （无目标侧日志） | **本机分析，目标侧无感** |
+| 样本获取 | 出口日志 | 二进制被下载 |
+| 离线分析 | （无目标日志） | **本机行为** |
+| 样本获取 | 出口 / 下载日志 | 二进制被下载 |
+| 分析工具 | 本机进程链 | 逆向工具启动（端点侧可见） |
+
+**实用推论**：**判据是「静态特征失效但行为仍在」**：混淆只改变检出方式，不改变它要调的系统 API。所以防守方看行为链比看特征更稳 —— 这也是为什么免杀对抗永远打的是 EDR 不是 AV。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -768,12 +781,12 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`apktool`、`ghidra`、`objdump`、`readelf`、`binwalk`、`pip`
-- `frida`：`python -m pip install frida-tools`
-- `apktool`：官方只发 `apktool_<ver>.jar`（需 java）；装上后 `java -jar apktool.jar d <apk>`
-- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `objdump`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `readelf`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `binwalk`：`python -m pip install binwalk`（新版是 python 包）
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
+- `apktool`：官方只发 `apktool_<ver>.jar`（**需 java**）；`java -jar apktool.jar d <apk>`
+- `ghidra`：官方发 `ghidra_<ver>_PUBLIC_<date>.zip`（**需 JDK 17+**，解压后 `ghidraRun.bat`）。**本机已有 `radare2`**：日常反汇编/字符串交叉引用用 `radare2` 够，Ghidra 的优势是反编译成伪 C，只在需要读复杂逻辑时装
+- `objdump`：MinGW/binutils 或 `radare2`（已装）：`radare2 -q -c iI <bin>`
+- `readelf`：Windows 无 readelf；**用 `objdump`（MinGW 自带）或 `radare2`**（已装）：`radare2 -q -c iI <elf>`
+- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
 - `pip`：用 `python -m pip` 代替裸 `pip`
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。

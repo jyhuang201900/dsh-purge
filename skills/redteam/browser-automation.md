@@ -79,6 +79,16 @@ $PW -s=recon1 close                                                   # 关闭�
 - 抓到的 URL/标题写回 `redteam_asset_add`（`url`/`title` 字段），接口清单写 `runs/` 并在攻击链里引用。
 - 截图与页面内容可能含敏感数据，只落 `runs/`，不要写进资产库。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 客户端利用 | Sysmon 1 | 浏览器/Office 拉起 `cmd`/`powershell` |
+| 无头浏览器指纹 | Web 访问日志 | `HeadlessChrome` UA；缺失字体/插件；鼠标轨迹是直线 |
+| 批量页面遍历 | 应用日志 | 单会话访问大量链接且间隔极均匀 |
+
+**实用推论**：**判据是父进程**：客户端软件自己不会起 shell。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

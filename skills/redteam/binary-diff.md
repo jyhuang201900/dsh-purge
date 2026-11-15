@@ -291,6 +291,19 @@ found_struct_offset → idapro_set_comments(addr=insn_va, comment="{struct_name}
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
 | `radare2` | ✓ 已装（toolkit 内，非 PATH） |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 载荷混淆 | AV/EDR | 静态特征缺失但行为特征明显 |
+| 离线逆向 | （无目标侧日志） | **本机分析，目标侧无感** |
+| 样本获取 | 出口 / 下载日志 | 两个版本二进制被同一主机下载（差分前置动作） |
+| 离线差分 | （无目标日志） | **本机行为** |
+| 样本获取 | 出口 / 下载日志 | 两个版本二进制被同一主机下载 |
+| 差分工具运行 | 本机进程链 | `radare2`/`bindiff` 进程启动（端点侧可见） |
+
+**实用推论**：**判据是「权限变了但没有合法记录」**：提权必然留痕，只是痕迹在哪个日志里取决于路径。内核类几乎必触发 EDR（这是它高风险的原因）。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -321,6 +334,6 @@ found_struct_offset → idapro_set_comments(addr=insn_va, comment="{struct_name}
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`ghidra`
-- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `ghidra`：官方发 `ghidra_<ver>_PUBLIC_<date>.zip`（**需 JDK 17+**，解压后 `ghidraRun.bat`）。**本机已有 `radare2`**：日常反汇编/字符串交叉引用用 `radare2` 够，Ghidra 的优势是反编译成伪 C，只在需要读复杂逻辑时装
 
 runnability:end -->

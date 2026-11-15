@@ -84,6 +84,15 @@ Use this skill when the decisive path runs through server-side request capabilit
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 隧道建立 | 出口 / 防火墙 | 长连接（>10min）到单一外部 IP；协议与端口不符 |
+| DNS 隧道 | DNS 日志 | 超长域名、高频 TXT/NULL、大量子域 |
+
+**实用推论**：**判据是「合法凭据的非法使用」**：这条技术不产生漏洞利用特征，只产生行为异常。所以最有效的检测是**基线**（这个人平时从哪来、什么时候来），而不是规则。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

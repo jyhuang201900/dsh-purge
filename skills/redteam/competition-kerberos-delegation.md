@@ -89,6 +89,16 @@ Use this skill when the hard part is not "is there Kerberos here," but which del
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| Kerberoast | DC 4769 | 大量 RC4 服务票据请求，`Service Name` 非 krbtgt |
+| AS-REP | DC 4768 | `Pre-Auth Type = 0` 的批量请求 |
+| 黄金票 | DC 4768/4769 | 票据有效期异常长；加密类型 RC4 |
+
+**实用推论**：**判据是特权令牌的来源**：令牌不会凭空出现，它必然来自某个可读的进程。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

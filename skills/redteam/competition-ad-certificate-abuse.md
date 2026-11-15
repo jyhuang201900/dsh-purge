@@ -84,6 +84,18 @@ Use this skill when the decisive identity edge is certificate-based and the hard
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 证书签发 | ADCS 审计 4886/4887 | 非管理员申请高权限模板；新证书主体异常 |
+| 模板 ACL 修改 | 4662 / 目录服务审计 | `Certificate Templates` 对象的 WriteProperty 被改 |
+| 证书请求 | ADCS 4886/4887 | 非管理员申请高权模板 |
+| 模板 ACL 改动 | 4662 | `Certificate Templates` 对象 WriteProperty 变更 |
+| 证书认证 | DC 4768 + 目标 4624 | 用证书做的 PKINIT 登录（`Pre-Auth` 与密码登录不同） |
+
+**实用推论**：**判据是「合法凭据的非法使用」**：这条技术不产生漏洞利用特征，只产生行为异常。所以最有效的检测是**基线**（这个人平时从哪来、什么时候来），而不是规则。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

@@ -156,6 +156,15 @@ $VPS sh "tmux new-session -d -s fwd-9200 'socat TCP-LISTEN:9200,reuseaddr,fork T
 
 WebShell 场景配合技能 `suo5-tunnel`：把 suo5 客户端放本机，服务端传到目标，隧道出口经 VPS 更稳。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 载荷下载 | Sysmon 15/22 + 出口 | `certutil`/`bitsadmin`/`IWR` 下载可执行文件 |
+| 反弹连接 | 出口 / NetFlow | 目标主动外连陌生公网 IP 高位端口且持续 |
+
+**实用推论**：**判据是「下载完立刻执行」**：下载本身常见，下载后马上跑才异常。
+
 ## 纪律（务必遵守）
 
 1. **端口纪律**：只用 9000-9999，开监听前先 `$VPS port` 或 `$VPS status` 确认空闲；**绝不占用/杀掉 9001、9007、9009 与 `cap/sh/up/www` 会话**。
@@ -232,9 +241,9 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`wget`、`nc`、`socat`
-- `wget`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `nc`：Windows 无原生 nc；用 PowerShell `TcpClient` 或 nmap 包里的 `ncat.exe`
-- `socat`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `wget`：Windows 10+ 自带 `curl.exe`；或 PowerShell `Invoke-WebRequest`
+- `nc`：Windows 无原生 nc；**用 `nmap` 包里的 `ncat.exe`**（本机 nmap 目录里有，实测存在）或 PowerShell `TcpClient`
+- `socat`：Windows 有官方 `socat-<ver>.zip`；轻量替代是 `ncat --ssl` / `chisel`（都已装）
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

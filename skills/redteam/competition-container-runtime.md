@@ -98,6 +98,15 @@ Inspect side by side:
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 特权容器 | K8s audit / 运行时 | `privileged=true`；hostPath 挂 `/`；`docker.sock` 挂载 |
+| 逃逸动作 | 宿主机审计 | 容器内进程出现宿主机 PID 命名空间 |
+
+**实用推论**：**判据是 pod 的权限字段**：逃逸所需的能力在清单里就能看到，不需要等它真的逃。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

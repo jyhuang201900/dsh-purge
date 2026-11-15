@@ -88,6 +88,15 @@ $TK/naabu/naabu -host 1.2.3.4 -p - -rate 1000 -silent
 
 **推荐顺序**：`fofa-recon` 铺面（拿单位资产全景）→ 本技能对每个域名做流水线（拿存活与指纹）→ `active-scan` 对重点 IP 定版本。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 子域枚举 | 权威 DNS | 大量 NXDOMAIN；通配符被试探 |
+| 被动收集 | （无目标日志） | **目标无感**，靠第三方历史数据 |
+
+**实用推论**：**判据是「目标无感」**：被动侦察用的是第三方数据，目标侧一条日志都不会有。所以对它的「检测」不是防守，是资产暴露面收敛。
+
 ## 纪律
 
 1. **只测授权范围内目标**：naabu 全端口、ksubdomain 爆破都属于**主动**行为，确认在范围内再做。
@@ -156,8 +165,8 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`katana`、`gogo`
-- `katana`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `katana`：本机无。**用 `httpx` + `feroxbuster` 组合替代**：`httpx -u <url> -path -status-code` 拉路径，再 `feroxbuster` 递归；katana 的无头浏览器渲染（`-headless`）是它独有的，只在需要 JS 渲染的 SPA 上才必须
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

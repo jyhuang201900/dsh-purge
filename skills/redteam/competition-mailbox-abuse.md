@@ -83,6 +83,20 @@ Use this skill when the decisive path runs through mailbox behavior, consent flo
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 邮箱规则 | Exchange / O365 审计 | 转发规则指向外部域名 |
+| OAuth 授权 | IdP consent | 第三方应用获 `Mail.Read` 类高权 scope |
+| 邮箱规则 | Exchange / O365 审计 | 转发指向外部域名 |
+| OAuth 授权 | IdP consent | `Mail.Read` 类高权 scope |
+| 邮件流异常 | 邮件网关 | 内部邮件被批量转发到外部 |
+| 邮件外流 | 邮件网关 | 内部邮件被批量转发到外部域名 |
+| 邮件外流 | 邮件网关 / 出口 | 内部邮件被批量转发到外部域名（SMTP 出站日志可见） |
+
+**实用推论**：**判据是组成员变更**：加组比建号更危险（建号没权限等于没建）。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

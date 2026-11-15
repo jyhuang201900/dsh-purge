@@ -57,6 +57,15 @@ nmap -f --resume -sS --version-intensity 2 -T2 <target>
 
 `setup.sh` 不下载 dirsearch。`清单.md` 是说明文件，缺了不代表扫描器没装。Windows 与 ARM 构建也不在安装脚本里。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 全端口扫描 | NetFlow | 单源对单主机 1-65535 全端口，几乎不完成握手 |
+| banner 抓取 | 目标连接日志 | 建连即断、不做应用层交互 |
+
+**实用推论**：**判据是连接图的形状**：扫描是发散的，正常访问有明确目的地。
+
 ## 失败分支
 
 - **SYN 全开 0 结果** → 权限或抓包设备问题：`naabu -scan-type c` / `nmap -sT` 重试；仍全开则目标在前端 LB 后面，改按服务端口打。
@@ -103,9 +112,9 @@ nmap -f --resume -sS --version-intensity 2 -T2 <target>
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`masscan`、`dirsearch`、`gogo`
-- `masscan`：该仓库 release 无任何资产（只发源码）；Windows 上优先用 `naabu`
-- `dirsearch`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `masscan`：该仓库 release 无任何资产（只发源码）；**用 `naabu` 替代**（已装）：`naabu -host <ip> -p - -rate 2000`
+- `dirsearch`：本机无。**用 `ffuf`/`feroxbuster` 替代**（都已装）：`ffuf -u http://<t>/FUZZ -w <字典> -mc 200,301,403`；dirsearch 的优势只是内置字典与递归策略
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

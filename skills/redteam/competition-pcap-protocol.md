@@ -86,6 +86,15 @@ Use this skill when the decisive evidence sits inside packet order, protocol fra
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 抓包 | EDR | `pcap` API 调用；网卡进入混杂模式 |
+| 重放 | 应用日志 | 同一请求体短时间重复；nonce/时间戳异常 |
+
+**实用推论**：**判据是「网卡状态 + 重复请求」**：抓包会改网卡模式（有痕），重放会产生完全相同的请求（应用层可查）。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

@@ -144,6 +144,15 @@ mysql -h $REDTEAM_VPS_HOST -P 13306 -u root -p
 5. 每个关键动作 `redteam_chain_add`（`stage_code=boundary-logical`），`tool` 写命令原文、`result` 写回显摘要
    （如 `frpc 注册成功，proxy socks5 start success`）。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 隧道建立 | 出口 / 防火墙 | 长连接（>10min）到单一外部 IP；协议与端口不符 |
+| DNS 隧道 | DNS 日志 | 超长域名、高频 TXT/NULL、大量子域 |
+
+**实用推论**：**判据是「连接形态」不是「连接内容」**：隧道几乎必然加密，所以检测落在时长、包长分布、协议错配上 —— 这些元数据骗不了。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -193,9 +202,9 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`gogo`、`frpc`、`frps`
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `frpc`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `frps`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
+- `frpc`：本机有（`toolkit/frp/frpc.exe`）——这里是**目标机侧**的客户端，拷过去跑即可，本机不需要再装
+- `frps`：本机有（`toolkit/frp/frps.exe`）——跑在 **VPS** 上，不是本机也不是目标机
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

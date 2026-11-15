@@ -57,6 +57,15 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 | `aircrack-ng` | ❌ 未装（用前先装，或改用等价工具） |
 | `wireshark` | ✓ 已装 |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 无线探测 | WIDS | 异常探针请求；去认证风暴 |
+| 无线接入 | （无线侧） | **主机侧无感**，只能靠 WIDS |
+
+**实用推论**：**判据是「认证来源的机器变了」**：中继的本质是把 A 的认证重放到 B。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -107,8 +116,8 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`、`netexec`、`aircrack-ng`
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
-- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `aircrack-ng`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+- `aircrack-ng`：官方发 Windows zip（`aircrack-ng-<ver>-win.zip`）；**需支持监听的无线网卡**，虚拟机上通常不成立
 
 runnability:end -->

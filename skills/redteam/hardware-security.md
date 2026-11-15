@@ -56,6 +56,19 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 | `ghidra` | ❌ 未装（用前先装，或改用等价工具） |
 | `binwalk` | ❌ 未装（用前先装，或改用等价工具） |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 硬件接入 | （物理侧） | USB/JTAG 接入无主机日志，只能靠物理管控 |
+| 固件提取 | （离线） | **离线行为，目标无日志** |
+| 物理接入 | （物理侧） | USB/JTAG/UART 无主机日志 |
+| 固件提取 | （离线） | **本机行为** |
+| 固件/镜像获取 | 出口日志 | 厂商固件包被下载 |
+| 提取工具 | 本机进程链 | `binwalk`/`dd` 启动 |
+
+**实用推论**：**这类动作大多离线发生**：固件拷下来在本机分析，目标侧看不到。对策是物理与供应链管控。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -102,7 +115,7 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`ghidra`、`binwalk`
-- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `binwalk`：`python -m pip install binwalk`（新版是 python 包）
+- `ghidra`：官方发 `ghidra_<ver>_PUBLIC_<date>.zip`（**需 JDK 17+**，解压后 `ghidraRun.bat`）。**本机已有 `radare2`**：日常反汇编/字符串交叉引用用 `radare2` 够，Ghidra 的优势是反编译成伪 C，只在需要读复杂逻辑时装
+- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
 
 runnability:end -->

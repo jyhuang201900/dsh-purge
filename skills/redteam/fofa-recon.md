@@ -160,7 +160,19 @@ python3 runs/fofa_client.py 'cert="example.com"' --pages 3 --interval 2.0
 python3 runs/fofa_client.py 'org="示例科技有限公司"' --pages 2 --interval 2.0
 ```
 
-### 落库
+### 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| OSINT | （无目标日志） | **不可检测**：用公开数据，对策是收敛暴露面 |
+| 测绘查询 | 测绘平台侧 | 只有平台看得到查询 |
+| 资产核对 | （离线） | **本机推理** |
+| 测绘平台调用 | 测绘平台侧日志 | 只有平台能看到 API 查询与语法 |
+| 被动数据下载 | 出口日志 | 导出结果被下载（如果有） |
+
+**实用推论**：**这类动作本质上不可检测**：OSINT 用的是公开数据。对策是把不该公开的东西下线，而不是加日志。
+
+## 落库
 读 `runs/fofa-*.jsonl`，逐条 `redteam_asset_add`：`provenance="passive"`、`tool="fofa"`，端口带 `url=host`、`title`、`product=server`；域名写进 `names`。
 
 ## 常用查询语句

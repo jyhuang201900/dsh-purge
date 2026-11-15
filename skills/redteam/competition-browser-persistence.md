@@ -85,6 +85,20 @@ Use this skill when the decisive branch lives in browser-held state rather than 
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 扩展侧载 | Chrome 企业策略 | 非商店来源扩展；开发者模式扩展在非开发机 |
+| Native Messaging | 注册表审计 | 新增 NativeMessagingHosts 键指向非标准路径 |
+| 扩展侧载 | Chrome 企业策略 | 非商店来源扩展 |
+| Native Messaging | 注册表审计 | 新增 NativeMessagingHosts 键 |
+| 启动项写入 | Sysmon 13 | Run 键指向浏览器相关目录 |
+| 持久化落地 | Sysmon 13 + 文件审计 | Run 键 / 扩展目录 / NativeMessagingHosts 键新增 |
+| 扩展回连 | 出口 / NetFlow | 被植入的扩展向其控制端发起规律性请求 |
+
+**实用推论**：**判据是扩展来源**：正常用户只装商店里的，侧载 = 非同寻常。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

@@ -88,6 +88,16 @@ Use this skill when the challenge revolves around identity flow, replayable cred
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| PtH（NTLM） | 4624 Type3 / DC | 目标有 4624 而 DC 无 4768 |
+| PtT（Kerberos） | DC 4768 | 票是之前签的，DC 无新 4768 |
+| 令牌操纵 | 4672 | 非 SYSTEM 进程获得特权令牌 |
+
+**实用推论**：**判据是「合法凭据的非法使用」**：这条技术不产生漏洞利用特征，只产生行为异常。所以最有效的检测是**基线**（这个人平时从哪来、什么时候来），而不是规则。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

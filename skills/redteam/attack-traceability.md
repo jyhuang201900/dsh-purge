@@ -135,6 +135,17 @@ whenToUse: 规划阶段要选"打到哪几步"时；要判断手上这发属于�
 - `attack-chain`：多阶段路线编排
 - `verification-discipline`：映射前先确认发现成立
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| LSASS 内存读取 | 4656 / Sysmon 10 | 进程打开 `lsass.exe`，`GrantedAccess` 含 `0x1010`/`0x1410` |
+| SAM/NTDS 导出 | 4663 / 4656 | `reg save` 访问 `config\SAM`；`ntds.dit` 被复制 |
+| DPAPI 主密钥 | Sysmon 11 / 4663 | 读取 `Protect\S-1-5-18` 下的 masterkey 文件 |
+| Linux 凭据提取 | auditd | 读 `/etc/shadow`、`~/.ssh/`、进程内存（`/proc/*/mem`） |
+
+**实用推论**：**判据是「谁在碰凭据存储」**：凭据库只有特定系统进程会读。任何非系统进程碰 lsass/SAM/masterkey 都是异常，不需要判断意图。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）

@@ -353,6 +353,44 @@ if (!skip("searchrank")) {
   }
 }
 
+// 关 35：事务原子性——importBundle 中途失败必须全量回滚。
+// 由来：1.1.119 全面审阅实测，`scan_run` 的 INSERT 写在 `BEGIN` 之前，后面的 upsert
+// 抛错走 ROLLBACK 时那条已经提交 → 库里留着 `status='completed'` 的孤儿运行记录，
+// 而它关联的资产/端口/漏洞全被回滚。后果不是"多一行"：报告显示「跑过一次扫描」、
+// 统计 count>0，点进去什么都没有，而用户以为是"数据丢了"。
+// 这类缺陷只有在**构造非法输入**时才出现（正常流程永远不触发），必须主动造。
+// 反向探针验过：把 scan_run 移回事务外 → `scan_run 0 → 1`，本关立刻报红。
+if (!skip("tx")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-tx-atomicity.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`事务原子性未守住：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("回滚")) || "";
+    notes.push(`事务原子性：${stat.replace(/^\[check-tx-atomicity\]\s*/, "").trim()}`);
+  }
+}
+
+// 关 36：用户 override 与出厂注入的读入口条款比对。
+// 由来：1.1.119 全面审阅实测，用户 `~/.dsh/prompt-inject.md`（30027 字）整份替换出厂稿
+// （32030 字），而它**缺三条技能链路条款**（谁归谁 / 链路位置 / 上游下游纪律）——
+// 全库 119 个技能末尾精心生成的「链路位置」章节在真实运行里**没有读入口**。
+// 这正是 1.1.96 踩过的同一个坑（生效稿缺 18/28 条而字数只差 6729），
+// 教训写进了记忆但没做闸门，所以复发。本关只警告不失败（override 是用户资产），
+// 但保证它每次都在输出里出现 —— 不然「记了教训没人看见」会再来一次。
+if (!skip("override")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-override-parity.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  const miss = out.filter((l) => l.includes("✗"));
+  if (miss.length) {
+    failures.push(`用户 override 缺读入口条款 ${miss.length} 处（改出厂稿对行为零影响，必须同步改用户稿）：${miss[0].trim().slice(0, 90)}`);
+  } else {
+    const stat = out.find((l) => l.includes("锚点")) || "";
+    notes.push(`override 一致性：${stat.replace(/^\[check-override-parity\]\s*/, "").trim()}`);
+  }
+}
+
 // 关 23：事实库引用完整性——asset_id 不许指向不存在的资产。
 // 由来：2026-11-14 逻辑审阅实测，schema 里 24 张表没有任何 FOREIGN KEY，应用层原先也不校验，
 // asset_id=99999 会写入成功并可查回（asset_ip 为 null）。后果不是"多一条脏数据"：

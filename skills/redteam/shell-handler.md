@@ -143,6 +143,15 @@ msf6 > exploit -j
 5. **交付给用户能复用的入口**：优先落地**冰蝎马/哥斯拉马**（技能 `webshell-toolkit`）——用户能在控制台直连操作；
    临时反弹会话要说明"这是一次性会话，非交付入口"。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 命令解释器 | 4688 + 父进程 | `cmd`/`powershell` 的父进程是 Web 服务或 Office |
+| 编码命令 | 4104 | `-enc` 长串；`IEX` + 下载调用 |
+
+**实用推论**：**判据是父进程**：命令解释器本身不异常，异常的是「谁启动了它」。Web 服务、Office、数据库进程拉起的 `cmd` 几乎必是入侵。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -194,12 +203,12 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`msfconsole`、`gogo`、`proxychains`、`wget`、`nc`、`socat`
-- `msfconsole`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `proxychains`：Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>` 或 PowerShell `-Proxy`
-- `wget`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `nc`：Windows 无原生 nc；用 PowerShell `TcpClient` 或 nmap 包里的 `ncat.exe`
-- `socat`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `msfconsole`：Windows 官方安装包（`metasploitframework-latest.msi`）；**轻量替代**：`nuclei` 打已知漏洞、`chisel`+`suo5` 做隧道、`shell-handler` 技能里的各语言反弹一句话（都已装）
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
+- `proxychains`：Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>`，或 `chisel`/`ligolo` 自带的本地监听（都已装）
+- `wget`：Windows 10+ 自带 `curl.exe`；或 PowerShell `Invoke-WebRequest`
+- `nc`：Windows 无原生 nc；**用 `nmap` 包里的 `ncat.exe`**（本机 nmap 目录里有，实测存在）或 PowerShell `TcpClient`
+- `socat`：Windows 有官方 `socat-<ver>.zip`；轻量替代是 `ncat --ssl` / `chisel`（都已装）
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 

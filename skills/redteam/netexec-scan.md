@@ -70,6 +70,15 @@ netexec ldap 10.0.0.5 -u user -p 'pass' --adcs # ADCS 证书服务检查（ESC1 
 | Kerberos Ticket | `-k` + kinit | 走 88 端口，绕过部分 NTLM 拦截 |
 | 想摸 relay 候选 | `--gen-relay-list` | 配合 ntlmrelayx（见 lateral-movement） |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| SMB 横移 | 5140 / 5145 | `ADMIN$`/`C$` 写入后立即起服务 |
+| WinRM 执行 | 5985 + 4688 | 远程 shell 的父进程是 `wsmprovhost.exe` |
+
+**实用推论**：**判据是「写管理共享 + 起服务」的组合**，单独看每一步都不异常。
+
 ## 失败分支
 
 - **全部无效**：先判是不是被锁/被拦——`netexec smb <ip> -u test -p wrong` 看返回是 `STATUS_LOGON_FAILURE`（凭据错）还是 `STATUS_ACCOUNT_LOCKED_OUT`（锁了，停手等策略窗口）；再换协议试（口令可能只对 MySQL/HTTP 有效，SMB 本地管理员是另一套）。
@@ -124,9 +133,9 @@ netexec ldap 10.0.0.5 -u user -p 'pass' --adcs # ADCS 证书服务检查（ESC1 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`impacket`、`netexec`、`crackmapexec`、`gogo`
-- `impacket`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `crackmapexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+- `crackmapexec`：该项目已改名为 **netexec**（`nxc`）；本机两个都没有 —— 用 `fscan` 的 SMB 模块做初筛，深挖再装 netexec
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
 
 runnability:end -->

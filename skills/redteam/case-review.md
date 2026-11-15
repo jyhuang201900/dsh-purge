@@ -159,6 +159,15 @@ This skill has no third-party dependency. If Python 3 is unavailable, the only a
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 开源信息收集 | （无目标侧日志） | **目标侧无感**；只能在公开数据源侧留痕（搜索/API 调用） |
+| 复盘（不产生流量） | （无目标侧日志） | **纯离线**：复盘历史战果，不碰目标 |
+
+**实用推论**：**这类动作本质上不可检测**：OSINT 用的是公开数据。对策是把不该公开的东西下线，而不是加日志。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）

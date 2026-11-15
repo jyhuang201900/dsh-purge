@@ -74,6 +74,16 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 | --- | --- |
 | `frida` | ❌ 未装（用前先装，或改用等价工具） |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 会话劫持 | Web 访问日志 | 同一 Cookie 在不兼容的 UA/IP 上使用 |
+| 扩展商店查询 | 商店侧日志 | 目标侧无感 |
+| 扩展包下载 | 出口日志 | `.crx` 被下载 |
+
+**实用推论**：**判据是会话与设备的绑定关系**：会话被搬到另一台机器就是最强信号。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -121,6 +131,6 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
-- `frida`：`python -m pip install frida-tools`
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
 
 runnability:end -->

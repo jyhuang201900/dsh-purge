@@ -85,6 +85,16 @@ Use this skill when the decisive edge is not just reaching metadata, but proving
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 云 API 侦察 | CloudTrail | `Describe*`/`List*` 突发大量调用（只读无写） |
+| 元数据服务访问 | 实例侧 / VPC 流日志 | `169.254.169.254` 被非实例自身进程访问 |
+| SA/Secret 枚举 | K8s audit | 跨 namespace `get/list`；读取非本工作负载 Secret |
+
+**实用推论**：**判据是「合法凭据的非法使用」**：这条技术不产生漏洞利用特征，只产生行为异常。所以最有效的检测是**基线**（这个人平时从哪来、什么时候来），而不是规则。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。

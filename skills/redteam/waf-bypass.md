@@ -75,6 +75,16 @@ TLS       curl 的 JA3 与浏览器不同，被 JS 挑战时改用真浏览器
 2. **换出口**：代理池（技能 `cn-proxy-pool`）——**注意：代理只换你的 IP，不换目标的 WAF 规则**；先确认代理真的生效（`curl -x` 后看回显出口 IP）。
 3. **换路径**：同一功能常有多个入口（`/api/v1` 与 `/api/v2`、`GET` 与 `POST`、`/search` 与 `/search/export`），老接口常常没进 WAF 规则。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| Web 漏洞利用 | WAF / 应用访问日志 | 请求体含已知 payload 形态；同一 IP 短时多路径探测 |
+| 未授权接口 | 应用日志 401/403 | 同一会话从 200 变 401 再变 200（越权探测） |
+| 反序列化 / 注入 | 应用错误日志 | 异常堆栈；出站 DNS/LDAP 请求（外带验证） |
+
+**实用推论**：**判据是「静态特征失效但行为仍在」**：混淆只改变检出方式，不改变它要调的系统 API。所以防守方看行为链比看特征更稳 —— 这也是为什么免杀对抗永远打的是 EDR 不是 AV。
+
 ## 失败分支
 
 - **403 但内容其实执行了**（有些 WAF 只改状态码）→ 比对 `size_download` 与延时，别只看状态码。
@@ -121,6 +131,6 @@ TLS       curl 的 JA3 与浏览器不同，被 JS 挑战时改用真浏览器
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`sqlmap`
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
 
 runnability:end -->

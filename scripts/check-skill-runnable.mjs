@@ -102,7 +102,17 @@ for (const f of files) {
     const re = new RegExp("(?:^|[\\s|&;($`])" + esc(t) + "(?=[\\s|&;)$`\\\\]|$)", "m");
     return re.test(body) && !has(t);
   });
-  rows.push({ id, blocks: blocks.length, linux, missing, hasWin: WIN_MARK.test(text), hasToolkitMark: TOOLKIT_MARK.test(text) });
+  /* 收集可执行性块里的 `- \`tool\`：说明` 条目，供「空话检测」逐条判出口。
+     只拦**块内**的条目：那是生成器写的；技能正文自己的说明不受此闸门管。 */
+  const vagueLines = [];
+  const blk = /runnability:start[\s\S]*?runnability:end/.exec(text);
+  if (blk) {
+    for (const line of blk[0].split("\n")) {
+      const m = /^-\s+`([a-z0-9_.-]+)`：(.+)$/.exec(line.trim());
+      if (m) vagueLines.push({ tool: m[1], note: m[2] });
+    }
+  }
+  rows.push({ id, blocks: blocks.length, linux, missing, vagueLines, hasWin: WIN_MARK.test(text), hasToolkitMark: TOOLKIT_MARK.test(text) });
 }
 
 const withCmd = rows.filter((r) => r.blocks > 0);
@@ -135,4 +145,45 @@ if (asJson) {
   console.log(`  Linux 形态最多的技能: ` + linuxRows.sort((a, b) => b.linux.length - a.linux.length).slice(0, 8).map((r) => `${r.id}(${r.linux.length})`).join("  "));
   console.log("  （本闸门只报告不拦：工具按需装、平台靠人切换都属正常，但落差必须可见）");
 }
+
+/* 空话检测（1.1.119）。这一条**真的拦**，与上面「只报告」的部分不同。
+   为什么必须拦：可执行性块的全部价值在于「告诉模型现在能干什么」。原先生成器对
+   没有替代映射的工具统一写「先确认它是否必要，必要时找官方 Windows 构建」——
+   实测 140 条工具落差里 **80 条（57%）是这种句子**，模型读到只会跳过，
+   等于块存在但零信息量。这不是措辞问题，是「承诺了却给不出」的变体：
+   块声称在解决落差，实际一条出口都没给。
+   判据：块内每个 `- \`tool\`：` 条目，冒号后的说明必须**至少命中一类出口**：
+     · 一条可复制的命令（反引号里含空格或 `-` 参数，如 `fscan -h ...`）
+     · 明确的替代工具名（「用 `xxx` 替代」/「改用」）
+     · 明确的「本机没有是对的」类说明（只能目标机跑 / 离线跑 / 本机不需要）
+     · 一条安装命令（`pip install` / `npm run` / `apt` / 官方 zip 包名）
+   四类都不命中 = 空话。 */
+/* 判据从「猜自然语言」改成「看有没有具体标识」。
+   原因：语义正则永远追不上真实写法 —— 第一版要求「用 X 替代」紧邻，
+   把 nikto→nuclei 误判；第二版放宽后，bloodhound「可本机跑」、john「官方 run/ 里有 john.exe」、
+   nc「用 ncat.exe」又都漏过。**改判据的方向错了**：应该问「这条说明有没有点到具体名字」，
+   而不是「它属于哪类出口」。
+   判据（可机器判、不依赖措辞）：
+     a. 命中原始空话模板 → 空话
+     b. 说明里**没有任何反引号**（没点任何工具名/命令/包名）→ 空话
+     c. 有反引号，但反引号里只有 1-2 个字符 → 空话（不成其为标识）
+   这样 nikto(`nuclei`)、bloodhound(`SharpHound.exe`)、john(`run/`)、nc(`ncat.exe`) 全部通过，
+   而「先确认它是否必要，必要时找官方 Windows 构建」这种一句空话会被 a 拦下。 */
+const VAGUE = /先确认它是否必要|必要时找官方 Windows 构建|本机无、也无已验证替代/;
+const vague = [];
+for (const r of rows) {
+  for (const v of r.vagueLines || []) {
+    if (VAGUE.test(v.note)) { vague.push({ id: r.id, tool: v.tool, note: v.note, why: "套话" }); continue; }
+    const spans = [...v.note.matchAll(/`([^`]+)`/g)].map((m) => m[1].trim()).filter((x) => x.length >= 3);
+    if (!spans.length) { vague.push({ id: r.id, tool: v.tool, note: v.note, why: "没点任何具体名字" }); continue; }
+  }
+}
+if (vague.length) {
+  console.log(`  ✗ 可执行性块里有 ${vague.length} 条空话（${[...new Set(vague.map((v) => v.why))].join("/")}）：`);
+  for (const v of vague.slice(0, 6)) console.log(`      ${v.id} · \`${v.tool}\`（${v.why}）：${v.note.slice(0, 80)}`);
+  console.log("  → 空话比没有更糟：块声称在解决落差，模型却拿不到任何可执行的出口。");
+  console.log("    （判据：不许套话 + 说明里必须用反引号点到具体工具名/命令/包名）");
+  process.exit(1);
+}
+console.log("  ✓ 可执行性块无空话（每条落差都点到了具体工具/命令/包名，或说明了为何本机不需要）");
 process.exit(0);

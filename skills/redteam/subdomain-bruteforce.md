@@ -85,6 +85,15 @@ cat runs/all-subdomains.txt | $TK/dnsx/dnsx -silent -a -resp -wd example.com | a
 wc -l runs/final.txt
 ```
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 子域枚举 | 权威 DNS | 大量 NXDOMAIN；通配符被试探 |
+| 被动收集 | （无目标日志） | **目标无感**，靠第三方历史数据 |
+
+**实用推论**：**判据是「目标无感」**：被动侦察用的是第三方数据，目标侧一条日志都不会有。所以对它的「检测」不是防守，是资产暴露面收敛。
+
 ## 失败分支
 
 - **爆破 0 结果** → 先确认不是泛解析被 `-wd` 误杀，再确认字典路径存在（`ls /usr/share/seclists/...`），最后换 DNS 服务器（`dnsx -r 1.1.1.1,8.8.8.8`）。
@@ -132,7 +141,7 @@ wc -l runs/final.txt
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`masscan`、`pip`
-- `masscan`：该仓库 release 无任何资产（只发源码）；Windows 上优先用 `naabu`
+- `masscan`：该仓库 release 无任何资产（只发源码）；**用 `naabu` 替代**（已装）：`naabu -host <ip> -p - -rate 2000`
 - `pip`：用 `python -m pip` 代替裸 `pip`
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。

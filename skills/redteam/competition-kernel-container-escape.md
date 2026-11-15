@@ -84,6 +84,15 @@ Use this skill when the decisive step is proving a boundary crossing between con
 
 
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 内核提权 | EDR 行为链 | 异常内存映射 + 提权系统调用；uid 无 sudo 记录变 0 |
+| 服务/驱动 | 7045 / Sysmon 6 | 未签名驱动加载；服务 ImagePath 变更 |
+
+**实用推论**：**判据是「权限变了但没有合法记录」**：提权必然留痕，只是痕迹在哪个日志里取决于路径。内核类几乎必触发 EDR（这是它高风险的原因）。
+
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -109,3 +118,12 @@ Use this skill when the decisive step is proving a boundary crossing between con
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

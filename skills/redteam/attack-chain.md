@@ -667,6 +667,15 @@ touch -t 202301010000 /path/to/file
 | `sqlmap` | ❌ 未装（用前先装，或改用等价工具） |
 | `burp` | ❌ 未装（用前先装，或改用等价工具） |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 远程服务执行 | 4624 Type 3/10 + 7045 | 非管理时段的管理协议登录；登录源为内网非常规主机 |
+| SMB/WinRM 横向 | 5140 / 5145 | 管理共享（`C$`/`ADMIN$`）写入后立即执行 |
+
+**实用推论**：**判据是「管理协议的常规性」**：横移必然用管理通道（SMB/WinRM/RDP），所以看「谁在什么时间用管理通道连了谁」比看工具特征更可靠。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -711,17 +720,17 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`katana`、`whatweb`、`sqlmap`、`hydra`、`impacket`、`netexec`、`crackmapexec`、`bloodhound`、`mimikatz`、`responder`、`aircrack-ng`、`pip`
-- `katana`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `katana`：本机无。**用 `httpx` + `feroxbuster` 组合替代**：`httpx -u <url> -path -status-code` 拉路径，再 `feroxbuster` 递归；katana 的无头浏览器渲染（`-headless`）是它独有的，只在需要 JS 渲染的 SPA 上才必须
 - `whatweb`：Ruby gem；无 ruby 时用 `curl -I` + 人工指纹（技能里的指纹表可当字典）
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
 - `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
-- `impacket`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `crackmapexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `bloodhound`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `mimikatz`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `responder`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `aircrack-ng`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+- `crackmapexec`：该项目已改名为 **netexec**（`nxc`）；本机两个都没有 —— 用 `fscan` 的 SMB 模块做初筛，深挖再装 netexec
+- `bloodhound`：采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可
+- `mimikatz`：**只能拷到目标机跑**（它读的是目标内存里的凭据，本机跑没有任何意义）。本机只需准备二进制：`Invoke-Mimikatz` 官方 release 或 `python -m pip install pypykatz`（离线解析目标 dump 出来的 lsass.dmp）
+- `responder`：Windows 上直接跑会抢占本机 NetBIOS 名（有风险）。**用 `python -m pip install responder` 并只在授权靶段的小网段跑**；轻量替代是 `fscan` 的 `-m ms` 与 arp 扫描
+- `aircrack-ng`：官方发 Windows zip（`aircrack-ng-<ver>-win.zip`）；**需支持监听的无线网卡**，虚拟机上通常不成立
 - `pip`：用 `python -m pip` 代替裸 `pip`
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。

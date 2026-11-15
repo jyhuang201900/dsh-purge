@@ -75,6 +75,19 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 | `radare2` | ✓ 已装（toolkit 内，非 PATH） |
 | `strings` | ✓ 已装 |
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 载荷混淆 | AV/EDR | 静态特征缺失但行为特征明显 |
+| 离线逆向 | （无目标侧日志） | **本机分析，目标侧无感** |
+| 样本获取 | 出口日志 | 二进制被下载 |
+| 离线分析 | （无目标日志） | **本机行为** |
+| 样本获取 | 出口 / 下载日志 | 二进制被下载 |
+| 分析工具 | 本机进程链 | `radare2`/`ghidra` 启动 |
+
+**实用推论**：**判据是「静态特征失效但行为仍在」**：混淆只改变检出方式，不改变它要调的系统 API。所以防守方看行为链比看特征更稳 —— 这也是为什么免杀对抗永远打的是 EDR 不是 AV。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -117,7 +130,7 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`ghidra`
-- `frida`：`python -m pip install frida-tools`
-- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
+- `ghidra`：官方发 `ghidra_<ver>_PUBLIC_<date>.zip`（**需 JDK 17+**，解压后 `ghidraRun.bat`）。**本机已有 `radare2`**：日常反汇编/字符串交叉引用用 `radare2` 够，Ghidra 的优势是反编译成伪 C，只在需要读复杂逻辑时装
 
 runnability:end -->

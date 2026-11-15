@@ -112,6 +112,15 @@ proxychains4 -f runs/proxychains-1080.conf \
    写清监听地址与端口，并说明该隧道跨越了靶标边界。
 5. 每个关键动作 `redteam_chain_add`（`stage_code=boundary-logical`），`tool` 写命令原文、`result` 写回显摘要。
 
+## 检测视角（防守方在日志里看到什么）
+
+| 动作 | 防守方看哪里 | 典型信号 |
+| --- | --- | --- |
+| 隧道建立 | 出口 / 防火墙 | 长连接（>10min）到单一外部 IP；协议与端口不符 |
+| DNS 隧道 | DNS 日志 | 超长域名、高频 TXT/NULL、大量子域 |
+
+**实用推论**：**判据是「连接形态」不是「连接内容」**：隧道几乎必然加密，所以检测落在时长、包长分布、协议错配上 —— 这些元数据骗不了。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -160,8 +169,8 @@ second-shot:end -->
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
 
 本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`gogo`、`proxychains`
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `proxychains`：Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>` 或 PowerShell `-Proxy`
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
+- `proxychains`：Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>`，或 `chisel`/`ligolo` 自带的本地监听（都已装）
 
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
