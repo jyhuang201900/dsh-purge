@@ -1,7 +1,7 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 36 闸门）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 37 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 宿主启动失败排查（1.1.117 定型，最容易误判）
@@ -21,7 +21,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 3. `node --check` 改动 JS；`node scripts/verify.mjs`（34 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 7d8a8ad = 1.1.119。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 0c92140 = 1.1.120。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
    - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。临时验证可以 cp，但要记得这只是临时手段，正式版必须走 pnpm。
 
@@ -132,3 +132,14 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 `~/.dsh/prompt-inject.md` 存在时**整份替换**出厂 `lib/default-prompt-inject.md`。**改出厂稿对实际行为零影响**。
 必须两处都改。第 36 关 `check-override-parity` 守 7 个「读入口锚点」（谁归谁 / 链路位置 / 上游下游纪律 / 落库纪律 / ver 验证层 / 检索入口 / 确认条款 / ATT&CK），只警告不失败。
 判据陷阱：锚点词不能只认一种措辞 —— 「只问一次」在用户稿里是「只对第一次开口收一次费」。
+
+## 审阅方法（两轮换判据才找准，1.1.119 + 1.1.120）
+**只看覆盖率会漏掉「写了但跑不起来」。**两轮要分开做：
+- **第一轮看「有没有写」**：覆盖矩阵（30 维度 × 识别词）、职责/体量倒挂、references 深度。
+- **第二轮看「能不能跑」**：
+  · **toolkit 路径**（第 37 关）：路径在本机不存在且同小节无侧别说明 = 缺陷。判据要按**同一小节**找声明，不能按「前后 3 行」——人必然把「工具选择说明 + 它的命令」写在一节里，隔 5 行很正常。
+  · **平台错配**：`suo5` 只给 `suo5-linux-amd64` 而本机只有 `suo5.exe`，所有命令都跑不起来。这类比「文件缺了」更隐蔽（缺失至少报错）。
+  · **边界输入探针**：空串/空格/超长/路径穿越/null/undefined/对象/数组全跑一遍，看有没有抛异常。
+  · **零命中是否降级**：`q=T9999`（不存在的编号）曾降级成模糊匹配命中 `vps-reverse-shell`（因为正文有端口 9999）。编号是精确标识，**不许降级**。
+  · **过短查询**：`q=a` 曾命中 95 个技能。一屏 95 个比没有结果更糟（模型挑第一个，而第一个是字母序巧合）。
+- 闸门判据设计的三条纪律：① 别把「目标机载荷本机没有」判成缺陷（会让闸门失去区分力）；② 声明词表要覆盖同义写法（「需自行补上」vs「需自行放到该路径」vs「不下载」）；③ **判据不能把自己给的提示当成违规**（第 34 关曾因为提示文字用 · 列建议，把提示判成违规列表）。
