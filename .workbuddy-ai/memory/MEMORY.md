@@ -1,7 +1,7 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 37 闸门）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 40 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 宿主启动失败排查（1.1.117 定型，最容易误判）
@@ -21,7 +21,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 3. `node --check` 改动 JS；`node scripts/verify.mjs`（34 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 0c92140 = 1.1.120。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 d44c603 = 1.1.121。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
    - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。临时验证可以 cp，但要记得这只是临时手段，正式版必须走 pnpm。
 
@@ -143,3 +143,30 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
   · **零命中是否降级**：`q=T9999`（不存在的编号）曾降级成模糊匹配命中 `vps-reverse-shell`（因为正文有端口 9999）。编号是精确标识，**不许降级**。
   · **过短查询**：`q=a` 曾命中 95 个技能。一屏 95 个比没有结果更糟（模型挑第一个，而第一个是字母序巧合）。
 - 闸门判据设计的三条纪律：① 别把「目标机载荷本机没有」判成缺陷（会让闸门失去区分力）；② 声明词表要覆盖同义写法（「需自行补上」vs「需自行放到该路径」vs「不下载」）；③ **判据不能把自己给的提示当成违规**（第 34 关曾因为提示文字用 · 列建议，把提示判成违规列表）。
+
+## 语义层审计（1.1.121 定型，第三轮判据）
+前两轮查形态（有没有写 / 路径对不对），这一轮查**内容对不对**。三个可机器判的锚点：
+1. **官方页**：CVE 事实（受影响版本、CVSS、PR/UI、KEV）只能对 NVD 核，不能凭记忆。
+2. **本机真实二进制**：工具 flag 会随版本改名（nuclei v3.11.1 把 `-json` 改成 `-jsonl`），
+   而 httpx/naabu 的 `-json` 仍合法 —— 同类工具升级方向不一致。`node scripts/fetch-toolhelp.mjs` 抓 help，`check-semantic-flags` 比对。
+3. **本机注册表/文件系统**：注册表路径 `Test-Path` 实测。
+
+### 抓 help 的两个坑（fetch-toolhelp.mjs 已内置处理）
+- **`-h` 不一定是 help**：fscan 的 `-h` 是「目标主机」，要按 `--help`→`-help`→`-h` 顺序试。
+- **Go 的 flag 包把 usage 打在 stderr 且 exit 0**：`execFileSync` 拿不到 stderr（fscan stdout 605 / stderr 4454），必须 `spawnSync` 收两路。
+
+### 写入类命令的硬判据
+- **组策略键在干净系统上不存在**：`HKLM\SOFTWARE\Policies\...` 那几个 `Test-Path` 全 False。
+  用 `Set-ItemProperty` 直接抛 `Cannot find path`。必须 `reg add` / `New-Item -Force`（自动建键）。
+- **「命令成功」≠「效果达成」**：reg add 成功但域策略会覆盖回去；EDR 可能从 ETW 取数据不看注册表。
+  验伤只能打特征命令再看日志有没有新记录。
+
+### 别名劫持（第 40 关）
+脚本环境里 `curl`=`Invoke-WebRequest`，`-o/-w/-s/-k` 全不兼容 → 必须 `curl.exe`。
+同类：`wget`/`rm -rf`/`cat`/`ls -la`/`ps -ef`/`kill -9`/`grep -r`/`head`/`tail`。
+
+### 判据设计教训（新增两条）
+- **「RCE」这个词要慎用**：4 个 CVE 里 3 个被标 RCE，实际是「路径遍历+需落点」「账户接管+需骗人点」「越界读+需找外带路径」。
+  虚高严重性直接变成红队的时间浪费。
+- **判据太松 = 报告没人看**：端口审计第一版「服务名后 20 字符内有数字」，
+  `http` 后面全是状态码和 IP 段，噪音 90%+。收紧到「显式写端口」后只剩 10 处全对。**宁可漏判，不要满屏误报**。
