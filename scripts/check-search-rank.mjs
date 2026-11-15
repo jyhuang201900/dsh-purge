@@ -87,6 +87,46 @@ if (!/没有|不存在/.test(bogusText)) {
   problems.push("q=T9999 没有明确说「没有这条技术」—— 沉默等于默认存在");
 }
 
+/* ── 中文语义查询的首条（1.1.122 加）──
+   为什么单独一组：这三个查询都曾被**新增内容**污染过，而编号查询不覆盖这类污染。
+   ① q=域控：`c2-framework-ops` 讲 domain fronting、`plc-controller-attack` 含 ControlLogix，
+      同义词展开出裸 `domain` 与 `domain controller` → 后者被拆成 `controller` 命中
+      plc 的 key `controller-level`，把 lateral-movement 挤后。
+      修：展开词只留 AD 专有词（Active Directory / Kerberos / 域渗透 / 拿域）。
+   ② q=提权：`graphql-testing` / `http-smuggling` / `race-conditions` 的章节标题
+      都叫「利用提权 / 横向」（模板化章节名），于是它们的 key 里有「利用提权」。
+      修：标题改成「从本类漏洞往下走」——它们本来就不做提权。
+   ③ q=工控：新 OT 技能最初没在 description 写「工控」，查不到。
+      修：三个 OT 技能 description 里加「工控(OT)」。
+   **必须卡首条**：这三条都是「首条错 → 拿到的技能根本不对」的情形。 */
+const semanticCases = [
+  { q: "域控", want: "lateral-movement", why: "它的 key 就是「找域控路径」；被同义词展开的泛词抢占过" },
+  { q: "提权", want: "privesc-persistence", why: "提权专业户；被模板化章节标题「利用提权」抢占过" },
+  { q: "工控", want: "industrial-protocol-recon", why: "OT 侦察专项；新技能未写「工控」时查不到" },
+  /* 多词英文查询：第一版「反含 close」判据（key 长度 ≤ 查询+3 给 62）在单实体中文上对，
+     在多词英文上反噬 —— `active directory` 含 key `directory`，
+     于是 dir-bruteforce（目录爆破）成了 AD 查询的首条。这条必须守住。 */
+  { q: "active directory", want: "identity-federation", why: "多词查询不许被其中一个词的 key 抢首条（曾命中目录爆破）" },
+];
+for (const c of semanticCases) {
+  const r = searchSkills(c.q, 3);
+  const txt = String(r?.text || "");
+  const first = txt.split("\n").find((l) => l.trim().startsWith("·"));
+  if (!first) {
+    problems.push(`q=${c.q} 没有任何结果（预期首条 ${c.want}）`);
+    continue;
+  }
+  const got = first.replace(/^\s*·\s*/, "").split("｜")[0].trim();
+  /* 语义查询的结果带阶段后缀（`privesc-persistence（4 漏洞利用）`），
+     编号查询不带。所以这里剥掉全角括号部分再比对。
+     用 indexOf 而不是正则：`（` 是全角字符，写进字符类容易因编码出问题（实测踩过）。 */
+  const gutId = got.indexOf("（") >= 0 ? got.slice(0, got.indexOf("（")).trim() : got;
+  announce.push(`q=${c.q} → ${gutId}`);
+  if (gutId !== c.want) {
+    problems.push(`q=${c.q} 首条是 ${gutId}，应为 ${c.want}（${c.why}）`);
+  }
+}
+
 /* 过短查询必须拒答并给提法（1.1.119 实测：`q=a` 命中 95 个、`q=T` 命中 89 个）。
    这不是"结果不够准"，是**结果等于噪音**：一屏 95 个技能比没有结果更糟，
    模型无从取舍，往往挑第一个 —— 而第一个是字母序巧合。

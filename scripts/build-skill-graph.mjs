@@ -51,11 +51,11 @@ const ROLES = {
 
 /* ── 1) 阶段归属：前缀/关键词规则（顺序敏感，先命中先用） ── */
 const STAGE_RULES = [
-  [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce)$/, "1", "recon"],
+  [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|social-engineering|industrial-protocol-recon)$/, "1", "recon"],
   [/^(web-fingerprint|asset-correlation)$/, "2", "assess"],
   [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|database-security|email-security|llm-security|ai-infra-attack|cn-oa-exploit)$/, "3", "vuln-scan"],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell|privesc-persistence|secdev-boundary|iot-iiot-netdev)$/, "4", "exploit"],
-  [/^(gogo-intranet|fscan-intranet|netexec-scan|lateral-movement|windows-ad|identity-federation|cloud-k8s|ot-ics|edr-bypass-re|threat-hunting|wifi-wireless|hardware-security|radio-sdr)$/, "5", "internal"],
+  [/^(gogo-intranet|fscan-intranet|netexec-scan|lateral-movement|windows-ad|identity-federation|cloud-k8s|ot-ics|plc-controller-attack|scada-hmi-attack|c2-framework-ops|edr-bypass-re|threat-hunting|wifi-wireless|hardware-security|radio-sdr)$/, "5", "internal"],
   [/^(suo5-tunnel|chisel-tunnel|frp-tunnel)$/, "4", "exploit"],
   [/^(attack-chain|pentest-tools|case-review|ctf-sandbox|ctf-sandbox-orchestrator|redteam-setup)$/, "flow", "flow"],
   /* 验证层三技能：**跨阶段**，不是某一阶段的专属。
@@ -66,7 +66,7 @@ const STAGE_RULES = [
      模型以为「打完才用」，实际它们应该在**打之前和打之后都用**。 */
   [/^(verification-discipline|detection-pairing|attack-traceability)$/, "flow", "flow"],
   [/^(browser-automation|kimi-webbridge|cn-proxy-pool)$/, "flow", "aux"],
-  [/^(reverse-engineering|ida-reverse|ghidra-reverse|radare2|binary-diff|patch-diff-exploit|pwn-chain|go-rust-reverse|dotnet-reverse|js-reverse|browser-extension-reverse|thick-client|protocol-reverse|firmware-pentest|apk-reverse|mobile-reverse)$/, "4", "exploit"],
+  [/^(reverse-engineering|ida-reverse|ghidra-reverse|radare2|binary-diff|patch-diff-exploit|pwn-chain|go-rust-reverse|dotnet-reverse|js-reverse|browser-extension-reverse|thick-client|protocol-reverse|firmware-pentest|apk-reverse|mobile-reverse|mobile-app-assessment)$/, "4", "exploit"],
   [/^(malware-analysis|digital-forensics|supply-chain-security|api-security|code-audit)$/, "3", "vuln-scan"],
   [/^competition-/, "surface", null],
 ];
@@ -96,6 +96,9 @@ const TRUNK = {
   "recon-pipeline": { up: ["fofa-recon"], down: ["web-fingerprint", "active-scan"] },
   "active-scan": { up: ["recon-pipeline"], down: ["web-fingerprint", "nuclei-scan"] },
   "subdomain-bruteforce": { up: ["passive-recon"], down: ["active-scan"] },
+  /* 社工钓鱼：入口是「人」而不是服务。上游必须是画像（pretext 靠画像质量决定），
+     下游分两路 —— 拿到凭据走 lateral-movement，拿到 shell 走 shell-handler。 */
+  "social-engineering": { up: ["passive-recon", "email-security"], down: ["lateral-movement", "shell-handler", "identity-federation"] },
   "web-fingerprint": { up: ["recon-pipeline", "active-scan"], down: ["asset-correlation", "dir-bruteforce", "nuclei-scan", "cn-oa-exploit", "ai-infra-attack"] },
   "asset-correlation": { up: ["fofa-recon", "web-fingerprint"], down: ["dir-bruteforce", "nuclei-scan"] },
   "dir-bruteforce": { up: ["web-fingerprint", "asset-correlation"], down: ["nuclei-scan", "unauth-exploit"] },
@@ -126,11 +129,18 @@ const TRUNK = {
   "windows-ad": { up: ["lateral-movement", "netexec-scan"], down: ["identity-federation", "edr-bypass-re", "competition-kerberos-delegation"] },
   "identity-federation": { up: ["windows-ad"], down: ["cloud-k8s", "competition-oauth-oidc-chain"] },
   "cloud-k8s": { up: ["identity-federation"], down: ["competition-k8s-control-plane", "competition-cloud-metadata-path"] },
-  "edr-bypass-re": { up: ["privesc-persistence", "windows-ad"], down: ["threat-hunting", "lateral-movement"] },
+  /* C2：拿到 shell 之后才需要。上游是「有一次性 shell」，下游是「在 shell 里做横向」。 */
+  "c2-framework-ops": { up: ["shell-handler", "vps-reverse-shell", "edr-bypass-re"], down: ["lateral-movement", "credential-attack", "suo5-tunnel"] },
+  "edr-bypass-re": { up: ["privesc-persistence", "windows-ad", "c2-framework-ops"], down: ["threat-hunting", "lateral-movement"] },
   "threat-hunting": { up: ["edr-bypass-re"], down: ["digital-forensics"] },
   "digital-forensics": { up: ["threat-hunting", "malware-analysis"], down: ["case-review"] },
   "malware-analysis": { up: ["digital-forensics"], down: ["case-review", "competition-malware-config"] },
-  "ot-ics": { up: ["fscan-intranet"], down: ["iot-iiot-netdev", "competition-kernel-container-escape"] },
+  /* OT 四技能：总纲（ot-ics）→ 侦察（被动）→ 两个专项（控制器 / 监督层）。
+     顺序不能反：先被动看清有什么，再决定碰哪一层。 */
+  "ot-ics": { up: ["fscan-intranet"], down: ["industrial-protocol-recon", "iot-iiot-netdev", "competition-kernel-container-escape"] },
+  "industrial-protocol-recon": { up: ["fscan-intranet", "ot-ics"], down: ["plc-controller-attack", "scada-hmi-attack"] },
+  "plc-controller-attack": { up: ["industrial-protocol-recon"], down: ["scada-hmi-attack", "iot-iiot-netdev"] },
+  "scada-hmi-attack": { up: ["industrial-protocol-recon", "plc-controller-attack"], down: ["lateral-movement", "digital-forensics"] },
   "iot-iiot-netdev": { up: ["ot-ics"], down: ["firmware-pentest"] },
   "firmware-pentest": { up: ["iot-iiot-netdev"], down: ["hardware-security", "competition-firmware-layout"] },
   "hardware-security": { up: ["firmware-pentest"], down: ["radio-sdr"] },
@@ -145,6 +155,8 @@ const TRUNK = {
   "pwn-chain": { up: ["ida-reverse", "radare2"], down: ["competition-reverse-pwn"] },
   "js-reverse": { up: ["web-fingerprint"], down: ["browser-extension-reverse", "web-vuln-payloads"] },
   "browser-extension-reverse": { up: ["js-reverse"], down: ["thick-client"] },
+  /* 移动端：逆向本体（apk-reverse / mobile-reverse）→ 完整测试链（环境+抓包+接口提取）→ Web 侧打点。 */
+  "mobile-app-assessment": { up: ["apk-reverse", "mobile-reverse"], down: ["api-security", "injection-payloads", "protocol-reverse"] },
   "apk-reverse": { up: ["mobile-reverse"], down: ["competition-android-hooking"] },
   "mobile-reverse": { up: [], down: ["apk-reverse", "competition-ios-runtime"] },
   "dotnet-reverse": { up: ["reverse-engineering"], down: ["thick-client"] },
@@ -178,16 +190,16 @@ const LEDGER_ENTITIES = new Set(["vuln", "credential", "access", "webshell", "tu
 
 /** 技能域：链路用。默认全落到 misc 就等于没分类（第 108 轮实测 57/114 是 misc），所以逐组显式列。 */
 const DOMAIN_RULES = [
-  [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation)$/, "recon"],
+  [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation|social-engineering)$/, "recon"],
   [/^(dir-bruteforce|nuclei-scan|unauth-exploit|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|cn-oa-exploit)$/, "web"],
   [/^(credential-attack)$/, "credential"],
-  [/^(webshell-toolkit|shell-handler|vps-reverse-shell|privesc-persistence)$/, "payload"],
+  [/^(webshell-toolkit|shell-handler|vps-reverse-shell|privesc-persistence|c2-framework-ops)$/, "payload"],
   [/tunnel$/, "tunnel"],
   [/^(netexec-scan|lateral-movement|fscan-intranet|gogo-intranet)$/, "intranet"],
   [/^(windows-ad|identity-federation)$/, "identity"],
   [/^(cloud-k8s)$/, "cloud"],
-  [/^(ot-ics|iot-iiot-netdev|firmware-pentest|hardware-security|radio-sdr|wifi-wireless)$/, "ot-hardware"],
-  [/^(apk-reverse|mobile-reverse)$/, "mobile"],
+  [/^(ot-ics|plc-controller-attack|scada-hmi-attack|industrial-protocol-recon|iot-iiot-netdev|firmware-pentest|hardware-security|radio-sdr|wifi-wireless)$/, "ot-hardware"],
+  [/^(apk-reverse|mobile-reverse|mobile-app-assessment)$/, "mobile"],
   [/^(reverse-engineering|ida-reverse|ghidra-reverse|radare2|binary-diff|patch-diff-exploit|pwn-chain|go-rust-reverse|dotnet-reverse|protocol-reverse)$/, "reverse"],
   [/^(js-reverse|browser-extension-reverse|thick-client)$/, "client"],
   [/^(edr-bypass-re|threat-hunting|digital-forensics|malware-analysis)$/, "defense"],
@@ -200,10 +212,12 @@ const DOMAIN_RULES = [
 
 /** 3) 落库工具映射：技能产出该落到哪个演练台实体（值必须 ∈ LEDGER_ENTITIES，否则模型照做就撞空） */
 const RECORD_RULES = [
-  [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation|netexec-scan|gogo-intranet|fscan-intranet)$/, ["asset"]],
-  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|api-security|code-audit|database-security|email-security|llm-security|secdev-boundary|iot-iiot-netdev|ai-infra-attack|cn-oa-exploit|competition-.*)$/, ["vuln"]],
-  [/^(credential-attack|privesc-persistence|netexec-scan|lateral-movement|windows-ad|identity-federation)$/, ["credential", "access"]],
+  [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation|netexec-scan|gogo-intranet|fscan-intranet|industrial-protocol-recon)$/, ["asset"]],
+  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|api-security|code-audit|database-security|email-security|llm-security|secdev-boundary|iot-iiot-netdev|ai-infra-attack|cn-oa-exploit|plc-controller-attack|scada-hmi-attack|competition-.*)$/, ["vuln"]],
+  [/^(credential-attack|privesc-persistence|netexec-scan|lateral-movement|windows-ad|identity-federation|social-engineering)$/, ["credential", "access"]],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell)$/, ["webshell", "access"]],
+  /* C2 产出的是「持续控制通道」，演练台的对应实体是 access（不是 tunnel —— tunnel 是网络层转发）。 */
+  [/^(c2-framework-ops)$/, ["access"]],
   [/^(suo5-tunnel|chisel-tunnel|frp-tunnel)$/, ["tunnel"]],
   // 攻击链/复盘产出的是「阶段推进记录」，演练台的对应实体是 stage（不是 chain——没有 chain 这个实体）
   [/^(attack-chain|case-review)$/, ["stage"]],

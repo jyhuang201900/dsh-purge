@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "total": 400,
+  "total": 433,
   "relations": [
     {
       "source": "active-scan",
@@ -140,6 +140,36 @@
     {
       "source": "js-reverse",
       "target": "browser-extension-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "c2-framework-ops",
+      "target": "lateral-movement",
+      "relationship": "next"
+    },
+    {
+      "source": "c2-framework-ops",
+      "target": "credential-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "c2-framework-ops",
+      "target": "suo5-tunnel",
+      "relationship": "next"
+    },
+    {
+      "source": "shell-handler",
+      "target": "c2-framework-ops",
+      "relationship": "next"
+    },
+    {
+      "source": "vps-reverse-shell",
+      "target": "c2-framework-ops",
+      "relationship": "next"
+    },
+    {
+      "source": "edr-bypass-re",
+      "target": "c2-framework-ops",
       "relationship": "next"
     },
     {
@@ -538,6 +568,11 @@
       "relationship": "next"
     },
     {
+      "source": "c2-framework-ops",
+      "target": "edr-bypass-re",
+      "relationship": "next"
+    },
+    {
       "source": "email-security",
       "target": "credential-attack",
       "relationship": "next"
@@ -673,6 +708,26 @@
       "relationship": "next"
     },
     {
+      "source": "industrial-protocol-recon",
+      "target": "plc-controller-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "industrial-protocol-recon",
+      "target": "scada-hmi-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "fscan-intranet",
+      "target": "industrial-protocol-recon",
+      "relationship": "next"
+    },
+    {
+      "source": "ot-ics",
+      "target": "industrial-protocol-recon",
+      "relationship": "next"
+    },
+    {
       "source": "injection-payloads",
       "target": "webshell-toolkit",
       "relationship": "next"
@@ -748,6 +803,31 @@
       "relationship": "next"
     },
     {
+      "source": "mobile-app-assessment",
+      "target": "api-security",
+      "relationship": "next"
+    },
+    {
+      "source": "mobile-app-assessment",
+      "target": "injection-payloads",
+      "relationship": "next"
+    },
+    {
+      "source": "mobile-app-assessment",
+      "target": "protocol-reverse",
+      "relationship": "next"
+    },
+    {
+      "source": "apk-reverse",
+      "target": "mobile-app-assessment",
+      "relationship": "next"
+    },
+    {
+      "source": "mobile-reverse",
+      "target": "mobile-app-assessment",
+      "relationship": "next"
+    },
+    {
       "source": "mobile-reverse",
       "target": "competition-ios-runtime",
       "relationship": "next"
@@ -815,6 +895,16 @@
     {
       "source": "pentest-tools",
       "target": "nuclei-scan",
+      "relationship": "next"
+    },
+    {
+      "source": "plc-controller-attack",
+      "target": "scada-hmi-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "plc-controller-attack",
+      "target": "iot-iiot-netdev",
       "relationship": "next"
     },
     {
@@ -888,6 +978,16 @@
       "relationship": "next"
     },
     {
+      "source": "scada-hmi-attack",
+      "target": "lateral-movement",
+      "relationship": "next"
+    },
+    {
+      "source": "scada-hmi-attack",
+      "target": "digital-forensics",
+      "relationship": "next"
+    },
+    {
       "source": "secdev-boundary",
       "target": "webshell-toolkit",
       "relationship": "next"
@@ -915,6 +1015,31 @@
     {
       "source": "web-vuln-payloads",
       "target": "shell-handler",
+      "relationship": "next"
+    },
+    {
+      "source": "social-engineering",
+      "target": "lateral-movement",
+      "relationship": "next"
+    },
+    {
+      "source": "social-engineering",
+      "target": "shell-handler",
+      "relationship": "next"
+    },
+    {
+      "source": "social-engineering",
+      "target": "identity-federation",
+      "relationship": "next"
+    },
+    {
+      "source": "passive-recon",
+      "target": "social-engineering",
+      "relationship": "next"
+    },
+    {
+      "source": "email-security",
+      "target": "social-engineering",
       "relationship": "next"
     },
     {
@@ -1179,11 +1304,21 @@
     },
     {
       "source": "passive-recon",
-      "target": "subdomain-bruteforce",
+      "target": "social-engineering",
       "relationship": "complementary"
     },
     {
       "source": "recon-pipeline",
+      "target": "social-engineering",
+      "relationship": "complementary"
+    },
+    {
+      "source": "recon-pipeline",
+      "target": "subdomain-bruteforce",
+      "relationship": "complementary"
+    },
+    {
+      "source": "social-engineering",
       "target": "subdomain-bruteforce",
       "relationship": "complementary"
     },
@@ -1234,6 +1369,16 @@
     },
     {
       "source": "apk-reverse",
+      "target": "mobile-app-assessment",
+      "relationship": "complementary"
+    },
+    {
+      "source": "apk-reverse",
+      "target": "mobile-reverse",
+      "relationship": "complementary"
+    },
+    {
+      "source": "mobile-app-assessment",
       "target": "mobile-reverse",
       "relationship": "complementary"
     },
@@ -1954,7 +2099,12 @@
     },
     {
       "source": "hardware-security",
-      "target": "radio-sdr",
+      "target": "plc-controller-attack",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ot-ics",
+      "target": "plc-controller-attack",
       "relationship": "complementary"
     },
     {
@@ -1963,12 +2113,27 @@
       "relationship": "complementary"
     },
     {
-      "source": "ot-ics",
-      "target": "wifi-wireless",
+      "source": "plc-controller-attack",
+      "target": "radio-sdr",
+      "relationship": "complementary"
+    },
+    {
+      "source": "plc-controller-attack",
+      "target": "scada-hmi-attack",
       "relationship": "complementary"
     },
     {
       "source": "radio-sdr",
+      "target": "scada-hmi-attack",
+      "relationship": "complementary"
+    },
+    {
+      "source": "radio-sdr",
+      "target": "wifi-wireless",
+      "relationship": "complementary"
+    },
+    {
+      "source": "scada-hmi-attack",
       "target": "wifi-wireless",
       "relationship": "complementary"
     },

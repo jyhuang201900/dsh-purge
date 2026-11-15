@@ -658,21 +658,6 @@ Use this reference for web challenges, API challenges, SSR/frontend issues, queu
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`dirsearch`、`hashcat`、`john`、`jadx`、`binwalk`
-- `dirsearch`：本机无。**用 `ffuf`/`feroxbuster` 替代**（都已装）：`ffuf -u http://<t>/FUZZ -w <字典> -mc 200,301,403`；dirsearch 的优势只是内置字典与递归策略
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
-- `john`：`jumbo` 版才有 Windows 二进制（官方 johntheRipper/bleeding-jumbo 的 `run/` 里有 `john.exe`）。同一件事优先用 `hashcat`（本机也没有，见上）
-- `jadx`：官方发 `jadx-gui-<ver>-win.zip`（自带 JRE 的发行版可直接双击）
-- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
-
-runnability:end -->
-
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -684,3 +669,20 @@ runnability:end -->
 
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`dirsearch`、`sqlmap`、`hashcat`、`john`、`frida`、`jadx`、`ghidra`、`binwalk`、`volatility`
+- `dirsearch`：本机无。**用 `ffuf`/`feroxbuster` 替代**（都已装）：`ffuf -u http://<t>/FUZZ -w <字典> -mc 200,301,403`；dirsearch 的优势只是内置字典与递归策略
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
+- `john`：`jumbo` 版才有 Windows 二进制（官方 johntheRipper/bleeding-jumbo 的 `run/` 里有 `john.exe`）。同一件事优先用 `hashcat`（本机也没有，见上）
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
+- `jadx`：官方发 `jadx-gui-<ver>-win.zip`（自带 JRE 的发行版可直接双击）
+- `ghidra`：官方发 `ghidra_<ver>_PUBLIC_<date>.zip`（**需 JDK 17+**，解压后 `ghidraRun.bat`）。**本机已有 `radare2`**：日常反汇编/字符串交叉引用用 `radare2` 够，Ghidra 的优势是反编译成伪 C，只在需要读复杂逻辑时装
+- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
+- `volatility`：`python -m pip install volatility3`（Python 3 版，命令是 `vol` 而非 `vol.py`）；本机没有是正常的，它分析的是**拷回来**的内存镜像
+
+runnability:end -->

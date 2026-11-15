@@ -121,6 +121,18 @@
       "rationale": "Use for authorized reverse engineering of browser extensions (Chrome/Firefox) including manifest analysis, background workers, and extension-based credential or traffic logic recov"
     },
     {
+      "id": "skills_redteam_c2_framework_ops",
+      "label": "c2-framework-ops（内网渗透 / internal）",
+      "file_type": "document",
+      "source_file": "E:\\完成项目\\dsh-purge\\skills\\redteam\\c2-framework-ops.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Use for authorized C2 infrastructure operations — implant selection, redirector and CDN fronting, malleable profiles, sleep/jitter tuning, and teardown. Covers Sliver/Mythic/Havoc "
+    },
+    {
       "id": "skills_redteam_case_review",
       "label": "case-review（流程/编排 / flow）",
       "file_type": "document",
@@ -949,6 +961,18 @@
       "rationale": "Use for authorized assessment of federated identity systems including SAML, OIDC, OAuth2 flows, SSO misconfiguration, and token confusion issues."
     },
     {
+      "id": "skills_redteam_industrial_protocol_recon",
+      "label": "industrial-protocol-recon（信息收集 / recon）",
+      "file_type": "document",
+      "source_file": "E:\\完成项目\\dsh-purge\\skills\\redteam\\industrial-protocol-recon.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Use for authorized 工控(OT) industrial protocol reconnaissance — passive traffic analysis, Purdue zoning discovery, cross-zone channel hunting, and safe read-only protocol fingerprin"
+    },
+    {
       "id": "skills_redteam_injection_payloads",
       "label": "injection-payloads（漏洞发现 / vuln-scan）",
       "file_type": "document",
@@ -1031,6 +1055,18 @@
       "author": null,
       "contributor": null,
       "rationale": "Use when analyzing suspected malware through static, dynamic, and behavioral techniques, including IOC extraction, YARA or Sigma rules, sandboxing, and anti-analysis behavior."
+    },
+    {
+      "id": "skills_redteam_mobile_app_assessment",
+      "label": "mobile-app-assessment（漏洞利用 / exploit）",
+      "file_type": "document",
+      "source_file": "E:\\完成项目\\dsh-purge\\skills\\redteam\\mobile-app-assessment.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Use for end-to-end mobile app security assessment — device environment prep (root/jailbreak, frida-server, system CA), traffic interception with pinning bypass, API surface extract"
     },
     {
       "id": "skills_redteam_mobile_reverse",
@@ -1127,6 +1163,18 @@
       "author": null,
       "contributor": null,
       "rationale": "主动渗透测试工具链。覆盖信息收集、端口扫描、漏洞扫描、Web 渗透、SQL 注入、目录爆破、密码破解等场景。 通过 MCP server（pentestMCP / mcp-security-hub）将 20+ 安全工具暴露给 AI agent。 触发关键词：渗透测试、端口扫描、Nmap、漏洞扫描、Nuclei、SQL 注入、SQLMap、目录爆破、FFUF、"
+    },
+    {
+      "id": "skills_redteam_plc_controller_attack",
+      "label": "plc-controller-attack（内网渗透 / internal）",
+      "file_type": "document",
+      "source_file": "E:\\完成项目\\dsh-purge\\skills\\redteam\\plc-controller-attack.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Use for authorized 工控(OT) PLC and RTU controller assessment — firmware version fingerprinting, ladder/project file analysis, unauthenticated write paths, and controller-level persi"
     },
     {
       "id": "skills_redteam_privesc_persistence",
@@ -1237,6 +1285,18 @@
       "rationale": "Provides reverse engineering techniques. Use when the main job is to understand how a compiled, obfuscated, packed, or virtualized target works before exploiting or solving it, inc"
     },
     {
+      "id": "skills_redteam_scada_hmi_attack",
+      "label": "scada-hmi-attack（内网渗透 / internal）",
+      "file_type": "document",
+      "source_file": "E:\\完成项目\\dsh-purge\\skills\\redteam\\scada-hmi-attack.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Use for authorized 工控(OT) SCADA and HMI layer assessment — thick-client HMI credentials, historian databases, OPC UA/DA exposure, and engineering-workstation lateral movement."
+    },
+    {
       "id": "skills_redteam_secdev_boundary",
       "label": "secdev-boundary（漏洞利用 / exploit）",
       "file_type": "document",
@@ -1259,6 +1319,18 @@
       "author": null,
       "contributor": null,
       "rationale": "反弹 Shell 与载荷投递：VPS 上起 MSF/nc/socat 监听接收 shell，或从目标主动拉取载荷落地"
+    },
+    {
+      "id": "skills_redteam_social_engineering",
+      "label": "social-engineering（信息收集 / recon）",
+      "file_type": "document",
+      "source_file": "E:\\完成项目\\dsh-purge\\skills\\redteam\\social-engineering.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Use for authorized social engineering and phishing assessment covering pretext design, email and OAuth phishing, payload delivery via LNK/ISO/HTML smuggling, and campaign measureme"
     },
     {
       "id": "skills_redteam_subdomain_bruteforce",
@@ -1430,7 +1502,7 @@
     },
     {
       "id": "role_recon",
-      "label": "角色 信息收集（13 个技能）",
+      "label": "角色 信息收集（15 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1466,7 +1538,7 @@
     },
     {
       "id": "role_exploit",
-      "label": "角色 漏洞利用（30 个技能）",
+      "label": "角色 漏洞利用（31 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1478,7 +1550,7 @@
     },
     {
       "id": "role_internal",
-      "label": "角色 内网渗透（16 个技能）",
+      "label": "角色 内网渗透（19 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1799,6 +1871,66 @@
     {
       "source": "skills_redteam_js_reverse",
       "target": "skills_redteam_browser_extension_reverse",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_c2_framework_ops",
+      "target": "skills_redteam_lateral_movement",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_c2_framework_ops",
+      "target": "skills_redteam_credential_attack",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_c2_framework_ops",
+      "target": "skills_redteam_suo5_tunnel",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_shell_handler",
+      "target": "skills_redteam_c2_framework_ops",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_vps_reverse_shell",
+      "target": "skills_redteam_c2_framework_ops",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_edr_bypass_re",
+      "target": "skills_redteam_c2_framework_ops",
       "relation": "next",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -2597,6 +2729,16 @@
       "weight": 1
     },
     {
+      "source": "skills_redteam_c2_framework_ops",
+      "target": "skills_redteam_edr_bypass_re",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
       "source": "skills_redteam_email_security",
       "target": "skills_redteam_credential_attack",
       "relation": "next",
@@ -2867,6 +3009,46 @@
       "weight": 1
     },
     {
+      "source": "skills_redteam_industrial_protocol_recon",
+      "target": "skills_redteam_plc_controller_attack",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_industrial_protocol_recon",
+      "target": "skills_redteam_scada_hmi_attack",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_fscan_intranet",
+      "target": "skills_redteam_industrial_protocol_recon",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_ot_ics",
+      "target": "skills_redteam_industrial_protocol_recon",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
       "source": "skills_redteam_injection_payloads",
       "target": "skills_redteam_webshell_toolkit",
       "relation": "next",
@@ -3017,6 +3199,56 @@
       "weight": 1
     },
     {
+      "source": "skills_redteam_mobile_app_assessment",
+      "target": "skills_redteam_api_security",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_mobile_app_assessment",
+      "target": "skills_redteam_injection_payloads",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_mobile_app_assessment",
+      "target": "skills_redteam_protocol_reverse",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_apk_reverse",
+      "target": "skills_redteam_mobile_app_assessment",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_mobile_reverse",
+      "target": "skills_redteam_mobile_app_assessment",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
       "source": "skills_redteam_mobile_reverse",
       "target": "skills_redteam_competition_ios_runtime",
       "relation": "next",
@@ -3149,6 +3381,26 @@
     {
       "source": "skills_redteam_pentest_tools",
       "target": "skills_redteam_nuclei_scan",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_plc_controller_attack",
+      "target": "skills_redteam_scada_hmi_attack",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_plc_controller_attack",
+      "target": "skills_redteam_iot_iiot_netdev",
       "relation": "next",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -3297,6 +3549,26 @@
       "weight": 1
     },
     {
+      "source": "skills_redteam_scada_hmi_attack",
+      "target": "skills_redteam_lateral_movement",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_scada_hmi_attack",
+      "target": "skills_redteam_digital_forensics",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
       "source": "skills_redteam_secdev_boundary",
       "target": "skills_redteam_webshell_toolkit",
       "relation": "next",
@@ -3349,6 +3621,56 @@
     {
       "source": "skills_redteam_web_vuln_payloads",
       "target": "skills_redteam_shell_handler",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_social_engineering",
+      "target": "skills_redteam_lateral_movement",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_social_engineering",
+      "target": "skills_redteam_shell_handler",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_social_engineering",
+      "target": "skills_redteam_identity_federation",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_passive_recon",
+      "target": "skills_redteam_social_engineering",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_email_security",
+      "target": "skills_redteam_social_engineering",
       "relation": "next",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -3878,7 +4200,7 @@
     },
     {
       "source": "skills_redteam_passive_recon",
-      "target": "skills_redteam_subdomain_bruteforce",
+      "target": "skills_redteam_social_engineering",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -3888,6 +4210,26 @@
     },
     {
       "source": "skills_redteam_recon_pipeline",
+      "target": "skills_redteam_social_engineering",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_recon_pipeline",
+      "target": "skills_redteam_subdomain_bruteforce",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_social_engineering",
       "target": "skills_redteam_subdomain_bruteforce",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -3988,6 +4330,26 @@
     },
     {
       "source": "skills_redteam_apk_reverse",
+      "target": "skills_redteam_mobile_app_assessment",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_apk_reverse",
+      "target": "skills_redteam_mobile_reverse",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_mobile_app_assessment",
       "target": "skills_redteam_mobile_reverse",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5428,7 +5790,17 @@
     },
     {
       "source": "skills_redteam_hardware_security",
-      "target": "skills_redteam_radio_sdr",
+      "target": "skills_redteam_plc_controller_attack",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_ot_ics",
+      "target": "skills_redteam_plc_controller_attack",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5447,8 +5819,18 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_ot_ics",
-      "target": "skills_redteam_wifi_wireless",
+      "source": "skills_redteam_plc_controller_attack",
+      "target": "skills_redteam_radio_sdr",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_plc_controller_attack",
+      "target": "skills_redteam_scada_hmi_attack",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -5458,6 +5840,26 @@
     },
     {
       "source": "skills_redteam_radio_sdr",
+      "target": "skills_redteam_scada_hmi_attack",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_radio_sdr",
+      "target": "skills_redteam_wifi_wireless",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_scada_hmi_attack",
       "target": "skills_redteam_wifi_wireless",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5598,6 +6000,16 @@
     },
     {
       "source": "role_recon",
+      "target": "skills_redteam_industrial_protocol_recon",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
       "target": "skills_redteam_kimi_webbridge",
       "relation": "owns",
       "confidence": "EXTRACTED",
@@ -5619,6 +6031,16 @@
     {
       "source": "role_recon",
       "target": "skills_redteam_recon_pipeline",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_recon",
+      "target": "skills_redteam_social_engineering",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -6098,6 +6520,16 @@
     },
     {
       "source": "role_exploit",
+      "target": "skills_redteam_mobile_app_assessment",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_exploit",
       "target": "skills_redteam_mobile_reverse",
       "relation": "owns",
       "confidence": "EXTRACTED",
@@ -6228,6 +6660,16 @@
     },
     {
       "source": "role_internal",
+      "target": "skills_redteam_c2_framework_ops",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_internal",
       "target": "skills_redteam_chisel_tunnel",
       "relation": "owns",
       "confidence": "EXTRACTED",
@@ -6338,7 +6780,27 @@
     },
     {
       "source": "role_internal",
+      "target": "skills_redteam_plc_controller_attack",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_internal",
       "target": "skills_redteam_radio_sdr",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_internal",
+      "target": "skills_redteam_scada_hmi_attack",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -6921,8 +7383,8 @@
   "input_tokens": 0,
   "output_tokens": 0,
   "coverage": {
-    "skills": 119,
-    "relations": 400,
+    "skills": 125,
+    "relations": 433,
     "roles": 8
   }
 }

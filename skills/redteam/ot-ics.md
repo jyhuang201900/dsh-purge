@@ -15,6 +15,22 @@ source: dsh-jailbreak-arsenal@1.7.0 bundled_skills（已按本仓格式改写，
 - 工程师站、HMI、历史库、跳板主机
 - IT/OT 融合边界（防火墙规则、单向闸）
 
+## 本技能是总纲：按层分到三个专项
+
+OT 不是「一个技能能讲完」的域 —— 现场层、监督层、协议层的方法与风险完全不同。
+**先判断你的靶标在哪一层，再进对应专项**（本技能只保留跨层的方法论与红线）：
+
+| 你要做的事 | 进哪个专项 |
+|---|---|
+| 判控制器固件/工程文件、能不能改写 PLC 逻辑 | `plc-controller-attack` |
+| 打 HMI / SCADA 服务器 / 历史库 / OPC / 工程师站 | `scada-hmi-attack` |
+| 只看不碰：pcap 分析、画 Purdue 分区、找跨区通道 | `industrial-protocol-recon` |
+| 需要红线清单、限速参数、授权边界 | **留在本技能**（`references/ot-safe-assessment.md`） |
+
+**为什么这么分**：把「被动分析」和「改写 PLC」写在同一个技能里，
+会让模型直接从「看流量」跳到「写寄存器」—— 中间少了那道必须由授权裁决的关口。
+分层之后，每层的入口条件写在各自开头。
+
 ## 安全铁律（MUST）
 
 ```text
@@ -132,7 +148,19 @@ second-shot:end -->
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：5 内网渗透｜**角色**：`internal`
+- **上游**（先做完这些再进来）：`fscan-intranet`
+- **下游**（产出交给谁）：`industrial-protocol-recon`、`iot-iiot-netdev`、`competition-kernel-container-escape`
+- **互补**（同类场景一起用）：`hardware-security`、`plc-controller-attack`、`radio-sdr`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）。**出交付物用 `redteam_report`**（kind=score 出计分战报、kind=targets 出靶标清单），整条链路串起来看用 `redteam_attack_chain` / `redteam_attack_path` —— 这两个只在 `redteam-setup` 的工具表里登记过，做具体攻击时不会想到去翻，所以在这里点名
+
+
+<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -143,17 +171,3 @@ second-shot:end -->
 - `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
 
 runnability:end -->
-
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
-
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：5 内网渗透｜**角色**：`internal`
-- **上游**（先做完这些再进来）：`fscan-intranet`
-- **下游**（产出交给谁）：`iot-iiot-netdev`、`competition-kernel-container-escape`
-- **互补**（同类场景一起用）：`hardware-security`、`radio-sdr`、`wifi-wireless`
-- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
-- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）。**出交付物用 `redteam_report`**（kind=score 出计分战报、kind=targets 出靶标清单），整条链路串起来看用 `redteam_attack_chain` / `redteam_attack_path` —— 这两个只在 `redteam-setup` 的工具表里登记过，做具体攻击时不会想到去翻，所以在这里点名
-
-
-<!-- /skill-link-graph -->

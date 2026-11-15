@@ -308,7 +308,6 @@ second-shot:end -->
 | 凭据访问 | T1003.001 | LSASS 内存 |
 | 凭据访问 | T1003.003 | NTDS.dit |
 | 凭据访问 | T1187 | 强制认证 |
-| 凭据访问 | T1558 | 窃取或伪造 Kerberos 票据 |
 | 凭据访问 | T1558.001 | Golden Ticket |
 | 凭据访问 | T1558.002 | Silver Ticket |
 | 凭据访问 | T1558.003 | Kerberoasting |
@@ -321,22 +320,6 @@ second-shot:end -->
 
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
-
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`、`impacket`、`netexec`、`nxc`、`bloodhound`、`mimikatz`
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
-- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
-- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
-- `nxc`：同 `netexec`：本机没有。用 `fscan` 初筛 SMB；需要 PtH/WinRM 精确验证时 `python -m pip install netexec`
-- `bloodhound`：采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可
-- `mimikatz`：**只能拷到目标机跑**（它读的是目标内存里的凭据，本机跑没有任何意义）。本机只需准备二进制：`Invoke-Mimikatz` 官方 release 或 `python -m pip install pypykatz`（离线解析目标 dump 出来的 lsass.dmp）
-
-runnability:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
@@ -353,3 +336,19 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_sessions`（一屏看已上线 WebShell、隧道可达网段、凭据、访问会话）；`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`、`impacket`、`netexec`、`nxc`、`bloodhound`、`rubeus`、`mimikatz`、`responder`
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
+- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+- `nxc`：同 `netexec`：本机没有。用 `fscan` 初筛 SMB；需要 PtH/WinRM 精确验证时 `python -m pip install netexec`
+- `bloodhound`：采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可
+- `rubeus`：**.NET 单文件，可在本机编译**：`git clone https://github.com/GhostPack/Rubeus && cd Rubeus && dotnet build -c Release`（本机需 .NET SDK）。也可以只在目标机上跑（它读的是当前域会话）。**替代**：Kerberoast 用 `impacket-GetUserSPNs`（`python -m pip install impacket`），AS-REP 用 `impacket-GetNPUsers` —— 这两条覆盖了 Rubeus 最常用的两项，票据注入 Ptt 才必须用 Rubeus
+- `mimikatz`：**只能拷到目标机跑**（它读的是目标内存里的凭据，本机跑没有任何意义）。本机只需准备二进制：`Invoke-Mimikatz` 官方 release 或 `python -m pip install pypykatz`（离线解析目标 dump 出来的 lsass.dmp）
+- `responder`：Windows 上直接跑会抢占本机 NetBIOS 名（有风险）。**用 `python -m pip install responder` 并只在授权靶段的小网段跑**；轻量替代是 `fscan` 的 `-m ms` 与 arp 扫描
+
+runnability:end -->

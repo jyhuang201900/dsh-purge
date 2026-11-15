@@ -205,29 +205,12 @@ second-shot:end -->
 
 | 战术 | 编号 | 技术 |
 | --- | --- | --- |
-| 隐匿 | T1070 | 清除主机痕迹 |
 | 隐匿 | T1070.004 | 删除文件 |
 | 破坏防御机制 | T1490 | 禁止系统恢复 |
-| 破坏防御机制 | T1562 | 削弱防御 |
 | 破坏防御机制 | T1562.008 | 禁用或修改云日志 |
 
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
-
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nikto`、`sqlmap`、`yara`
-- `nikto`：Windows 无官方包（Perl 脚本）；**用 `nuclei` 的 `http/misconfiguration` 模板替代**（已装）
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
-- `yara`：Windows 有官方二进制（`yara-<ver>-win64.zip`）；只做规则**语法检查**时也可 `python -m pip install yara-python`
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
@@ -241,3 +224,16 @@ runnability:end -->
 
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nikto`、`sqlmap`、`yara`
+- `nikto`：Windows 无官方包（Perl 脚本）；**用 `nuclei` 的 `http/misconfiguration` 模板替代**（已装）
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
+- `yara`：Windows 有官方二进制（`yara-<ver>-win64.zip`）；只做规则**语法检查**时也可 `python -m pip install yara-python`
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

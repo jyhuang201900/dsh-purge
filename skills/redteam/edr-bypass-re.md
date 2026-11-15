@@ -630,7 +630,7 @@ second-shot:end -->
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
 
 - **阶段**：5 内网渗透｜**角色**：`internal`
-- **上游**（先做完这些再进来）：`privesc-persistence`、`windows-ad`
+- **上游**（先做完这些再进来）：`privesc-persistence`、`windows-ad`、`c2-framework-ops`
 - **下游**（产出交给谁）：`threat-hunting`、`lateral-movement`
 - **专项下游**（同主题更深的靶子面）：`competition-kernel-container-escape`
 - **互补**（同类场景一起用）：`threat-hunting`

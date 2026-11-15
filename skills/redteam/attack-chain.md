@@ -716,30 +716,6 @@ second-shot:end -->
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`katana`、`whatweb`、`sqlmap`、`hydra`、`impacket`、`netexec`、`crackmapexec`、`bloodhound`、`mimikatz`、`responder`、`aircrack-ng`、`pip`
-- `katana`：本机无。**用 `httpx` + `feroxbuster` 组合替代**：`httpx -u <url> -path -status-code` 拉路径，再 `feroxbuster` 递归；katana 的无头浏览器渲染（`-headless`）是它独有的，只在需要 JS 渲染的 SPA 上才必须
-- `whatweb`：Ruby gem；无 ruby 时用 `curl -I` + 人工指纹（技能里的指纹表可当字典）
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
-- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
-- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
-- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
-- `crackmapexec`：该项目已改名为 **netexec**（`nxc`）；本机两个都没有 —— 用 `fscan` 的 SMB 模块做初筛，深挖再装 netexec
-- `bloodhound`：采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可
-- `mimikatz`：**只能拷到目标机跑**（它读的是目标内存里的凭据，本机跑没有任何意义）。本机只需准备二进制：`Invoke-Mimikatz` 官方 release 或 `python -m pip install pypykatz`（离线解析目标 dump 出来的 lsass.dmp）
-- `responder`：Windows 上直接跑会抢占本机 NetBIOS 名（有风险）。**用 `python -m pip install responder` 并只在授权靶段的小网段跑**；轻量替代是 `fscan` 的 `-m ms` 与 arp 扫描
-- `aircrack-ng`：官方发 Windows zip（`aircrack-ng-<ver>-win.zip`）；**需支持监听的无线网卡**，虚拟机上通常不成立
-- `pip`：用 `python -m pip` 代替裸 `pip`
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -751,3 +727,26 @@ runnability:end -->
 
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`katana`、`whatweb`、`sqlmap`、`hydra`、`impacket`、`netexec`、`crackmapexec`、`bloodhound`、`mimikatz`、`responder`、`aircrack-ng`、`fluxion`、`pip`
+- `katana`：本机无。**用 `httpx` + `feroxbuster` 组合替代**：`httpx -u <url> -path -status-code` 拉路径，再 `feroxbuster` 递归；katana 的无头浏览器渲染（`-headless`）是它独有的，只在需要 JS 渲染的 SPA 上才必须
+- `whatweb`：Ruby gem；无 ruby 时用 `curl -I` + 人工指纹（技能里的指纹表可当字典）
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）；或用 `python sqlmap.py -u <url>` 从源码目录跑
+- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
+- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+- `crackmapexec`：该项目已改名为 **netexec**（`nxc`）；本机两个都没有 —— 用 `fscan` 的 SMB 模块做初筛，深挖再装 netexec
+- `bloodhound`：采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可
+- `mimikatz`：**只能拷到目标机跑**（它读的是目标内存里的凭据，本机跑没有任何意义）。本机只需准备二进制：`Invoke-Mimikatz` 官方 release 或 `python -m pip install pypykatz`（离线解析目标 dump 出来的 lsass.dmp）
+- `responder`：Windows 上直接跑会抢占本机 NetBIOS 名（有风险）。**用 `python -m pip install responder` 并只在授权靶段的小网段跑**；轻量替代是 `fscan` 的 `-m ms` 与 arp 扫描
+- `aircrack-ng`：官方发 Windows zip（`aircrack-ng-<ver>-win.zip`）；**需支持监听的无线网卡**，虚拟机上通常不成立
+- `fluxion`：Kali 自带，**需要支持监听模式的无线网卡**（虚拟机上通常不成立）。本机没有是正常的；WiFi 钓鱼走 `wifi-wireless`，不是本技能
+- `pip`：用 `python -m pip` 代替裸 `pip`
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

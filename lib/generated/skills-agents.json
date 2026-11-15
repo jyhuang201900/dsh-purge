@@ -13,14 +13,16 @@
         "fofa-recon",
         "fscan-intranet",
         "gogo-intranet",
+        "industrial-protocol-recon",
         "kimi-webbridge",
         "passive-recon",
         "recon-pipeline",
+        "social-engineering",
         "subdomain-bruteforce",
         "suo5-tunnel",
         "web-fingerprint"
       ],
-      "fromStage": 5,
+      "fromStage": 7,
       "fromProse": 12
     },
     "assess": {
@@ -90,6 +92,7 @@
         "js-reverse",
         "kimi-webbridge",
         "lateral-movement",
+        "mobile-app-assessment",
         "mobile-reverse",
         "patch-diff-exploit",
         "privesc-persistence",
@@ -104,7 +107,7 @@
         "vps-reverse-shell",
         "webshell-toolkit"
       ],
-      "fromStage": 25,
+      "fromStage": 26,
       "fromProse": 14
     },
     "internal": {
@@ -112,6 +115,7 @@
       "name": "内网渗透",
       "stage": "5",
       "skills": [
+        "c2-framework-ops",
         "chisel-tunnel",
         "cloud-k8s",
         "edr-bypass-re",
@@ -123,13 +127,15 @@
         "lateral-movement",
         "netexec-scan",
         "ot-ics",
+        "plc-controller-attack",
         "radio-sdr",
+        "scada-hmi-attack",
         "suo5-tunnel",
         "threat-hunting",
         "wifi-wireless",
         "windows-ad"
       ],
-      "fromStage": 13,
+      "fromStage": 16,
       "fromProse": 7
     },
     "flow": {

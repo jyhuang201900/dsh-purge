@@ -85,9 +85,20 @@ const SUBSTITUTE = {
   hashcat: "官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH",
   john: "`jumbo` 版才有 Windows 二进制（官方 johntheRipper/bleeding-jumbo 的 `run/` 里有 `john.exe`）。同一件事优先用 `hashcat`（本机也没有，见上）",
   bloodhound: "采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可",
+  rubeus: "**.NET 单文件，可在本机编译**：`git clone https://github.com/GhostPack/Rubeus && cd Rubeus && dotnet build -c Release`（本机需 .NET SDK）。也可以只在目标机上跑（它读的是当前域会话）。**替代**：Kerberoast 用 `impacket-GetUserSPNs`（`python -m pip install impacket`），AS-REP 用 `impacket-GetNPUsers` —— 这两条覆盖了 Rubeus 最常用的两项，票据注入 Ptt 才必须用 Rubeus",
   objection: "`python -m pip install objection`（依赖 frida，见上）；它操作的是**连着的目标 App**，本机装客户端即可",
   yara: "Windows 有官方二进制（`yara-<ver>-win64.zip`）；只做规则**语法检查**时也可 `python -m pip install yara-python`",
   binwalk: "`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机",
+
+  /* ── 社工/钓鱼工具（1.1.122 新增）：这一族本机一个都没有，且**多数不该装在本机** ──
+     它们的共同点：跑起来就在对外提供服务（反代、SMTP、追踪服务），
+     放在被审计的工作机上既污染环境也违反「钓鱼基础设施与操作机分离」的原则。 */
+  evilginx: "Go 项目，`git clone https://github.com/kgretzky/evilginx2 && cd evilginx2 && go build`（本机有 go）。**但它跑起来是一个对外反代服务，应该部署在 VPS 上，不要装在本机** —— 本机装它等于把钓鱼基础设施放在被审计的机器上",
+  gophish: "官方发 `gophish-v<ver>-windows-64bit.zip`（含 exe，解压即用）。**同样应该放 VPS**：campaign 的追踪链接必须能被目标访问到，本机的 localhost 目标看不到",
+  modlishka: "Go 项目，`go build`（本机有 go）。与 `evilginx` 同类，**部署在 VPS**；它的 phishlet 生态不如 evilginx，只在 evilginx 编译不过时当备选",
+  "king-phisher": "Python 项目（`pip install king-phisher` 已过时）；现代替代就是 `gophish`。**本机不需要装**",
+  setoolkit: "Kali 自带，Windows 无官方支持。本机没有是对的 —— 它的落地页克隆质量一般，实用价值已被 `evilginx` / 手写静态页取代",
+  fluxion: "Kali 自带，**需要支持监听模式的无线网卡**（虚拟机上通常不成立）。本机没有是正常的；WiFi 钓鱼走 `wifi-wireless`，不是本技能",
   /* C. 真装法（一条能复制的命令） */
   impacket: "`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH",
   netexec: "`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`",
@@ -158,6 +169,10 @@ const TOOLS = [
   "fscan", "gogo", "suo5", "chisel", "frpc", "frps", "ligolo", "proxychains", "responder", "bettercap",
   "frida", "objection", "apktool", "jadx", "ghidra", "radare2", "r2", "objdump", "readelf", "strings", "binwalk",
   "yara", "volatility", "tshark", "tcpdump", "aircrack-ng",
+  /* 社工/钓鱼专用（1.1.122 加）：这一族工具本机一个都没有，且都需自行编译或 VPS 部署 ——
+     不列进清单，social-engineering 就会「无需该块」，读者照抄 Evilginx 命令直接撞空。
+     这一族与常规扫描器的差别也值得单独说明：它们本来就**不该**放在被审计的机器上。 */
+  "evilginx", "gophish", "modlishka", "king-phisher", "setoolkit", "fluxion",
   "curl", "wget", "nc", "ncat", "socat", "openssl", "python", "python3", "pip", "pip3", "node", "go",
 ];
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -173,10 +188,15 @@ const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  *
  * 改成两侧都接受路径分隔符与常见前缀字符；同时要求右侧不是「单词延续」，
  * 免得 `suo5x`、`suo5_helper` 这类同前缀名字被误判成工具本身。
+ *
+ * **必须大小写不敏感**（1.1.122 实测）：工具名在句首/表格首列常大写
+ * （`Evilginx`、`GoPhish`），而清单里是小写。原来的 `"m"` 标志导致
+ * `social-engineering` 正文出现 5 次 Evilginx 却判成「无需该块」——
+ * 正是本轮要把这一族工具列进来的原因，结果被大小写挡在门外。
  */
 const toolRe = (t) => new RegExp(
   "(?:^|[\\s|&;($`'\"=:/\\\\])" + esc(t) + "(?=$|[\\s|&;)$`'\"<>:,\\\\/]|\\.exe\\b|\\.md\\b|-[a-z])",
-  "m",
+  "mi",
 );
 
 const LINUX_MARKS = [/\bsudo\b/, /\bapt(-get)?\s+(install|update|upgrade)\b/, /\bsystemctl\b/, /\/usr\/bin\//, /\/usr\/share\//, /\bchmod\s+\+x\b/, /\bcat\s+\/etc\//, /~(?:^|\/|\s)/, /\.\/\w+\.(sh|py)\b/];

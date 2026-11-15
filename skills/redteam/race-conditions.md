@@ -120,7 +120,7 @@ threads = [threading.Thread(target=register) for _ in range(20)]
 
 ---
 
-## 5. 利用提权 / 横向
+## 5. 从本类漏洞往下走（横向与后续利用）
 
 ```
 余额超扣 → 实际提现真金白银

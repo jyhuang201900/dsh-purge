@@ -188,34 +188,15 @@ second-shot:end -->
 
 | 战术 | 编号 | 技术 |
 | --- | --- | --- |
-| 凭据访问 | T1003 | 操作系统凭据转储 |
 | 凭据访问 | T1003.001 | LSASS 内存 |
 | 凭据访问 | T1003.002 | SAM 数据库 |
-| 凭据访问 | T1110 | 暴力破解 |
 | 凭据访问 | T1110.003 | 口令喷洒 |
 | 凭据访问 | T1187 | 强制认证 |
-| 凭据访问 | T1552 | 不安全存储的凭据 |
 | 凭据访问 | T1552.001 | 文件中的凭据 |
 | 凭据访问 | T1555 | 从密码存储处获取凭据 |
 
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
-
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`、`hashcat`、`john`、`netexec`
-- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
-- `john`：`jumbo` 版才有 Windows 二进制（官方 johntheRipper/bleeding-jumbo 的 `run/` 里有 `john.exe`）。同一件事优先用 `hashcat`（本机也没有，见上）
-- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
@@ -230,3 +211,17 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`、`hashcat`、`john`、`netexec`
+- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
+- `john`：`jumbo` 版才有 Windows 二进制（官方 johntheRipper/bleeding-jumbo 的 `run/` 里有 `john.exe`）。同一件事优先用 `hashcat`（本机也没有，见上）
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

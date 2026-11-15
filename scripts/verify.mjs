@@ -475,6 +475,44 @@ if (!skip("psalias")) {
   }
 }
 
+// 关 41：ATT&CK 标注精度——父子技术不许同时列。
+// 由来：1.1.122 子代理审阅（24 个技能符号级核对）实测 7 个技能同时列了父技术与子技术。
+// 第 30 关（编号双向闭合）拦不住 —— 两条都在表里，都合法。
+// 但报告里「覆盖 N 个技术」会把同一手法算两遍，**虚高的水位比漏报更坏**。
+// 反向探针验过：给 credential-attack 加回父技术行 → 立刻报红。
+if (!skip("attackprec")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-attack-precision.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    const ex = out.find((l) => /^\s{3}\S+\.md：T\d{4}/.test(l)) || "";
+    failures.push(`ATT&CK 父子重复标注：${bad} ${ex.trim().slice(0, 100)}`);
+  } else {
+    const stat = out.find((l) => l.includes("父子重复")) || "";
+    notes.push(`ATT&CK 精度：${stat.replace(/^\[check-attack-precision\]\s*/, "").trim()}`);
+  }
+}
+
+// 关 42：ATT&CK 标注充分度——正文讲多类手法，映射只标 1-2 个。
+// 由来：1.1.122 子代理审阅实测 code-audit 只标 T1190，而它明写「硬编码密钥/命令注入/crypto」。
+// **标注不足与标注错误一样有害**：报告「按 ATT&CK 复核」时对不上战术，防守方拿不到坐标。
+// 判据两次收紧（都是误报逼出来的）：
+//   ① 豁免逆向/检测/取证类（它们说的「混淆/注入」是**分析对象**不是自己手法，11 个误报）；
+//   ② 排除「前提描述行」与代码块（vps-reverse-shell 提 RCE 是"你从 RCE 进来的"，不是它做利用）。
+// 反向探针验过：把 code-audit 还原成只有 T1190 → 立刻报红。
+if (!skip("attacksuff")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-attack-suff.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    const ex = out.find((l) => /^\s{3}\S+：正文命中/.test(l)) || "";
+    failures.push(`ATT&CK 标注不足：${bad} ${ex.trim().slice(0, 100)}`);
+  } else {
+    const stat = out.find((l) => l.includes("标注充分")) || "";
+    notes.push(`ATT&CK 充分度：${stat.replace(/^\[check-attack-suff\]\s*/, "").trim()}`);
+  }
+}
+
 // 关 23：事实库引用完整性——asset_id 不许指向不存在的资产。
 // 由来：2026-11-14 逻辑审阅实测，schema 里 24 张表没有任何 FOREIGN KEY，应用层原先也不校验，
 // asset_id=99999 会写入成功并可查回（asset_ip 为 null）。后果不是"多一条脏数据"：

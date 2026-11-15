@@ -177,7 +177,7 @@ mutation {
 
 ---
 
-## 5. 利用提权 / 横向
+## 5. 从 GraphQL 缺口往下走（横向与后续利用）
 
 ```
 Introspection → 完整攻击面图
