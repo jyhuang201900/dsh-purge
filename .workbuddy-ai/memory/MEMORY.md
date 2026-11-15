@@ -1,7 +1,7 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 40 闸门）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 42 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 宿主启动失败排查（1.1.117 定型，最容易误判）
@@ -21,7 +21,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 3. `node --check` 改动 JS；`node scripts/verify.mjs`（34 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 d44c603 = 1.1.121。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 e58b249 = 1.1.122。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
    - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。临时验证可以 cp，但要记得这只是临时手段，正式版必须走 pnpm。
 
@@ -170,3 +170,23 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
   虚高严重性直接变成红队的时间浪费。
 - **判据太松 = 报告没人看**：端口审计第一版「服务名后 20 字符内有数字」，
   `http` 后面全是状态码和 IP 段，噪音 90%+。收紧到「显式写端口」后只剩 10 处全对。**宁可漏判，不要满屏误报**。
+
+## 加技能/改技能的三条硬规则（1.1.122 定型）
+1. **新技能必须同时注册四处**，否则是孤儿：`STAGE_RULES`（挂角色）+ `TRUNK`（链路关系）+ `DOMAIN_RULES`（域分组）+ `RECORD_RULES`（落库实体）。落库实体必须在 `LEDGER_ENTITIES` 里。
+2. **新技能会污染已有检索**，必须测这三类：① 单实体中文（域控/提权/工控）；② 多词英文（active directory）；③ 编号（T1059）。三条都进第 34 关卡首条。
+3. **描述里要写中文实体词**：索引的中文关键词主要来自 description/whenToUse/标题。新 OT 技能最初没写「工控」，查不到 —— 补进 description 才好。
+
+## ATT&CK 表的三条纪律（1.1.122 教训）
+- **子技术用下划线存**（`T1003_001`），`normalizeTechniqueId` 会转。所以「表里有没有子技术」必须 `Object.keys(TECHNIQUES)` 实测，别靠印象（我误判过一次，把真子技术降级成父技术还写了错误注解）。
+- **只收企业矩阵**：ICS（T08xx）与 Mobile（T14xx）编号在各自矩阵里是真的，但不在本表。用企业矩阵的语义对应编号，引用 ICS/Mobile 时另行标注矩阵名，**不要混进映射表**（会被判成编造）。
+- **父子不许同列**（第 41 关）：T1003 已含 LSASS/SAM/NTDS，再列子技术 = 一件事占两名额，报告「覆盖 N 个技术」虚高。**标注不足也一样有害**（第 42 关）：`code-audit` 只标 T1190 而它明写硬编码密钥/命令注入。
+
+## 检索判据的两个反噬点（1.1.122）
+- **「反含 close」只在单实体查询上成立**：`key.length ≤ needle.length+3 → 62 分`。多词查询会反噬 —— `active directory`(16字) 含 key `directory`(9字) 得 62 分，于是 `dir-bruteforce`（目录爆破）成了 AD 查询首条。**必须加 `!/\s/.test(needle)` 守卫**。
+- **同义词展开的泛词会污染**：`domain`（也指域名）、`domain controller`（被拆成 `controller`）。判据：只放「在别的域几乎不出现」的专有词。
+- **模板化章节标题会变成 key**：多个技能的 `## 5. 利用提权 / 横向` 让它们都命中「提权」。改标题比改打分器省事且正确。
+
+## 子代理审阅的用法（1.1.122 实测）
+**噪音极大，必须逐条验证再动手。** 24 个技能的审阅报告里 6 条主要指控只有 1 条成立
+（父子重复标注成立；「有 X 编号但没讲」「把编号堆成一行」全是误判）。
+用法：让它做「批量扫描找候选」，**判定权必须留在自己手里** —— 拿它的结论直接改内容会引入错误。
