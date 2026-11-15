@@ -73,14 +73,22 @@ try {
   process.exit(1);
 }
 
-/* **只有真源码改动才让 AST 失真**（1.1.125 修正）。
-   `lib/generated/*.json` 是**生成物**（skills-index / skills-search / skills-agents），
-   每次跑 build-skill-graph 都会变 —— 把它们算进「改了代码就必须重抽」，
-   会让闸门在「只改了技能内容」时也报红，把人逼到每次都跑 5 分钟 graphify。
-   实测：一次纯文档提交后，这个判据报了 4 个文件，其中 2 个是生成物。 */
+/* **只有真产品代码改动才让 AST 失真**（1.1.125 修正）。
+   排除三类：
+   ① `lib/generated/*.json` —— 生成物（skills-index / skills-search / skills-agents），
+      每次 build-skill-graph 都变；
+   ② `graphify-out/` `presets/` —— 图谱产物与预设，都是生成物；
+   ③ **`scripts/check-*.mjs` 等闸门脚本** —— 它们不进宿主、不进图谱，
+      却被本闸门自己监控，形成**自指循环**：改了闸门 → 报图谱过期 → 重抽图谱 →
+      生成物又变 → 再报…… 实测这一轮撞了两次。
+   判据：会不会**改变宿主行为或技能内容**。不会的就不该触发重抽。 */
 const GENERATED = /^(lib\/generated\/|graphify-out\/|presets\/|\.cache\/)/;
+const GATE_SCRIPTS = /^scripts\/(check-|audit-|probe-|build-|graphify-|inject-|sync-|fetch-|embed-|name-|verify|market-sweep|scenario-drill)/;
 const codeChanged = changed.filter(
-  (f) => /^(lib\/|scripts\/|bin\/).*\.(m?js|js)$/.test(f) && !GENERATED.test(f)
+  (f) =>
+    /^(lib\/|scripts\/|bin\/).*\.(m?js|js)$/.test(f) &&
+    !GENERATED.test(f) &&
+    !GATE_SCRIPTS.test(f)
 );
 const sample = changed.slice(0, 5).join(", ");
 
