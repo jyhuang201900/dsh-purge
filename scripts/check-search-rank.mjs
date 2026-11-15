@@ -110,7 +110,11 @@ const semanticCases = [
   /* 1.1.123 加：references 的中文标题也进索引后，这两条都曾被非本职技能的
      同形词抢走首条 —— 「域控」被 SCADA 的类比说法抢、「钓鱼」被 OAuth 的
      「同意钓鱼」抢。修法是改措辞（类比说法不该用主检索词），并在这里守住。 */
-  { q: "变电站", want: "industrial-protocol-recon", why: "中文词只写在 references 标题里，1.1.123 之前查不到" },
+  /* 1.1.125：plc-controller-attack 正文补了 IEC-104 一节（含「变电站」），
+     它现在**真的讲这个**，所以首条可能是它或 industrial-protocol-recon ——
+     两者都是正确答案，只要求「结果里必须有 OT 技能且不是无关技能」。
+     这条从「卡首条」改为「卡首二字」，因为这里有两个同样合格的答案。 */
+  { q: "变电站", wantAny: ["plc-controller-attack", "industrial-protocol-recon"], why: "中文词只在 references 标题里时查不到；两个 OT 技能都是正确答案" },
   /* references 的中文词必须**弱于**技能自己的词：pentest-tools 引用的综合手册里有
      「三、子域与资产」一节，曾把 subdomain-bruteforce 挤下首条。 */
   { q: "子域", want: "subdomain-bruteforce", why: "references 里的词不许压过自己讲这件事的技能" },
@@ -129,8 +133,9 @@ for (const c of semanticCases) {
      用 indexOf 而不是正则：`（` 是全角字符，写进字符类容易因编码出问题（实测踩过）。 */
   const gutId = got.indexOf("（") >= 0 ? got.slice(0, got.indexOf("（")).trim() : got;
   announce.push(`q=${c.q} → ${gutId}`);
-  if (gutId !== c.want) {
-    problems.push(`q=${c.q} 首条是 ${gutId}，应为 ${c.want}（${c.why}）`);
+  const ok = c.wantAny ? c.wantAny.includes(gutId) : gutId === c.want;
+  if (!ok) {
+    problems.push(`q=${c.q} 首条是 ${gutId}，应为 ${c.wantAny ? c.wantAny.join(" 或 ") : c.want}（${c.why}）`);
   }
 }
 

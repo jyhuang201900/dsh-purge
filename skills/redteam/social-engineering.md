@@ -10,11 +10,28 @@ source: dsh-purge original（按本仓模板撰写）
 ## 适用场景
 
 - 授权范围内的钓鱼演练（邮件、短信、IM、电话 pretext）
+- **鱼叉邮件**（spear phishing）—— 针对具体人定制内容，不是批量群发
+- **水坑攻击**（watering hole）—— 在目标必经的站点上埋点，等他来
 - 邮件网关 / 安全邮件网关（SEG）规则有效性验证
 - OAuth / SSO 同意钓鱼（绕 MFA 的主流路径）
 - 内网无洞可打，需要「拿一个人」而不是「拿一台机」
 - 供应链/外包场景：借第三方身份进入
 - 红队报告里「人是入口」那一节
+
+**三个词先分清楚**（混用会让 pretext 选错，也会让报告难读）：
+
+| 手法 | 对象 | 内容 | 成本 | 成功率 |
+| --- | --- | --- | --- | --- |
+| 批量钓鱼（phishing） | 一群人 | 通用模板 | 低 | 低（3–5%） |
+| **鱼叉（spear phishing）** | 具体几个人 | **定制**：引用他的项目、同事、近期事件 | 中（要画像） | 高（20–40%） |
+| **水坑（watering hole）** | 一群人的**必经站点** | 在那站点上埋点 | 高（先得拿下站点） | 中高，且**不需要骗人点链接** |
+
+**判据**：**有画像能力就做鱼叉，不要群发**。群发成功率低到不值得消耗一次演练机会，
+而且一封群发邮件被举报后整个发件域的信誉就废了 —— 后续鱼叉也发不出去。
+
+**水坑的适用条件**：目标人群有明确的共同站点（行业论坛、供应商门户、内部 Wiki 的镜像站）。
+它的优势是不依赖「用户点链接」这个动作，所以**安全意识培训拦不住它** —— 这类演练测的是
+「供应链与外部站点信任」，不是「员工警觉性」。
 
 **不在本技能范围**：物理入侵（见 `hardware-security`）、无线伪造热点（见 `wifi-wireless`）。
 虽然它们也属于「近源」，但工具链与授权流程不同。
@@ -282,19 +299,6 @@ curl -s -X POST "https://login.microsoftonline.com/common/oauth2/v2.0/token" \
 **纪律**：同一批目标不许连发三轮（第一轮验证、第二轮换 pretext、第三轮必须换通道）；
 换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`evilginx`、`gophish`、`modlishka`
-- `evilginx`：Go 项目，`git clone https://github.com/kgretzky/evilginx2 && cd evilginx2 && go build`（本机有 go）。**但它跑起来是一个对外反代服务，应该部署在 VPS 上，不要装在本机** —— 本机装它等于把钓鱼基础设施放在被审计的机器上
-- `gophish`：官方发 `gophish-v<ver>-windows-64bit.zip`（含 exe，解压即用）。**同样应该放 VPS**：campaign 的追踪链接必须能被目标访问到，本机的 localhost 目标看不到
-- `modlishka`：Go 项目，`go build`（本机有 go）。与 `evilginx` 同类，**部署在 VPS**；它的 phishlet 生态不如 evilginx，只在 evilginx 编译不过时当备选
-
-runnability:end -->
-
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -309,3 +313,14 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_sessions`（一屏看已上线 WebShell、隧道可达网段、凭据、访问会话）；`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`evilginx`、`gophish`、`modlishka`
+- `evilginx`：Go 项目，`git clone https://github.com/kgretzky/evilginx2 && cd evilginx2 && go build`（本机有 go）。**但它跑起来是一个对外反代服务，应该部署在 VPS 上，不要装在本机** —— 本机装它等于把钓鱼基础设施放在被审计的机器上
+- `gophish`：官方发 `gophish-v<ver>-windows-64bit.zip`（含 exe，解压即用）。**同样应该放 VPS**：campaign 的追踪链接必须能被目标访问到，本机的 localhost 目标看不到
+- `modlishka`：Go 项目，`go build`（本机有 go）。与 `evilginx` 同类，**部署在 VPS**；它的 phishlet 生态不如 evilginx，只在 evilginx 编译不过时当备选
+
+runnability:end -->

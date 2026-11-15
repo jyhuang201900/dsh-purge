@@ -65,9 +65,10 @@
         "supply-chain-security",
         "unauth-exploit",
         "waf-bypass",
+        "web-framework-exploit",
         "web-vuln-payloads"
       ],
-      "fromStage": 21,
+      "fromStage": 22,
       "fromProse": 9
     },
     "exploit": {
@@ -115,6 +116,7 @@
       "name": "内网渗透",
       "stage": "5",
       "skills": [
+        "bluetooth-wireless-attack",
         "c2-framework-ops",
         "chisel-tunnel",
         "cloud-k8s",
@@ -135,7 +137,7 @@
         "wifi-wireless",
         "windows-ad"
       ],
-      "fromStage": 16,
+      "fromStage": 17,
       "fromProse": 7
     },
     "flow": {

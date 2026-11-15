@@ -190,6 +190,70 @@ python3 runs/fofa_client.py 'org="示例科技有限公司"' --pages 2 --interva
 
 > 宽泛语句（单独用 `body=` / `title=`）结果量大、消耗配额快，务必叠加域名或 IP 限定。
 
+## 多平台：别只靠 FOFA（配额与盲区都真实存在）
+
+**为什么必须换平台**：FOFA 免费额度很容易打满；更重要的是**每个平台的爬虫覆盖面不同** ——
+同一家单位，FOFA 能看到 A 段、Hunter 能看到 B 段、Quake 可能捞到前两个都没收录的 C 段。
+只用一个平台，等于用一把尺子量三种东西。
+
+| 平台 | 强项 | 语法特点 |
+| --- | --- | --- |
+| **FOFA**（国内） | 国内资产最全、`org` 主体反查最强 | `domain=` / `org=` / `cert=` / `body=` |
+| **Hunter 奇安信**（国内） | **企业主体聚合**（一个单位一个视图）、ICP 关联 | `company=` / `domain.suffix=` / `ip.icp=` |
+| **Quake 360**（国内） | **协议/指纹最细**（上万条指纹）、favicon 反查强 | `app:` / `domain:` / `favicon:` |
+| **ZoomEye 知道创宇**（国内） | 全球资产、历史数据长 | `app:` / `hostname:` / `cidr:` |
+| **Shodan**（国外） | **IoT/工控/暴露服务**最全（banner 全文可搜） | `org:` / `net:` / `product:` |
+| **Censys**（国外） | **证书与 TLS 指纹**最准 | `services.tls.certificates...` |
+
+### 交叉验证（真正的用法不是「多查几个」，而是**看差异**）
+
+```text
+同一个查询词在两平台结果不同 → 差异本身就是情报：
+  · 只有 A 有、B 没有 → 该资产暴露时间短，或 B 的爬虫没扫到（更冷门 = 价值更高）
+  · 两个都有 → **稳定暴露**，大概率还在（优先打）
+  · 只有国外平台有、国内平台没有 → 境外落地/CDN，或已被国内平台下架（下架常因涉敏）
+
+判据：**取交集作为「确定存在」的底数，取差集作为「待验证」的候选。**
+只报交集会漏掉最有价值的那批（冷门、新上线）；只报并集会把已下线的写进报告。
+```
+
+```bash
+# Hunter（企业主体聚合，最省 FOFA 配额的做法）
+curl -s "https://hunter.qianxin.com/openApi/search?api-key=$HUNTER_KEY&search=$(echo -n 'company="示例科技"' | base64 -w0)&page=1&page_size=50"
+
+# Quake（指纹最细，适合按产品名找）
+curl -s -X POST "https://quake.360.net/api/v3/search/quake_service" \
+  -H "X-QuakeToken: $QUAKE_KEY" -H "Content-Type: application/json" \
+  -d '{"query":"app:\"泛微-协同办公\"","start":0,"size":50}'
+
+# ZoomEye
+curl -s "https://api.zoomeye.org/host/search?query=app%3A%22weaver%22" -H "API-KEY: $ZOOMEYE_KEY"
+```
+
+### 证书透明日志（零配额的免费通道，常被忽略）
+
+```bash
+# CT 日志是公开的：任何为 example.com 签过证书的域名都在这里
+curl -s "https://crt.sh/?q=%25.example.com&output=json" | \
+  node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
+    try{const j=JSON.parse(s);const n=[...new Set(j.flatMap(x=>String(x.name_value).split("\n")))];
+    console.log(n.length+" 个子域（含历史）");console.log(n.slice(0,30).join("\n"))}catch(e){console.log("解析失败")}})'
+```
+
+**判据**：CT 日志里的子域**包含已下线/已废弃的** —— 那些是最佳入口（没人维护、证书过期但服务还在跑）。
+价值在于：**FOFA 只收「当前在线」，CT 日志收「曾经申请过证书」**。
+
+### ASN 反查（找同主体的其他段，比 `org=` 更全）
+
+```bash
+# 从 IP 反查 ASN 与它拥有的全部前缀
+curl -s "https://api.bgpview.io/ip/203.0.113.10" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);(j.data?.prefixes||[]).slice(0,10).forEach(p=>console.log(p.prefix,p.name))}catch(e){}})'
+```
+
+**判据**：`org=` 只能拿到「平台收录且归属识别正确」的资产；
+**ASN 反查能拿到同主体的整个 BGP 段**，即使上面一台 Web 都没有
+（可以有 VPN、邮件、DNS —— 这些恰恰是边界突破的入口）。
+
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -216,16 +280,6 @@ second-shot:end -->
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -239,3 +293,11 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_asset_stats`（收集收口先看断层：C 段数/存活/端口/服务/指纹/溯源条数）、`redteam_asset_get`（深入单个目标：全部端口服务+指纹+采集时间线）、`redteam_asset_graph`（C 段→资产→端口→域名 的拓扑，找横向路径用它而不是肉眼翻列表）、`redteam_asset_timeline`（发现时间线，判断哪些是新冒出来的）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

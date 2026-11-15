@@ -513,6 +513,25 @@ if (!skip("attacksuff")) {
   }
 }
 
+// 关 43：图谱新鲜度——built_at_commit 必须与 HEAD 一致或足够接近。
+// 由来：1.1.123 发现图谱停在 1.1.118，**6 个技能 + 9 篇参考 + 2 个闸门脚本全没进图谱**，
+// 而 check-graph 一直全绿 —— 它只查结构（节点/边/社区/兜底名），从不问「这份图谱什么时候建的」。
+// 这类缺陷的性质是「结构完全正确，只是内容过期」，所有静态检查都会放它过去。
+// 三档判据（避免把人逼到每次提交都重跑 graphify）：
+//   一致 → 绿｜落后 <10 且只改 md → 黄（提示）｜落后 ≥10 或改了代码 → 红。
+if (!skip("graphfresh")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-graph-fresh.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    const tip = out.find((l) => l.includes("刷新：") || l.includes("重抽")) || "";
+    failures.push(`图谱过期：${bad} ${tip.trim().slice(0, 90)}`);
+  } else {
+    const stat = out.find((l) => l.includes("图谱")) || "";
+    notes.push(`图谱新鲜度：${stat.replace(/^\[check-graph-fresh\]\s*/, "").trim().slice(0, 100)}`);
+  }
+}
+
 // 关 23：事实库引用完整性——asset_id 不许指向不存在的资产。
 // 由来：2026-11-14 逻辑审阅实测，schema 里 24 张表没有任何 FOREIGN KEY，应用层原先也不校验，
 // asset_id=99999 会写入成功并可查回（asset_ip 为 null）。后果不是"多一条脏数据"：

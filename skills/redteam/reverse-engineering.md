@@ -761,7 +761,20 @@ second-shot:end -->
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`binary-diff`
+- **下游**（产出交给谁）：`ida-reverse`、`ghidra-reverse`、`radare2`
+- **专项下游**（同主题更深的靶子面）：`competition-reverse-pwn`、`mobile-reverse`、`competition-zip-archive`
+- **互补**（同类场景一起用）：`pwn-chain`、`radare2`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）。**出交付物用 `redteam_report`**（kind=score 出计分战报、kind=targets 出靶标清单），整条链路串起来看用 `redteam_attack_chain` / `redteam_attack_path` —— 这两个只在 `redteam-setup` 的工具表里登记过，做具体攻击时不会想到去翻，所以在这里点名
+
+
+<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -779,18 +792,3 @@ second-shot:end -->
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
-
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
-
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：4 漏洞利用｜**角色**：`exploit`
-- **上游**（先做完这些再进来）：`binary-diff`
-- **下游**（产出交给谁）：`ida-reverse`、`ghidra-reverse`、`radare2`
-- **专项下游**（同主题更深的靶子面）：`competition-reverse-pwn`、`mobile-reverse`、`competition-zip-archive`
-- **互补**（同类场景一起用）：`pwn-chain`、`radare2`
-- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
-- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）。**出交付物用 `redteam_report`**（kind=score 出计分战报、kind=targets 出靶标清单），整条链路串起来看用 `redteam_attack_chain` / `redteam_attack_path` —— 这两个只在 `redteam-setup` 的工具表里登记过，做具体攻击时不会想到去翻，所以在这里点名
-
-
-<!-- /skill-link-graph -->

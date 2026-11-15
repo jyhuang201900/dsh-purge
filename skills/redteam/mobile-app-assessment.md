@@ -429,7 +429,19 @@ frida -U -f com.target.app -l read-files.js
 
 （此节由 `scripts/build-skill-graph.mjs` 生成，见文件末尾）
 
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：4 漏洞利用｜**角色**：`exploit`
+- **上游**（先做完这些再进来）：`apk-reverse`、`mobile-reverse`
+- **下游**（产出交给谁）：`api-security`、`injection-payloads`、`protocol-reverse`
+- **互补**（同类场景一起用）：`apk-reverse`、`mobile-reverse`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）。**出交付物用 `redteam_report`**（kind=score 出计分战报、kind=targets 出靶标清单），整条链路串起来看用 `redteam_attack_chain` / `redteam_attack_path` —— 这两个只在 `redteam-setup` 的工具表里登记过，做具体攻击时不会想到去翻，所以在这里点名
+
+
+<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -444,17 +456,3 @@ frida -U -f com.target.app -l read-files.js
 - `pip`：用 `python -m pip` 代替裸 `pip`
 
 runnability:end -->
-
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
-
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：4 漏洞利用｜**角色**：`exploit`
-- **上游**（先做完这些再进来）：`apk-reverse`、`mobile-reverse`
-- **下游**（产出交给谁）：`api-security`、`injection-payloads`、`protocol-reverse`
-- **互补**（同类场景一起用）：`apk-reverse`、`mobile-reverse`
-- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
-- **收口必做**（打完不算完，要能证明）：命中判定走 `verification-discipline`（误报排除 + 修复五档判定）；打完之后要**补丁后复测**（补丁/修复后再打一遍，确认真的关掉了，而不是换个入口还能打）也走它；说清对手能不能发现走 `detection-pairing`（检测规则 + 响度）；战果归到哪个战术走 `attack-traceability`（ATT&CK 映射）。**出交付物用 `redteam_report`**（kind=score 出计分战报、kind=targets 出靶标清单），整条链路串起来看用 `redteam_attack_chain` / `redteam_attack_path` —— 这两个只在 `redteam-setup` 的工具表里登记过，做具体攻击时不会想到去翻，所以在这里点名
-
-
-<!-- /skill-link-graph -->

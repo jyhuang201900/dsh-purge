@@ -243,17 +243,6 @@ PY
 
 **纪律**：OT 里"再试一次"的成本是产线停机。**任何异常立刻停手并通报**。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`pip`
-- `pip`：用 `python -m pip` 代替裸 `pip`
-
-runnability:end -->
-
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -267,3 +256,12 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_asset_stats`（收集收口先看断层：C 段数/存活/端口/服务/指纹/溯源条数）、`redteam_asset_get`（深入单个目标：全部端口服务+指纹+采集时间线）、`redteam_asset_graph`（C 段→资产→端口→域名 的拓扑，找横向路径用它而不是肉眼翻列表）、`redteam_asset_timeline`（发现时间线，判断哪些是新冒出来的）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`pip`
+- `pip`：用 `python -m pip` 代替裸 `pip`
+
+runnability:end -->

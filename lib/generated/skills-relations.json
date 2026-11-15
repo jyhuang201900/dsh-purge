@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "total": 433,
+  "total": 446,
   "relations": [
     {
       "source": "active-scan",
@@ -120,6 +120,26 @@
     {
       "source": "patch-diff-exploit",
       "target": "binary-diff",
+      "relationship": "next"
+    },
+    {
+      "source": "bluetooth-wireless-attack",
+      "target": "hardware-security",
+      "relationship": "next"
+    },
+    {
+      "source": "bluetooth-wireless-attack",
+      "target": "lateral-movement",
+      "relationship": "next"
+    },
+    {
+      "source": "hardware-security",
+      "target": "bluetooth-wireless-attack",
+      "relationship": "next"
+    },
+    {
+      "source": "passive-recon",
+      "target": "bluetooth-wireless-attack",
       "relationship": "next"
     },
     {
@@ -1113,6 +1133,31 @@
       "relationship": "next"
     },
     {
+      "source": "web-framework-exploit",
+      "target": "webshell-toolkit",
+      "relationship": "next"
+    },
+    {
+      "source": "web-framework-exploit",
+      "target": "c2-framework-ops",
+      "relationship": "next"
+    },
+    {
+      "source": "web-framework-exploit",
+      "target": "waf-bypass",
+      "relationship": "next"
+    },
+    {
+      "source": "web-fingerprint",
+      "target": "web-framework-exploit",
+      "relationship": "next"
+    },
+    {
+      "source": "nuclei-scan",
+      "target": "web-framework-exploit",
+      "relationship": "next"
+    },
+    {
       "source": "web-vuln-payloads",
       "target": "webshell-toolkit",
       "relationship": "next"
@@ -1563,6 +1608,61 @@
       "relationship": "complementary"
     },
     {
+      "source": "bluetooth-wireless-attack",
+      "target": "hardware-security",
+      "relationship": "complementary"
+    },
+    {
+      "source": "bluetooth-wireless-attack",
+      "target": "ot-ics",
+      "relationship": "complementary"
+    },
+    {
+      "source": "hardware-security",
+      "target": "ot-ics",
+      "relationship": "complementary"
+    },
+    {
+      "source": "hardware-security",
+      "target": "plc-controller-attack",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ot-ics",
+      "target": "plc-controller-attack",
+      "relationship": "complementary"
+    },
+    {
+      "source": "ot-ics",
+      "target": "radio-sdr",
+      "relationship": "complementary"
+    },
+    {
+      "source": "plc-controller-attack",
+      "target": "radio-sdr",
+      "relationship": "complementary"
+    },
+    {
+      "source": "plc-controller-attack",
+      "target": "scada-hmi-attack",
+      "relationship": "complementary"
+    },
+    {
+      "source": "radio-sdr",
+      "target": "scada-hmi-attack",
+      "relationship": "complementary"
+    },
+    {
+      "source": "radio-sdr",
+      "target": "wifi-wireless",
+      "relationship": "complementary"
+    },
+    {
+      "source": "scada-hmi-attack",
+      "target": "wifi-wireless",
+      "relationship": "complementary"
+    },
+    {
       "source": "browser-extension-reverse",
       "target": "js-reverse",
       "relationship": "complementary"
@@ -1679,11 +1779,21 @@
     },
     {
       "source": "unauth-exploit",
-      "target": "web-vuln-payloads",
+      "target": "web-framework-exploit",
       "relationship": "complementary"
     },
     {
       "source": "waf-bypass",
+      "target": "web-framework-exploit",
+      "relationship": "complementary"
+    },
+    {
+      "source": "waf-bypass",
+      "target": "web-vuln-payloads",
+      "relationship": "complementary"
+    },
+    {
+      "source": "web-framework-exploit",
       "target": "web-vuln-payloads",
       "relationship": "complementary"
     },
@@ -2090,51 +2200,6 @@
     {
       "source": "lateral-movement",
       "target": "netexec-scan",
-      "relationship": "complementary"
-    },
-    {
-      "source": "hardware-security",
-      "target": "ot-ics",
-      "relationship": "complementary"
-    },
-    {
-      "source": "hardware-security",
-      "target": "plc-controller-attack",
-      "relationship": "complementary"
-    },
-    {
-      "source": "ot-ics",
-      "target": "plc-controller-attack",
-      "relationship": "complementary"
-    },
-    {
-      "source": "ot-ics",
-      "target": "radio-sdr",
-      "relationship": "complementary"
-    },
-    {
-      "source": "plc-controller-attack",
-      "target": "radio-sdr",
-      "relationship": "complementary"
-    },
-    {
-      "source": "plc-controller-attack",
-      "target": "scada-hmi-attack",
-      "relationship": "complementary"
-    },
-    {
-      "source": "radio-sdr",
-      "target": "scada-hmi-attack",
-      "relationship": "complementary"
-    },
-    {
-      "source": "radio-sdr",
-      "target": "wifi-wireless",
-      "relationship": "complementary"
-    },
-    {
-      "source": "scada-hmi-attack",
-      "target": "wifi-wireless",
       "relationship": "complementary"
     },
     {

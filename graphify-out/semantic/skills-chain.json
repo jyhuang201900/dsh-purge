@@ -97,6 +97,18 @@
       "rationale": "跨版本符号迁移与二进制差分。当你有旧版本的符号/逆向结果，需要快速迁移到新版本时使用。 适用场景：内核缺 PDB 用旧版符号推导、程序更新后批量迁移函数名、应用更新后快速定位新偏移。 核心方法：用 LLM 做结构化差异比对，程序化输入输出，成本极低（200 函数 ~1 元）。 触发关键词：符号迁移、bindiff、跨版本、PDB 缺失、函数偏移迁移、symb"
     },
     {
+      "id": "skills_redteam_bluetooth_wireless_attack",
+      "label": "bluetooth-wireless-attack（内网渗透 / internal）",
+      "file_type": "document",
+      "source_file": "E:\\完成项目\\dsh-purge\\skills\\redteam\\bluetooth-wireless-attack.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Use for authorized Bluetooth/BLE and RFID assessment — BLE enumeration and GATT read/write, classic Bluetooth pairing attacks, BLE HID injection, RFID/NFC cloning, and debug-port e"
+    },
+    {
       "id": "skills_redteam_browser_automation",
       "label": "browser-automation（流程/编排 / aux）",
       "file_type": "document",
@@ -1453,6 +1465,18 @@
       "rationale": "Web 服务指纹识别：框架、中间件、CMS、组件版本，为漏洞检测准备弹药"
     },
     {
+      "id": "skills_redteam_web_framework_exploit",
+      "label": "web-framework-exploit（漏洞发现 / vuln-scan）",
+      "file_type": "document",
+      "source_file": "E:\\完成项目\\dsh-purge\\skills\\redteam\\web-framework-exploit.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Use for authorized exploitation of Java and PHP web framework vulnerabilities — Struts2, ThinkPHP, WebLogic, Spring, Shiro, Fastjson, Log4j2 — with version fingerprinting, payload "
+    },
+    {
       "id": "skills_redteam_web_vuln_payloads",
       "label": "web-vuln-payloads（漏洞发现 / vuln-scan）",
       "file_type": "document",
@@ -1526,7 +1550,7 @@
     },
     {
       "id": "role_vuln_scan",
-      "label": "角色 漏洞发现（23 个技能）",
+      "label": "角色 漏洞发现（24 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1550,7 +1574,7 @@
     },
     {
       "id": "role_internal",
-      "label": "角色 内网渗透（19 个技能）",
+      "label": "角色 内网渗透（20 个技能）",
       "file_type": "document",
       "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
       "source_location": "L1",
@@ -1831,6 +1855,46 @@
     {
       "source": "skills_redteam_patch_diff_exploit",
       "target": "skills_redteam_binary_diff",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_bluetooth_wireless_attack",
+      "target": "skills_redteam_hardware_security",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_bluetooth_wireless_attack",
+      "target": "skills_redteam_lateral_movement",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_hardware_security",
+      "target": "skills_redteam_bluetooth_wireless_attack",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_passive_recon",
+      "target": "skills_redteam_bluetooth_wireless_attack",
       "relation": "next",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -3819,6 +3883,56 @@
       "weight": 1
     },
     {
+      "source": "skills_redteam_web_framework_exploit",
+      "target": "skills_redteam_webshell_toolkit",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_web_framework_exploit",
+      "target": "skills_redteam_c2_framework_ops",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_web_framework_exploit",
+      "target": "skills_redteam_waf_bypass",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_web_fingerprint",
+      "target": "skills_redteam_web_framework_exploit",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_nuclei_scan",
+      "target": "skills_redteam_web_framework_exploit",
+      "relation": "next",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
       "source": "skills_redteam_web_vuln_payloads",
       "target": "skills_redteam_webshell_toolkit",
       "relation": "next",
@@ -4719,6 +4833,116 @@
       "weight": 1
     },
     {
+      "source": "skills_redteam_bluetooth_wireless_attack",
+      "target": "skills_redteam_hardware_security",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_bluetooth_wireless_attack",
+      "target": "skills_redteam_ot_ics",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_hardware_security",
+      "target": "skills_redteam_ot_ics",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_hardware_security",
+      "target": "skills_redteam_plc_controller_attack",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_ot_ics",
+      "target": "skills_redteam_plc_controller_attack",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_ot_ics",
+      "target": "skills_redteam_radio_sdr",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_plc_controller_attack",
+      "target": "skills_redteam_radio_sdr",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_plc_controller_attack",
+      "target": "skills_redteam_scada_hmi_attack",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_radio_sdr",
+      "target": "skills_redteam_scada_hmi_attack",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_radio_sdr",
+      "target": "skills_redteam_wifi_wireless",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_scada_hmi_attack",
+      "target": "skills_redteam_wifi_wireless",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
       "source": "skills_redteam_browser_extension_reverse",
       "target": "skills_redteam_js_reverse",
       "relation": "complementary",
@@ -4950,7 +5174,7 @@
     },
     {
       "source": "skills_redteam_unauth_exploit",
-      "target": "skills_redteam_web_vuln_payloads",
+      "target": "skills_redteam_web_framework_exploit",
       "relation": "complementary",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -4960,6 +5184,26 @@
     },
     {
       "source": "skills_redteam_waf_bypass",
+      "target": "skills_redteam_web_framework_exploit",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_waf_bypass",
+      "target": "skills_redteam_web_vuln_payloads",
+      "relation": "complementary",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "skills_redteam_web_framework_exploit",
       "target": "skills_redteam_web_vuln_payloads",
       "relation": "complementary",
       "confidence": "EXTRACTED",
@@ -5779,96 +6023,6 @@
       "weight": 1
     },
     {
-      "source": "skills_redteam_hardware_security",
-      "target": "skills_redteam_ot_ics",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_hardware_security",
-      "target": "skills_redteam_plc_controller_attack",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_ot_ics",
-      "target": "skills_redteam_plc_controller_attack",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_ot_ics",
-      "target": "skills_redteam_radio_sdr",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_plc_controller_attack",
-      "target": "skills_redteam_radio_sdr",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_plc_controller_attack",
-      "target": "skills_redteam_scada_hmi_attack",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_radio_sdr",
-      "target": "skills_redteam_scada_hmi_attack",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_radio_sdr",
-      "target": "skills_redteam_wifi_wireless",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
-      "source": "skills_redteam_scada_hmi_attack",
-      "target": "skills_redteam_wifi_wireless",
-      "relation": "complementary",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1,
-      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-relations.json",
-      "source_location": "L1",
-      "weight": 1
-    },
-    {
       "source": "skills_redteam_identity_federation",
       "target": "skills_redteam_windows_ad",
       "relation": "complementary",
@@ -6340,6 +6494,16 @@
     },
     {
       "source": "role_vuln_scan",
+      "target": "skills_redteam_web_framework_exploit",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_vuln_scan",
       "target": "skills_redteam_web_vuln_payloads",
       "relation": "owns",
       "confidence": "EXTRACTED",
@@ -6651,6 +6815,16 @@
     {
       "source": "role_exploit",
       "target": "skills_redteam_webshell_toolkit",
+      "relation": "owns",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "E:\\完成项目\\dsh-purge\\lib\\generated\\skills-agents.json",
+      "source_location": "L1",
+      "weight": 1
+    },
+    {
+      "source": "role_internal",
+      "target": "skills_redteam_bluetooth_wireless_attack",
       "relation": "owns",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
@@ -7383,8 +7557,8 @@
   "input_tokens": 0,
   "output_tokens": 0,
   "coverage": {
-    "skills": 125,
-    "relations": 433,
+    "skills": 127,
+    "relations": 446,
     "roles": 8
   }
 }

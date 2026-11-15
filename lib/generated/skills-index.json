@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "totalSkills": 125,
+  "totalSkills": 127,
   "stages": {
     "1": "信息收集",
     "2": "资产梳理",
@@ -163,6 +163,27 @@
       ],
       "downstream": [
         "reverse-engineering"
+      ]
+    },
+    {
+      "id": "bluetooth-wireless-attack",
+      "summary": "Use for authorized Bluetooth/BLE and RFID assessment — BLE enumeration and GATT read/write, classic Bluetooth pairing attacks, BLE HID injection, RFID/NFC cloning, and debug-port e",
+      "whenToUse": "Use when the target includes BLE peripherals (locks, medical, wearables, industrial sensors), classic Bluetooth devices (speakers, keyboards, car units), or RFID/NFC access control — and you need to t",
+      "stage": "5",
+      "stageName": "内网渗透",
+      "role": "internal",
+      "domain": "ot-hardware",
+      "targetTypes": [],
+      "records": [
+        "vuln"
+      ],
+      "upstream": [
+        "hardware-security",
+        "passive-recon"
+      ],
+      "downstream": [
+        "hardware-security",
+        "lateral-movement"
       ]
     },
     {
@@ -2186,6 +2207,28 @@
         "nuclei-scan",
         "cn-oa-exploit",
         "ai-infra-attack"
+      ]
+    },
+    {
+      "id": "web-framework-exploit",
+      "summary": "Use for authorized exploitation of Java and PHP web framework vulnerabilities — Struts2, ThinkPHP, WebLogic, Spring, Shiro, Fastjson, Log4j2 — with version fingerprinting, payload ",
+      "whenToUse": "Use when the target runs a known Java/PHP framework (Struts2 .action, ThinkPHP ?s=, WebLogic 7001, Spring Boot actuator, Shiro rememberMe, fastjson JSON API) and you need the exact version-to-payload ",
+      "stage": "3",
+      "stageName": "漏洞发现",
+      "role": "vuln-scan",
+      "domain": "web",
+      "targetTypes": [],
+      "records": [
+        "vuln"
+      ],
+      "upstream": [
+        "web-fingerprint",
+        "nuclei-scan"
+      ],
+      "downstream": [
+        "webshell-toolkit",
+        "c2-framework-ops",
+        "waf-bypass"
       ]
     },
     {

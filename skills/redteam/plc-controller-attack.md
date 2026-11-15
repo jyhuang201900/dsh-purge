@@ -73,6 +73,55 @@ PY
 curl -s -k "https://$TARGET/" | grep -iE "version|firmware|model" | head -5
 ```
 
+### IEC 60870-5-104（2404）—— 电力行业（变电站 / 调度主站）
+
+**为什么单列**：中国电力系统的变电站与调度主站用 IEC-104，
+它在电力靶标里的出现率**高于 Modbus**。而且它和 Modbus 有一个致命差别：
+
+```text
+Modbus：读写「寄存器」，语义要靠工程文件反推
+IEC-104：报文自带**明确的 TypeID**，一看就知道是遥测还是遥控
+         → 攻击者不需要读懂工程文件，就知道哪个包能让断路器动作
+         → 所以它既是最好判的，也是最危险的
+```
+
+**只读 vs 控制（TypeID 全表，这张表必须记住）**：
+
+| TypeID | 名称 | 性质 | 能不能碰 |
+| --- | --- | --- | --- |
+| 1 / 3 | 单点/双点遥信 | 读 | ✅ 安全 |
+| 9 / 13 | 归一化/短浮点遥测 | 读 | ✅ 安全 |
+| 30 / 36 | 带时标的遥信/遥测 | 读 | ✅ 安全 |
+| **45** | **单点命令 C_SC_NA（遥控合/分）** | **控制** | ❌ **断路器动作** |
+| **46 / 47** | 双点命令 / 步调节 | **控制** | ❌ |
+| **48 / 49 / 50** | 设定值命令（归一化/标度化/短浮点） | **控制（改定值）** | ❌ |
+| **103** | 时钟同步 | **写时钟** | ❌ 时间错乱让事件顺序全乱 |
+
+**判据（最硬的一条）**：**TypeID 45–50 与 103 绝对不碰**。
+TypeID 45 在变电站里执行就是**拉合断路器** —— 这不是"技术风险"，
+是**人身与设备安全风险**。正确做法是**只做被动流量分析 + 报告「理论上可发遥控」，绝不发**。
+
+```bash
+# ── 零风险判定：从 pcap 看有没有 104 设备 ──
+tshark -r capture.pcap -Y "tcp.port==2404" -T fields -e ip.src -e ip.dst -e _ws.col.Info | head -20
+# 判据：出现 "IEC 60870-5-104" 或 0x68 开头的 APCI = 有
+
+# ── 从流量读工艺（只读，零风险）──
+tshark -r capture.pcap -Y "tcp.port==2404" -V | grep -A3 "Type ID" | head -40
+# 判据：能看到 ASDU 里的 IOA（信息对象地址）与值 → 这就是真实遥测量
+
+# ── 主动探测（授权且限速才有意义）：先只发 STARTDT 看设备是否回确认 ──
+nmap -Pn -p 2404 -sV "$TARGET"
+# 手工帧：STARTDT act = `68 04 07 00 00 00`；设备回 `68 04 0B 00 00 00` = 是 104 设备
+```
+
+**报告价值**：能说清「哪个 IOA 对应哪路遥测」比「我能连上 2404」有价值得多。
+IOA 的语义要对方提供点表；拿不到就用「IOA 12345 在 5 分钟内持续变化」这种客观描述。
+
+**检测视角**：IEC-104 的**只读面完全不可检测**（从流量看），
+但**控制面一旦碰就是即时可见的事故**（断路器变位会触发调度告警）。
+所以这类靶标的正确做法写在 `references/industrial-protocol-deep.md` 第五之二节。
+
 **型号 → 已知漏洞的映射必须查官方公告**，不要凭记忆。两类最常被记错：
 
 | 设备 | 常被记错的点 |
@@ -297,20 +346,6 @@ S7 Diagnostic Buffer 和 ControlLogix Controller Log 是唯一能证明「谁在
 
 **纪律**：OT 里"再试一次"的成本是产线停机，不是请求失败。**任何异常立刻停手并通报**。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`binwalk`、`pip`
-- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
-- `pip`：用 `python -m pip` 代替裸 `pip`
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -325,3 +360,15 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`binwalk`、`pip`
+- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
+- `pip`：用 `python -m pip` 代替裸 `pip`
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

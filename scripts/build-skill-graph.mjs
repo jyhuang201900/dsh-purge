@@ -53,9 +53,9 @@ const ROLES = {
 const STAGE_RULES = [
   [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|social-engineering|industrial-protocol-recon)$/, "1", "recon"],
   [/^(web-fingerprint|asset-correlation)$/, "2", "assess"],
-  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|database-security|email-security|llm-security|ai-infra-attack|cn-oa-exploit)$/, "3", "vuln-scan"],
+  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|database-security|email-security|llm-security|ai-infra-attack|cn-oa-exploit|web-framework-exploit)$/, "3", "vuln-scan"],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell|privesc-persistence|secdev-boundary|iot-iiot-netdev)$/, "4", "exploit"],
-  [/^(gogo-intranet|fscan-intranet|netexec-scan|lateral-movement|windows-ad|identity-federation|cloud-k8s|ot-ics|plc-controller-attack|scada-hmi-attack|c2-framework-ops|edr-bypass-re|threat-hunting|wifi-wireless|hardware-security|radio-sdr)$/, "5", "internal"],
+  [/^(gogo-intranet|fscan-intranet|netexec-scan|lateral-movement|windows-ad|identity-federation|cloud-k8s|ot-ics|plc-controller-attack|scada-hmi-attack|c2-framework-ops|bluetooth-wireless-attack|edr-bypass-re|threat-hunting|wifi-wireless|hardware-security|radio-sdr)$/, "5", "internal"],
   [/^(suo5-tunnel|chisel-tunnel|frp-tunnel)$/, "4", "exploit"],
   [/^(attack-chain|pentest-tools|case-review|ctf-sandbox|ctf-sandbox-orchestrator|redteam-setup)$/, "flow", "flow"],
   /* 验证层三技能：**跨阶段**，不是某一阶段的专属。
@@ -106,6 +106,7 @@ const TRUNK = {
   "unauth-exploit": { up: ["dir-bruteforce", "nuclei-scan"], down: ["webshell-toolkit", "shell-handler"] },
   "credential-attack": { up: ["nuclei-scan", "netexec-scan"], down: ["netexec-scan", "lateral-movement"] },
   "injection-payloads": { up: ["nuclei-scan"], down: ["webshell-toolkit", "oob-verification"] },
+  "web-framework-exploit": { up: ["web-fingerprint", "nuclei-scan"], down: ["webshell-toolkit", "c2-framework-ops", "waf-bypass"] },
   "web-vuln-payloads": { up: ["nuclei-scan"], down: ["webshell-toolkit", "thick-client"] },
   "waf-bypass": { up: ["nuclei-scan", "http-smuggling"], down: ["injection-payloads", "web-vuln-payloads"] },
   "http-smuggling": { up: ["nuclei-scan"], down: ["waf-bypass", "unauth-exploit"] },
@@ -145,6 +146,9 @@ const TRUNK = {
   "firmware-pentest": { up: ["iot-iiot-netdev"], down: ["hardware-security", "competition-firmware-layout"] },
   "hardware-security": { up: ["firmware-pentest"], down: ["radio-sdr"] },
   "radio-sdr": { up: ["hardware-security"], down: [] },
+  /* 近距无线三件套：wifi（802.11）/ 蓝牙（短距协议）/ 硬件（物理与固件）。
+     蓝牙与硬件常配对使用：蓝牙进不去就拆机，拆机拿到固件后用蓝牙侧 OTA 分析。 */
+  "bluetooth-wireless-attack": { up: ["hardware-security", "passive-recon"], down: ["hardware-security", "lateral-movement"] },
   "wifi-wireless": { up: ["recon-pipeline"], down: ["netexec-scan"] },
   "reverse-engineering": { up: ["binary-diff"], down: ["ida-reverse", "ghidra-reverse", "radare2"] },
   "ida-reverse": { up: ["reverse-engineering"], down: ["patch-diff-exploit", "pwn-chain"] },
@@ -191,14 +195,14 @@ const LEDGER_ENTITIES = new Set(["vuln", "credential", "access", "webshell", "tu
 /** 技能域：链路用。默认全落到 misc 就等于没分类（第 108 轮实测 57/114 是 misc），所以逐组显式列。 */
 const DOMAIN_RULES = [
   [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation|social-engineering)$/, "recon"],
-  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|cn-oa-exploit)$/, "web"],
+  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|cn-oa-exploit|web-framework-exploit)$/, "web"],
   [/^(credential-attack)$/, "credential"],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell|privesc-persistence|c2-framework-ops)$/, "payload"],
   [/tunnel$/, "tunnel"],
   [/^(netexec-scan|lateral-movement|fscan-intranet|gogo-intranet)$/, "intranet"],
   [/^(windows-ad|identity-federation)$/, "identity"],
   [/^(cloud-k8s)$/, "cloud"],
-  [/^(ot-ics|plc-controller-attack|scada-hmi-attack|industrial-protocol-recon|iot-iiot-netdev|firmware-pentest|hardware-security|radio-sdr|wifi-wireless)$/, "ot-hardware"],
+  [/^(ot-ics|plc-controller-attack|scada-hmi-attack|industrial-protocol-recon|iot-iiot-netdev|firmware-pentest|hardware-security|radio-sdr|wifi-wireless|bluetooth-wireless-attack)$/, "ot-hardware"],
   [/^(apk-reverse|mobile-reverse|mobile-app-assessment)$/, "mobile"],
   [/^(reverse-engineering|ida-reverse|ghidra-reverse|radare2|binary-diff|patch-diff-exploit|pwn-chain|go-rust-reverse|dotnet-reverse|protocol-reverse)$/, "reverse"],
   [/^(js-reverse|browser-extension-reverse|thick-client)$/, "client"],
@@ -213,7 +217,7 @@ const DOMAIN_RULES = [
 /** 3) 落库工具映射：技能产出该落到哪个演练台实体（值必须 ∈ LEDGER_ENTITIES，否则模型照做就撞空） */
 const RECORD_RULES = [
   [/^(fofa-recon|passive-recon|recon-pipeline|active-scan|subdomain-bruteforce|web-fingerprint|asset-correlation|netexec-scan|gogo-intranet|fscan-intranet|industrial-protocol-recon)$/, ["asset"]],
-  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|api-security|code-audit|database-security|email-security|llm-security|secdev-boundary|iot-iiot-netdev|ai-infra-attack|cn-oa-exploit|plc-controller-attack|scada-hmi-attack|competition-.*)$/, ["vuln"]],
+  [/^(dir-bruteforce|nuclei-scan|unauth-exploit|credential-attack|injection-payloads|web-vuln-payloads|waf-bypass|http-smuggling|graphql-testing|race-conditions|oob-verification|api-security|code-audit|database-security|email-security|llm-security|secdev-boundary|iot-iiot-netdev|ai-infra-attack|cn-oa-exploit|plc-controller-attack|scada-hmi-attack|web-framework-exploit|bluetooth-wireless-attack|competition-.*)$/, ["vuln"]],
   [/^(credential-attack|privesc-persistence|netexec-scan|lateral-movement|windows-ad|identity-federation|social-engineering)$/, ["credential", "access"]],
   [/^(webshell-toolkit|shell-handler|vps-reverse-shell)$/, ["webshell", "access"]],
   /* C2 产出的是「持续控制通道」，演练台的对应实体是 access（不是 tunnel —— tunnel 是网络层转发）。 */
