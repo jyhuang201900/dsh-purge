@@ -91,22 +91,6 @@ netexec ldap 10.0.0.5 -u user -p 'pass' --adcs # ADCS 证书服务检查（ESC1 
 - 生产内网 `--continue-on-success` + 低并发（`-g 50`），不要默认 1000 线程轰整段。
 - 只在授权范围网段内跑；范围外主机记下来交指挥确认，不顺手打。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`impacket`、`netexec`、`crackmapexec`、`gogo`
-- `impacket`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `crackmapexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-runnability:end -->
-
-
-
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -134,3 +118,15 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_asset_stats`（收集收口先看断层：C 段数/存活/端口/服务/指纹/溯源条数）、`redteam_asset_get`（深入单个目标：全部端口服务+指纹+采集时间线）、`redteam_asset_graph`（C 段→资产→端口→域名 的拓扑，找横向路径用它而不是肉眼翻列表）、`redteam_asset_timeline`（发现时间线，判断哪些是新冒出来的）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`impacket`、`netexec`、`crackmapexec`、`gogo`
+- `impacket`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `crackmapexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+runnability:end -->

@@ -183,21 +183,6 @@ rule WebShell_Memory_Java_Exec
 - `waf-bypass`：定位为"编码被识别"之后的绕过
 - `threat-hunting`：这些规则反过来就是防守方的狩猎起点
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nikto`、`sqlmap`、`yara`
-- `nikto`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
-- `yara`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -241,3 +226,16 @@ second-shot:end -->
 
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`nikto`、`sqlmap`、`yara`
+- `nikto`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
+- `yara`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

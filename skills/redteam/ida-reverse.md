@@ -357,17 +357,6 @@ idapro_rename(batch={"func": [{"addr": "函数地址", "name": "有意义的名�
 | `radare2` | ✓ 已装（toolkit 内，非 PATH） |
 | `r2` | ❌ 未装（用前先装，或改用等价工具） |
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`ghidra`
-- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-runnability:end -->
-
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -409,3 +398,12 @@ second-shot:end -->
 
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`ghidra`
+- `ghidra`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+runnability:end -->

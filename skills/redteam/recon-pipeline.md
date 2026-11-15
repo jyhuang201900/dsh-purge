@@ -108,20 +108,6 @@ $TK/naabu/naabu -host 1.2.3.4 -p - -rate 1000 -silent
    非备案主体但同 C 段/IP 的站点——写进 `note`，这些是资产梳理阶段的高优先级目标。
 5. 结论给指挥者时**给数字**：子域数 / 存活 IP 数 / 开放端口数 / 存活站点数 / 其中高优先级几条。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`katana`、`gogo`
-- `katana`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -164,3 +150,15 @@ second-shot:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_asset_stats`（收集收口先看断层：C 段数/存活/端口/服务/指纹/溯源条数）、`redteam_asset_get`（深入单个目标：全部端口服务+指纹+采集时间线）、`redteam_asset_graph`（C 段→资产→端口→域名 的拓扑，找横向路径用它而不是肉眼翻列表）、`redteam_asset_timeline`（发现时间线，判断哪些是新冒出来的）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`katana`、`gogo`
+- `katana`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

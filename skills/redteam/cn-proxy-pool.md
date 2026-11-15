@@ -87,22 +87,6 @@ wc -l runs/live-proxies.txt
 - 用完清掉 `runs/` 下的临时配置（如 `proxychains.tmp.conf`），不要在系统里留下任何代理痕迹。
 - 仅在授权演练范围内使用。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`sqlmap`、`proxychains`
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
-- `proxychains`：Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>` 或 PowerShell `-Proxy`
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
-
-
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -127,3 +111,15 @@ runnability:end -->
 
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`sqlmap`、`proxychains`
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
+- `proxychains`：Windows 无 proxychains；用 `curl --socks5-hostname 127.0.0.1:<port>` 或 PowerShell `-Proxy`
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

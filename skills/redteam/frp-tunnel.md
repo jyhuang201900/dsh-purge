@@ -144,21 +144,6 @@ mysql -h $REDTEAM_VPS_HOST -P 13306 -u root -p
 5. 每个关键动作 `redteam_chain_add`（`stage_code=boundary-logical`），`tool` 写命令原文、`result` 写回显摘要
    （如 `frpc 注册成功，proxy socks5 start success`）。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`gogo`、`frpc`、`frps`
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `frpc`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `frps`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -202,3 +187,16 @@ second-shot:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_tunnel_list`（可达网段是横向的边界，别凭记的 IP 段推算）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`gogo`、`frpc`、`frps`
+- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `frpc`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `frps`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

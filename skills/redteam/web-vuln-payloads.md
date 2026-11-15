@@ -110,12 +110,32 @@ curl -s -o /dev/null -w '%{http_code}\n' http://TARGET/api/internal/config
 
 ## JWT
 
-```text
-alg=none        去掉签名段，留 header.payload.
-HS256 弱密钥     hashcat -m 16500 hash.txt rockyou.txt -O
-RS256→HS256      把公钥当 HMAC 密钥（能读到公钥时）
-kid 注入         "kid":"../../proc/self/environ"  /  SQL 拼接
+**先拆开看清，再选路径**（不拆就不知道打哪条）：
+
+```bash
+echo "$TOKEN" | cut -d. -f1 | base64 -d 2>/dev/null | jq .   # header: alg / kid / jku
+echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .   # payload: role / sub / exp
 ```
+
+| header 里的 alg | 先打哪条 | 前提 |
+| --- | --- | --- |
+| `HS256` | **弱密钥爆破**（`hashcat -m 16500`） | 无（命中率最高） |
+| `RS256` | **jku/jwk 头注入** → RS→HS 混淆 | jku 在则无需公钥；RS→HS 必须先拿到公钥 |
+| 任意 + 有 `kid` | **kid 注入**（路径穿越→`/dev/null` / SQL） | 服务端真用了 kid |
+| 任意 | **先测"服务端不验签"**（改 payload 签名乱写） | 10 秒，命中率不低 |
+
+**四条最短路径**：
+
+```text
+不验签     改 payload 直接发（签名段随便写）→ 200 即缺陷
+alg=none   header 改 {"alg":"none"}，签名段留空（末尾保留点）
+HS256 弱密钥  hashcat -m 16500 token.txt rockyou.txt -O → 用爆出的密钥重签
+jku 注入   header 加 jku=你的地址，放自己的 JWKS → OAST 回连 + token 被接受（两段都要中）
+```
+
+六类缺陷的完整命令、验伤、假成功反例、检测视角见 `references/jwt-attack-playbook.md`。
+**两条最容易自欺的**：① RS→HS 失败 90% 是公钥 PEM 字节不对（换行/尾部空格），不是"服务端修了"；
+② jku 有 OAST 回连只证明 SSRF 存在，**不证明 JWT 被绕过**。
 
 ## 失败分支
 
@@ -130,18 +150,14 @@ kid 注入         "kid":"../../proc/self/environ"  /  SQL 拼接
 - XSS 记上下文类型；SSRF 记外带域名与回连时间；越权记两个身份各自看到的字段差异。
 - `redteam_chain_add`：`stage_code=exploit`，`tool` 写实际命令原文。
 
+## 参考（深水区，按需加载）
 
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
-
-runnability:end -->
-
-
+- `references/jwt-attack-playbook.md` —— JWT **六类缺陷全表**：不验签 / alg=none / HS256 弱密钥 /
+  RS→HS 混淆 / jku·jwk·x5u 头注入 / kid 注入，每条带「怎么判 → 完整命令 → 验伤 → 假成功反例」。
+  含 PEM 逐字节、base64url padding、JWKS n/e 转 PEM 这些**必须精确才能成功**的细节。
+  **什么时候翻它**：token 里看到 `alg`/`kid`/`jku` 任一个、或要打 API 的鉴权面时。
+- `references/ssrf-metadata-pivot.md` —— SSRF 到云元数据/内网服务的跳板路径与回连验证。
+  **什么时候翻它**：SSRF 只回 200 拿不到内容、或要判"能不能到元数据服务"时。
 
 ## ATT&CK 映射
 
@@ -169,3 +185,13 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
+
+runnability:end -->

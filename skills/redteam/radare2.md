@@ -436,19 +436,6 @@ radare2-skills 项目（radareorg/radare2-skills）提供了更完整的生态�
 | `ida` | ❌ 未装（用前先装，或改用等价工具） |
 | `frida` | ❌ 未装（用前先装，或改用等价工具） |
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
-- `frida`：`python -m pip install frida-tools`
-
-runnability:end -->
-
-
-
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -474,3 +461,12 @@ runnability:end -->
 
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`
+- `frida`：`python -m pip install frida-tools`
+
+runnability:end -->

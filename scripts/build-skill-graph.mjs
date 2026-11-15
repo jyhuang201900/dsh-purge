@@ -391,6 +391,19 @@ const SEARCH_STOP = new Set([
 const CN_LEAD = /^(?:的|与|和|及|在|对|把|被|为|是|这|那|其|之|用|从|到|将|让|使|有|无|或|再|也|就|都|并|而|则|若|如|先|后|时|按|以|向|由)+/;
 const CN_TAIL = /(?:的|与|和|及|在|对|把|被|为|是|这|那|其|之|了|着|过|等|后|前|时|后|中|上|下|内|外|者|地|得)+$/;
 
+const EN_COMMON = new Set([
+  "map", "to", "the", "and", "for", "with", "from", "into", "your", "this", "that",
+  "reduce", "prove", "trust", "abuse", "chain", "reduce", "decisive", "acceptance",
+  "accept", "identify", "step", "goal", "note", "read", "see", "use", "using", "used",
+  "what", "when", "where", "which", "how", "why", "who", "make", "made", "take", "taken",
+  "must", "should", "could", "would", "will", "can", "may", "might", "need", "needs",
+  "keep", "preserve", "collect", "record", "check", "verify", "test", "tests", "testing",
+  "base", "basic", "common", "general", "quick", "start", "workflow", "reference",
+  "output", "input", "result", "results", "effect", "impact", "risk", "target", "targets",
+  "client", "server", "user", "users", "admin", "host", "hosts", "service", "services",
+  "surface", "evidence", "proof", "report", "status", "state", "mode", "type", "types",
+]);
+
 /** 从一段纯文本里抽「专有名词类」关键词：CVE 号、端口、英文/产品名。质量最高的一档。 */
 function extractProper(text) {
   const out = new Set();
@@ -425,18 +438,6 @@ function extractProper(text) {
      （"Prove The Edge"、"Reduce Noise"），全部技能都有，撞上就整片冒出来。
      判据：**首字母大写且长度≥4 且不在常见词表**才算专有名词。
      Kerberos/Milvus/Langflow/BloodHound 都在，Map/To/Trust 都被挡掉。 */
-const EN_COMMON = new Set([
-  "map", "to", "the", "and", "for", "with", "from", "into", "your", "this", "that",
-  "reduce", "prove", "trust", "abuse", "chain", "reduce", "decisive", "acceptance",
-  "accept", "identify", "step", "goal", "note", "read", "see", "use", "using", "used",
-  "what", "when", "where", "which", "how", "why", "who", "make", "made", "take", "taken",
-  "must", "should", "could", "would", "will", "can", "may", "might", "need", "needs",
-  "keep", "preserve", "collect", "record", "check", "verify", "test", "tests", "testing",
-  "base", "basic", "common", "general", "quick", "start", "workflow", "reference",
-  "output", "input", "result", "results", "effect", "impact", "risk", "target", "targets",
-  "client", "server", "user", "users", "admin", "host", "hosts", "service", "services",
-  "surface", "evidence", "proof", "report", "status", "state", "mode", "type", "types",
-]);
   for (const m of src.matchAll(/\b[A-Za-z][A-Za-z0-9._-]{1,24}\b/g)) {
     const w = m[0];
     if (w.length < 2 || SEARCH_STOP.has(w.toLowerCase())) continue;
@@ -445,6 +446,20 @@ const EN_COMMON = new Set([
     const allCaps = /^[A-Z0-9]{2,}$/.test(w);
     const capitalized = /^[A-Z][a-z]/.test(w) && w.length >= 4 && !EN_COMMON.has(w.toLowerCase());
     if (hasDigit || hasPunct || allCaps || capitalized) out.add(w);
+  }
+  /* ④ 纯小写技术缩略词（jku / jwk / alg / kid / xxe / ssrf / rce / saml）：
+     上面四条判据全都漏掉它们 —— 全小写、无数字、无符号、首字母不大写。
+     实测代价：`jku`（JWT 头注入的核心参数）就在 references 的两个 H2 标题上，
+     但查 `jku` 一直回「没有匹配」。同类还有 `jwk`/`alg`/`kid`/`saml`/`oauth`。
+     判据必须窄，否则普通小写词全被收进来（那比漏掉更糟）：
+       · 长度恰好 3（技术缩写几乎都是 3 字母）
+       · 不在 EN_COMMON / SEARCH_STOP
+     调用方只把**标题**传进来（正文里 3 字母小写词多半是代码变量 res/req/buf），
+     所以这条天然被限定在「人写的短语」范围内。 */
+  for (const m of src.matchAll(/(?:^|[\s(`（、,;:/])([a-z][a-z0-9]{2})(?=$|[\s)`）、,;:/])/g)) {
+    const w = m[1];
+    if (EN_COMMON.has(w) || SEARCH_STOP.has(w)) continue;
+    out.add(w);
   }
   // ③b 下划线标识符整体保留（工具名 / 变量名）：单独一条，避免影响上面产品名的匹配
   for (const m of src.matchAll(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/gi)) {
@@ -569,6 +584,38 @@ const searchIndex = skills.map((s) => {
   );
   const proper = extractProper(`${s.id} ${s.summary} ${s.whenToUse} ${headings.join(" ")}`);
 
+  /* 被本技能引用的 references 的**标题**，也要进索引（1.1.118）。
+     为什么必须补：references 是深水区（115 篇 / 93.7 万字），技术名全写在它们的 H2/H3 标题里
+     （`ESC1`~`ESC15`、`Kerberoast`、`SIDHistory`、`Golden Ticket`、`PrintSpoofer`、`jku`、`HS256`…），
+     而索引原先只扫技能正文的 headings —— 实测 references 标题里 399 个技术名，**260 个（65%）
+     在索引里完全没有**。后果是：模型查 `potato`/`sebackup`/`jku`/`hs256` 全都回「没有匹配」，
+     尽管这些词就在 references 的一级/二级标题上。这是「加了等于白加」的第四次踩点。
+     设计取舍：
+       · **只取标题，不取正文**。正文 93.7 万字里扫英文词会引入巨量噪音（普通单词也算专有名词），
+         标题是人写的短语，质量高得多。这条边界与「英文名只从摘要+标题取」同源。
+       · 归属到**引用它的那个技能**（而不是每条 references 一个条目）：模型搜 `ESC1` 要的是
+         「哪个技能能打 ESC1」，答案是 `windows-ad` 而非一篇孤立文档。
+       · 过同一套 `extractProper` 判据（首字母大写/含数字/下划线/点连字符），
+         并同样剔除 ATT&CK 编号与结构性英文标题。 */
+  const refHeads = new Set();
+  for (const m of raw.matchAll(/(?:^|[\s(`])(?:\.\.\/)?references\/([A-Za-z0-9._-]+)\.md/g)) {
+    const refFile = path.join(SKILLS, "references", `${m[1]}.md`);
+    let refText = "";
+    try { refText = fs.readFileSync(refFile, "utf8"); } catch { continue; }
+    /* **先剥代码块再抽标题**。踩过的坑：`reverse-pwn.md` 里有
+         `# IDA: View → Open Subviews → Cross References；右键函数 → Callers`
+       这是**代码块里的注释**（或纯文本行首），`^#{1,4}\s+` 会把它当 H1 标题，
+       于是 `References`、`View`、`Open` 这些词全进了索引，第 24 关判「模板词残留」。
+       内容为代码的文件（references 里大量 shell/命令）必须先把 ``` 围栏内的行剔除。 */
+    const refNoCode = refText.replace(/```[\s\S]*?```/g, "").replace(/^( {4,}|\t).*$/gm, "");
+    const refHeadings = [...refNoCode.matchAll(/^#{1,4}\s+(.+)$/gm)].map((x) => x[1].trim());
+    for (const w of extractProper(refHeadings.join(" "))) {
+      /* 与技能正文同一条豁免：编号走 attack 字段 */
+      if (/^T\d{4}(?:\.[0-9]{3})?$/i.test(w)) continue;
+      refHeads.add(w);
+    }
+  }
+
   /* ATT&CK 技术编号**单列一个字段 `attack`，不进 keys**。
      为什么不能进 keys：① T1190 这种在正文表格里出现在 28 个技能中，
      keyFrequency 会把它判成泛词（阈值 18）直接剔除 —— 恰恰是最需要检索的编号被过滤；
@@ -579,6 +626,73 @@ const searchIndex = skills.map((s) => {
   const attack = new Set();
   for (const m of raw.matchAll(/\bT(\d{4})(?:\.(\d{3}))?\b/g)) {
     attack.add(m[2] === undefined ? `T${m[1]}` : `T${m[1]}.${m[2]}`);
+  }
+  /* 反引号里的工具名/参数名（1.1.118）。
+     为什么只认反引号而不是扫正文：正文扫英文词会引入巨量噪音（上一段已说明），
+     但**反引号是作者显式标注「这是个标识符」**的位置 —— 表格里的 `PrintSpoofer`、
+     代码里的 `SeImpersonatePrivilege`、参数 `jku`，都在反引号里。
+     实测代价：`privesc-persistence` 正文表格写了 `PrintSpoofer / GodPotato / JuicyPotato`，
+     但查 `potato` 完全搜不到它，首条反而是 competition-identity-windows ——
+     因为提取只看标题，工具名全在正文里。
+     判据收窄到「反引号内、无空格、看起来像标识符」，避免把反引号里的命令整条收进来：
+       · 长度 3~40，首字符字母
+       · 允许字母数字 _ . - / （工具名与路径形态）
+       · **不含空格、不含 `=`、不含中文** —— 那是命令片段不是名字
+       · 过 extractProper 的正面判据（大写开头/含数字/含符号），否则普通词全进。 */
+  const codeSpans = new Set();
+  /* 反引号内容**必须按分隔符拆开再逐个判**，不能整段判。
+     实测踩到：`privesc-persistence` 正文写的是
+       `PrintSpoofer / GodPotato / JuicyPotato（**按 OS 版本选**）`
+     整段含空格、斜杠、中文与 markdown 加粗，整段正则 `^[A-Za-z][A-Za-z0-9._/-]*$`
+     直接把它排除了 —— 于是查 `potato` 搜不到这个最该命中的技能。
+     拆开后再过滤：只保留「纯 ASCII 标识符形态」的片段，其余（中文、`**`、括号）丢掉。 */
+  for (const m of raw.matchAll(/`([^`\n]{2,120})`/g)) {
+    for (const piece of m[1].split(/[\s/、,，;；|（）()*]+/)) {
+      const tok = piece.trim();
+      if (!tok || tok.length < 3 || tok.length > 40) continue;
+      if (!/^[A-Za-z][A-Za-z0-9._-]*$/.test(tok)) continue;
+      const base = tok.replace(/\.(exe|py|sh|ps1|dll|js|mjs)$/i, "");
+      if (base.length < 3 || /^\d+$/.test(base)) continue;
+      const capitalized = /^[A-Z][a-z]/.test(base) && base.length >= 4 && !EN_COMMON.has(base.toLowerCase());
+      const allCaps = /^[A-Z0-9]{2,}$/.test(base);
+      const hasDigit = /\d/.test(base);
+      const hasPunct = /[._-]/.test(base);
+      /* 纯小写 3 字母（`jku`/`kid`/`alg`）单列：它们不是「专有名词」形态，
+         却是 JWT/协议参数的高频搜索词，与 headings 里的缩略词判据同源 */
+      const lcAbbr = base.length === 3 && /^[a-z]+$/.test(base) && !EN_COMMON.has(base) && !SEARCH_STOP.has(base);
+      if (capitalized || allCaps || hasDigit || hasPunct || lcAbbr) codeSpans.add(base);
+    }
+  }
+  /* 表格单元格里的专有名词（1.1.118）。
+    为什么必须补这一处：技能正文的**工具名几乎全写在表格里**（含反引号），不在标题里。
+    实测：`privesc-persistence` 第三列表格写着 `PrintSpoofer / GodPotato / JuicyPotato`，
+    但查 `potato` 首条是 competition-identity-windows —— 因为整段不在反引号内、
+    也不在任何标题里，两个通道都够不着它。
+    判据收窄（否则整张表的中文与普通英文词全进来）：
+      · 只扫**单元格**（`|` 分隔），不扫整行
+      · 只收 extractProper 认可的专有名词形态（大写开头/全大写/含数字/含符号）
+      · 长度 3~24，纯 ASCII
+    噪音论证：表格里的大写词几乎都是产品名/工具名/参数名（`PrintSpoofer`、`SeDebug`、
+    `HPing`、`JDK`），普通英文词在中文技能正文的表格里很少首字母大写 ——
+    实测加这条把平均关键词从 53 提到 62，且 od 泛词过滤没有新增超阈值的词。 */
+  const tableCells = new Set();
+  for (const line of raw.split("\n")) {
+    if (!line.trim().startsWith("|")) continue;
+    for (const cell of line.split("|")) {
+      for (const m of cell.matchAll(/\b[A-Za-z][A-Za-z0-9._-]{2,23}\b/g)) {
+        const w = m[0];
+        if (EN_COMMON.has(w.toLowerCase()) || SEARCH_STOP.has(w.toLowerCase())) continue;
+        /* 结构性英文标题（References / Workflow / Usage / Notes）同样要挡：
+           实测表格里出现 `| References | ... |` 这种行，把 Refs 一起收进索引，
+           第 24 关直接判「模板词残留」。表格不是法外之地，判据要与标题一致。 */
+        if (STRUCTURAL_HEAD.has(w.toLowerCase())) continue;
+        const capitalized = /^[A-Z][a-z]/.test(w) && !EN_COMMON.has(w.toLowerCase());
+        const allCaps = /^[A-Z0-9]{2,}$/.test(w);
+        const hasDigit = /\d/.test(w);
+        const hasPunct = /[._-]/.test(w);
+        if (capitalized || allCaps || hasDigit || hasPunct) tableCells.add(w);
+      }
+    }
   }
   /* 中文产品名（泛微/致远/用友…）主要写在 description 与 whenToUse 里，不在标题里。
      这两段是**人写的短句**，质量高，所以按分隔符拆开后同样过 isGoodCn——
@@ -601,7 +715,7 @@ const searchIndex = skills.map((s) => {
        ② keys 参与模糊打分（前缀/子串/反含），T1059 与 T1059.001 互相包含，
           查子技术会先拿到父技术的技能。
      编号改由 `attack` 字段精确承载，检索侧走等值/深度匹配（model-tools 的 attackQuery 通道）。 */
-  const base = [...new Set([...cve, ...underscore, ...proper, ...cn, ...extra])]
+  const base = [...new Set([...cve, ...underscore, ...proper, ...refHeads, ...codeSpans, ...tableCells, ...cn, ...extra])]
     .filter((k) => !/^T\d{4}(?:[._]\d{3})?$/i.test(String(k)));
   return {
     id: s.id,

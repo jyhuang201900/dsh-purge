@@ -97,21 +97,6 @@ curl -sk "https://TARGET/api/ops/jobs/" | head -c 400              # 任务列�
 - 设备口令爆破限流 `-t 2`、小字典（≤50 组），打锁了比没打还糟。
 - 边界突破记分必须带**内网可达实测证据**（一条内网资产的响应），没有就记 `candidate` 待验证。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`
-- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
-
-
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -136,3 +121,14 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`
+- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

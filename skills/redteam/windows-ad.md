@@ -275,22 +275,6 @@ export KRB5CCNAME=administrator.ccache && impacket-psexec -k -no-pass <domain>/a
 | `bloodhound` | ❌ 未装（用前先装，或改用等价工具） |
 | `sharphound` | ❌ 未装（用前先装，或改用等价工具） |
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`、`impacket`、`netexec`、`nxc`、`bloodhound`、`mimikatz`
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
-- `impacket`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `nxc`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `bloodhound`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `mimikatz`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-runnability:end -->
-
 <!-- second-shot:start scripts/inject-second-shot.mjs 生成，勿手改 -->
 
 ## 第二发（主力打不出去时，按这个顺序换）
@@ -353,3 +337,17 @@ second-shot:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_sessions`（一屏看已上线 WebShell、隧道可达网段、凭据、访问会话）；`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`、`impacket`、`netexec`、`nxc`、`bloodhound`、`mimikatz`
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 hashcat.exe）
+- `impacket`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `netexec`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `nxc`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `bloodhound`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `mimikatz`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+runnability:end -->

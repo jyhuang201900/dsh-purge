@@ -39,16 +39,32 @@ cp /etc/shadow /tmp/ && chmod 644 /tmp/shadow   # shadow 可读 → 离线破解
 ### Windows
 
 ```bat
-whoami /priv          ; SeImpersonatePrivilege = 烂土豆家族直接可用（juicy-potato 族）
+whoami /all           ; 一次拿全：特权 + 组 + 完整性级别（别分三条命令问）
+whoami /priv | findstr -i "SeImpersonate\|SeBackup\|SeDebug\|SeTakeOwnership\|SeLoadDriver"
 sc query type= service state= all | findstr -i "RUN_AS\|LocalSystem"  ; 服务权限配置
-whoami /groups | findstr /i "Mandatory"    ; Medium IL + admin = UAC 可绕
 ```
 
-- 有 `SeImpersonatePrivilege`（IIS/AppPool 常见）→ potato 系列提权（工具落 VPS 载荷目录分发）。
-- 服务路径可写 / unquoted path → 重启服务即 SYSTEM。
-- 判定成功标准：`whoami` 回显 `nt authority\system`。
+**五类路径，按命中率排序**（完整命令、验伤、假成功反例都在
+`references/windows-privesc-paths.md`）：
+
+| # | 路径 | 触发条件 | 典型手法 |
+| --- | --- | --- | --- |
+| 1 | 令牌/ impersonate | `SeImpersonatePrivilege`（IIS AppPool 常见） | PrintSpoofer / GodPotato / JuicyPotato（**按 OS 版本选**） |
+| 2 | UAC 绕过 | 在管理员组 + 中完整性 | fodhelper / sdclt / ICMLuaUtil COM |
+| 3 | 服务配置错误 | 路径可写 / 未加引号 / 注册表键可写 | 替换 exe、劫持搜索路径、改 ImagePath |
+| 4 | 特权滥用 | `SeBackup`/`SeRestore`/`SeTakeOwnership`/`SeDebug` | reg save 提哈希、覆盖 utilman、注入 SYSTEM 进程 |
+| 5 | 内核 CVE | 前四类全失败 | **最后手段**：必触发 EDR、有蓝屏风险 |
+
+- **`whoami /priv` 显示 Disabled ≠ 不可用**：多数特权对已授权 token 是 Disabled，
+  进程可自行 `AdjustTokenPrivileges` 打开。只有**不存在**才是真不可用。
+- **判定成功标准**：`whoami` 回显 `nt authority\system`，**并且**能读
+  `C:\Windows\System32\config\SAM`（`whoami` 在受限会话里会说谎，能力不会）。
+- 完整路径含「识别 → 利用 → 验伤 → 假成功反例」四段，以及 8 条常见坑，见 references。
 
 ## 第二问：权限维持（按入口类型选）
+
+**判据只有一条：主动断开所有会话 + 重启目标 + 用维持入口重连一次** —— 连不上等于没做。
+跳过"真的重启"的验证只是"当前会话还有效"，那不叫持久化。
 
 | 入口类型 | 维持手段 | 要点 |
 | --- | --- | --- |
@@ -58,7 +74,16 @@ whoami /groups | findstr /i "Mandatory"    ; Medium IL + admin = UAC 可绕
 | 内存马（Tomcat/Spring） | 本身无文件、重启即失 | 必须**同时落一个文件马**做保险，内存马只作隐蔽主入口 |
 | 容器内 root | 逃逸后在宿主机做维持 | 容器重建 = 一切归零，维持必须落在宿主机 |
 
-**验收动作**：维持做完后，主动断开当前会话，**用维持入口重新连一次**——连不上等于没做。
+**六个 Linux 位置 × 六个 Windows 位置**（每个都带存活条件、留痕、以及"看起来配置对了却不跑"的坑）
+见 `references/host-persistence-tradecraft.md`。选位置的依据是**你从哪个入口进来的**：
+
+- WebShell → 容器自启配置 + 计划任务 + 多份马；命令执行 → 只能落系统级调度；高权限 → 首选 WMI 订阅 / systemd timer。
+- **双入口原则**：任何单点持久化都不算持久化。文件马 + 系统级任务（不同机制）是最小组合。
+
+**痕迹清除**：`wevtutil cl` / 清 auth.log 是**最坏选择** —— 1102（日志被清）在几乎所有 SIEM
+里都是 P1 告警，比留下痕迹更糟。演练场景默认**不清系统日志**，只清自己落地的临时文件。
+
+**验收动作**（逐条过，每条都要有输出留证）：断开会话 → 重连 → **重启** → 等一个调度周期 → 确认入口可用 → 确认第二入口也可用 → 落库。
 
 ## 第三问：凭据收割（本机榨干再走）
 
@@ -95,6 +120,18 @@ reg save HKLM\SAM runs\SAM.hive && reg save HKLM\SYSTEM runs\SYSTEM.hive   # 离
 - 生产机避免编译型内核 exp；优先配置类、无文件类手段。
 - 收割的凭据**先验证再用**（netexec-scan 一把梭验证），别拿死凭据横向撞墙。
 
+## 参考（深水区，按需加载；不要凭记忆act）
+
+- `references/windows-privesc-paths.md` —— Windows 提权**全路径**：五类手法 × 「识别 → 利用 → 验伤 →
+  假成功反例」，含土豆家族按 OS 版本选型表、UAC 六种手法对比、SeBackup/SeRestore 完整链路、
+  以及 8 条常见坑（`whoami` 会说谎、未加引号≠可利用、AlwaysInstallElevated 必须查两条）。
+  **什么时候翻它**：Windows 上拿到中低权、`whoami /priv` 有可疑特权、或上表前四类哪一类需要具体命令时。
+
+- `references/host-persistence-tradecraft.md` —— 主机持久化**十二个位置**（Linux 6 + Windows 6），
+  每个带存活条件、留痕事件 ID、隐蔽性排序，以及痕迹清除的「别清什么」清单
+  （`wevtutil cl` → 1102 必告警）。**什么时候翻它**：选了"要做维持"之后，先翻它定位置，
+  不要凭印象直接写 cron / schtasks。
+
 
 
 
@@ -109,18 +146,6 @@ reg save HKLM\SAM runs\SAM.hive && reg save HKLM\SYSTEM runs\SYSTEM.hive   # 离
 | 凭据落地 | 4656 / Sysmon 10 | 进程打开 `lsass.exe` 或读 `/etc/shadow` |
 
 **实用推论**：提权动作**必然留痕**（权限从低到高是有记录的）。所以提权后第一件事是**确认这个痕迹会不会被自动告警升级**——在演练里这属于「已达成目标」，不必刻意隐藏。
-
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->
-
-
 
 ## ATT&CK 映射
 
@@ -155,3 +180,11 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_sessions`（一屏看已上线 WebShell、隧道可达网段、凭据、访问会话）；`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->

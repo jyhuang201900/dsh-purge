@@ -1,3 +1,229 @@
+# 1.1.118 — 深水区第一次真正可见 + 两个核心攻击技能补上参考
+
+本轮做两件事：把图谱刷新到最新代码，然后按覆盖矩阵找「显著增强能力」的地方 —— 结论不是缺技能，而是**已有内容读不到**。
+
+## 一、根因：93.7 万字的深水区对检索完全不可见
+
+`references/` 是深水区（118 篇 / 99.6 万字），技术名全写在它们的 H2/H3 标题和技能正文表格里。但检索索引的抽取只扫四处：`id + summary + whenToUse + headings`（技能自己的标题）+ 反引号 + ATT&CK 编号。
+
+实测代价，这一条最刺眼：
+
+- references 标题里 **399 个技术名，260 个（65%）在索引里完全没有**；
+- `purge_skills q=potato` → `privesc-persistence` 的表格里明明写着 `PrintSpoofer / GodPotato / JuicyPotato`，却搜不到它，首条是 `competition-identity-windows`；
+- `q=sebackup` → 无；`q=jku` → 无；`q=hs256` → 无。
+
+**这是「加了等于白加」的第四次踩点**（前三次：文末段落读不到、验证层引用 2/116、ATT&CK 编号不进索引）。而且这次的范围最大 —— 整个深水区都是死的。
+
+## 二、修法：三条新通道，每条都被实测推翻过一版
+
+1. **references 的标题**，归属到引用它的那个技能（而不是每条 references 一个条目）。
+   模型搜 `ESC1` 要的是「哪个技能能打 ESC1」，答案是 `windows-ad` 而不是一篇孤立文档。
+   - 必须先剥代码块再抽标题：`reverse-pwn.md` 里有 `# IDA: View → Open Subviews → Cross References`，
+     `^#{1,4}\s+` 会把它当 H1，于是 `References`/`View`/`Open` 全进索引，第 24 关当场判「模板词残留」。
+2. **正文表格的单元格**里的专有名词。工具名几乎全写在表格里，且常常**不在反引号内**
+   （`| PrintSpoofer / GodPotato / JuicyPotato（**按 OS 版本选**） |`）。
+   - 判据收窄到「extractProper 认可的形态 + 过 EN_COMMON / STRUCTURAL_HEAD」，否则整张表的中文全进来。
+3. **反引号内容按分隔符拆开再逐个判**。原来的整段正则要求「无空格纯 ASCII」，
+   而实际写法是 `PrintSpoofer / GodPotato / JuicyPotato（**按 OS 版本选**）` —— 整段含空格、斜杠、中文、
+   markdown 加粗，直接被排除。拆开后只留 ASCII 标识符片段。
+
+外加 **纯小写 3 字母缩写**（`jku` / `jwk` / `kid` / `alg`）：这四条旧判据全都漏掉它们（全小写、无数字、无符号、
+首字母不大写），而它们是协议参数的高频搜索词。判据收窄到「长度恰好 3 + 不在常见词表」，
+且只在标题源上启用（正文里 3 字母小写词多半是代码变量 `res`/`req`/`buf`）。
+
+**结果**：平均关键词 29 → 51 条（+76%）。
+
+## 三、连带修出的两个排序缺陷（不修就是"换了个错答案"）
+
+加了新通道后，两条被埋很久的错误暴露出来。它们的共同形态是：**弱命中压过硬命中**。
+
+### ① 同义词展开后没有区分「原词」与「展开词」
+
+查「域控」时首条成了 `identity-federation` —— 它靠同义词展开出的 `Kerberos` / `domain` 拿分，
+而真正写着「找域控路径」的 `lateral-movement`、写着「域管」的 `windows-ad` 排在后面。
+
+修法两层：
+- **展开词命中打 0.72 折**（70 → 50）：低于原词的精确命中，高于原词的前缀命中，
+  这样「原词只沾一半、展开词完全对上」的场景仍然能浮上来。
+- **key 里包含查询词时，key 越短越可信**：原来一律 30 分，于是「找域控路径」（5 字，直接命名）
+  和「某个长句里偶然提到域控」同分。改成 extra=0 → 68、≤3 → 58、更长 → 30。
+
+### ② 中文查询命中英文 id 时拿不到名字加成
+
+查「提权」时 `lateral-movement` 与 `privesc-persistence` 都有精确 key「提权」（同分 70），
+stage rank 也相同，最后靠**字母序**决定 → `lateral` 在前。但提权的专职技能显然是 `privesc-persistence`
+（id 里写着 `privesc`），只是用户输的是中文，`nameHit("提权")` 拆不出 `privesc`。
+
+修法：把查询的同义词组里的**英文词**（≥4 字符，排除 `ad`/`dc` 这类两字母缩写）也拿去判名字词级命中，
+命中给 +8（比同语言直接命名的 +10 弱一档，但足以打破同分）。
+
+## 四、技能面：补两个核心攻击技能（能力与体量最倒挂处）
+
+按覆盖矩阵 + 体量对比找出来的位置。判据不是「哪个域技能少」，而是「哪个核心技能的**职责**远大于它的**体量**」：
+
+`privesc-persistence` 只有 157 行，却覆盖 9 个 ATT&CK 技术（T1053/T1068/T1070/T1136/T1137/T1505/
+T1543/T1547/T1548），零 references —— 而流程编排技能 `attack-chain` 有 731 行，是它的 4.6 倍。
+重点是 Windows 提权只给了 3 条命令 2 种手法、持久化只有一张 5 行表格。
+
+新增两篇（3.37 万字）：
+
+- **`references/windows-privesc-paths.md`** —— 五类路径 × 「识别 → 利用 → 验伤 → 假成功反例」：
+  土豆家族按 OS 版本选型表（`PrintSpoofer` / `GodPotato` / `JuicyPotato` / `EfsPotato` 各适用哪个版本）、
+  UAC 六种手法对比（含 AlwaysInstallElevated **必须查两条注册表**这个误判点）、
+  服务配置三类（可写二进制 / 未加引号 / 注册表键）、六个特权滥用（SeBackup 完整提哈希链路、
+  SeRestore 覆盖 utilman 的**五步才算成功**）、以及 8 条常见坑
+  （`whoami /priv` 显示 Disabled ≠ 不可用、`whoami` 在受限会话里会说谎、未加引号 ≠ 可利用）。
+- **`references/host-persistence-tradecraft.md`** —— 十二个位置（Linux 6 + Windows 6），
+  每个带存活条件、留痕事件 ID、隐蔽性排序；按「你是从哪个入口进来的」组织（WebShell / 命令执行 / 高权限 / 容器）；
+  双入口原则；痕迹清除的「别清什么」清单（`wevtutil cl` → **1102 必告警**，比留下痕迹更糟）；
+  以及「验证清单」里那句最容易被跳过的话：**只有真的重启过，"持久化成功"才成立**。
+
+`web-vuln-payloads` 的 JWT 段从 4 行伪代码补成完整打法（新增 `references/jwt-attack-playbook.md`，1.1 万字）：
+六类缺陷（不验签 / alg=none / HS256 弱密钥 / RS→HS 混淆 / jku·jwk·x5u 头注入 / kid 注入），
+每条带完整命令与验伤。两条最容易自欺的写在最显眼处：
+**RS→HS 失败 90% 是公钥 PEM 字节不对**（换行/尾部空格），不是"服务端修了"；
+**jku 有 OAST 回连只证明 SSRF 存在，不证明 JWT 被绕过**（必须两段都中）。
+
+## 五、闸门
+
+第 24 关 `check-search-index` 扩了两组判据，把本轮所有发现都钉住：
+
+- **7 个技术名探针**，覆盖四个通道（references 标题 / 正文表格 / 反引号 / 小写缩写），
+  每个都要求命中到预期技能。**反向探针验过两次**：
+  废掉 references 通道 → `modbus` 命不中 `ot-ics`；
+  废掉表格通道 → `esc1`/`kerberoast`/`godpotato` 三处同时掉线。都报红。
+- **平均关键词下限 40**：这是抽取退化的早期信号。
+  实测全通道 51 条；去掉 references 通道掉到 48；再去掉表格掉到 43。
+
+第 34 关 `check-search-rank` 继续守 ATT&CK 编号排序（5 条查询卡首条）。
+
+## 六、图谱
+
+`graphify extract` → `graphify-sync --refresh-baseline` → `--cluster` → `graphify label`。
+**基线必须先刷新**：`ast-baseline.json` 冻结在 1.1.114，不刷新则新抽取（3206 节点）被旧基线（2827 节点）吞掉，
+增量是假的。刷新后 3219 节点 / 8035 边 / 128 社区。
+
+聚类后 108 个社区名被 hub 文件名覆盖（已知模式），重跑 `graphify label` 补回 124/128，
+剩 4 个代码模块类社区（`mcp-server.js` / `desktop.js` / `store-core.js` / `check-search-index.mjs`）
+LLM 命名失败 —— 手工按成员语义命名，`check-graph` 通过（兜底名 0）。
+
+---
+
+## 1.1.118 — The deep-water layer becomes visible for the first time
+
+Two things this round: refresh the graph to current code, then use a coverage matrix to find where capability
+can be **significantly** strengthened. The answer was not "missing skills" — it was **existing content that
+nothing could read**.
+
+## 1. Root cause: 937k words of reference material were invisible to search
+
+`references/` holds 118 documents / 996k characters, and every technique name lives in their H2/H3 headings
+and in skill-body tables. But index extraction only scanned four places: `id + summary + whenToUse + headings`,
+plus backtick spans and ATT&CK ids.
+
+Measured cost:
+
+- Of 399 technique names in references headings, **260 (65%) were absent from the index**;
+- `q=potato` → `privesc-persistence` has `PrintSpoofer / GodPotato / JuicyPotato` right in a table, yet it did
+  not appear; the first row was `competition-identity-windows`;
+- `q=sebackup` → nothing; `q=jku` → nothing; `q=hs256` → nothing.
+
+**This is the fourth instance of "adding it equals adding nothing"** (the first three: content at the end of the
+file never read, verification-layer references at 2/116, ATT&CK ids never indexed). It also has the largest
+blast radius — the entire deep-water layer was dead.
+
+## 2. Fix: three new channels, each forced by measurement
+
+1. **References headings**, attributed to the skill that cites them (not one entry per document) — searching
+   `ESC1` should return "which skill can exploit ESC1" (`windows-ad`), not an isolated doc.
+   Code blocks must be stripped first: `reverse-pwn.md` contains
+   `# IDA: View → Open Subviews → Cross References`, which `^#{1,4}\s+` treats as an H1, pulling
+   `References`/`View`/`Open` into the index and tripping check 24.
+2. **Table cells** in the skill body. Tool names live almost entirely in tables and are often **not** inside
+   backticks (`| PrintSpoofer / GodPotato / JuicyPotato（**按 OS 版本选**） |`).
+3. **Backtick spans split by delimiter before judging**. The old single-span regex required "no spaces, pure
+   ASCII", which excluded exactly this shape (spaces, slashes, Chinese, bold markers).
+
+Plus **lowercase 3-letter abbreviations** (`jku`, `jwk`, `kid`, `alg`): none of the four old criteria caught them
+(all lowercase, no digits, no symbols, not capitalized) — yet they are the highest-frequency protocol-parameter
+search terms. Narrow rule (exactly 3 chars, not in the common-word list), and only on heading sources.
+
+**Result**: average keywords 29 → 51 (+76%).
+
+## 3. Two ranking defects exposed by the fix
+
+Common shape: **weak hits outranking strong hits**.
+
+### ① Synonyms were expanded without distinguishing original from expansion
+
+Searching 域控 (domain controller) put `identity-federation` first — it scored via expanded terms `Kerberos` /
+`domain`, while `lateral-movement` (contains 「找域控路径」) and `windows-ad` (contains 「域管」) trailed.
+
+Two-layer fix:
+- **Expanded-term hits get a 0.72 multiplier** (70 → 50): below an original-term exact hit, above an
+  original-term prefix hit, so "query only half-matches, expansion matches exactly" still surfaces.
+- **When a key contains the query, shorter keys score higher**: previously everything got 30, so
+  「找域控路径」 (5 chars, a direct naming) tied with "some long sentence mentions it once".
+  Now extra=0 → 68, ≤3 → 58, longer → 30.
+
+### ② Chinese queries could not hit English ids
+
+Searching 提权 (privilege escalation): both `lateral-movement` and `privesc-persistence` have the exact key
+「提权」 (tied at 70), same stage rank, so **alphabetical order** decided — `lateral` first. But the specialist is
+`privesc-persistence` (its id contains `privesc`); the user just typed Chinese.
+
+Fix: feed the synonym group's **English** terms (≥4 chars, excluding two-letter ones like `ad`/`dc`) into the
+name-segment test, worth +8 (one notch weaker than same-language naming at +10, enough to break the tie).
+
+## 4. Skill side: two core offensive skills given references
+
+Found via coverage matrix + size comparison. The criterion is not "which domain has few skills" but
+"which core skill's **responsibility** is far larger than its **size**".
+
+`privesc-persistence` was 157 lines covering 9 ATT&CK techniques, with zero references — while the
+orchestration skill `attack-chain` has 731 lines (4.6×). Windows privesc got 3 commands and 2 techniques;
+persistence got a 5-row table.
+
+Two new documents (33.7k characters):
+
+- **`windows-privesc-paths.md`** — five technique families × "identify → exploit → verify → fake-success
+  counterexample": potato family selection by OS version, six UAC bypasses (including the
+  AlwaysInstallElevated trap that **requires checking both registry keys**), three service-misconfig classes,
+  six privilege abuses (full SeBackup hash-extraction chain; SeRestore utilman overwrite that **only counts as
+  success after five steps**), and 8 pitfalls (`whoami /priv` showing Disabled ≠ unusable; `whoami` lying in
+  constrained sessions; unquoted path ≠ exploitable).
+- **`host-persistence-tradecraft.md`** — twelve positions (6 Linux + 6 Windows), each with survival condition,
+  event ID, and stealth ranking; organized by entry type (WebShell / command exec / high privilege / container);
+  dual-entry principle; the "never clear these" list (`wevtutil cl` → **1102 always alerts**, worse than leaving
+  traces); and the line most people skip: **persistence is only proven if you actually rebooted**.
+
+The JWT section of `web-vuln-payloads` grew from 4 lines of pseudocode to a full playbook
+(`jwt-attack-playbook.md`, 11k chars): six defect classes, each with complete commands and verification.
+Two self-deceptions called out up front: **RS→HS failures are 90% wrong PEM bytes**, not "the server fixed it";
+**an OAST callback proves SSRF, not JWT bypass** (both stages must hit).
+
+## 5. Gates
+
+Check 24 gained two assertion groups:
+- **7 technique-name probes** across the four channels, each requiring a hit on the expected skill.
+  **Reverse-probed twice**: disabling the references channel broke `modbus` → `ot-ics`; disabling the table
+  channel broke `esc1`/`kerberoast`/`godpotato` simultaneously. Both turned the gate red.
+- **Average-keyword floor of 40** as an early degradation signal (all channels 51; minus references 48;
+  minus tables 43).
+
+Check 34 continues to guard ATT&CK id ranking (5 queries, first row asserted).
+
+## 6. Graph
+
+`graphify extract` → `--refresh-baseline` → `--cluster` → `graphify label`.
+**The baseline must be refreshed first**: `ast-baseline.json` was frozen at 1.1.114, so without refreshing the
+new extraction (3206 nodes) is swallowed by the stale baseline (2827). After refresh: 3219 nodes / 8035 edges /
+128 communities. Re-clustering overwrote 108 community names with hub filenames (known pattern); re-running
+`graphify label` recovered 124/128, and the remaining 4 code-module communities were named by hand from their
+members. `check-graph` passes with zero fallback names.
+
+---
+
 # 1.1.117 — 宿主启动崩溃的两个根因 + ATT&CK 编号检索
 
 本轮由「启动不了」触发。三个问题串在一起，前两个会让插件整体不可用，第三个让 1.1.113 的 ATT&CK 标注一直是死数据。

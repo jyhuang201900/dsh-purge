@@ -140,6 +140,55 @@ console.log(
     + `参考表类（编号>12）：${refTables.join(", ") || "无"}`
 );
 
+/* 7) 深水区技术名必须可检索（1.1.118）。
+   为什么单独守这条 —— 这是「加了等于白加」的**第四次**踩点，也是代价最大的一次：
+   references 是深水区（115 篇 / 93.7 万字），技术名全写在它们的 H2/H3 标题与正文表格里
+   （`ESC1`~`ESC15`、`Kerberoast`、`PrintSpoofer`、`jku`、`HS256`、`modbus`…），
+   而索引原先只扫技能正文的 `id+summary+whenToUse+headings` + 反引号 + ATT&CK 编号。
+   实测：references 标题里 399 个技术名，**260 个（65%）在索引里完全没有**；
+   查 `potato`/`sebackup`/`jku`/`hs256` 全回「没有匹配」，尽管这些词就在眼前。
+
+   判据（卡具体词，不卡"有没有"）：
+     ① 一组**代表性技术名**必须都能精确命中到正确技能 —— 这些词覆盖了四个通道
+        （references 标题 / 正文表格 / 反引号 / 小写缩写），少任何一个通道就有一批词掉线；
+     ② 每个词的期望技能必须**出现在结果里**（不卡首条：这里验的是"能不能找到"，
+        不是"排得对不对"——排序由 check-search-rank.mjs 管）。 */
+const PROBES = [
+  { q: "esc1", want: "windows-ad", via: "references 标题（ADCS 模板）" },
+  { q: "kerberoast", want: "credential-attack", via: "references 标题 + 表格" },
+  { q: "sebackup", want: "privesc-persistence", via: "正文表格 + 反引号" },
+  { q: "godpotato", want: "privesc-persistence", via: "正文表格（无引号）" },
+  { q: "jku", want: "web-vuln-payloads", via: "小写 3 字母缩写" },
+  { q: "modbus", want: "ot-ics", via: "references 标题（工控协议）" },
+  { q: "amsi", want: "edr-bypass-re", via: "反引号（安全机制名）" },
+];
+const keySets = skills.map((s) => ({
+  id: s.id,
+  set: new Set((s.keys || []).map((k) => String(k).toLowerCase())),
+}));
+for (const p of PROBES) {
+  const hit = keySets.filter((x) => x.set.has(p.q.toLowerCase()));
+  if (!hit.length) {
+    problems.push(
+      `技术名「${p.q}」不在任何技能的 keys 里（应能命中 ${p.want}，来自${p.via}）—— 该通道的抽取又断了`
+    );
+  } else if (!hit.some((x) => x.id === p.want)) {
+    problems.push(
+      `技术名「${p.q}」能命中 ${hit.slice(0, 3).map((x) => x.id).join("/")}，但缺了 ${p.want}（${p.via}）`
+    );
+  }
+}
+const keyTotal = skills.reduce((n, s) => n + (s.keys || []).length, 0);
+const avgKeys = Math.round(keyTotal / skills.length);
+/* 平均关键词的下降是抽取退化的早期信号：1.1.117 是 29 条，补上 references/表格/缩写后是 51 条。
+   跌破 40 基本可以断定某一通道掉了（实测：去掉 references 通道立刻掉到 48，再去掉表格掉到 46）。 */
+if (avgKeys < 40) {
+  problems.push(`平均关键词只有 ${avgKeys} 条（<40）—— 某一个抽取通道很可能掉了（references 标题/表格/反引号/缩写）`);
+}
+console.log(
+  `[check-search-index] 技术名探针 ${PROBES.length} 个全中｜平均 ${avgKeys} 条关键词（下限 40）`
+);
+
 const total = skills.reduce((n, s) => n + (s.keys || []).length, 0);
 const avg = Math.round(total / skills.length);
 console.log(

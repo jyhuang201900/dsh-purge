@@ -89,19 +89,6 @@ TLS       curl 的 JA3 与浏览器不同，被 JS 挑战时改用真浏览器
 - 找到源站 IP 必须单独 `redteam_asset_add`（`provenance=active`，`note` 写"源站，CDN 前绕过用"）——这是后续所有打点的入口。
 - `redteam_chain_add`：`stage_code=exploit`，`tool` 写实际命令原文。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`sqlmap`
-- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
-
-runnability:end -->
-
-
-
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -128,3 +115,12 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`sqlmap`
+- `sqlmap`：`python -m pip install sqlmap`（本机有 python）
+
+runnability:end -->

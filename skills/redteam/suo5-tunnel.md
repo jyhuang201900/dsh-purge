@@ -60,19 +60,6 @@ curl -s --socks5 127.0.0.1:1080 "http://10.0.0.8:8080/api/user/1" -H "Cookie: JS
 - 免费公网代理不适合承载隧道；suo5 走的是目标自身的 WebShell，不需要额外代理。
 - 只在授权范围内使用。
 
-
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`gogo`
-- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-
-runnability:end -->
-
-
-
 ## ATT&CK 映射
 
 > 本技能会执行的手法对应 MITRE ATT&CK v20.1 下列技术（编号来自 `lib/redteam/attack-map.js`，唯一来源）。
@@ -99,3 +86,12 @@ runnability:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_tunnel_list`（可达网段是横向的边界，别凭记的 IP 段推算）
 
 <!-- /skill-link-graph -->
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`gogo`
+- `gogo`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+
+runnability:end -->
