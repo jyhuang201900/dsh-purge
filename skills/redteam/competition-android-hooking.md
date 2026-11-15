@@ -120,7 +120,6 @@ Use this skill when the decisive path runs through an Android app's live trust b
 
 <!-- /skill-link-graph -->
 
-
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
 ## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）

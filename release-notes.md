@@ -1,3 +1,137 @@
+# 1.1.120 — 按「可运行」审阅：路径、平台、边界输入
+
+1.1.119 那轮看的是覆盖率（有没有写）。这轮改看**能不能照它跑起来** —— 结构性指标全绿时，最可能藏缺陷的地方是「路径指向不存在的东西」和「查询返回噪音」。
+
+## 一、45 处 toolkit 路径，5 处裸写（模型会直接照抄撞空）
+
+第 14 关只查「有没有『本机可执行性』块」，块里有说明就算过。但**块在文末、路径在正文**——模型最先读的是工具表，直接复制 `~/.dsh/redteam/toolkit/gogo/gogo` 去执行，撞空之后才发现文末写着「本机未装」。**读的顺序是反的。**
+
+45 处里 23 处已有侧别声明（`suo5-linux-amd64` 是跳板机载荷、`fscan_windows_x64.exe` 标了「需自行补上」），只有 5 处是真裸写：
+
+- `active-scan` 的 gogo（内网测绘表里裸写路径）
+- `recon-pipeline` 的 ksubdomain / OneForAll（本机两个都没装）
+- `dir-bruteforce` 的 dirsearch（表格里说了「需自行放」，但命令块在另一节，没标）
+- `vps-reverse-shell` 的 `toolkit/vps/vps.sh`（**整个 vps 目录都不存在**，私钥也没配）
+
+**一律报红会让闸门失去区分力**：目标机载荷本机没有是对的。所以判据是「路径不存在 **且** 同一小节没有任何侧别声明或替代说明」。全部补上后裸写 0。
+
+## 二、suo5 只给了 Linux 二进制，而本机只有 .exe
+
+这个比路径缺失更实质：`suo5-tunnel` 写的是
+
+```bash
+SUO5=$DSH_HOME/redteam/toolkit/suo5/suo5-linux-amd64
+```
+
+而本机 `toolkit/suo5/` 下**只有 `suo5.exe`**。也就是说这个技能的每条命令在本机都跑不起来——不是"文件缺了"（那样至少会报错），而是**指向了错误的平台变体**。
+
+已改为：本机控制端用 `suo5.exe`，跳板机用 `suo5-linux-amd64`（需自行上传），两行注释说明各自在哪侧。
+
+顺手查了一遍「引用了非主程序路径」的全部情况，只有 `frp/frps` 一处命中——但那是 VPS 侧服务端，`frpc` 才是目标侧，引用正确。
+
+## 三、无效编号会降级成模糊查询，编造出无关技能
+
+`q=T9999`（不存在的 ATT&CK 编号）返回了 **`vps-reverse-shell`** —— 因为零命中后降级成模糊匹配，而 `vps-reverse-shell` 正文里写了端口 `9999`。
+
+模型查一个不存在的技术编号，拿到「反弹 shell」技能，会误判它覆盖该技术。这是「不要让『没找到』看起来像『找到了』」的又一次复发。
+
+修正：识别为编号形态但无人覆盖时，直接说「表里没有这条技术」，并给出库里真实用到的 130 个编号样例。
+
+## 四、单字符查询返回 95 个技能（等于噪音）
+
+`q=a` → 95 个，`q=T` → 89 个，`q=域` → 一半技能。这不是"结果不够准"，是**结果等于噪音**：一屏 95 个比没有结果更糟，模型无从取舍，往往挑第一个——而第一个是字母序巧合。
+
+修正：去空白后 < 2 字符直接拒答，并给四种提法（技术名 / 产品名 / 工具名 / 按阶段列）。
+
+## 五、闸门
+
+**新增第 37 关 `check-toolpaths`**：技能正文的 toolkit 路径与本机实况一致，或同小节说明它在哪一侧。
+
+判据演进过程（都踩过）：
+- 第一版按「前后 3 行」找声明 → `dir-bruteforce` 的标注离开命令块 5 行就被判裸写。改成**同一小节**（最近一个 `## ` 之后），因为人写文档必然是「工具选择说明 + 它的命令」在同一节。
+- 第一版声明词表只有「需自行补上」→ 漏了「需自行放到该路径」「不下载」。词表补全。
+
+**第 34 关扩两项**：无效编号不降级、过短查询拒答。后者第一版判「有 · 开头的行」就被拒——而我的提法指导本身用 · 列建议，把提示当成了违规列表。改成只认真正的技能条目格式 `· 技能名（阶段）`。
+
+## 六、这轮确认没问题的
+
+- **边界输入全部安全**：空串 / 空格 / 超长（10000 字符）/ 路径穿越串 / `null` / `undefined` / `123` / `{}` / `[]` 都不抛异常，返回可读提示。
+- **链路引用零断裂**：第二发与链路位置段里引用的技能名全部存在（3 个"疑似"是角色名 `vuln-scan` 与工具名 `frida-server`/`aircrack-ng`）。
+- **工具可达性满格**：56 个注册工具零技能点名为 0、只提及 1 次 23 个（上限 30）。
+
+## 七、交付
+
+37 关全绿，图谱 3241 节点 / 8068 边 / 123 社区全语义化。
+
+---
+
+## 1.1.120 — Reviewing for "does it actually run": paths, platforms, edge inputs
+
+The 1.1.119 round checked coverage (whether it was written). This round checks **whether you can actually run what it says** — when structural metrics are all green, the likeliest hiding places are "a path points at nothing" and "a query returns noise".
+
+## 1. Of 45 toolkit paths, 5 are bare (models copy them and hit nothing)
+
+Check 14 only verifies "does a runnability block exist" — having an explanation in the block passes. But **the block sits at the end, the paths sit in the body**: the model reads the tool table first, copies `~/.dsh/redteam/toolkit/gogo/gogo` and runs it, and only after hitting nothing discovers the block says "not installed locally". **The reading order is inverted.**
+
+23 of the 45 already declare their side (`suo5-linux-amd64` is a jump-host payload; `fscan_windows_x64.exe` is marked "add it yourself"). Only 5 are genuinely bare:
+
+- `active-scan`'s gogo (bare path inside the intranet mapping table)
+- `recon-pipeline`'s ksubdomain / OneForAll (neither installed)
+- `dir-bruteforce`'s dirsearch (the table says "place it yourself", but the command block is in another section)
+- `vps-reverse-shell`'s `toolkit/vps/vps.sh` (**the whole vps directory does not exist**, no key configured either)
+
+**Failing everything would destroy the gate's discriminating power**: it is correct that target-side payloads are absent locally. So the criterion is "path missing **and** no side/替代 declaration anywhere in the same section". After fixes: zero bare paths.
+
+## 2. suo5 shipped only the Linux binary, while this machine has only the .exe
+
+This is more substantive than a missing path: `suo5-tunnel` said
+
+```bash
+SUO5=$DSH_HOME/redteam/toolkit/suo5/suo5-linux-amd64
+```
+
+while `toolkit/suo5/` contains **only `suo5.exe`**. Every command in that skill was unrunnable here — not "file missing" (that would at least error), but **pointing at the wrong platform variant**.
+
+Fixed: the local control端 uses `suo5.exe`, the jump host uses `suo5-linux-amd64` (upload it yourself), each annotated with which side it belongs to.
+
+Swept all "references a non-primary binary" cases; only `frp/frps` matched, and that one is correct — `frps` is the VPS-side server, `frpc` is the target-side client.
+
+## 3. An invalid id degraded into fuzzy matching and fabricated a skill
+
+`q=T9999` (a non-existent ATT&CK id) returned **`vps-reverse-shell`** — after zero hits it fell back to fuzzy matching, and that skill's body mentions port `9999`.
+
+A model looking up a non-existent technique id receives a "reverse shell" skill and will conclude it covers that technique. Another recurrence of "don't let 'not found' look like 'found'".
+
+Fixed: when the shape is a technique id but nothing covers it, say plainly "the table has no such technique" and show samples of the 130 ids actually in use.
+
+## 4. Single-character queries return 95 skills (pure noise)
+
+`q=a` → 95, `q=T` → 89, `q=域` → half the library. This is not "results are imprecise", it is **results as noise**: 95 rows are worse than none, the model cannot choose and typically takes the first — which is an alphabetical accident.
+
+Fixed: after trimming, anything under 2 characters is refused, with four suggested forms (technique / product / tool / list-by-stage).
+
+## 5. Gates
+
+**New check 37 `check-toolpaths`**: toolkit paths in skill bodies must match the machine, or state which side they belong to.
+
+Criterion evolution (both were hit):
+- v1 looked for declarations "within ±3 lines" → `dir-bruteforce`'s note sat 5 lines above the command block and got flagged. Changed to **same section** (after the nearest `## `), because a human necessarily writes "tool choice + its commands" in one section.
+- v1's declaration vocabulary only had "fill it in yourself" → missed "place it at that path yourself" and "not downloaded". Vocabulary widened.
+
+**Check 34 gained two assertions**: invalid ids must not degrade, over-short queries must be refused. The latter's v1 flagged "any line starting with ·" — but my own suggestion text uses · bullets, so it counted guidance as a violation. Narrowed to the real skill-row shape `· name（stage）`.
+
+## 6. Confirmed healthy this round
+
+- **All edge inputs are safe**: empty, whitespace, 10,000 chars, path-traversal string, `null`, `undefined`, `123`, `{}`, `[]` — none throw; all return readable guidance.
+- **Zero broken chain references**: every skill named in the second-shot and chain-position sections exists (the 3 "suspects" are the role `vuln-scan` and the tools `frida-server` / `aircrack-ng`).
+- **Tool reachability is full**: 56 registered tools, zero with no skill mention, 23 mentioned once (limit 30).
+
+## 7. Delivery
+
+37 gates green; graph at 3241 nodes / 8068 edges / 123 communities, all semantically named.
+
+---
+
 # 1.1.119 — 全面审阅：三处「有机制但没入口」的空白
 
 这轮是按 30 维度覆盖矩阵 + 职责/体量倒挂 + 工具落差 + 内容结构四路并查的全面审阅。结论和上一轮同类：**不是缺能力，是已有机制缺入口**。三处最伤的地方都不是"少写了什么"，而是"写了但读不到 / 生成了但用不上 / 有落差但给不出出口"。

@@ -18,8 +18,8 @@ whenToUse: 信息收集阶段拿到域名/单位名后，系统化铺开子域�
 | naabu | `$DSH_HOME/redteam/toolkit/naabu/naabu` | v2.6.1 | 高速端口扫描（SYN 需 root，否则 `-scan-type c`） |
 | httpx | `$DSH_HOME/redteam/toolkit/httpx/httpx`（包装器 `~/.local/bin/pd-httpx`） | v1.12.0 | HTTP 存活/标题/技术栈/状态码 |
 | katana | ❌ 未安装（如需抓取用技能 `browser-automation`） | — | 爬虫抓页面与接口 |
-| ksubdomain | `$DSH_HOME/redteam/toolkit/ksubdomain/ksubdomain` | v0.7 | 无状态子域爆破（比 dnsx 爆破快） |
-| OneForAll | `$DSH_HOME/redteam/toolkit/oneforall/OneForAll-0.4.5/`（源码，需 `.venv`） | v0.4.5 | 子域收集全家桶（字典大，慢但全） |
+| ksubdomain | `$DSH_HOME/redteam/toolkit/ksubdomain/ksubdomain`（**本机未装**） | v0.7 | 无状态子域爆破（比 dnsx 爆破快）；替代：`dnsx -d <domain> -w <字典>` |
+| OneForAll | `$DSH_HOME/redteam/toolkit/oneforall/OneForAll-0.4.5/`（**本机未装**，源码需 `.venv`） | v0.4.5 | 子域收集全家桶（字典大，慢但全）；替代：`subfinder` + `dnsx` |
 
 > ⚠️ **`/usr/bin/httpx` 是 Python httpx 库的 CLI，不是 ProjectDiscovery 的**——必须用 `pd-httpx` 或绝对路径。
 

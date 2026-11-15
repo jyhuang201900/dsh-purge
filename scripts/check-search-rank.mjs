@@ -74,11 +74,36 @@ for (const c of cases) {
 }
 
 /* 不存在的编号：必须明确说"没有"，不能拿一堆无关技能糊过去。
-   防的是「查询侧兜底」把无效编号当普通词去模糊匹配 —— 那会让模型以为库里有这个技术。 */
+   防的是「查询侧兜底」把无效编号当普通词去模糊匹配 —— 那会让模型以为库里有这个技术。
+   1.1.119 实测到的真实形态：`q=T9999` 零命中后降级成模糊查询，
+   因为正文里 `vps-reverse-shell` 写了端口 `9999`，于是它成了唯一结果 ——
+   模型查一个不存在的技术编号，却拿到「反弹 shell」技能，会误判它覆盖该技术。 */
 const bogus = searchSkills("T9999", 3);
 const bogusText = String(bogus?.text || "");
-if (/^\s*ATT&CK\s+T9999/.test(bogusText)) {
-  problems.push("q=T9999（不存在的编号）被当成有效 ATT&CK 查询处理 —— 会编造出无关技能列表");
+if (/^\s*ATT&CK\s+T9999/.test(bogusText) || /命中.*技能/.test(bogusText.split("\n")[0])) {
+  problems.push("q=T9999（不存在的编号）被当成有效 ATT&CK 查询或降级成模糊匹配 —— 会编造出无关技能");
+}
+if (!/没有|不存在/.test(bogusText)) {
+  problems.push("q=T9999 没有明确说「没有这条技术」—— 沉默等于默认存在");
+}
+
+/* 过短查询必须拒答并给提法（1.1.119 实测：`q=a` 命中 95 个、`q=T` 命中 89 个）。
+   这不是"结果不够准"，是**结果等于噪音**：一屏 95 个技能比没有结果更糟，
+   模型无从取舍，往往挑第一个 —— 而第一个是字母序巧合。
+   判据：首行必须说「太短」，且不能列出 · 开头的技能条目。 */
+for (const short of ["a", "T", "域"]) {
+  const r = searchSkills(short, 3);
+  const txt = String(r?.text || "");
+  const first = txt.split("\n")[0];
+  /* 只认**真正的技能条目**：形如 `  · 技能名（4 漏洞利用）｜…`。
+     不能只判「有 · 开头的行」—— 我的提法指导本身就用 · 列建议
+     （「· 按技术名：…」），第一版这么判，把提示信息当成了违规列表。 */
+  const hasSkillRow = txt.split("\n").some((l) => /^\s+·\s+[a-z][a-z0-9-]*（/.test(l));
+  if (!/太短/.test(first)) {
+    problems.push(`q=${JSON.stringify(short)}（过短）没有拒答 —— 首行是「${first.slice(0, 40)}」`);
+  } else if (hasSkillRow) {
+    problems.push(`q=${JSON.stringify(short)}（过短）虽然提示太短，但仍列出了技能条目（自相矛盾）`);
+  }
 }
 
 console.log(`[check-search-rank] ATT&CK 编号检索（进程内实测，卡首条）`);
@@ -89,5 +114,5 @@ if (problems.length) {
   console.log("  → 排序类是「本地绿、宿主错」的高发区，断言必须卡首条，不能只断言结果里有。");
   process.exit(1);
 }
-console.log(`  ✓ ${cases.length} 条编号查询首条全部正确｜大小写一致｜参考表未抢位｜无效编号不编造`);
+console.log(`  ✓ ${cases.length} 条编号查询首条全部正确｜大小写一致｜参考表未抢位｜无效编号不编造｜过短查询拒答`);
 process.exit(0);

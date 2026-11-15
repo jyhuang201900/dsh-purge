@@ -391,6 +391,27 @@ if (!skip("override")) {
   }
 }
 
+// 关 37：技能正文的 toolkit 路径必须与本机实况一致（或说明它在哪一侧）。
+// 由来：1.1.119 深挖实测，第 14 关只查「有没有本机可执行性块」，块里有说明就算过。
+// 但**技能正文的工具表/命令块**才是模型最先照抄的地方 —— 那里裸写
+// `toolkit/gogo/gogo` 而本机没有，模型会直接复制去执行，撞空后才发现文末的块说「本机未装」。
+// **块在文末、路径在正文，读的顺序是反的。**
+// 实测 45 处缺失路径里 23 处已有侧别声明（suo5-linux-amd64 是跳板机载荷、
+// fscan_windows_x64.exe 标了「需自行补上」），只有裸写的才算缺陷 —— 一律报红会让闸门失去区分力。
+// 反向探针验过：删掉 dir-bruteforce 的「本机未装」说明 → 立刻报红。
+if (!skip("toolpaths")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-toolpaths.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    const ex = out.find((l) => /^\s{6}\S+:\d+/.test(l)) || "";
+    failures.push(`toolkit 路径与本机不符：${bad} ${ex.trim().slice(0, 110)}`);
+  } else {
+    const stat = out.find((l) => l.includes("toolkit 路径")) || "";
+    notes.push(`toolkit 路径：${stat.replace(/^\[check-toolpaths\]\s*/, "").trim()}`);
+  }
+}
+
 // 关 23：事实库引用完整性——asset_id 不许指向不存在的资产。
 // 由来：2026-11-14 逻辑审阅实测，schema 里 24 张表没有任何 FOREIGN KEY，应用层原先也不校验，
 // asset_id=99999 会写入成功并可查回（asset_ip 为 null）。后果不是"多一条脏数据"：

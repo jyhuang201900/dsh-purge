@@ -47,7 +47,7 @@ nmap -f --resume -sS --version-intensity 2 -T2 <target>
 | --- | --- |
 | 端口扫描 | `nmap` / `masscan` / `~/.dsh/redteam/toolkit/naabu/naabu`（SYN 需 root，否则加 `-scan-type c`） |
 | 内网综合扫描 | `~/.dsh/redteam/toolkit/fscan/fscan`（技能 fscan-intranet） |
-| 内网测绘/指纹 | `~/.dsh/redteam/toolkit/gogo/gogo`（技能 gogo-intranet） |
+| 内网测绘/指纹 | `~/.dsh/redteam/toolkit/gogo/gogo`（**本机未装**，用 `fscan` 替代；见技能 gogo-intranet） |
 | HTTP 探测（ProjectDiscovery） | `~/.local/bin/pd-httpx`（**注意：`/usr/bin/httpx` 是 Python httpx 库的 CLI，不是这个**） |
 | 子域/解析 | `~/.dsh/redteam/toolkit/subfinder/subfinder`、`~/.dsh/redteam/toolkit/dnsx/dnsx` |
 | POC 扫描 | `nuclei`（模板已在 `~/.local/nuclei-templates`） |

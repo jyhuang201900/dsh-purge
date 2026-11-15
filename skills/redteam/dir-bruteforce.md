@@ -52,7 +52,12 @@ ffuf -u https://target/ -H "Host: FUZZ.example.com" \
 
 ## 三、dirsearch（字典全，适合补漏）
 
+> **本机未装**（`setup.sh` 不下载它）。要么按表中说明自行放到该路径，要么直接用下面的等价命令：
+> `ffuf -u https://target.example.com/FUZZ -w <字典> -e .php,.asp,.aspx,.jsp,.zip,.bak,.txt -mc all -t 30`
+> （ffuf 已装；dirsearch 的优势只是内置字典与 `-r` 递归策略，`ffuf` 用 `-recursion` 同样能做。）
+
 ```bash
+# 已装 dirsearch 时：
 $DSH_HOME/redteam/toolkit/dirsearch/dirsearch \
   -u https://target.example.com -e php,asp,aspx,jsp,zip,bak,txt,sql,json \
   --random-agent -t 30 --delay 0.1 --exclude-status 404 \
