@@ -1,7 +1,7 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 42 闸门）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 43 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 宿主启动失败排查（1.1.117 定型，最容易误判）
@@ -21,7 +21,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 3. `node --check` 改动 JS；`node scripts/verify.mjs`（34 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 21d03cb = 1.1.124。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 d06a0b8 = 1.1.125。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
    - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。临时验证可以 cp，但要记得这只是临时手段，正式版必须走 pnpm。
 
@@ -219,3 +219,36 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 ## 图谱刷新必查「基线是否落后」
 `built_at_commit` 是唯一可靠判据。1.1.122 时图谱还停在 6e4108e(1.1.118)，
 **6 个技能 / 9 篇参考 / 2 个闸门脚本全没进图谱** —— 但 `check-graph` 全绿，因为它只查结构不查新鲜度。
+
+## 覆盖矩阵自身的三个缺陷（1.1.125 定型，比数据更重要）
+1. **必须连 references 一起扫**：本仓的主要组织方式是「方法论在技能、深水在参考」，
+   只扫技能正文会把内容厚的维度误判成缺口（提权-Windows 报 5%，实际参考里 potato 出现 7 次）。
+   归属方式：references 命中算**引用它的那个技能**命中，不把每篇参考当独立技能（否则分母冲淡）。
+2. **识别词写错一个词就会毁掉整个维度**：`无线与硬件` 里写了 `rgba`（应为 rfid），
+   该维度从 74% 变成 10%。加识别词时逐条核对语义。
+3. **统一阈值系统性冤枉垂直域**：社工/工控/无线这类领域真实世界里就少数专家负责，
+   127 个技能不可能有 19 个讲社工。阈值分两档（通用 15% / 垂直 8%），分类是**领域属性**不是数据。
+4. **「命中数」有结构性局限**：一个技能写完整个领域，命中数也只是 1。
+   它适合找「完全没人管」的领域，**不适合衡量深度**。衡量深度看 references 字数 + 技能行数。
+
+## 检索排序的三种污染源（1.1.122–1.1.125 逐层发现，同一族问题）
+1. **引用了什么 ≠ 是什么**（1.1.124）：references 标题里的词单独存 `refKeys`，封顶 40 分。
+2. **顺带提到 ≠ 主业**（1.1.125）：用**显式词汇归属表 `TERM_OWNER`**，把词登记给专职技能，
+   其他技能的 keys 排除它。**领域归属是事实，不该由算法推断。**
+   （试过「命中 key 数」「同族覆盖」两种 tie-break，都因单 term 查询下恒为 1 而无效，已回滚不留死代码。）
+3. **通用词展开污染**（1.1.122）：同义词只放「在别的域几乎不出现」的专有词。
+
+## 图谱新鲜度必须独立成关（1.1.125）
+`check-graph` 只查结构（节点/边/社区/兜底名），**从不问「什么时候建的」**。
+1.1.123 就这样漏了 6 个提交（6 技能 + 9 参考 + 2 闸门脚本全没进图）。
+第 43 关三档：一致→绿｜落后<10 且只改 md→黄｜落后≥10 或改了代码→红。
+**判据：改 `lib/*.js` 或 `scripts/*.mjs` 必须重抽，只改 md 可以等下次。**
+
+## 本机工具链实测状态（1.1.125）
+- ✅ frida 17.26.3（脚本不在 PATH，用 `python -m frida_tools.ps`）
+- ✅ netexec 1.98（**PyPI 无包**，要 git clone + `--no-deps`；**netifaces 编译失败 → 用 `netifaces2`**）
+- ✅ impacket（随 netexec）
+- ❌ **ghidra 装不上**：github API / release / codeload 全不通，源码构建需 gradle + 数十分钟。
+  JDK 21 本机有（`JAVA_HOME=E:\Tools\jdk\jdk-21.0.12.1+1`）。
+- ❌ **radare2 的 `pdc` 在 x64 PE 上报 `Unknown or oversized global type`** ——
+  「用 radare2 替代 ghidra」不成立，伪 C 反编译确实无可替代。
