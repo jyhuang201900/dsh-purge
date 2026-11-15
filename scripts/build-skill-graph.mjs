@@ -807,10 +807,32 @@ for (const entry of searchIndex) {
 }
 const overSpread = new Set([...keyFrequency.entries()].filter(([, n]) => n >= KEY_SPREAD_LIMIT).map(([k]) => k));
 
+/* **词汇归属排除**（1.1.125 加）：某类词只有特定技能才是它的"主业"，
+   其他技能顺带提一句不该抢检索首条。
+   实测：`q=struts2` 四个技能都精确命中，字母序把 cn-oa-exploit 排在
+   web-framework-exploit（专讲框架洞）之前 —— 而 cn-oa 的主业是**国产 OA 产品洞**，
+   Shiro/Struts2 对它只是"底层中间件顺带提一句"。
+   这与 1.1.124 的 refKeys 降权是同一类问题的另一面：
+   那次是"引用了什么 ≠ 是什么"，这次是"顺带提到 ≠ 主业"。
+   判据用**显式归属表**而不是靠权重猜 —— 领域归属是事实，不该由算法推断。 */
+const TERM_OWNER = {
+  "struts2": "web-framework-exploit", "struts1": "web-framework-exploit",
+  "thinkphp": "web-framework-exploit", "weblogic": "web-framework-exploit",
+  "fastjson": "web-framework-exploit", "log4j": "web-framework-exploit",
+  "log4j2": "web-framework-exploit", "spring4shell": "web-framework-exploit",
+};
+/** 该技能是否"拥有"这个词：如果这个词登记了归属者且不是自己 → 排除 */
+const ownedElsewhere = (id, k) => {
+  const owner = TERM_OWNER[String(k).toLowerCase()];
+  return owner && owner !== id;
+};
+
 /* refKeys 也要过泛词过滤（它的词同样可能遍布全库），但**不做同义词展开**：
    展开是给「技能自己的词」用的，references 的词只用原样弱匹配。 */
 for (const entry of searchIndex) {
-  entry.keys = applySynonyms(entry.baseKeys.filter((k) => !overSpread.has(k)));
+  entry.keys = applySynonyms(
+    entry.baseKeys.filter((k) => !overSpread.has(k) && !ownedElsewhere(entry.id, k))
+  );
   entry.refKeys = (entry.refKeys || []).filter((k) => !overSpread.has(k));
   delete entry.baseKeys;
 }

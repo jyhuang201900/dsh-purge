@@ -1474,7 +1474,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "rationale": "Use for authorized exploitation of Java and PHP web framework vulnerabilities — Struts2, ThinkPHP, WebLogic, Spring, Shiro, Fastjson, Log4j2 — with version fingerprinting, payload "
+      "rationale": "专讲框架级 RCE（不是通用注入）：Struts2 S2-045/057/061、ThinkPHP 5.0.23/5.1/6.x invokefunction、WebLogic CVE-2020-14882/2019-2725/2023-21839、Spring actuator 与 Spring4Shell、Shiro rememberMe、Fastjso"
     },
     {
       "id": "skills_redteam_web_vuln_payloads",

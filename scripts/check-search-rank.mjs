@@ -118,6 +118,15 @@ const semanticCases = [
   /* references 的中文词必须**弱于**技能自己的词：pentest-tools 引用的综合手册里有
      「三、子域与资产」一节，曾把 subdomain-bruteforce 挤下首条。 */
   { q: "子域", want: "subdomain-bruteforce", why: "references 里的词不许压过自己讲这件事的技能" },
+  /* 1.1.125 加：**顺带提及 ≠ 主业**。
+     struts2/thinkphp 曾有四个技能都精确命中（同分同 rank），字母序把 cn-oa-exploit
+     （主业是国产 OA 产品洞）排在 web-framework-exploit（专讲框架洞）之前。
+     修法用**显式词汇归属表**（TERM_OWNER）而不是权重猜 —— 领域归属是事实。 */
+  { q: "struts2", want: "web-framework-exploit", why: "框架洞的专职技能；cn-oa-exploit 只是顺带提中间件" },
+  { q: "thinkphp", want: "web-framework-exploit", why: "同上" },
+  { q: "log4j", want: "web-framework-exploit", why: "同上" },
+  /* 1.1.125 新增技能的入口 */
+  { q: "蓝牙", want: "bluetooth-wireless-attack", why: "蓝牙专项（之前 0 命中）" },
 ];
 for (const c of semanticCases) {
   const r = searchSkills(c.q, 3);
