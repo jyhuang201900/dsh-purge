@@ -1,7 +1,7 @@
 # dsh-purge 项目长期记忆
 
 ## 是什么
-dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 34 闸门）。
+dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 技能 / 118 参考 / 56 工具 / 8 角色 / 25 得分点 / 36 闸门）。
 仓库 E:\完成项目\dsh-purge，远端 github.com/jyhuang201900/dsh-purge（master）。
 
 ## 宿主启动失败排查（1.1.117 定型，最容易误判）
@@ -21,7 +21,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 3. `node --check` 改动 JS；`node scripts/verify.mjs`（34 关）；`node scripts/check-package.mjs`（问题须 0）。
 4. push 必须加 `-c http.sslBackend=openssl -c http.version=HTTP/1.1`（schannel 报 CRYPT_E_REVOCATION_OFFLINE；只加 openssl 会撞 wrong version number）。
 5. 宿主更新：cd ~/.dsh/profiles/desktop，改 package.json 的 tarball SHA → `npx --yes pnpm@11 update dsh-purge`。
-   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 315e868 = 1.1.118。
+   - 用 codeload 直链 `https://codeload.github.com/jyhuang201900/dsh-purge/tar.gz/<sha>`（git 协议常 early EOF）。现钉 7d8a8ad = 1.1.119。
    - **pnpm 必须 v11**（store 是 v11，pnpm 9 报 UNEXPECTED_STORE）；`virtual-store-dir-max-length=60` 只能写临时 `.npmrc`，装完删。宿主自带 runtime 目录已空，别用。
    - **不要手工 cp 覆盖 node_modules/dsh-purge**——pnpm 会按 lockfile 覆盖回去。临时验证可以 cp，但要记得这只是临时手段，正式版必须走 pnpm。
 
@@ -109,7 +109,7 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
    按成员语义手工命名：改 `graphify-out/.graphify_labels.json` 后逐节点写回 `community_name`。
 6. `node scripts/check-graph.mjs`（第 19 关）。
 产物 `graph.json`/`graph.html` 被 gitignore（生成物），只有 `GRAPH_REPORT.md` 与 `semantic/` 入库。
-当前：3219 节点 / 8035 边 / 128 社区 / 兜底名 0。
+当前：3241 节点 / 8068 边 / 123 社区 / 兜底名 0。
 
 ## 覆盖矩阵审计（找缺口的方法，1.1.94 起沿用）
 给 30 个维度各一组识别词，扫全库算命中率，<15% 算缺口。**不要只看「哪个域技能少」**：
@@ -118,3 +118,17 @@ dsh 破甲插件：清洗宿主提示词 + 76 条补丁 + 红队演练台（119 
 判据：把「职责（ATT&CK 技术数 / 阶段覆盖）× 体量」摆在一起看倒挂。
 脚本：`.cache/audit-dims.mjs`、`.cache/audit-toolgap.mjs`（工具落差；**带 g 的正则必须每文件 new RegExp**，
 复用会因 lastIndex 延续把统计放大十倍 —— frida 被算成 113 个技能，实际 10 个）。
+
+## 闸门设计的元判据（1.1.119 定型，比具体判据更重要）
+- **「观测项」不是安全的中间态**：只打印不判红的指标，等于承认它不重要。检测段覆盖率 9% 挂了很久没人管，就因为它不进 `problems`。凡是文档里承诺「必须」的约束，要么进 problems，要么别写。
+- **判据词表太窄 = 误判，比漏判更坏**：它逼人去改本来就对的文字。检测段判「感知源」时只认 `日志|audit|Sysmon`，把写「防火墙 / NetFlow」「K8s audit」「WIDS」的 27 个段判成「没有检测点」。判据的作用是区分「具体」与「空话」，不是限定用词。
+- **判据该问「有没有点到具体名字」，不该问「属于哪一类」**：工具落差判空话，第一版要求「用 X 替代」紧邻（误判 nikto→nuclei），第二版放宽（漏过 bloodhound「可本机跑」）。最后定成「说明里必须用反引号点到工具名/命令/包名」——机器可判、不依赖措辞。
+- **对离线类技能要留豁免**：逆向/固件/取证的目标侧一条日志都没有。强行要求「两类感知源」只会逼出编造。「目标侧无感」本身就是有效结论。
+- **批量改写前必须区分「原本有」与「原本没有」**：我按 `s.attack[0]` 重配检测表，attack 是字母序（T1078 常排第一），结果把 cn-oa-exploit 的 Web 表换成「账户滥用」表，还覆盖了 11 个原本正确的段（credential-attack 的 6 条被压成 2 条）。改前先 `git show HEAD:` 确认。
+- **别在已有多轮修补的字段上叠加**：同一段被脚本叠 3 遍，连「实用推论」都串成了别的技术的。改内容要先读现状。
+- **重复行要专门判**：批量注入会让「表格 8 行」里只有 3 条有效信号。只数行数的闸门会认为合格。
+
+## 用户 override 与出厂条令（1.1.119 二次确认）
+`~/.dsh/prompt-inject.md` 存在时**整份替换**出厂 `lib/default-prompt-inject.md`。**改出厂稿对实际行为零影响**。
+必须两处都改。第 36 关 `check-override-parity` 守 7 个「读入口锚点」（谁归谁 / 链路位置 / 上游下游纪律 / 落库纪律 / ver 验证层 / 检索入口 / 确认条款 / ATT&CK），只警告不失败。
+判据陷阱：锚点词不能只认一种措辞 —— 「只问一次」在用户稿里是「只对第一次开口收一次费」。
