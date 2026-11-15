@@ -107,6 +107,13 @@ const semanticCases = [
      在多词英文上反噬 —— `active directory` 含 key `directory`，
      于是 dir-bruteforce（目录爆破）成了 AD 查询的首条。这条必须守住。 */
   { q: "active directory", want: "identity-federation", why: "多词查询不许被其中一个词的 key 抢首条（曾命中目录爆破）" },
+  /* 1.1.123 加：references 的中文标题也进索引后，这两条都曾被非本职技能的
+     同形词抢走首条 —— 「域控」被 SCADA 的类比说法抢、「钓鱼」被 OAuth 的
+     「同意钓鱼」抢。修法是改措辞（类比说法不该用主检索词），并在这里守住。 */
+  { q: "变电站", want: "industrial-protocol-recon", why: "中文词只写在 references 标题里，1.1.123 之前查不到" },
+  /* references 的中文词必须**弱于**技能自己的词：pentest-tools 引用的综合手册里有
+     「三、子域与资产」一节，曾把 subdomain-bruteforce 挤下首条。 */
+  { q: "子域", want: "subdomain-bruteforce", why: "references 里的词不许压过自己讲这件事的技能" },
 ];
 for (const c of semanticCases) {
   const r = searchSkills(c.q, 3);

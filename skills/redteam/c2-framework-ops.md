@@ -372,6 +372,18 @@ C2 的 session 会断（重启/网络切换/被杀）。所以必须有"重新�
 
 （此节由 `scripts/build-skill-graph.mjs` 生成，见文件末尾）
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`msfvenom`、`yara`
+- `msfvenom`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
+- `yara`：Windows 有官方二进制（`yara-<ver>-win64.zip`）；只做规则**语法检查**时也可 `python -m pip install yara-python`
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -385,13 +397,3 @@ C2 的 session 会断（重启/网络切换/被杀）。所以必须有"重新�
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`msfvenom`、`yara`
-- `msfvenom`：本机无、也无已验证替代——先确认它是否必要，必要时找官方 Windows 构建
-- `yara`：Windows 有官方二进制（`yara-<ver>-win64.zip`）；只做规则**语法检查**时也可 `python -m pip install yara-python`
-
-runnability:end -->

@@ -199,7 +199,7 @@ SELECT * FROM "operator_log" WHERE time > now() - 7d LIMIT 100
 
 ---
 
-## 四、工程师站（EWS）—— OT 里的"域控"
+## 四、工程师站（EWS）—— OT 里的身份中枢（域成员 + 到全部 PLC 可达）
 
 ### 4.1 为什么它是最佳跳板
 

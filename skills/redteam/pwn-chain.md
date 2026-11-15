@@ -461,6 +461,20 @@ def edit(idx, data):
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`readelf`、`binwalk`、`nc`
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
+- `readelf`：Windows 无 readelf；**用 `objdump`（MinGW 自带）或 `radare2`**（已装）：`radare2 -q -c iI <elf>`
+- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
+- `nc`：Windows 无原生 nc；**用 `nmap` 包里的 `ncat.exe`**（本机 nmap 目录里有，实测存在）或 PowerShell `TcpClient`
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -474,15 +488,3 @@ def edit(idx, data):
 
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`readelf`、`binwalk`、`nc`
-- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
-- `readelf`：Windows 无 readelf；**用 `objdump`（MinGW 自带）或 `radare2`**（已装）：`radare2 -q -c iI <elf>`
-- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
-- `nc`：Windows 无原生 nc；**用 `nmap` 包里的 `ncat.exe`**（本机 nmap 目录里有，实测存在）或 PowerShell `TcpClient`
-
-runnability:end -->

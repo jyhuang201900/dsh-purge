@@ -1,6 +1,6 @@
 ---
 name: plc-controller-attack
-description: Use for authorized 工控(OT) PLC and RTU controller assessment — firmware version fingerprinting, ladder/project file analysis, unauthenticated write paths, and controller-level persistence on Siemens/Rockwell/Schneider.
+description: Use for authorized 工控(OT) PLC and RTU controller assessment (含 IEC-104 遥控面判定) — firmware version fingerprinting, ladder/project file analysis, unauthenticated write paths, and controller-level persistence on Siemens/Rockwell/Schneider.
 whenToUse: Use when the target has reachable PLC/RTU controllers (S7-1200/1500, ControlLogix, Modicon) and you need to judge what an attacker could do to the controller itself — not just whether port 102 is open.
 source: dsh-purge original（按本仓模板撰写）
 ---
@@ -297,6 +297,20 @@ S7 Diagnostic Buffer 和 ControlLogix Controller Log 是唯一能证明「谁在
 
 **纪律**：OT 里"再试一次"的成本是产线停机，不是请求失败。**任何异常立刻停手并通报**。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`binwalk`、`pip`
+- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
+- `pip`：用 `python -m pip` 代替裸 `pip`
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -311,15 +325,3 @@ S7 Diagnostic Buffer 和 ControlLogix Controller Log 是唯一能证明「谁在
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`binwalk`、`pip`
-- `binwalk`：`python -m pip install binwalk`（新版是 python 包）；固件分析在本机做，不是目标机
-- `pip`：用 `python -m pip` 代替裸 `pip`
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->

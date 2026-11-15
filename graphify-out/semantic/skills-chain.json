@@ -970,7 +970,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "rationale": "Use for authorized 工控(OT) industrial protocol reconnaissance — passive traffic analysis, Purdue zoning discovery, cross-zone channel hunting, and safe read-only protocol fingerprin"
+      "rationale": "Use for authorized 工控(OT) industrial protocol reconnaissance (IEC-104 / IEC104 / Modbus / DNP3 / S7 / EtherNet-IP / OPC) — passive traffic analysis, Purdue zoning discovery, cross-"
     },
     {
       "id": "skills_redteam_injection_payloads",
@@ -1174,7 +1174,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "rationale": "Use for authorized 工控(OT) PLC and RTU controller assessment — firmware version fingerprinting, ladder/project file analysis, unauthenticated write paths, and controller-level persi"
+      "rationale": "Use for authorized 工控(OT) PLC and RTU controller assessment (含 IEC-104 遥控面判定) — firmware version fingerprinting, ladder/project file analysis, unauthenticated write paths, and cont"
     },
     {
       "id": "skills_redteam_privesc_persistence",

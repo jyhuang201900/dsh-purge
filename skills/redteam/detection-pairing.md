@@ -212,18 +212,7 @@ second-shot:end -->
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：流程/编排｜**角色**：`flow`
-- **上游**（先做完这些再进来）：`verification-discipline`
-- **下游**（产出交给谁）：`attack-traceability`
-- **互补**（同类场景一起用）：`attack-traceability`、`verification-discipline`
-- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
-
-
-<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -237,3 +226,16 @@ second-shot:end -->
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：流程/编排｜**角色**：`flow`
+- **上游**（先做完这些再进来）：`verification-discipline`
+- **下游**（产出交给谁）：`attack-traceability`
+- **互补**（同类场景一起用）：`attack-traceability`、`verification-discipline`
+- **落库**：本技能不直接产出可落库实体；产出交给下游技能记进演练台
+
+
+<!-- /skill-link-graph -->

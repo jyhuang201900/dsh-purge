@@ -91,6 +91,21 @@ nmap -f --resume -sS --version-intensity 2 -T2 <target>
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`masscan`、`dirsearch`、`gogo`
+- `masscan`：该仓库 release 无任何资产（只发源码）；**用 `naabu` 替代**（已装）：`naabu -host <ip> -p - -rate 2000`
+- `dirsearch`：本机无。**用 `ffuf`/`feroxbuster` 替代**（都已装）：`ffuf -u http://<t>/FUZZ -w <字典> -mc 200,301,403`；dirsearch 的优势只是内置字典与递归策略
+- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -105,16 +120,3 @@ nmap -f --resume -sS --version-intensity 2 -T2 <target>
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_asset_stats`（收集收口先看断层：C 段数/存活/端口/服务/指纹/溯源条数）、`redteam_asset_get`（深入单个目标：全部端口服务+指纹+采集时间线）、`redteam_asset_graph`（C 段→资产→端口→域名 的拓扑，找横向路径用它而不是肉眼翻列表）、`redteam_asset_timeline`（发现时间线，判断哪些是新冒出来的）
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`masscan`、`dirsearch`、`gogo`
-- `masscan`：该仓库 release 无任何资产（只发源码）；**用 `naabu` 替代**（已装）：`naabu -host <ip> -p - -rate 2000`
-- `dirsearch`：本机无。**用 `ffuf`/`feroxbuster` 替代**（都已装）：`ffuf -u http://<t>/FUZZ -w <字典> -mc 200,301,403`；dirsearch 的优势只是内置字典与递归策略
-- `gogo`：本机无 Windows 构建。**用 `fscan` 替代铺面**（本机已装）：`fscan -h <cidr> -nobr -nopoc -nofile`；gogo 的 DSL/workflow 与自带 3138 条指纹是它独有的，需要精细指纹时再想办法取二进制，日常扫面 fscan 够用
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->

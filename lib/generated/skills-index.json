@@ -1401,7 +1401,7 @@
     },
     {
       "id": "industrial-protocol-recon",
-      "summary": "Use for authorized 工控(OT) industrial protocol reconnaissance — passive traffic analysis, Purdue zoning discovery, cross-zone channel hunting, and safe read-only protocol fingerprin",
+      "summary": "Use for authorized 工控(OT) industrial protocol reconnaissance (IEC-104 / IEC104 / Modbus / DNP3 / S7 / EtherNet-IP / OPC) — passive traffic analysis, Purdue zoning discovery, cross-",
       "whenToUse": "Use when you need to map an OT network without touching production devices — passive pcap analysis, finding IT/OT boundary crossings, or fingerprinting protocols before deciding whether to do anything",
       "stage": "1",
       "stageName": "信息收集",
@@ -1726,7 +1726,7 @@
     },
     {
       "id": "plc-controller-attack",
-      "summary": "Use for authorized 工控(OT) PLC and RTU controller assessment — firmware version fingerprinting, ladder/project file analysis, unauthenticated write paths, and controller-level persi",
+      "summary": "Use for authorized 工控(OT) PLC and RTU controller assessment (含 IEC-104 遥控面判定) — firmware version fingerprinting, ladder/project file analysis, unauthenticated write paths, and cont",
       "whenToUse": "Use when the target has reachable PLC/RTU controllers (S7-1200/1500, ControlLogix, Modicon) and you need to judge what an attacker could do to the controller itself — not just whether port 102 is open",
       "stage": "5",
       "stageName": "内网渗透",

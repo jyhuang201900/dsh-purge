@@ -489,7 +489,20 @@ function extractProper(text) {
 const CN_NOISE = new Set([
   "一台就", "打了就", "稳后猛", "图后枪", "先判", "判是什么", "认产品", "稳后", "再猛",
   "适用场景", "任务完成自检", "工具一览", "推荐", "可脚本化", "上传后必须验证",
+  /* 1.1.123 补：references 标题入索引后，**章节名**也进来了。
+     这些词零区分度（每个技能都有「常见坑」「注意事项」），
+     留着只会让任何查询都命中一堆同构技能。判据与英文 STRUCTURAL_HEAD 同源。 */
+  "落库要求", "输出要求", "判定顺序", "常见误判", "适用范围", "禁止事项", "适用于",
+  "编排原则", "行动纪律", "完整流程", "注意事项", "验证清单", "自检清单", "打法顺序",
+  "人工复核清单", "怎么用", "怎么证明", "不适用", "纪律", "常见坑", "注意事项",
 ]);
+
+/* 结构性章节名的**正面判据**：命中即丢。
+   为什么用正则而不是继续堆黑名单：章节名有无限种写法（「六条常见提权路」是新的一例），
+   但它们的共同形态稳定 —— 「N 条 + 常见/坑/路」「怎么 X」「X 要求/清单/纪律」。
+   判据取窄（只在 ≤8 字且整体形态吻合时丢），宁可漏掉几个，不要误删有信息量的词
+   （「抓接口清单」「云安全检查清单」是真内容，不能砍）。 */
+const CN_HEAD_PATTERN = /^(怎么|如何|为什么|第[一二三四五六七八九十]+|共?[0-9一二三四五六七八九十]+[条个步])|(要求|清单|纪律|注意事项|自检|小结|总结|概览|流程|原则|顺序|回顾|附录|事项)$/;
 
 /* 名词性提示字：一个候选片段里至少要出现一个，否则多半是「打了就」这类动词碎片。
  * 这是正面判据（不是黑名单），新技能里出现同型噪音也能挡住。 */
@@ -498,6 +511,7 @@ const CN_NOUN_HINT = /[名平端口服系库台机件数权洞链网码证账令
 function isGoodCn(s) {
   if (s.length < 2 || s.length > 8) return false;
   if (SEARCH_STOP.has(s) || CN_NOISE.has(s)) return false;
+  if (CN_HEAD_PATTERN.test(s)) return false;
   /* 2-4 字的短词直接放行：产品名常常不含任何「名词提示字」（泛微、致远、蓝凌、
      深澜、红队、打点…），靠提示字判据会把最有辨识度的词筛掉。
      5 字以上才要求像个名词短语——长片段是碎句的概率高得多。 */
@@ -612,6 +626,7 @@ const searchIndex = skills.map((s) => {
        · 过同一套 `extractProper` 判据（首字母大写/含数字/下划线/点连字符），
          并同样剔除 ATT&CK 编号与结构性英文标题。 */
   const refHeads = new Set();
+  let refCnSet = null;
   for (const m of raw.matchAll(/(?:^|[\s(`])(?:\.\.\/)?references\/([A-Za-z0-9._-]+)\.md/g)) {
     const refFile = path.join(SKILLS, "references", `${m[1]}.md`);
     let refText = "";
@@ -622,12 +637,29 @@ const searchIndex = skills.map((s) => {
        于是 `References`、`View`、`Open` 这些词全进了索引，第 24 关判「模板词残留」。
        内容为代码的文件（references 里大量 shell/命令）必须先把 ``` 围栏内的行剔除。 */
     const refNoCode = refText.replace(/```[\s\S]*?```/g, "").replace(/^( {4,}|\t).*$/gm, "");
-    const refHeadings = [...refNoCode.matchAll(/^#{1,4}\s+(.+)$/gm)].map((x) => x[1].trim());
+    /* **只取 H2 及以下，不要 H1**（1.1.123 实测踩到）。
+       H1 是文档名（`# 攻防演练通用方法论`），它的词跨度极大、区分度极低 ——
+       `awesome-pentest-digest.md` 的「三、子域与资产」是 H2，但同文件 H1 论方法；
+       更要紧的是：**references 的标题是「这篇文章讲什么」，不是「这个技能主业是什么」**。
+       一个技能顺带引用了一篇综合手册，不该因为那篇手册有「子域」这一节
+       就在 `q=子域` 里排到 `subdomain-bruteforce` 前面（实测正是如此）。
+       所以：H2+ 才收，且中文词另存一个集合，检索侧降权。 */
+    const refHeadings = [...refNoCode.matchAll(/^#{2,4}\s+(.+)$/gm)].map((x) => x[1].trim());
     for (const w of extractProper(refHeadings.join(" "))) {
       /* 与技能正文同一条豁免：编号走 attack 字段 */
       if (/^T\d{4}(?:\.[0-9]{3})?$/i.test(w)) continue;
       refHeads.add(w);
     }
+    /* references 的中文词单独收（不进 base，见下方合并处）。 */
+    refCnSet = refCnSet || new Set();
+    for (const w of extractCnFromHeadings(refHeadings)) refCnSet.add(w);
+    /* **references 标题里的中文词也要收**（1.1.123 实测缺口）：
+       之前只走 `extractProper`（英文/数字形态），于是「变电站」「电力」「遥控」
+       这些**只写在 references 标题里**的中文词一个都没进索引 ——
+       查「iec104」能中（英文），查「变电站」零结果。
+       这与 1.1.118 修「references 标题不可见」是同一类问题，只是那次只补了英文侧。
+       判据：走与技能 headings 完全相同的 `extractCnFromHeadings`，
+       这样「同一套抽取判据」只维护一处。 */
   }
 
   /* ATT&CK 技术编号**单列一个字段 `attack`，不进 keys**。
@@ -729,6 +761,10 @@ const searchIndex = skills.map((s) => {
        ② keys 参与模糊打分（前缀/子串/反含），T1059 与 T1059.001 互相包含，
           查子技术会先拿到父技术的技能。
      编号改由 `attack` 字段精确承载，检索侧走等值/深度匹配（model-tools 的 attackQuery 通道）。 */
+  /* references 的中文词**单独一个字段** `refKeys`，不进 base。
+     理由见 model-tools 检索侧：它的权重必须低于「技能自己标题里的词」。
+     一个技能顺带引用综合手册，不该因为手册某一节叫「子域」就在 `q=子域` 里排第一。 */
+  const refKeys = refCnSet ? [...refCnSet].filter((k) => !cn.has(k)) : [];
   const base = [...new Set([...cve, ...underscore, ...proper, ...refHeads, ...codeSpans, ...tableCells, ...cn, ...extra])]
     .filter((k) => !/^T\d{4}(?:[._]\d{3})?$/i.test(String(k)));
   return {
@@ -745,6 +781,8 @@ const searchIndex = skills.map((s) => {
        或 attack= 直查。空数组表示该技能正文没有编号 —— 审计侧要能看到这个缺口。 */
     attack: [...attack].sort(),
     baseKeys: base,
+    /* references 的中文词：单独字段，检索侧按「弱命中」处理（低于技能自己标题里的词）。 */
+    refKeys,
     // why 是「命中时怎么解释」：模型看到的是理由，不只是一个光秃秃的名字
     why: s.whenToUse || s.summary || "",
   };
@@ -765,8 +803,11 @@ for (const entry of searchIndex) {
 }
 const overSpread = new Set([...keyFrequency.entries()].filter(([, n]) => n >= KEY_SPREAD_LIMIT).map(([k]) => k));
 
+/* refKeys 也要过泛词过滤（它的词同样可能遍布全库），但**不做同义词展开**：
+   展开是给「技能自己的词」用的，references 的词只用原样弱匹配。 */
 for (const entry of searchIndex) {
   entry.keys = applySynonyms(entry.baseKeys.filter((k) => !overSpread.has(k)));
+  entry.refKeys = (entry.refKeys || []).filter((k) => !overSpread.has(k));
   delete entry.baseKeys;
 }
 

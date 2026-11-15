@@ -282,6 +282,19 @@ curl -s -X POST "https://login.microsoftonline.com/common/oauth2/v2.0/token" \
 **纪律**：同一批目标不许连发三轮（第一轮验证、第二轮换 pretext、第三轮必须换通道）；
 换完还不动，就**如实回报**试过哪几条、各自现象是什么——这是下一次改打的依据，不是失败。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`evilginx`、`gophish`、`modlishka`
+- `evilginx`：Go 项目，`git clone https://github.com/kgretzky/evilginx2 && cd evilginx2 && go build`（本机有 go）。**但它跑起来是一个对外反代服务，应该部署在 VPS 上，不要装在本机** —— 本机装它等于把钓鱼基础设施放在被审计的机器上
+- `gophish`：官方发 `gophish-v<ver>-windows-64bit.zip`（含 exe，解压即用）。**同样应该放 VPS**：campaign 的追踪链接必须能被目标访问到，本机的 localhost 目标看不到
+- `modlishka`：Go 项目，`go build`（本机有 go）。与 `evilginx` 同类，**部署在 VPS**；它的 phishlet 生态不如 evilginx，只在 evilginx 编译不过时当备选
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -296,14 +309,3 @@ curl -s -X POST "https://login.microsoftonline.com/common/oauth2/v2.0/token" \
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_sessions`（一屏看已上线 WebShell、隧道可达网段、凭据、访问会话）；`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`evilginx`、`gophish`、`modlishka`
-- `evilginx`：Go 项目，`git clone https://github.com/kgretzky/evilginx2 && cd evilginx2 && go build`（本机有 go）。**但它跑起来是一个对外反代服务，应该部署在 VPS 上，不要装在本机** —— 本机装它等于把钓鱼基础设施放在被审计的机器上
-- `gophish`：官方发 `gophish-v<ver>-windows-64bit.zip`（含 exe，解压即用）。**同样应该放 VPS**：campaign 的追踪链接必须能被目标访问到，本机的 localhost 目标看不到
-- `modlishka`：Go 项目，`go build`（本机有 go）。与 `evilginx` 同类，**部署在 VPS**；它的 phishlet 生态不如 evilginx，只在 evilginx 编译不过时当备选
-
-runnability:end -->
