@@ -118,6 +118,12 @@ ca''t、c\at、/bin/cat、$(echo Y2F0|base64 -d)
 
 回显 `49` 的那个分隔符就是模板引擎，再按引擎打 RCE。
 
+**JVM / PHP 中间件的完整链不在本表**（本表只到「定语言 + 打点方向」）：
+Struts2 的 OGNL（S2-045/057/061）、ThinkPHP 的 invokefunction、
+Fastjson 四个版本的 autoType 绕过、Shiro 的 AES/CBC 构造、Log4j2 的 WAF 变形，
+全在 `references/java-php-middleware-payloads.md`。**这几类的验伤都是带外的**
+（LDAP 回连 / 命令回显），HTTP 状态码没有任何参考价值。
+
 ## 失败分支
 
 - **有注入但 WAF 拦 `--`** → 换 `#`（MySQL）、`/*|*/`、`)` 闭合、URL 编码 `%2d%2d`。

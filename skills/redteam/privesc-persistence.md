@@ -53,7 +53,27 @@ sc query type= service state= all | findstr -i "RUN_AS\|LocalSystem"  ; 服务�
 | 2 | UAC 绕过 | 在管理员组 + 中完整性 | fodhelper / sdclt / ICMLuaUtil COM |
 | 3 | 服务配置错误 | 路径可写 / 未加引号 / 注册表键可写 | 替换 exe、劫持搜索路径、改 ImagePath |
 | 4 | 特权滥用 | `SeBackup`/`SeRestore`/`SeTakeOwnership`/`SeDebug` | reg save 提哈希、覆盖 utilman、注入 SYSTEM 进程 |
-| 5 | 内核 CVE | 前四类全失败 | **最后手段**：必触发 EDR、有蓝屏风险 |
+| 5 | **打印服务（PrintNightmare）** | Spooler 在跑 + 未打 KB5004945/5005010 | `RpcAddPrinterDriverEx` 让 Spooler 以 SYSTEM 加载你的 DLL |
+| 6 | 内核 CVE | 前五类全失败 | **最后手段**：必触发 EDR、有蓝屏风险 |
+
+**第 5 类的特殊性**（这也是它常被漏掉的原因）：它**不需要任何前置特权** ——
+不像第 1-4 类要先有 SeImpersonate / 管理员组 / 可写服务。
+只要 Spooler 在跑（Windows 默认就是 Running）且没打补丁，普通用户就能拿 SYSTEM；
+在域环境里还能从**普通域用户**远程打任意一台机器的 SYSTEM。
+
+```powershell
+# 判据：先看补丁，再看驱动安装策略
+Get-HotFix | Where-Object { $_.HotFixID -match "KB5004945|KB5005010" }
+reg query "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint" /v RestrictDriverInstallationToAdministrators
+# 补丁无 + 该值不存在/为 0 → 可利用
+```
+
+**验伤（这一类的失败方式很特别）**：DLL 加载要求是合法的打印机驱动结构，
+不是任意 DLL。判据是**在 DLL 里写一个副作用（创建文件），然后去目标机看那个文件在不在** ——
+Spooler 崩溃或 DLL 结构不对时，你的代码根本没跑。
+**Spooler 崩溃 = 事故**（所有打印停止），在生产打印服务器上做之前要先确认能接受。
+
+完整命令与三种假成功见 `references/java-php-middleware-payloads.md` 第三节。
 
 - **`whoami /priv` 显示 Disabled ≠ 不可用**：多数特权对已授权 token 是 Disabled，
   进程可自行 `AdjustTokenPrivileges` 打开。只有**不存在**才是真不可用。
