@@ -568,6 +568,18 @@ const searchIndex = skills.map((s) => {
       .filter((w) => w.length >= 5 && w.length <= 40)
   );
   const proper = extractProper(`${s.id} ${s.summary} ${s.whenToUse} ${headings.join(" ")}`);
+
+  /* ATT&CK 技术编号**单列一个字段 `attack`，不进 keys**。
+     为什么不能进 keys：① T1190 这种在正文表格里出现在 28 个技能中，
+     keyFrequency 会把它判成泛词（阈值 18）直接剔除 —— 恰恰是最需要检索的编号被过滤；
+     ② keys 参与模糊打分（前缀/子串/反含），T1059 与 T1059_001 会互相污染，
+     模型查子技术却拿到父技术的技能。
+     正文里写着编号 = 该技能确实覆盖这个手法（1.1.113 逐条核过），
+     所以这里扫全文，按**精确编号**入字段，检索侧做等值/前缀匹配。 */
+  const attack = new Set();
+  for (const m of raw.matchAll(/\bT(\d{4})(?:\.(\d{3}))?\b/g)) {
+    attack.add(m[2] === undefined ? `T${m[1]}` : `T${m[1]}.${m[2]}`);
+  }
   /* 中文产品名（泛微/致远/用友…）主要写在 description 与 whenToUse 里，不在标题里。
      这两段是**人写的短句**，质量高，所以按分隔符拆开后同样过 isGoodCn——
      不要图省事把整段 description 丢进长句切窗，那正是噪音的来源。 */
@@ -579,7 +591,18 @@ const searchIndex = skills.map((s) => {
      不需要再当检索词。domain 同理：它比阶段更细，但同一域通常也只有几个技能，
      实测没有造成成团（最大 22），保留它对"按域找"有用。 */
   const extra = [s.id, s.domain].filter((w) => w && !SEARCH_STOP.has(w));
-  const base = [...new Set([...cve, ...underscore, ...proper, ...cn, ...extra])];
+  /* ATT&CK 编号**不许进 keys**，要从 proper 里剔掉。
+     为什么：extractProper 的正则 `[A-Za-z][A-Za-z0-9._-]{1,24}` 会把 `T1562` 当成产品名收下
+     （首字母大写 + 含数字），实测 edr-bypass-re 的 keys 里就混进了 T1562。
+     两个后果：
+       ① 泛词过滤（≥15% 技能共有）会剔除出现次数多的编号（T1190 在 28 个技能里），
+          于是「最常见的编号反而搜不到」；出现次数少的（T1562 只 2 个技能）留下 ——
+          同一套规则对同类数据给出两种行为，必然错一半。
+       ② keys 参与模糊打分（前缀/子串/反含），T1059 与 T1059.001 互相包含，
+          查子技术会先拿到父技术的技能。
+     编号改由 `attack` 字段精确承载，检索侧走等值/深度匹配（model-tools 的 attackQuery 通道）。 */
+  const base = [...new Set([...cve, ...underscore, ...proper, ...cn, ...extra])]
+    .filter((k) => !/^T\d{4}(?:[._]\d{3})?$/i.test(String(k)));
   return {
     id: s.id,
     stage: s.stage,
@@ -590,6 +613,9 @@ const searchIndex = skills.map((s) => {
        而这两个字段此前从未写进索引 —— 于是回退永远在空字符串里找片段。 */
     summary: s.summary || "",
     whenToUse: s.whenToUse || "",
+    /* ATT&CK 技术编号（1.1.117）：技能正文里写过的编号，精确值，供 purge_skills q=T1059
+       或 attack= 直查。空数组表示该技能正文没有编号 —— 审计侧要能看到这个缺口。 */
+    attack: [...attack].sort(),
     baseKeys: base,
     // why 是「命中时怎么解释」：模型看到的是理由，不只是一个光秃秃的名字
     why: s.whenToUse || s.summary || "",

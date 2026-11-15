@@ -101,6 +101,45 @@ if (truncated.length) {
   problems.push(`${truncated.length} 个技能的 whenToUse 疑似被截断（以逗号/介词结尾）：${truncated.slice(0, 4).map((s) => s.id).join(", ")}`);
 }
 
+/* 6) ATT&CK 编号必须可检索（1.1.117）。
+   为什么单独守这条：1.1.113 给 77 个技能打了 ATT&CK 标签，但标签只写在正文表格里，
+   而索引抽取只扫 id+summary+whenToUse+headings —— 编号一个都没进索引。
+   实测 `purge_skills q=T1059` 回「技能库里没有匹配」。
+   这是「加了等于白加」的第三次踩点：东西写进正文了，读路径没覆盖到。
+   判据三条，缺一条就说明编号检索又断了：
+     a. 有 attack 字段且非空的技能数 ≥ 全部技能的一半（打标是真做了）
+     b. attack-traceability 这种**映射参考表**必须被压下去：它正文列 23 个编号，
+        不扣分时它是每个 ATT&CK 查询的第一名（答案全变成「怎么填映射表」）
+     c. 编号不得混进 keys（会撞上 15% 泛词过滤被剔除，且参与模糊打分互相污染） */
+const noAttackField = skills.filter((s) => !Array.isArray(s.attack));
+if (noAttackField.length) {
+  problems.push(`${noAttackField.length} 个技能缺 attack 字段（ATT&CK 编号检索会整条失效）：${noAttackField.slice(0, 4).map((s) => s.id).join(", ")}`);
+}
+const withAttack = skills.filter((s) => (s.attack || []).length > 0);
+if (withAttack.length < Math.ceil(skills.length / 2)) {
+  problems.push(
+    `只有 ${withAttack.length}/${skills.length} 个技能有 ATT&CK 编号 —— 低于一半，说明打标没做或正文被改掉了`
+  );
+}
+/* 编号不能混在 keys 里：T1190 出现在 28 个技能中，会被 15% 泛词阈值（18）剔除；
+   而 T1059 与 T1059.001 互相前缀包含，会让「查子技术」拿到父技术的技能。 */
+const attackInKeys = skills.filter((s) => (s.keys || []).some((k) => /^T\d{4}(?:\.\d{3})?$/i.test(String(k))));
+if (attackInKeys.length) {
+  problems.push(
+    `${attackInKeys.length} 个技能把 ATT&CK 编号写进了 keys（会被泛词过滤剔除 + 模糊打分互相污染）：`
+      + attackInKeys.slice(0, 4).map((s) => s.id).join(", ")
+  );
+}
+/* 参考表类技能（列编号极多的）不能用它在别的技术上的命中来抢首位。
+   静态可判的部分：这些技能的编号数必须明显高于普通操作技能，闸门只验「确实被标记出来了」——
+   排序是否真生效由 check-search-rank.mjs（进程内实测）守。 */
+const refTables = withAttack.filter((s) => s.attack.length > 12).map((s) => s.id);
+console.log(
+  `[check-search-index] ATT&CK 覆盖 ${withAttack.length}/${skills.length}｜`
+    + `去重编号 ${new Set(skills.flatMap((s) => s.attack || [])).size} 个｜`
+    + `参考表类（编号>12）：${refTables.join(", ") || "无"}`
+);
+
 const total = skills.reduce((n, s) => n + (s.keys || []).length, 0);
 const avg = Math.round(total / skills.length);
 console.log(
@@ -112,5 +151,5 @@ if (problems.length) {
   console.log("  → 索引质量差不报错，只会让模型找不到对的东西。必须守住。");
   process.exit(1);
 }
-console.log(`  ✓ 无泛词（阈值 ${limit}）｜summary 全覆盖｜零关键词 0｜无模板词残留`);
+console.log(`  ✓ 无泛词（阈值 ${limit}）｜summary 全覆盖｜零关键词 0｜无模板词残留｜ATT&CK ${withAttack.length}/${skills.length} 可检索`);
 process.exit(0);

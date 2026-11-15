@@ -18,6 +18,11 @@
       "domain": "recon",
       "summary": "主动端口与服务扫描（nmap/masscan/naabu），严格遵守授权范围与限速",
       "whenToUse": "需要确认资产存活、开放端口与服务版本时",
+      "attack": [
+        "T1046",
+        "T1595",
+        "T1595.002"
+      ],
       "why": "需要确认资产存活、开放端口与服务版本时",
       "keys": [
         "scan_run",
@@ -47,6 +52,11 @@
       "domain": "ai",
       "summary": "AI 基础设施攻击面：Ollama/vLLM/llama.cpp 推理引擎、Langflow/Dify/RAGFlow 低代码 Agent 平台、向量库、训练调度（Jupyter/MLflow/Ray/Triton）、MCP server 的暴露面直取与利用",
       "whenToUse": "扫到 11434/8000/7860/6333/19530/8265/8888 这类端口，或页面是 AI 对话/RAG 知识库/工作流编排界面；靶标含\"智能体/大模型/知识库/算力\"字样",
+      "attack": [
+        "T1190",
+        "T1526",
+        "T1648"
+      ],
       "why": "扫到 11434/8000/7860/6333/19530/8265/8888 这类端口，或页面是 AI 对话/RAG 知识库/工作流编排界面；靶标含\"智能体/大模型/知识库/算力\"字样",
       "keys": [
         "CVE-2026-7482",
@@ -127,6 +137,9 @@
       "domain": "appsec",
       "summary": "Use for authorized security assessment of REST, GraphQL, WebSocket, or SOAP APIs, including discovery, authentication, authorization, rate-limit, and CI/CD testing.",
       "whenToUse": "Use for authorized security assessment of REST, GraphQL, WebSocket, or SOAP APIs, includin",
+      "attack": [
+        "T1190"
+      ],
       "why": "Use for authorized security assessment of REST, GraphQL, WebSocket, or SOAP APIs, includin",
       "keys": [
         "jwt_tool",
@@ -178,6 +191,10 @@
       "domain": "mobile",
       "summary": "在 CLI 环境下做 Android APK 逆向时使用。适用于 APK 解包、Java 反编译、smali 修改、重打包、Frida 动态 Hook，以及按需切换到 so/native 分析。优先使用本机已安装的 jadx、apktool、frida、adb、ida-reverse、radare2。",
       "whenToUse": "在 CLI 环境下做 Android APK 逆向时使用",
+      "attack": [
+        "T1027",
+        "T1140"
+      ],
       "why": "在 CLI 环境下做 Android APK 逆向时使用",
       "keys": [
         "java_files",
@@ -234,6 +251,10 @@
       "domain": "recon",
       "summary": "资产关联：域名↔IP↔C 段↔证书↔主体的图谱化，产出\"先打谁\"",
       "whenToUse": "信息收集阶段性收口，需要形成资产关系视图并排序时",
+      "attack": [
+        "T1016",
+        "T1590"
+      ],
       "why": "信息收集阶段性收口，需要形成资产关系视图并排序时",
       "keys": [
         "redteam_asset_link",
@@ -268,6 +289,11 @@
       "domain": "flow",
       "summary": "Use for authorized multi-stage attack-path planning and orchestration when a task spans reconnaissance, initial access, privilege escalation, lateral movement, or impact assessment",
       "whenToUse": "Use for authorized multi-stage attack-path planning and orchestration when a task spans re",
+      "attack": [
+        "T1021",
+        "T1090",
+        "T1190"
+      ],
       "why": "Use for authorized multi-stage attack-path planning and orchestration when a task spans re",
       "keys": [
         "CVE-2019-11510",
@@ -370,12 +396,35 @@
       "domain": "misc",
       "summary": "把每个发现钉到 MITRE ATT&CK 技术编号上：打之前用它选路线、打之中用它保证不重复、打之后用它写报告和算覆盖度。含 TTP 编号速查、战术链排序、覆盖度自评",
       "whenToUse": "规划阶段要选\"打到哪几步\"时；要判断手上这发属于哪个战术阶段时；写报告要给客户\"覆盖了哪些 TTP\"时；复盘要算\"这次演练到底覆盖多少\"时",
+      "attack": [
+        "T1003",
+        "T1018",
+        "T1021",
+        "T1041",
+        "T1048",
+        "T1053",
+        "T1059",
+        "T1068",
+        "T1070",
+        "T1087",
+        "T1133",
+        "T1190",
+        "T1190.001",
+        "T1203",
+        "T1505",
+        "T1548",
+        "T1550",
+        "T1558",
+        "T1562",
+        "T1566",
+        "T1590",
+        "T1592",
+        "T1595"
+      ],
       "why": "规划阶段要选\"打到哪几步\"时；要判断手上这发属于哪个战术阶段时；写报告要给客户\"覆盖了哪些 TTP\"时；复盘要算\"这次演练到底覆盖多少\"时",
       "keys": [
         "attack-traceability",
         "MITRE",
-        "ATT",
-        "CK",
         "TTP",
         "十四战术链",
         "怎么用",
@@ -402,6 +451,9 @@
       "domain": "reverse",
       "summary": "跨版本符号迁移与二进制差分。当你有旧版本的符号/逆向结果，需要快速迁移到新版本时使用。 适用场景：内核缺 PDB 用旧版符号推导、程序更新后批量迁移函数名、应用更新后快速定位新偏移。 核心方法：用 LLM 做结构化差异比对，程序化输入输出，成本极低（200 函数 ~1 元）。 触发关键词：符号迁移、bindiff、跨版本、PDB 缺失、函数偏移迁移、symb",
       "whenToUse": "跨版本符号迁移与二进制差分",
+      "attack": [
+        "T1068"
+      ],
       "why": "跨版本符号迁移与二进制差分",
       "keys": [
         "disasm_for_reference",
@@ -484,6 +536,10 @@
       "domain": "flow",
       "summary": "无依赖驱动 Chrome/Chromium 抓取 JS 渲染页面、截图、执行 JS、抓接口清单（headless 兜底 + playwright-cli）",
       "whenToUse": "需要渲染 SPA / 取 JS 生成的内容 / 截图留证 / 批量抓页面时（Kimi 扩展不可用时首选）",
+      "attack": [
+        "T1203",
+        "T1204"
+      ],
       "why": "需要渲染 SPA / 取 JS 生成的内容 / 截图留证 / 批量抓页面时（Kimi 扩展不可用时首选）",
       "keys": [
         "read_text",
@@ -525,6 +581,10 @@
       "domain": "client",
       "summary": "Use for authorized reverse engineering of browser extensions (Chrome/Firefox) including manifest analysis, background workers, and extension-based credential or traffic logic recov",
       "whenToUse": "Use for authorized reverse engineering of browser extensions (Chrome/Firefox) including ma",
+      "attack": [
+        "T1185",
+        "T1555"
+      ],
       "why": "Use for authorized reverse engineering of browser extensions (Chrome/Firefox) including ma",
       "keys": [
         "host_permissions",
@@ -549,6 +609,9 @@
       "domain": "flow",
       "summary": "Reviews a reverse-skill case package for scope readiness, Evidence to Finding to Path traceability, work item coverage, timeline references, and optional artifact hash integrity be",
       "whenToUse": "Reviews a reverse-skill case package for scope readiness, Evidence to Finding to Path trac",
+      "attack": [
+        "T1593"
+      ],
       "why": "Reviews a reverse-skill case package for scope readiness, Evidence to Finding to Path trac",
       "keys": [
         "review_case",
@@ -584,6 +647,10 @@
       "domain": "tunnel",
       "summary": "chisel 隧道：HTTP/WebSocket 封装的多路复用隧道，最易穿透出网限制与反向代理",
       "whenToUse": "suo5 不适用（非 WebShell 入口）、目标只能出 HTTP、需要端口转发或稳定 SOCKS 时",
+      "attack": [
+        "T1090",
+        "T1572"
+      ],
       "why": "suo5 不适用（非 WebShell 入口）、目标只能出 HTTP、需要端口转发或稳定 SOCKS 时",
       "keys": [
         "REDTEAM_VPS_HOST",
@@ -630,12 +697,23 @@
       "domain": "cloud",
       "summary": "Use for authorized cloud, container, and Kubernetes security assessment including metadata SSRF, IAM misconfig, container escape paths, and cluster RBAC review.",
       "whenToUse": "Use for authorized cloud, container, and Kubernetes security assessment including metadata",
+      "attack": [
+        "T1525",
+        "T1526",
+        "T1530",
+        "T1552.001",
+        "T1610",
+        "T1611",
+        "T1613",
+        "T1619"
+      ],
       "why": "Use for authorized cloud, container, and Kubernetes security assessment including metadata",
       "keys": [
         "authorized_target_only",
         "cap_sys_admin",
         "SYS_ADMIN",
         "authorized_keys",
+        "release_agent",
         "cloud-k8s",
         "Kubernetes",
         "SSRF",
@@ -658,6 +736,10 @@
       "domain": "web",
       "summary": "国产 OA 与信创系统前台洞：泛微/致远/用友/通达/万户/若依/帆软/宏景/深澜/蓝凌/金蝶的指纹识别、版本判定与对应入口，含 Shiro/Fastjson/Log4j2/Actuator/Druid 通用中间件面",
       "whenToUse": "靶标是国内单位，扫到 80/8080/7001/9090 上的办公系统、门户、报表、HR、计费系统；或指纹里出现 Weaver/Seeyon/yonyou/通达/RuoYi/FineReport 等字样",
+      "attack": [
+        "T1078",
+        "T1190"
+      ],
       "why": "靶标是国内单位，扫到 80/8080/7001/9090 上的办公系统、门户、报表、HR、计费系统；或指纹里出现 Weaver/Seeyon/yonyou/通达/RuoYi/FineReport 等字样",
       "keys": [
         "http_code",
@@ -722,6 +804,10 @@
       "domain": "flow",
       "summary": "国内免费 HTTP/SOCKS5 代理池：抓取、验活、按需轮换；只用命令级代理参数，绝不改动本机网络与代理配置",
       "whenToUse": "目标有 WAF/封 IP 风险，或需要高频请求（接口爆破、目录扫描、口令喷洒）时",
+      "attack": [
+        "T1090.001",
+        "T1090.003"
+      ],
       "why": "目标有 WAF/封 IP 风险，或需要高频请求（接口爆破、目录扫描、口令喷洒）时",
       "keys": [
         "bash_profile",
@@ -768,6 +854,9 @@
       "domain": "appsec",
       "summary": "Use for authorized source-code security review and SAST workflows including Semgrep, CodeQL patterns, dangerous API hunting, and fix verification.",
       "whenToUse": "Use for authorized source-code security review and SAST workflows including Semgrep, CodeQ",
+      "attack": [
+        "T1190"
+      ],
       "why": "Use for authorized source-code security review and SAST workflows including Semgrep, CodeQ",
       "keys": [
         "code-audit",
@@ -792,6 +881,11 @@
       "domain": "surface",
       "summary": "AD CS 证书滥用专项：枚举证书模板、EKU、注册路径，走 ESC 系列把「能注册」变成「域权限」",
       "whenToUse": "目标是域环境且有 AD CS 证书服务，要判断能否靠证书模板/注册权拿域权限时加载",
+      "attack": [
+        "T1078",
+        "T1558",
+        "T1649"
+      ],
       "why": "目标是域环境且有 AD CS 证书服务，要判断能否靠证书模板/注册权拿域权限时加载",
       "keys": [
         "competition-ad-",
@@ -823,6 +917,11 @@
       "domain": "surface",
       "summary": "智能体/云部署链路专项：追踪提示词到工具的流转、部署漂移与产物来源",
       "whenToUse": "靶子是 AI 智能体的云部署，要追「一句提示怎么变成工具调用」或部署与代码不一致时加载",
+      "attack": [
+        "T1078",
+        "T1526",
+        "T1552"
+      ],
       "why": "靶子是 AI 智能体的云部署，要追「一句提示怎么变成工具调用」或部署与代码不一致时加载",
       "keys": [
         "competition-agent-cloud",
@@ -852,6 +951,11 @@
       "domain": "surface",
       "summary": "安卓动态注入专项：Hook APK 签名校验、JNI 桥、证书固定与请求",
       "whenToUse": "安卓 App 要绕签名校验、JNI 层或证书固定（pinning）时加载",
+      "attack": [
+        "T1055",
+        "T1140",
+        "T1622"
+      ],
       "why": "安卓 App 要绕签名校验、JNI 层或证书固定（pinning）时加载",
       "keys": [
         "competition-android-",
@@ -885,6 +989,11 @@
       "domain": "surface",
       "summary": "浏览器持久化专项：检查 Cookie、存储、Service Worker 与缓存状态",
       "whenToUse": "要从浏览器侧找持久化/凭据/缓存痕迹，或判断网页能不能离线驻留时加载",
+      "attack": [
+        "T1176",
+        "T1185",
+        "T1547"
+      ],
       "why": "要从浏览器侧找持久化/凭据/缓存痕迹，或判断网页能不能离线驻留时加载",
       "keys": [
         "competition-browser-",
@@ -911,6 +1020,11 @@
       "domain": "surface",
       "summary": "前端产物还原专项：恢复 sourcemap、chunk 加载器与隐藏的运行时结构",
       "whenToUse": "拿到打包后的前端（webpack/vite）要找源码结构、隐藏接口或加密逻辑时加载",
+      "attack": [
+        "T1027",
+        "T1140",
+        "T1213"
+      ],
       "why": "拿到打包后的前端（webpack/vite）要找源码结构、隐藏接口或加密逻辑时加载",
       "keys": [
         "competition-bundle-",
@@ -938,6 +1052,11 @@
       "domain": "surface",
       "summary": "云元数据专项：追踪元数据服务、实例凭据与信任边",
       "whenToUse": "有 SSRF 或能从实例内部出网，要打云元数据服务拿实例凭据时加载",
+      "attack": [
+        "T1078",
+        "T1526",
+        "T1552"
+      ],
       "why": "有 SSRF 或能从实例内部出网，要打云元数据服务拿实例凭据时加载",
       "keys": [
         "competition-cloud-",
@@ -965,6 +1084,11 @@
       "domain": "surface",
       "summary": "容器运行时专项：解释运行时与清单的差异、挂载、sidecar 与路由",
       "whenToUse": "靶子是容器/K8s 工作负载，要判断实际运行态与声明态差在哪时加载",
+      "attack": [
+        "T1610",
+        "T1611",
+        "T1613"
+      ],
       "why": "靶子是容器/K8s 工作负载，要判断实际运行态与声明态差在哪时加载",
       "keys": [
         "competition-container-",
@@ -993,6 +1117,11 @@
       "domain": "surface",
       "summary": "移动端加密专项：解码数据块、查隐写、Hook 移动端签名器",
       "whenToUse": "移动端 App 里有加密数据块、隐写载体或自研签名要还原时加载",
+      "attack": [
+        "T1027",
+        "T1140",
+        "T1555"
+      ],
       "why": "移动端 App 里有加密数据块、隐写载体或自研签名要还原时加载",
       "keys": [
         "competition-crypto-mobile",
@@ -1017,6 +1146,11 @@
       "domain": "surface",
       "summary": "自定义协议专项：重放私有分帧、消息顺序与被接受的状态",
       "whenToUse": "目标是自研协议/私有二进制协议，要重放出被服务端接受的状态时加载",
+      "attack": [
+        "T1040",
+        "T1071",
+        "T1572"
+      ],
       "why": "目标是自研协议/私有二进制协议，要重放出被服务端接受的状态时加载",
       "keys": [
         "competition-custom-",
@@ -1046,6 +1180,11 @@
       "domain": "surface",
       "summary": "DPAPI 专项：追踪主密钥、数据块、存储位置，还原可重放的明文凭据",
       "whenToUse": "Windows 上拿到 DPAPI 加密的数据块（凭据/浏览器密码），要还原明文时加载",
+      "attack": [
+        "T1003",
+        "T1552",
+        "T1555"
+      ],
       "why": "Windows 上拿到 DPAPI 加密的数据块（凭据/浏览器密码），要还原明文时加载",
       "keys": [
         "competition-dpapi-",
@@ -1076,6 +1215,11 @@
       "domain": "surface",
       "summary": "文件解析专项：追踪上传解析、转换器、压缩包与反序列化链路",
       "whenToUse": "靶子有文件上传/解析（图片、文档、压缩包、反序列化），要打通解析链时加载",
+      "attack": [
+        "T1068",
+        "T1190",
+        "T1203"
+      ],
       "why": "靶子有文件上传/解析（图片、文档、压缩包、反序列化），要打通解析链时加载",
       "keys": [
         "competition-file-parser-",
@@ -1106,6 +1250,11 @@
       "domain": "surface",
       "summary": "固件专项：划分分区、还原启动链、提取内置密钥",
       "whenToUse": "拿到固件镜像要划分区、找启动链或提取硬编码密钥时加载",
+      "attack": [
+        "T1014",
+        "T1200",
+        "T1542"
+      ],
       "why": "拿到固件镜像要划分区、找启动链或提取硬编码密钥时加载",
       "keys": [
         "competition-firmware-",
@@ -1131,6 +1280,11 @@
       "domain": "surface",
       "summary": "取证时间线专项：把主机、邮件、内存与网络证据按时间对齐",
       "whenToUse": "需要按时间线把多源证据串起来解释「什么时候发生了什么」时加载",
+      "attack": [
+        "T1005",
+        "T1070",
+        "T1560"
+      ],
       "why": "需要按时间线把多源证据串起来解释「什么时候发生了什么」时加载",
       "keys": [
         "competition-forensic-",
@@ -1158,6 +1312,10 @@
       "domain": "surface",
       "summary": "GraphQL 与 RPC 专项：追踪契约、漂移与隐藏操作",
       "whenToUse": "靶子用 GraphQL 或 gRPC/RPC，要找隐藏操作、字段越权或契约漂移时加载",
+      "attack": [
+        "T1190",
+        "T1595"
+      ],
       "why": "靶子用 GraphQL 或 gRPC/RPC，要找隐藏操作、字段越权或契约漂移时加载",
       "keys": [
         "competition-graphql-rpc-",
@@ -1186,6 +1344,11 @@
       "domain": "surface",
       "summary": "Windows 身份专项：追踪票据、令牌、邮箱规则与横向路径",
       "whenToUse": "域内要理清票据/令牌/邮箱规则，规划横向路径时加载",
+      "attack": [
+        "T1078",
+        "T1134",
+        "T1550"
+      ],
       "why": "域内要理清票据/令牌/邮箱规则，规划横向路径时加载",
       "keys": [
         "competition-identity-",
@@ -1212,6 +1375,11 @@
       "domain": "surface",
       "summary": "iOS 专项：Hook IPA 签名、钥匙串访问、证书固定与请求",
       "whenToUse": "iOS App 要绕签名/钥匙串/pinning，或抓其加密请求时加载",
+      "attack": [
+        "T1140",
+        "T1555",
+        "T1611"
+      ],
       "why": "iOS App 要绕签名/钥匙串/pinning，或抓其加密请求时加载",
       "keys": [
         "competition-ios-runtime",
@@ -1240,6 +1408,11 @@
       "domain": "surface",
       "summary": "JWT 专项：追踪头部、声明、密钥选择与接受逻辑的不一致",
       "whenToUse": "靶子用 JWT 鉴权，要试 alg 混淆、密钥选择歧义或声明越权时加载",
+      "attack": [
+        "T1528",
+        "T1550",
+        "T1606"
+      ],
       "why": "靶子用 JWT 鉴权，要试 alg 混淆、密钥选择歧义或声明越权时加载",
       "keys": [
         "competition-jwt-claim-",
@@ -1268,6 +1441,11 @@
       "domain": "surface",
       "summary": "K8s 控制面专项：追踪 kube API、ServiceAccount、Secret 与工作负载漂移",
       "whenToUse": "打 K8s 集群，要从 API/SA/Secret 拿权限或判断工作负载漂移时加载",
+      "attack": [
+        "T1526",
+        "T1610",
+        "T1613"
+      ],
       "why": "打 K8s 集群，要从 API/SA/Secret 拿权限或判断工作负载漂移时加载",
       "keys": [
         "competition-k8s-control-",
@@ -1296,6 +1474,11 @@
       "domain": "surface",
       "summary": "Kerberos 委派专项：追踪 S4U、RBCD、委派边与票据被接受的事实",
       "whenToUse": "域内怀疑存在委派关系（约束/非约束/RBCD）要拿票并证明被接受时加载",
+      "attack": [
+        "T1134",
+        "T1550",
+        "T1558"
+      ],
       "why": "域内怀疑存在委派关系（约束/非约束/RBCD）要拿票并证明被接受时加载",
       "keys": [
         "competition-kerberos-",
@@ -1325,6 +1508,11 @@
       "domain": "surface",
       "summary": "内核/容器逃逸专项：把内核与容器边界画清楚，证明逃逸原语成立",
       "whenToUse": "要从容器逃到宿主机、或用内核漏洞证明边界穿越时加载",
+      "attack": [
+        "T1068",
+        "T1548",
+        "T1611"
+      ],
       "why": "要从容器逃到宿主机、或用内核漏洞证明边界穿越时加载",
       "keys": [
         "competition-kernel-",
@@ -1348,6 +1536,11 @@
       "domain": "surface",
       "summary": "Linux 凭据专项：追踪凭据、令牌、套接字与主机间跳板",
       "whenToUse": "Linux 主机上找凭据、会话令牌或规划主机间跳板时加载",
+      "attack": [
+        "T1003",
+        "T1078",
+        "T1552"
+      ],
       "why": "Linux 主机上找凭据、会话令牌或规划主机间跳板时加载",
       "keys": [
         "competition-linux-",
@@ -1374,6 +1567,11 @@
       "domain": "surface",
       "summary": "LSASS 专项：追踪 LSASS 秘密、票据、缓存与可重放材料",
       "whenToUse": "Windows 上要 dump LSASS、提票据/缓存或还原可重放凭据时加载",
+      "attack": [
+        "T1003.001",
+        "T1555",
+        "T1558"
+      ],
       "why": "Windows 上要 dump LSASS、提票据/缓存或还原可重放凭据时加载",
       "keys": [
         "competition-lsass-ticket-",
@@ -1400,6 +1598,11 @@
       "domain": "surface",
       "summary": "邮箱滥用专项：追踪邮箱规则、OAuth 同意与邮件流滥用",
       "whenToUse": "打邮箱/Exchange/O365，要用规则、OAuth 同意或邮件流做持久化与窃取时加载",
+      "attack": [
+        "T1098",
+        "T1114",
+        "T1566"
+      ],
       "why": "打邮箱/Exchange/O365，要用规则、OAuth 同意或邮件流做持久化与窃取时加载",
       "keys": [
         "competition-mailbox-abuse",
@@ -1422,6 +1625,11 @@
       "domain": "surface",
       "summary": "样本配置专项：还原分阶段配置、心跳字段与明文边界",
       "whenToUse": "拿到恶意样本要抽 C2 配置、心跳字段或分阶段载荷时加载",
+      "attack": [
+        "T1027",
+        "T1070",
+        "T1140"
+      ],
       "why": "拿到恶意样本要抽 C2 配置、心跳字段或分阶段载荷时加载",
       "keys": [
         "competition-malware-",
@@ -1447,6 +1655,11 @@
       "domain": "surface",
       "summary": "OAuth 与 OIDC 专项：追踪重定向、令牌、scope 与被接受的登录流程",
       "whenToUse": "靶子用 OAuth/OIDC 登录，要试重定向劫持、scope 越权或令牌复用链时加载",
+      "attack": [
+        "T1528",
+        "T1550",
+        "T1606"
+      ],
       "why": "靶子用 OAuth/OIDC 登录，要试重定向劫持、scope 越权或令牌复用链时加载",
       "keys": [
         "response_type",
@@ -1472,6 +1685,11 @@
       "domain": "surface",
       "summary": "PCAP 专项：重建会话、解码协议并把报文对上行为",
       "whenToUse": "拿到流量包要重建会话、解协议或把报文与行为对应时加载",
+      "attack": [
+        "T1040",
+        "T1071",
+        "T1572"
+      ],
       "why": "拿到流量包要重建会话、解协议或把报文与行为对应时加载",
       "keys": [
         "competition-pcap-protocol",
@@ -1496,6 +1714,11 @@
       "domain": "surface",
       "summary": "智能体提示词注入专项：分析检索污染、规划器漂移与工具滥用",
       "whenToUse": "靶子是 AI 智能体，要分析「不可信内容怎么变成工具参数」这类信任边界时加载",
+      "attack": [
+        "T1059",
+        "T1190",
+        "T1204"
+      ],
       "why": "靶子是 AI 智能体，要分析「不可信内容怎么变成工具参数」这类信任边界时加载",
       "keys": [
         "competition-prompt-",
@@ -1519,6 +1742,11 @@
       "domain": "surface",
       "summary": "队列/Worker 专项：追踪队列载荷、worker 状态、重试与异步漂移",
       "whenToUse": "靶子有消息队列/异步 worker，要利用重试、状态漂移或载荷注入时加载",
+      "attack": [
+        "T1059",
+        "T1526",
+        "T1610"
+      ],
       "why": "靶子有消息队列/异步 worker，要利用重试、状态漂移或载荷注入时加载",
       "keys": [
         "competition-queue-worker-",
@@ -1547,6 +1775,10 @@
       "domain": "surface",
       "summary": "竞态专项：在并发下复现竞态、定序缺陷与状态漂移",
       "whenToUse": "要利用并发让 check-then-act 失效、或状态机在竞争下漂移时加载",
+      "attack": [
+        "T1068",
+        "T1190"
+      ],
       "why": "要利用并发让 check-then-act 失效、或状态机在竞争下漂移时加载",
       "keys": [
         "competition-race-",
@@ -1573,6 +1805,11 @@
       "domain": "surface",
       "summary": "中继/强制认证专项：追踪强制、中继目标与被接受的认证边",
       "whenToUse": "域内要串「强制认证 + 中继」拿权限（如 NTLM relay）时加载",
+      "attack": [
+        "T1187",
+        "T1550.002",
+        "T1557"
+      ],
       "why": "域内要串「强制认证 + 中继」拿权限（如 NTLM relay）时加载",
       "keys": [
         "competition-relay-",
@@ -1602,6 +1839,10 @@
       "domain": "surface",
       "summary": "请求规范化专项：追踪解析器差异、头部歧义与请求走私",
       "whenToUse": "代理/网关/后端三层解析不一致，要试走私或头歧义时加载",
+      "attack": [
+        "T1027",
+        "T1190"
+      ],
       "why": "代理/网关/后端三层解析不一致，要试走私或头歧义时加载",
       "keys": [
         "competition-request-",
@@ -1628,6 +1869,11 @@
       "domain": "surface",
       "summary": "逆向/PWN 专项：还原二进制、分析崩溃并证明可利用路径",
       "whenToUse": "二进制题要还原逻辑、分析崩溃、证明可控利用路径时加载",
+      "attack": [
+        "T1027",
+        "T1055",
+        "T1068"
+      ],
       "why": "二进制题要还原逻辑、分析崩溃、证明可控利用路径时加载",
       "keys": [
         "competition-reverse-pwn",
@@ -1651,6 +1897,11 @@
       "domain": "surface",
       "summary": "运行时路由专项：追踪代理规则、Host 头与路由到服务的解析",
       "whenToUse": "要判断请求最终被哪个服务接走（代理/Host/路由规则差异）时加载",
+      "attack": [
+        "T1071",
+        "T1572",
+        "T1610"
+      ],
       "why": "要判断请求最终被哪个服务接走（代理/Host/路由规则差异）时加载",
       "keys": [
         "competition-runtime-",
@@ -1674,6 +1925,11 @@
       "domain": "surface",
       "summary": "SSRF 专项：追踪 SSRF 路径、元数据跳板与被接受的凭据边",
       "whenToUse": "有 SSRF 要跳到元数据/内网服务并拿凭据时加载",
+      "attack": [
+        "T1078",
+        "T1090",
+        "T1552"
+      ],
       "why": "有 SSRF 要跳到元数据/内网服务并拿凭据时加载",
       "keys": [
         "competition-ssrf-metadata",
@@ -1700,6 +1956,11 @@
       "domain": "surface",
       "summary": "隐写专项：检查媒体通道、尾部附加数据与隐藏载荷边界",
       "whenToUse": "拿到图片/音视频等媒体，怀疑有隐藏载荷时加载",
+      "attack": [
+        "T1027",
+        "T1140",
+        "T1564"
+      ],
       "why": "拿到图片/音视频等媒体，怀疑有隐藏载荷时加载",
       "keys": [
         "competition-stego-media",
@@ -1726,6 +1987,11 @@
       "domain": "surface",
       "summary": "供应链专项：追踪依赖漂移、CI 产出与交付产物来源",
       "whenToUse": "要追「这个产物是谁在哪一步构建的」或依赖被投毒时加载",
+      "attack": [
+        "T1078",
+        "T1195",
+        "T1553"
+      ],
       "why": "要追「这个产物是谁在哪一步构建的」或依赖被投毒时加载",
       "keys": [
         "competition-supply-chain",
@@ -1752,6 +2018,10 @@
       "domain": "surface",
       "summary": "模板渲染专项：追踪 SSR 加载器、模板、水合与渲染信任缺口",
       "whenToUse": "靶子用 SSR/模板引擎（Jinja/SSTI/Next.js 等），要找渲染信任缺口时加载",
+      "attack": [
+        "T1059",
+        "T1190"
+      ],
       "why": "靶子用 SSR/模板引擎（Jinja/SSTI/Next.js 等），要找渲染信任缺口时加载",
       "keys": [
         "competition-template-",
@@ -1786,6 +2056,11 @@
       "domain": "surface",
       "summary": "Web 运行时专项：检查实时请求、路由、鉴权与 worker 流转",
       "whenToUse": "面对活站要理清请求怎么流经路由/鉴权/worker 时加载",
+      "attack": [
+        "T1059",
+        "T1190",
+        "T1505.003"
+      ],
       "why": "面对活站要理清请求怎么流经路由/鉴权/worker 时加载",
       "keys": [
         "access_token",
@@ -1826,6 +2101,11 @@
       "domain": "surface",
       "summary": "WebSocket 专项：追踪握手、帧、订阅与状态",
       "whenToUse": "靶子用 WebSocket，要分析握手鉴权、帧格式或订阅越权时加载",
+      "attack": [
+        "T1071",
+        "T1190",
+        "T1572"
+      ],
       "why": "靶子用 WebSocket，要分析握手鉴权、帧格式或订阅越权时加载",
       "keys": [
         "competition-websocket-",
@@ -1853,6 +2133,11 @@
       "domain": "surface",
       "summary": "Windows 跳板专项：追踪 Kerberos 重放、Windows 横向与票据被接受",
       "whenToUse": "要用票据在 Windows 主机间横向并证明被接受时加载",
+      "attack": [
+        "T1021.002",
+        "T1090",
+        "T1570"
+      ],
       "why": "要用票据在 Windows 主机间横向并证明被接受时加载",
       "keys": [
         "competition-windows-pivot",
@@ -1880,6 +2165,11 @@
       "domain": "surface",
       "summary": "压缩包专项：用已知明文攻击还原老式加密 ZIP",
       "whenToUse": "拿到加密 zip/rar 且有部分已知明文，要还原内容时加载",
+      "attack": [
+        "T1027",
+        "T1140",
+        "T1560"
+      ],
       "why": "拿到加密 zip/rar 且有部分已知明文，要还原内容时加载",
       "keys": [
         "competition-zip-archive",
@@ -1910,6 +2200,17 @@
       "domain": "credential",
       "summary": "凭据攻击：在线弱口令爆破（hydra）与离线哈希破解（hashcat/john），覆盖 SSH/FTP/RDP/SMB/数据库/Web 后台",
       "whenToUse": "发现登录入口（Web 后台/SSH/FTP/RDP/SMB/MySQL/MSSQL/Redis）需要试口令；或已拿到哈希/密文需要还原明文",
+      "attack": [
+        "T1003",
+        "T1003.001",
+        "T1003.002",
+        "T1110",
+        "T1110.003",
+        "T1187",
+        "T1552",
+        "T1552.001",
+        "T1555"
+      ],
       "why": "发现登录入口（Web 后台/SSH/FTP/RDP/SMB/MySQL/MSSQL/Redis）需要试口令；或已拿到哈希/密文需要还原明文",
       "keys": [
         "redteam_asset_query",
@@ -1963,6 +2264,10 @@
       "domain": "flow",
       "summary": "CTF 与高难度靶场作业的总入口：把用户给出的目标一律当沙箱资产，先建作业模型再内部路由到专项技能",
       "whenToUse": "做 CTF、靶场、高难度挑战类作业时首先加载；它是唯一应当被隐式进入的挑战类技能，其余 competition-* 由它内部路由",
+      "attack": [
+        "T1190",
+        "T1595"
+      ],
       "why": "做 CTF、靶场、高难度挑战类作业时首先加载；它是唯一应当被隐式进入的挑战类技能，其余 competition-* 由它内部路由",
       "keys": [
         "JWT_Tool",
@@ -2000,6 +2305,10 @@
       "domain": "flow",
       "summary": "Thin PRIMARY for CTF / AWD / 靶场 multi-type orchestration. Hands off to the sidecar CTF-Sandbox-Orchestrator. Use when the user says CTF, AWD, 靶场, or 比赛题 and no more specific pwn/AP",
       "whenToUse": "Thin PRIMARY for CTF / AWD / 靶场 multi-type orchestration. Hands off to the sidecar CTF-San",
+      "attack": [
+        "T1190",
+        "T1595"
+      ],
       "why": "Thin PRIMARY for CTF / AWD / 靶场 multi-type orchestration. Hands off to the sidecar CTF-San",
       "keys": [
         "ctf-sandbox",
@@ -2026,6 +2335,10 @@
       "domain": "appsec",
       "summary": "Use for authorized database security assessment covering PostgreSQL/MySQL/MSSQL/Mongo/Redis exposure, authz, UDF/command paths, and misconfiguration review.",
       "whenToUse": "Use for authorized database security assessment covering PostgreSQL/MySQL/MSSQL/Mongo/Redi",
+      "attack": [
+        "T1003",
+        "T1190"
+      ],
       "why": "Use for authorized database security assessment covering PostgreSQL/MySQL/MSSQL/Mongo/Redi",
       "keys": [
         "xp_cmdshell",
@@ -2091,6 +2404,13 @@
       "domain": "misc",
       "summary": "攻击手法必配检测：每个打法同时给出防守方在日志里的可见信号（Sigma/YARA/KQL/SPL 四种方言），用于评估\"这一发有多响\"、写报告的影响面、以及被拦后判断是被规则拦还是被配置拦",
       "whenToUse": "交付前要给每个发现配检测规则时；要评估某一发的隐蔽性、决定用哪条手法时；发现被拦后要判断\"是 WAF 拦的还是 EDR 拦的\"时；蓝队复盘要给检测建议时",
+      "attack": [
+        "T1070",
+        "T1070.004",
+        "T1490",
+        "T1562",
+        "T1562.008"
+      ],
       "why": "交付前要给每个发现配检测规则时；要评估某一发的隐蔽性、决定用哪条手法时；发现被拦后要判断\"是 WAF 拦的还是 EDR 拦的\"时；蓝队复盘要给检测建议时",
       "keys": [
         "process_creation",
@@ -2131,6 +2451,19 @@
       "domain": "defense",
       "summary": "Use for authorized digital forensics including memory dumps, disk timelines, PCAP investigation, artifact triage, and IR evidence preservation.",
       "whenToUse": "Use for authorized digital forensics including memory dumps, disk timelines, PCAP investig",
+      "attack": [
+        "T1005",
+        "T1039",
+        "T1070",
+        "T1074",
+        "T1114",
+        "T1213",
+        "T1485",
+        "T1486",
+        "T1491",
+        "T1531",
+        "T1560"
+      ],
       "why": "Use for authorized digital forensics including memory dumps, disk timelines, PCAP investig",
       "keys": [
         "digital-forensics",
@@ -2150,6 +2483,10 @@
       "domain": "web",
       "summary": "目录与文件爆破：后台入口、备份文件、配置泄露、源码与版本库暴露（ffuf/feroxbuster/dirsearch/gobuster）",
       "whenToUse": "已确认 Web 存活但指纹无直接 Nday 线索；需要找后台入口、备份、配置、源码、上传点等隐藏路径",
+      "attack": [
+        "T1083",
+        "T1595"
+      ],
       "why": "已确认 Web 存活但指纹无直接 Nday 线索；需要找后台入口、备份、配置、源码、上传点等隐藏路径",
       "keys": [
         "DSH_HOME",
@@ -2204,6 +2541,10 @@
       "domain": "reverse",
       "summary": ".NET / C# 二进制逆向。当目标是 .NET assembly（PE 头含 CLR、.exe/.dll 托管程序）、C# 编译产物（含 NativeAOT）、红队 Sharp* 工具（Rubeus / SharpHound / SharpHound 等）、.NET 混淆程序（ConfuserEx / SmartAssembly / Babel / Ea",
       "whenToUse": ".NET / C# 二进制逆向",
+      "attack": [
+        "T1027",
+        "T1140"
+      ],
       "why": ".NET / C# 二进制逆向",
       "keys": [
         "dnspy_decompile",
@@ -2252,6 +2593,21 @@
       "domain": "defense",
       "summary": "逆向防御方实现 → 红队针对性绕过。把 EDR / Defender / AV 的 hook 表、ETW provider、AMSI 实现先逆向出来， 再写针对性的 unhook / 间接 syscall / ETW patch / call stack spoof。对照 MITRE ATT&CK T1562 防御规避。 触发关键词：EDR 绕过、AV by",
       "whenToUse": "逆向防御方实现 → 红队针对性绕过",
+      "attack": [
+        "T1003.001",
+        "T1027",
+        "T1055",
+        "T1070",
+        "T1070.001",
+        "T1070.006",
+        "T1218",
+        "T1497",
+        "T1562",
+        "T1562.001",
+        "T1562.002",
+        "T1562.006",
+        "T1622"
+      ],
       "why": "逆向防御方实现 → 红队针对性绕过",
       "keys": [
         "hooks_dump",
@@ -2274,9 +2630,6 @@
         "ETW",
         "AMSI",
         "MITRE",
-        "ATT",
-        "CK",
-        "T1562",
         "DLL",
         "cobalt-strike-alike",
         "Sysmon",
@@ -2308,6 +2661,10 @@
       "domain": "appsec",
       "summary": "Use for authorized email security review including phishing analysis, header authentication (SPF/DKIM/DMARC), BEC patterns, and mailbox token abuse research.",
       "whenToUse": "Use for authorized email security review including phishing analysis, header authenticatio",
+      "attack": [
+        "T1203",
+        "T1566"
+      ],
       "why": "Use for authorized email security review including phishing analysis, header authenticatio",
       "keys": [
         "offline_access",
@@ -2339,6 +2696,10 @@
       "domain": "ot-hardware",
       "summary": "固件 / IoT 渗透链。从拿到一坨 .bin / .img 开始，闭环走完逆向 → 提取 → 模拟 → 利用。 方法论遵循 OWASP FSTM 九阶段；工具链以 binwalk v3、unblob、EMBA、Firmadyne、AFL++ 为主。 适用场景：路由器/摄像头/智能家居固件审计、固件升级包逆向、IoT CVE 复现、嵌入式 0day 挖掘。 ",
       "whenToUse": "固件 / IoT 渗透链",
+      "attack": [
+        "T1200",
+        "T1542"
+      ],
       "why": "固件 / IoT 渗透链",
       "keys": [
         "CVE-2018-19052",
@@ -2423,6 +2784,10 @@
       "domain": "recon",
       "summary": "用 FOFA API 批量测绘靶标资产（域名/IP/端口/标题/指纹）；内置限速客户端，严格单线程 + 最小间隔 + 退避重试，避免触发 45012",
       "whenToUse": "信息收集阶段需要快速铺开某单位/域名的互联网资产面时",
+      "attack": [
+        "T1593",
+        "T1596"
+      ],
       "why": "信息收集阶段需要快速铺开某单位/域名的互联网资产面时",
       "keys": [
         "FOFA_KEY",
@@ -2475,6 +2840,11 @@
       "domain": "tunnel",
       "summary": "frp 内网穿透：在自有 VPS 上跑 frps，在目标上跑 frpc，得到稳定 socks5 与端口映射",
       "whenToUse": "已有命令执行/RCE 且目标可出网；需要长期稳定隧道、把内网端口映射给用户直接访问时",
+      "attack": [
+        "T1090",
+        "T1102",
+        "T1572"
+      ],
       "why": "已有命令执行/RCE 且目标可出网；需要长期稳定隧道、把内网端口映射给用户直接访问时",
       "keys": [
         "REDTEAM_VPS_HOST",
@@ -2516,6 +2886,11 @@
       "domain": "intranet",
       "summary": "fscan v2.2.1 内网综合扫描：存活探测、端口/服务识别、28 类弱口令爆破、未授权访问与高危漏洞（MS17-010/SMBGhost）、Redis 利用与 SOCKS5 隧道",
       "whenToUse": "进入内网（跳板机/WebShell/socks5 隧道）后快速铺开资产面、找弱口令与未授权、把可达性变成可打点",
+      "attack": [
+        "T1018",
+        "T1046",
+        "T1110"
+      ],
       "why": "进入内网（跳板机/WebShell/socks5 隧道）后快速铺开资产面、找弱口令与未授权、把可达性变成可打点",
       "keys": [
         "DSH_HOME",
@@ -2585,6 +2960,10 @@
       "domain": "reverse",
       "summary": "用 Ghidra 做二进制逆向（headless 批量分析或 GUI 交互）：反编译、交叉引用、数据类型定义、脚本开发（Java/PyGhidra）、可选 Ghidra MCP 工作流。适用于没有 IDA 授权、需要批量分析多个样本、或要写自动化脚本时。",
       "whenToUse": "没有 IDA 或只有免费工具、要批量反编译多个二进制、要写 Ghidra 脚本自动化分析、或要从 headless 模式出报告时加载 ",
+      "attack": [
+        "T1027",
+        "T1140"
+      ],
       "why": "没有 IDA 或只有免费工具、要批量反编译多个二进制、要写 Ghidra 脚本自动化分析、或要从 headless 模式出报告时加载 ",
       "keys": [
         "ghidra-reverse",
@@ -2622,6 +3001,9 @@
       "domain": "reverse",
       "summary": "Use for reverse engineering stripped Go and Rust binaries including runtime recognition, pclntab/moduel data recovery, panic strings, and idiomatic decompilation recovery.",
       "whenToUse": "Use for reverse engineering stripped Go and Rust binaries including runtime recognition, p",
+      "attack": [
+        "T1027"
+      ],
       "why": "Use for reverse engineering stripped Go and Rust binaries including runtime recognition, p",
       "keys": [
         "rust_begin_unwind",
@@ -2638,6 +3020,10 @@
       "domain": "intranet",
       "summary": "gogo v2.15.0 高性能内网扫描引擎：智能/超智能模式、主动+被动指纹、关键信息提取（title/cert/JWT/邮箱/身份证）、nuclei 模板 POC、发包可控低噪声",
       "whenToUse": "进入内网后对大网段（/16 /12）快速测绘、要指纹与关键信息、需要尽量少发包不被发现",
+      "attack": [
+        "T1018",
+        "T1046"
+      ],
       "why": "进入内网后对大网段（/16 /12）快速测绘、要指纹与关键信息、需要尽量少发包不被发现",
       "keys": [
         "DSH_HOME",
@@ -2686,6 +3072,9 @@
       "domain": "web",
       "summary": "GraphQL 端点攻击：Introspection 泄 schema、字段级授权缺失、嵌套查询越权 IDOR、深度递归 DoS",
       "whenToUse": "目标有 /graphql、/graphiql、/playground、/api-explorer 这类端点，或前端 SPA 用 GraphQL 通信时加载",
+      "attack": [
+        "T1190"
+      ],
       "why": "目标有 /graphql、/graphiql、/playground、/api-explorer 这类端点，或前端 SPA 用 GraphQL 通信时加载",
       "keys": [
         "A_TOKEN",
@@ -2732,6 +3121,9 @@
       "domain": "ot-hardware",
       "summary": "Use for authorized hardware and embedded interface security research including UART/JTAG discovery, debug pad triage, secure boot overview, and offline firmware extraction support.",
       "whenToUse": "Use for authorized hardware and embedded interface security research including UART/JTAG d",
+      "attack": [
+        "T1200"
+      ],
       "why": "Use for authorized hardware and embedded interface security research including UART/JTAG d",
       "keys": [
         "hardware-security",
@@ -2747,6 +3139,9 @@
       "domain": "web",
       "summary": "HTTP 请求走私与 H2 desync：利用前后端 Content-Length / Transfer-Encoding 解析差异，把半包塞进连接流影响下一个用户",
       "whenToUse": "目标前面有 CDN/WAF/反代（Nginx、HAProxy、Cloudflare、Akamai），要试请求走私/连接去同步；命中 CL.TE、TE.CL、TE.TE、H2→H1 desync、CL.0 任一形态时加载",
+      "attack": [
+        "T1190"
+      ],
       "why": "目标前面有 CDN/WAF/反代（Nginx、HAProxy、Cloudflare、Akamai），要试请求走私/连接去同步；命中 CL.TE、TE.CL、TE.TE、H2→H1 desync、CL.0 任一形态时加载",
       "keys": [
         "http-smuggling",
@@ -2798,6 +3193,10 @@
       "domain": "reverse",
       "summary": "IDA Pro 逆向分析辅助技能。当用户提到逆向、反编译、分析二进制/PE/ELF/APK/DLL/SO、破解、找密码、漏洞分析、病毒分析、firmware 固件分析，或需要分析 exe/dll/so/elf/macho/sys 等文件时，务必使用此技能。 Ensure to use this skill when the user wants to ana",
       "whenToUse": "IDA Pro 逆向分析辅助技能",
+      "attack": [
+        "T1027",
+        "T1140"
+      ],
       "why": "IDA Pro 逆向分析辅助技能",
       "keys": [
         "idb_open",
@@ -2941,6 +3340,11 @@
       "domain": "identity",
       "summary": "Use for authorized assessment of federated identity systems including SAML, OIDC, OAuth2 flows, SSO misconfiguration, and token confusion issues.",
       "whenToUse": "Use for authorized assessment of federated identity systems including SAML, OIDC, OAuth2 f",
+      "attack": [
+        "T1528",
+        "T1550",
+        "T1606"
+      ],
       "why": "Use for authorized assessment of federated identity systems including SAML, OIDC, OAuth2 f",
       "keys": [
         "redirect_uri",
@@ -2991,6 +3395,9 @@
       "domain": "web",
       "summary": "注入类载荷库：SQLi / 命令注入 / 代码注入，含判定信号、绕过与无回显外带",
       "whenToUse": "已找到参数或拼接点，需要确认注入并拿到数据 / RCE 时",
+      "attack": [
+        "T1190"
+      ],
       "why": "已找到参数或拼接点，需要确认注入并拿到数据 / RCE 时",
       "keys": [
         "pg_sleep",
@@ -3025,6 +3432,11 @@
       "domain": "ot-hardware",
       "summary": "物联网/工控/网络设备得分面：摄像头与 NVR 默认口令与未授权、ONVIF 探测、Modbus/S7 工控端口、路由器交换机 SNMP 枚举与默认口令、iot-platform/iiot/netdev 三类得分的取法",
       "whenToUse": "资产里出现 RTSP/ONVIF 端口（554/8000/10554）、工控端口（502/102/5000/4840/9600）、网络设备管理口（23/161/2601）、或靶标含园区/工厂/楼宇时",
+      "attack": [
+        "T1190",
+        "T1595",
+        "T1669"
+      ],
       "why": "资产里出现 RTSP/ONVIF 端口（554/8000/10554）、工控端口（502/102/5000/4840/9600）、网络设备管理口（23/161/2601）、或靶标含园区/工厂/楼宇时",
       "keys": [
         "CVE-2017-7924",
@@ -3092,6 +3504,9 @@
       "domain": "client",
       "summary": "前端 JavaScript 逆向与 JS 混淆还原：签名/加密参数定位、AST 去混淆（obfuscator.io、控制流平坦化、字符串数组还原）、CDP 插桩 Hook、sourcemap 恢复、运行时采样、本地补环境复现与证据化输出。适用于逆向混淆过的前端产物、找出接口签名算法、绕过前端加密。优先适配当前环境里的 js-reverse_* 工具，需要更强",
       "whenToUse": "遇到前端 JS 混淆（字符串加密/控制流平坦化/死代码）、源码混淆看不懂、需要还原签名或加密算法、要找 sourcemap、或要在无源码情况下改参数重放时加载",
+      "attack": [
+        "T1140"
+      ],
       "why": "遇到前端 JS 混淆（字符串加密/控制流平坦化/死代码）、源码混淆看不懂、需要还原签名或加密算法、要找 sourcemap、或要在无源码情况下改参数重放时加载",
       "keys": [
         "list_scripts",
@@ -3173,6 +3588,9 @@
       "domain": "flow",
       "summary": "用月之暗面 Kimi 浏览器扩展（WebBridge）驱动用户真实 Chrome/Chromium：导航、读取页面、点击、填表、执行 JS、截图",
       "whenToUse": "需要复用浏览器登录态访问后台/需要 JS 渲染的页面/需要真实浏览器指纹时",
+      "attack": [
+        "T1071.001"
+      ],
       "why": "需要复用浏览器登录态访问后台/需要 JS 渲染的页面/需要真实浏览器指纹时",
       "keys": [
         "force_installed",
@@ -3217,6 +3635,18 @@
       "domain": "intranet",
       "summary": "内网横向与提权：Impacket 套件（PtH/PsExec/WMI/DCOM/Kerberos/凭据转储）+ enum4linux/smbclient 信息枚举",
       "whenToUse": "已进内网，需要用已有凭据或哈希横向到其它主机、枚举域环境、dump 凭据、找域控路径",
+      "attack": [
+        "T1021",
+        "T1021.001",
+        "T1021.002",
+        "T1021.004",
+        "T1047",
+        "T1550",
+        "T1550.002",
+        "T1563",
+        "T1569",
+        "T1570"
+      ],
       "why": "已进内网，需要用已有凭据或哈希横向到其它主机、枚举域环境、dump 凭据、找域控路径",
       "keys": [
         "redteam_credential_list",
@@ -3275,6 +3705,10 @@
       "domain": "appsec",
       "summary": "Use for authorized security assessment of LLM applications and AI agents, including prompt injection, tool abuse, RAG exposure, memory poisoning, and model supply-chain risks.",
       "whenToUse": "Use for authorized security assessment of LLM applications and AI agents, including prompt",
+      "attack": [
+        "T1059",
+        "T1190"
+      ],
       "why": "Use for authorized security assessment of LLM applications and AI agents, including prompt",
       "keys": [
         "send_email",
@@ -3298,7 +3732,6 @@
         "LLM05",
         "LLM07",
         "侦察",
-        "映射",
         "攻击面",
         "注入测试",
         "记忆",
@@ -3315,6 +3748,17 @@
       "domain": "defense",
       "summary": "Use when analyzing suspected malware through static, dynamic, and behavioral techniques, including IOC extraction, YARA or Sigma rules, sandboxing, and anti-analysis behavior.",
       "whenToUse": "Use when analyzing suspected malware through static, dynamic, and behavioral techniques, i",
+      "attack": [
+        "T1003",
+        "T1014",
+        "T1027",
+        "T1036",
+        "T1055",
+        "T1070",
+        "T1564",
+        "T1571",
+        "T1620"
+      ],
       "why": "Use when analyzing suspected malware through static, dynamic, and behavioral techniques, i",
       "keys": [
         "MalwareFamily_Example",
@@ -3354,6 +3798,10 @@
       "domain": "mobile",
       "summary": "Use for authorized Android or iOS application reverse engineering and security testing, including APK or IPA analysis, runtime instrumentation, SSL pinning, and platform protection",
       "whenToUse": "Use for authorized Android or iOS application reverse engineering and security testing, in",
+      "attack": [
+        "T1027",
+        "T1140"
+      ],
       "why": "Use for authorized Android or iOS application reverse engineering and security testing, in",
       "keys": [
         "ssl_pinning_bypass",
@@ -3390,6 +3838,11 @@
       "domain": "intranet",
       "summary": "netexec（crackmapexec 后继）v1.4+ 凭据验证与协议横扫：SMB/LDAP/WinRM/MSSQL/HTTP 一把梭、凭据有效性判定、签名与空会话枚举、域内信任与共享扫描",
       "whenToUse": "内网拿到任何一组凭据后要立刻验证并横扫；或没有凭据要做密码喷洒与空会话枚举时",
+      "attack": [
+        "T1021.002",
+        "T1078",
+        "T1110"
+      ],
       "why": "内网拿到任何一组凭据后要立刻验证并横扫；或没有凭据要做密码喷洒与空会话枚举时",
       "keys": [
         "DSH_HOME",
@@ -3433,6 +3886,9 @@
       "domain": "web",
       "summary": "nuclei 模板化漏洞扫描：13,000+ 模板覆盖 CVE/暴露面/配置缺陷/默认口令，Nday 与 1day 的主力检测手段",
       "whenToUse": "漏洞发现阶段拿到存活资产清单后，做 Nday/1day 批量检测；或已知组件版本想快速确认是否有现成模板",
+      "attack": [
+        "T1595.002"
+      ],
       "why": "漏洞发现阶段拿到存活资产清单后，做 Nday/1day 批量检测；或已知组件版本想快速确认是否有现成模板",
       "keys": [
         "CVE-2021-44228",
@@ -3477,6 +3933,10 @@
       "domain": "web",
       "summary": "带外（OOB）验证全家桶：盲注/盲 SSRF/无回显 RCE/盲 XXE 的命中判定——interactsh、dnslog.cn、自建 DNS+HTTP 服务器，外带域名生成、命中回读、误报排除",
       "whenToUse": "目标无回显、被 WAF 拦得看不见响应差异、盲注类漏洞需要证明\"真的执行了\"时；命令注入/SSRF/XXE/SSTI/反序列化判定命中",
+      "attack": [
+        "T1048",
+        "T1071"
+      ],
       "why": "目标无回显、被 WAF 拦得看不见响应差异、盲注类漏洞需要证明\"真的执行了\"时；命令注入/SSRF/XXE/SSTI/反序列化判定命中",
       "keys": [
         "load_file",
@@ -3528,6 +3988,10 @@
       "domain": "ot-hardware",
       "summary": "Use for authorized OT/ICS security assessment covering Purdue model zoning, PLC/SCADA exposure, industrial protocol discovery, and safe passive-first evaluation.",
       "whenToUse": "Use for authorized OT/ICS security assessment covering Purdue model zoning, PLC/SCADA expo",
+      "attack": [
+        "T1190",
+        "T1489"
+      ],
       "why": "Use for authorized OT/ICS security assessment covering Purdue model zoning, PLC/SCADA expo",
       "keys": [
         "ot-ics",
@@ -3556,6 +4020,11 @@
       "domain": "recon",
       "summary": "被动信息收集：不接触目标主机，仅使用公开数据源",
       "whenToUse": "需要在不暴露自身的情况下收集目标资产情报时",
+      "attack": [
+        "T1593",
+        "T1594",
+        "T1596"
+      ],
       "why": "需要在不暴露自身的情况下收集目标资产情报时",
       "keys": [
         "name_value",
@@ -3583,6 +4052,10 @@
       "domain": "reverse",
       "summary": "N-day 补丁差分到利用。从厂商发布的补丁里反推漏洞点、写 PoC、做成可用的攻击模块。 适用场景：已知 CVE 编号但只有补丁没有 PoC、SRC/红队需要打击未及时更新的资产、N-day 武器化、Patch Tuesday 跟进。 核心方法：拿 before/after 二进制 → 对齐符号 → 二进制 diff → 看新增的安全检查反推 bug cl",
       "whenToUse": "N-day 补丁差分到利用",
+      "attack": [
+        "T1068",
+        "T1190"
+      ],
       "why": "N-day 补丁差分到利用",
       "keys": [
         "CVE-2025-62215",
@@ -3633,6 +4106,10 @@
       "domain": "flow",
       "summary": "主动渗透测试工具链。覆盖信息收集、端口扫描、漏洞扫描、Web 渗透、SQL 注入、目录爆破、密码破解等场景。 通过 MCP server（pentestMCP / mcp-security-hub）将 20+ 安全工具暴露给 AI agent。 触发关键词：渗透测试、端口扫描、Nmap、漏洞扫描、Nuclei、SQL 注入、SQLMap、目录爆破、FFUF、",
       "whenToUse": "主动渗透测试工具链",
+      "attack": [
+        "T1587",
+        "T1595"
+      ],
       "why": "主动渗透测试工具链",
       "keys": [
         "pentest-tools",
@@ -3682,6 +4159,17 @@
       "domain": "payload",
       "summary": "拿到 shell 后站稳三件套：权限鉴定与提权枚举（Linux SUID/capabilities/计划任务/内核、Windows 服务/UAC/令牌）、权限维持（计划任务/服务/SSH key/注册表/内存马）、凭据收割（哈希/密钥/配置/浏览器与内存提取）",
       "whenToUse": "漏洞利用拿到命令执行/WebShell 之后立刻用；隧道或马被踢、重启后入口消失说明没做维持；内网横向前需要先在本机榨干凭据",
+      "attack": [
+        "T1053",
+        "T1068",
+        "T1070",
+        "T1136",
+        "T1137",
+        "T1505",
+        "T1543",
+        "T1547",
+        "T1548"
+      ],
       "why": "漏洞利用拿到命令执行/WebShell 之后立刻用；隧道或马被踢、重启后入口消失说明没做维持；内网横向前需要先在本机榨干凭据",
       "keys": [
         "RUN_AS",
@@ -3746,6 +4234,10 @@
       "domain": "reverse",
       "summary": "Use for authorized reverse engineering of custom binary protocols, Protobuf/gRPC, WebSocket frames, and PCAP-driven protocol recovery.",
       "whenToUse": "Use for authorized reverse engineering of custom binary protocols, Protobuf/gRPC, WebSocke",
+      "attack": [
+        "T1027",
+        "T1040"
+      ],
       "why": "Use for authorized reverse engineering of custom binary protocols, Protobuf/gRPC, WebSocke",
       "keys": [
         "decode_raw",
@@ -3771,6 +4263,10 @@
       "domain": "reverse",
       "summary": "从逆向走到可用利用 (Working Exploit) 的全链路工程化方法。 适用场景：拿到了二进制 + 漏洞点 + 目标环境，需要写出一个能稳定打通的 exploit（不是只能本地复现一下、远程一打就崩的脚本）。 覆盖三大方向：栈溢出 / 堆利用 / 内核 pwn。强调\"CTF 本地通 → 真实远程稳定打通\"的工程差距：libc 版本错配、堆喷射时序、SM",
       "whenToUse": "从逆向走到可用利用 (Working Exploit) 的全链路工程化方法",
+      "attack": [
+        "T1055",
+        "T1068"
+      ],
       "why": "从逆向走到可用利用 (Working Exploit) 的全链路工程化方法",
       "keys": [
         "one_gadget",
@@ -3848,6 +4344,9 @@
       "domain": "web",
       "summary": "竞态条件与并发逻辑漏洞：让 check-then-act 失效，打优惠券双花、余额超扣、限购绕过、验证码重用、状态机跳跃",
       "whenToUse": "遇到优惠券/余额/限购/邀请奖励/验证码/唯一约束/订单状态机这类「读-改-写」业务，怀疑并发可绕过时加载",
+      "attack": [
+        "T1190"
+      ],
       "why": "遇到优惠券/余额/限购/邀请奖励/验证码/唯一约束/订单状态机这类「读-改-写」业务，怀疑并发可绕过时加载",
       "keys": [
         "use_coupon",
@@ -3897,6 +4396,10 @@
       "domain": "reverse",
       "summary": "Use this skill whenever the user wants to analyze binaries with radare2/r2 from the command line, including reverse engineering, disassembly, function analysis, strings/import insp",
       "whenToUse": "Use this skill whenever the user wants to analyze binaries with radare2/r2 from the comman",
+      "attack": [
+        "T1027",
+        "T1140"
+      ],
       "why": "Use this skill whenever the user wants to analyze binaries with radare2/r2 from the comman",
       "keys": [
         "repro_command",
@@ -3939,6 +4442,9 @@
       "domain": "ot-hardware",
       "summary": "Use for authorized RF/SDR security research including signal identification, replay feasibility study in shielded labs, and wireless protocol analysis outside classic Wi-Fi.",
       "whenToUse": "Use for authorized RF/SDR security research including signal identification, replay feasib",
+      "attack": [
+        "T1669"
+      ],
       "why": "Use for authorized RF/SDR security research including signal identification, replay feasib",
       "keys": [
         "radio-sdr",
@@ -3955,6 +4461,12 @@
       "domain": "recon",
       "summary": "ProjectDiscovery 信息收集流水线：subfinder→dnsx→naabu→httpx→katana 一键铺开域名资产面",
       "whenToUse": "信息收集阶段拿到域名/单位名后，系统化铺开子域→解析→端口→存活→页面与接口",
+      "attack": [
+        "T1590",
+        "T1592",
+        "T1593",
+        "T1595"
+      ],
       "why": "信息收集阶段拿到域名/单位名后，系统化铺开子域→解析→端口→存活→页面与接口",
       "keys": [
         "DSH_HOME",
@@ -3985,6 +4497,10 @@
       "domain": "flow",
       "summary": "首次使用引导：引导提供 FOFA_KEY 与 VPS 登录方式、验证通道可用、给出降级口径（工具链由工具箱附件按需获取）",
       "whenToUse": "用户第一次使用红队模式时；或 redteam_preflight 报出 onboarding.incomplete / 有技能 broken 时；或用户说\"环境没配好\"\"工具装一下\"",
+      "attack": [
+        "T1583",
+        "T1587"
+      ],
       "why": "用户第一次使用红队模式时；或 redteam_preflight 报出 onboarding.incomplete / 有技能 broken 时；或用户说\"环境没配好\"\"工具装一下\"",
       "keys": [
         "FOFA_KEY",
@@ -4088,6 +4604,10 @@
       "domain": "reverse",
       "summary": "Provides reverse engineering techniques. Use when the main job is to understand how a compiled, obfuscated, packed, or virtualized target works before exploiting or solving it, inc",
       "whenToUse": "Provides reverse engineering techniques. Use when the main job is to understand how a comp",
+      "attack": [
+        "T1027",
+        "T1140"
+      ],
       "why": "Provides reverse engineering techniques. Use when the main job is to understand how a comp",
       "keys": [
         "LD_PRELOAD",
@@ -4152,6 +4672,9 @@
       "domain": "boundary",
       "summary": "安全设备与集权系统直取：深信服/H3C/奇安信/TOPSEC 的 VPN 与上网行为管理、堡垒机、邮件网关、防火墙管理口的已知漏洞与弱口令入口；边界突破与集权系统两档高分的打法",
       "whenToUse": "资产里出现 SSL VPN 门户、行为管理登录页、堡垒机入口、邮件网关、设备管理口（4430/443/8080/8443 上的中文设备页）；要打边界突破分或集权系统分时",
+      "attack": [
+        "T1195"
+      ],
       "why": "资产里出现 SSL VPN 门户、行为管理登录页、堡垒机入口、邮件网关、设备管理口（4430/443/8080/8443 上的中文设备页）；要打边界突破分或集权系统分时",
       "keys": [
         "CVE-2018-13379",
@@ -4219,6 +4742,13 @@
       "domain": "payload",
       "summary": "反弹 Shell 与载荷投递：VPS 上起 MSF/nc/socat 监听接收 shell，或从目标主动拉取载荷落地",
       "whenToUse": "需要 RCE/命令执行回连、投递后续载荷、把一次性命令执行变成可交互会话时",
+      "attack": [
+        "T1059",
+        "T1059.001",
+        "T1059.003",
+        "T1059.004",
+        "T1071"
+      ],
       "why": "需要 RCE/命令执行回连、投递后续载荷、把一次性命令执行变成可交互会话时",
       "keys": [
         "REDTEAM_VPS_HOST",
@@ -4272,6 +4802,10 @@
       "domain": "recon",
       "summary": "爆破类重活：子域爆破（ksubdomain/OneForAll/dnsx）、全端口与大网段扫描（naabu/masscan），含限速与泛解析过滤",
       "whenToUse": "被动源收不全、或需要把全端口/大网段扫干净时——这类活噪声大，先确认在授权范围内",
+      "attack": [
+        "T1590",
+        "T1595"
+      ],
       "why": "被动源收不全、或需要把全端口/大网段扫干净时——这类活噪声大，先确认在授权范围内",
       "keys": [
         "DSH_HOME",
@@ -4300,6 +4834,10 @@
       "domain": "tunnel",
       "summary": "用 suo5 通过 WebShell/HTTP 建立 SOCKS5 隧道，把内网流量代理出来（内网突破核心工具）",
       "whenToUse": "已拿到一台机器（WebShell/RCE）需要进入内网扫描与横向时",
+      "attack": [
+        "T1071.001",
+        "T1572"
+      ],
       "why": "已拿到一台机器（WebShell/RCE）需要进入内网扫描与横向时",
       "keys": [
         "redteam_tunnel_add",
@@ -4336,6 +4874,9 @@
       "domain": "appsec",
       "summary": "Use for software supply-chain security assessment covering SBOM, SCA, CI/CD pipelines, container images, build integrity, dependency provenance, and vulnerability reachability.",
       "whenToUse": "Use for software supply-chain security assessment covering SBOM, SCA, CI/CD pipelines, con",
+      "attack": [
+        "T1195"
+      ],
       "why": "Use for software supply-chain security assessment covering SBOM, SCA, CI/CD pipelines, con",
       "keys": [
         "supply-chain-security",
@@ -4360,6 +4901,10 @@
       "domain": "client",
       "summary": "Use for authorized security testing of desktop thick clients including local storage, update channels, IPC, traffic, and client-side trust boundaries.",
       "whenToUse": "Use for authorized security testing of desktop thick clients including local storage, upda",
+      "attack": [
+        "T1055",
+        "T1552.001"
+      ],
       "why": "Use for authorized security testing of desktop thick clients including local storage, upda",
       "keys": [
         "thick-client",
@@ -4379,6 +4924,14 @@
       "domain": "defense",
       "summary": "Use for blue-team threat hunting, detection engineering with Sigma/YARA, SIEM query design, and incident detection validation.",
       "whenToUse": "Use for blue-team threat hunting, detection engineering with Sigma/YARA, SIEM query design",
+      "attack": [
+        "T1008",
+        "T1041",
+        "T1070",
+        "T1562",
+        "T1567",
+        "T1568"
+      ],
       "why": "Use for blue-team threat hunting, detection engineering with Sigma/YARA, SIEM query design",
       "keys": [
         "threat-hunting",
@@ -4401,6 +4954,9 @@
       "domain": "web",
       "summary": "未授权访问与信息泄露利用链：Redis/MySQL/MSSQL/ES/Docker/MongoDB 等暴露服务直取数据或写马",
       "whenToUse": "fscan/nmap 发现暴露的数据库与中间件端口（6379/3306/1433/9200/27017/2375），或 Web 侧发现未授权接口",
+      "attack": [
+        "T1190"
+      ],
       "why": "fscan/nmap 发现暴露的数据库与中间件端口（6379/3306/1433/9200/27017/2375），或 Web 侧发现未授权接口",
       "keys": [
         "redis_version",
@@ -4465,6 +5021,9 @@
       "domain": "misc",
       "summary": "交付前的证伪纪律：把\"打中了\"变成\"可被第三方复现的证明\"。误报四类根因、五档修复判定（CLOSED/PARTIAL/NOT FIXED/REGRESSED/BROKEN BY FIX）、显式声明未验证的缺口",
       "whenToUse": "报出漏洞前要自证不是误报时；补丁后要判断真的修好没有时；客户/审核方要\"可复核证据\"而不是截图时；同名告警复现不出、怀疑自己看错时",
+      "attack": [
+        "T1595"
+      ],
       "why": "报出漏洞前要自证不是误报时；补丁后要判断真的修好没有时；客户/审核方要\"可复核证据\"而不是截图时；同名告警复现不出、怀疑自己看错时",
       "keys": [
         "verification-discipline",
@@ -4498,6 +5057,10 @@
       "domain": "payload",
       "summary": "用自建 VPS（<你的VPS_IP>，SSH 私钥登录）做反弹 Shell 落地与中转：9000-9999 端口监听、非交互会话驱动、载荷投递、反向隧道",
       "whenToUse": "目标无法回连本机 / 需要公网固定监听端口 / 需要长期在线跳板 / 需要让智能体自己下发命令到反弹 Shell",
+      "attack": [
+        "T1105",
+        "T1571"
+      ],
       "why": "目标无法回连本机 / 需要公网固定监听端口 / 需要长期在线跳板 / 需要让智能体自己下发命令到反弹 Shell",
       "keys": [
         "VPS_IP",
@@ -4552,6 +5115,10 @@
       "domain": "web",
       "summary": "WAF / CDN / 限速绕过：先定指纹再选绕过法，含分块、参数污染、编码与出网伪装",
       "whenToUse": "载荷被拦（403/406/JS 挑战/连接重置）或目标在 CDN 后面时",
+      "attack": [
+        "T1027",
+        "T1190"
+      ],
       "why": "载荷被拦（403/406/JS 挑战/连接重置）或目标在 CDN 后面时",
       "keys": [
         "s_client",
@@ -4591,6 +5158,10 @@
       "domain": "recon",
       "summary": "Web 服务指纹识别：框架、中间件、CMS、组件版本，为漏洞检测准备弹药",
       "whenToUse": "已发现 HTTP/HTTPS 服务，需要识别技术栈时",
+      "attack": [
+        "T1518",
+        "T1592"
+      ],
       "why": "已发现 HTTP/HTTPS 服务，需要识别技术栈时",
       "keys": [
         "NET_SessionId",
@@ -4625,6 +5196,10 @@
       "domain": "web",
       "summary": "Web 载荷库：XSS / SSRF / XXE / 文件上传 / 越权 / JWT / 逻辑，含判定与绕过",
       "whenToUse": "确认了输入点，需要按漏洞类别上载荷并拿到可复现证据时",
+      "attack": [
+        "T1059",
+        "T1190"
+      ],
       "why": "确认了输入点，需要按漏洞类别上载荷并拿到可复现证据时",
       "keys": [
         "OAST_DOMAIN",
@@ -4661,6 +5236,11 @@
       "domain": "payload",
       "summary": "冰蝎 / 哥斯拉 / 中国蚁剑 的启动与用法，用于上传并管理 WebShell、维持访问、操作目标服务器",
       "whenToUse": "已获得上传点/文件写入/命令执行，需要落地并操作 WebShell 时",
+      "attack": [
+        "T1059",
+        "T1505",
+        "T1505.003"
+      ],
       "why": "已获得上传点/文件写入/命令执行，需要落地并操作 WebShell 时",
       "keys": [
         "DSH_HOME",
@@ -4707,6 +5287,10 @@
       "domain": "ot-hardware",
       "summary": "Use for authorized wireless security assessment including Wi-Fi capture, WPA handshake analysis, rogue AP detection research, and lab-only deauth testing.",
       "whenToUse": "Use for authorized wireless security assessment including Wi-Fi capture, WPA handshake ana",
+      "attack": [
+        "T1557",
+        "T1669"
+      ],
       "why": "Use for authorized wireless security assessment including Wi-Fi capture, WPA handshake ana",
       "keys": [
         "wifi-wireless",
@@ -4724,6 +5308,27 @@
       "domain": "identity",
       "summary": "域内渗透与 Windows 身份攻击：Kerberos 委派（非约束/约束/RBCD）、AD CS 证书滥用、BloodHound 攻击路径、ACL 滥用、DPAPI 凭据解密、LSASS 内存物料、NTLM 中继与强制认证、域内横向移动、域管提权。适用于只拿到一个普通域账号、问内网怎么打、域委派怎么利用、或者要从域用户提到 Domain Admin 时。",
       "whenToUse": "有域环境、域账号（哪怕普通用户）、要查委派/证书模板/ACL 路径、要做 Kerberos 票据攻击、要解 DPAPI 或 LSASS 里的凭据、要从域内一台机器横向到域控时加载",
+      "attack": [
+        "T1003.001",
+        "T1003.003",
+        "T1018",
+        "T1047",
+        "T1057",
+        "T1082",
+        "T1087",
+        "T1098",
+        "T1134",
+        "T1136",
+        "T1187",
+        "T1484",
+        "T1550.002",
+        "T1558",
+        "T1558.001",
+        "T1558.002",
+        "T1558.003",
+        "T1558.004",
+        "T1569"
+      ],
       "why": "有域环境、域账号（哪怕普通用户）、要查委派/证书模板/ACL 路径、要做 Kerberos 票据攻击、要解 DPAPI 或 LSASS 里的凭据、要从域内一台机器横向到域控时加载",
       "keys": [
         "DC_IP",

@@ -1,4 +1,148 @@
-# 1.1.114
+# 1.1.117 — 宿主启动崩溃的两个根因 + ATT&CK 编号检索
+
+本轮由「启动不了」触发。三个问题串在一起，前两个会让插件整体不可用，第三个让 1.1.113 的 ATT&CK 标注一直是死数据。
+
+### 一、宿主启动崩溃：71 条陈旧认证 cookie 撑爆请求头
+
+**症状**：双击宿主只弹一个对话框，标题「DeepSeek Harness 无法使用」，主进程活着但 host 子进程根本起不来。
+
+**根因**（不是插件的问题，但诊断方法值得留）：
+
+- 每次启动宿主都监听**随机端口**，而认证 cookie 名 = `dsh-auth-` + `sha256(authority)`，authority 里含端口。于是**每次启动都新增一条** cookie，旧条目永不清理。
+- 累计到 71 条后，Chromium 把它们全塞进 `Cookie` 头：16,178 字节，加上浏览器的常规头总长 16,875 字节 —— 越过 Node `http` 的默认 `maxHeaderSize`（16,384）。
+- 服务端直接回 **431 Request Header Fields Too Large**，而宿主 `connectDesktopWelcome` 只判 `!response.ok` 就抛 `desktop welcome: Web authentication failed`，崩溃报告里看到的只有这一句，完全看不出是 header 超限。
+
+**诊断路径**（关键在于分辨「host 起不来」还是「host 起来了但认证失败」）：
+
+1. 进程树里**没有** `dsh-desktop-host` 子进程 → 说明是启动链后半段失败，不是插件加载。
+2. 崩溃报告在 `%APPDATA%/@deepseek-ai/dsh-desktop/logs/crash-*.log`，`phase: startup`。
+3. 手工 spawn host 子进程（`ELECTRON_RUN_AS_NODE=1` + `--expose-internals`），拿到真实 URL 后直连：**303 + set-cookie 全正常** → host 本身健康，问题在 Electron 主进程的网络栈。
+4. 读 `lib/client-connection.js` 的 `cookieName()` 确认命名含 authority（端口）；读 Chromium cookie 库（`Network/Cookies` → `cookies` 表）看到 71 条 `dsh-auth-*`。
+5. 逐档构造 `Cookie` 头实测：60 条 → 14,371B → 401（正常未认证）；71 条 → 16,875B → **431**。阈值精确落在 16,384。
+
+**修复**：每个端口一条都是**一次性**的（token 换 cookie，进程退出即失效），只保留最新一条，删掉其余 70 条。
+
+**闸门**：无法做成闸门（这是宿主侧缺陷，插件不能改宿主文件）。改为在 `scripts/start-host.mjs` 文档里记录排查顺序，并在 skill 的坑位表里写明。
+
+### 二、宿主自杀式恢复把你 11 个第三方插件全关了
+
+崩溃后宿主弹出致命错误框，三个按钮里第三个是「禁用第三方插件、备份 profile patch 并重启」（`disableAllPlugins` → `sanitizeProfile`）。点它（或它被自动触发）之后：
+
+- `cordis.patch.yml`（5112 字节，你的 fandai/bendi 自定义模型 + tool-fs 读文件上限 + dsh-purge 的 `autoApplyOnStart: false`）被 **rename 成 `.bak-<时间戳>` 然后写回一个空的 `[]`**；
+- `package.json` 的 `dsh.profile.bundles` 从 12 个被改回 **只有 2 个官方 bundle**（`WEB_PROFILE.bundles`）—— 11 个第三方插件集体从 bundle 列表里消失。
+
+**这条最坑的地方**：它「备份并禁用」的意思是把原文件改名，但改名后的备份在同一次恢复流程里也可能被后续步骤清掉，于是用户手里只剩一个空 patch。本轮就是这种情况：`cordis.patch.yml.bak-1794700985383`（11-13 的旧备份）还在，但今天 08:03 生成的新备份没了。
+
+**修复**：从 11-13 的备份恢复 patch，并手工把 12 个 bundle 补回 `package.json`（`dsh-purge` 的 tarball 仍钉当前 SHA）。
+
+**教训**：这个按钮是**数据破坏性**的。宿主启动失败时优先读崩溃报告定位真因，不要点「禁用第三方插件」—— 它不会修好启动，只会把你的配置清空。
+
+### 三、ATT&CK 编号检索：1.1.113 的 77 个标注一直是死数据
+
+`purge_skills q=T1059` 回「技能库里没有匹配」。查索引发现 `skills-search.json` 的 `keys` 里**一个 ATT&CK 编号都没有** —— 而 1.1.113 明明给 119 个技能都打上了编号。
+
+根因：编号只写在技能正文表格里，而索引抽取只扫 `id + summary + whenToUse + headings`。**这是「加了等于白加」的第三次踩点**（前两次：文末段落读不到、验证层引用率为 2/116）。
+
+**修复分三层，每层都由实测推翻了一版设计**：
+
+1. **索引新增 `attack` 字段**（精确编号数组），不进 `keys`。为什么不进 `keys`：
+   - `T1190` 出现在 28 个技能里，会被「≥15% 泛词过滤」（阈值 18）整条剔除 —— 最常见的编号反而搜不到；
+   - `keys` 参与模糊打分（前缀/子串/反含），`T1059` 与 `T1059.001` 互相包含，查子技术会先拿到父技术的技能。
+2. **检索侧开 `attackQuery` 专用通道**，只做等值 + 父技术带出子技术，不参与模糊打分。
+3. **排序加两条规则**（都是实测撞出来的）：
+   - **深度加成 +14**：技能是否列出该技术的**子技术**。`shell-handler` 列 `T1059.001/.003/.004`（真把命令解释器当主业），`llm-security` 只列一个光秃秃的 `T1059`（提示注入的下游副作用）。不加这条时两者都是「精确命中 100 分」，靠字母序排 → 查 T1059 拿到「LLM 安全」而不是「怎么起 shell」。
+   - **参考表扣分 −26**：编号数 > 12 的技能是**映射参考表**不是操作手册。`attack-traceability` 正文一张表列了 23 个编号，任何编号都能在它这里「精确命中」——不扣分时它是**每个** ATT&CK 查询的第一名，答案全变成「怎么填映射表」。
+4. **覆盖过广的编号要说清楚**：`T1190` 有 28 个技能覆盖，是通用入口技术、没有单一专业户。输出里明说「首条只是排序结果，不代表最专精」，并点名按靶标形态挑（OA → cn-oa-exploit、API → api-security、AI → ai-infra-attack）。不说这句，模型会把首条当答案。
+
+新增技能正文里的编号**同时**被剔除出 `proper`（`extractProper` 的正则会把 `T1562` 当产品名收下，实测混进了 `edr-bypass-re` 的 keys）。
+
+### 闸门：第 34 关 `check-search-rank`
+
+进程内实测排序，**一律卡首条**（不卡「结果里有」——1.1.91 的教训就是这个）。
+
+`verify.mjs` 里把 `DSH_HOME` 指到空目录：`loadSearchIndex` 的候选顺序里 `$DSH_HOME/dsh-purge/skills-search.json` 优先于仓内，不处理的话闸门会读宿主的旧索引，本地改完照样绿、装到宿主才发现排序没生效。
+
+**反向探针验过两次**（这是闸门真在管事的证据）：
+- 清空 `attack` 字段 → 5 条查询全红（「没有任何结果」）；
+- 废掉 `depthBonus` + `spanPenalty` → `q=T1059` 首条退回 `llm-security`，闸门红。
+
+### 顺带
+
+- `check-search-index` 第 24 关扩了三条 ATT&CK 判据：`attack` 字段存在、覆盖率 ≥ 一半、编号不得混进 `keys`（这条当场抓到 `edr-bypass-re`）。
+- 三份 README 关卡口径 33 → 34，验证项列表补「编号检索」。
+- 版本 1.1.117。
+
+---
+
+# 1.1.117 — Two root causes behind the host startup crash + ATT&CK technique-id search
+
+Triggered by "it won't start". Three issues chained: the first two make the whole plugin unavailable, the third left every ATT&CK label from 1.1.113 as dead data.
+
+### 1. Startup crash: 71 stale auth cookies overflow the request header
+
+**Symptom**: launching the host shows a single dialog titled "DeepSeek Harness is unavailable"; the main process is alive but the host child process never comes up.
+
+**Root cause** (not the plugin's fault, but the diagnosis path is worth keeping):
+
+- Every launch listens on a **random port**, and the auth cookie name is `dsh-auth-` + `sha256(authority)` where authority contains the port. So **every launch adds one more cookie** and old entries are never cleaned up.
+- At 71 entries Chromium sends them all in the `Cookie` header: 16,178 bytes, 16,875 bytes total with ordinary browser headers — past Node `http`'s default `maxHeaderSize` (16,384).
+- The server answers **431 Request Header Fields Too Large**, and `connectDesktopWelcome` throws `desktop welcome: Web authentication failed` on any `!response.ok` — so the crash report shows only that one line, with no hint of a header overflow.
+
+**Diagnosis path** (the key is separating "host won't start" from "host started but auth failed"):
+
+1. The process tree has **no** `dsh-desktop-host` child → the failure is late in the startup chain, not plugin loading.
+2. Crash reports live in `%APPDATA%/@deepseek-ai/dsh-desktop/logs/crash-*.log`, `phase: startup`.
+3. Spawn the host child manually (`ELECTRON_RUN_AS_NODE=1` + `--expose-internals`), then hit the printed URL directly: **303 + set-cookie, all normal** → the host itself is healthy, the problem is in Electron's main-process network stack.
+4. Read `cookieName()` in `lib/client-connection.js` (name includes authority/port); read the Chromium cookie DB (`Network/Cookies` → `cookies` table) and find 71 `dsh-auth-*` rows.
+5. Build `Cookie` headers incrementally: 60 entries → 14,371B → 401 (normal unauthenticated); 71 entries → 16,875B → **431**. The threshold lands exactly at 16,384.
+
+**Fix**: each per-port cookie is single-use (token exchanges for a cookie, dead when the process exits), so keep only the newest and delete the other 70.
+
+### 2. The host's self-destructive recovery disabled all 11 third-party plugins
+
+After the crash the host shows a fatal dialog whose third button is "Disable third-party plugins, back up profile patch, and restart" (`disableAllPlugins` → `sanitizeProfile`). Once it runs:
+
+- `cordis.patch.yml` (5,112 bytes: your fandai/bendi custom models, the tool-fs read limits, and dsh-purge's `autoApplyOnStart: false`) is **renamed to `.bak-<timestamp>` and replaced with an empty `[]`**;
+- `package.json`'s `dsh.profile.bundles` drops from 12 back to **only the 2 official bundles** (`WEB_PROFILE.bundles`) — all 11 third-party bundles vanish.
+
+**The nastiest part**: "back up and disable" means renaming the original, but that backup can itself be pruned later in the same recovery flow, leaving only an empty patch. That is exactly what happened here: the old `cordis.patch.yml.bak-1794700985383` (Nov 13) survived, but the fresh 08:03 backup was gone.
+
+**Fix**: restore the patch from the Nov 13 backup and hand-restore the 12 bundles in `package.json` (keeping the current `dsh-purge` tarball SHA).
+
+**Lesson**: this button is **destructive**. When the host fails to start, read the crash report to find the real cause — do not press "disable third-party plugins". It does not fix startup; it only wipes your configuration.
+
+### 3. ATT&CK technique-id search: the 77 labels from 1.1.113 were dead data
+
+`purge_skills q=T1059` returned "no matching skill". The index's `keys` contained **zero** ATT&CK ids, even though 1.1.113 had labeled all 119 skills.
+
+Root cause: ids only appear in skill body tables, while index extraction scans `id + summary + whenToUse + headings`. **This is the third instance of "adding it equals adding nothing"** (the first two: content at the end of the file never read, verification-layer references at 2/116).
+
+**Fix in three layers, each revision forced by measurement**:
+
+1. **New `attack` field** in the index (exact ids), deliberately not in `keys`, because: `T1190` appears in 28 skills so the "≥15% generic-word filter" (threshold 18) would drop it entirely — the most common id becomes unsearchable; and `keys` feeds fuzzy scoring (prefix/substring/reverse-contain) where `T1059` and `T1059.001` contain each other, so querying a sub-technique would surface parent-technique skills first.
+2. **Dedicated `attackQuery` channel** in search: equality plus parent→child expansion only, no fuzzy scoring.
+3. **Two ranking rules**, both discovered by measurement:
+   - **Depth bonus +14**: does the skill list sub-techniques of this id? `shell-handler` lists `T1059.001/.003/.004` (command interpreter is its job); `llm-security` lists a bare `T1059` (command execution is a side effect of prompt injection). Without this both are "exact hit, 100 points" and alphabetical order decides — so `q=T1059` returned "LLM security" instead of "how to get a shell".
+   - **Reference-table penalty −26**: skills listing more than 12 ids are **mapping reference tables**, not playbooks. `attack-traceability` has a 23-row table in its body, so every id "exact-hits" there — without the penalty it ranks first for **every** ATT&CK query and every answer becomes "how to fill in the mapping table".
+4. **Say it out loud when an id is too broad**: `T1190` is covered by 28 skills — it is a common entry technique with no single specialist. The output states the first row is just a ranking result and names choices by target shape (OA → cn-oa-exploit, API → api-security, AI → ai-infra-attack). Without that line the model treats row one as the answer.
+
+Ids are also stripped from `proper` extraction (`extractProper`'s pattern treats `T1562` as a product name; it had leaked into `edr-bypass-re`'s keys).
+
+### Gate: 34th check, `check-search-rank`
+
+In-process ranking test that **asserts on the first row only** (never "the result contains it" — that was the 1.1.91 lesson).
+
+`verify.mjs` points `DSH_HOME` at an empty directory: `loadSearchIndex` prefers `$DSH_HOME/dsh-purge/skills-search.json` over the repo copy, so without this the gate reads the host's stale index, stays green locally, and only fails after installation.
+
+**Reverse probes run twice** (proof the gate actually guards ranking):
+- clearing the `attack` field → all 5 queries red ("no results");
+- disabling `depthBonus` + `spanPenalty` → `q=T1059` first row falls back to `llm-security`, gate red.
+
+### Also
+
+- Check 24 (`check-search-index`) gained three ATT&CK assertions: `attack` field present, coverage ≥ half, ids must not leak into `keys` (this one caught `edr-bypass-re` immediately).
+- All three READMEs bumped 33 → 34 gates, with "technique-id search" added to the list.
+- Version 1.1.117.# 1.1.114
 
 ## 中文
 
@@ -164,6 +308,54 @@ Five assertions on the atomics index, including bidirectional closure with the A
 200/404 consistency rules above.
 
 verify 31/31 green, ATT&CK v20.1, 124 techniques, 119/119 annotated, 555 atomic tests, host at 40492.
+# 1.1.116 — 排名表兜底把「未知」当「最差」
+
+## 中文
+
+一个陈旧缺陷的复发：`REVERT_RANK[x] ?? 0` 把**未登记**的状态算成最小值 0，而 0 恰好是 `applied` 的排名。于是 `worseRevertHit('failed', 'applied')` 返回 `'applied'` —— **坏结果被成功覆盖**，而那段代码上方的注释正写着「要防的就是这个」。
+
+1.1.107 修过 `APPLY_STATUS_RANK` 的同类问题，没吸取教训，所以这次连闸门一起补。
+
+修法：每个状态显式排名（`applied/skipped/na=0`、`missing=1`、`absent=2`、`reverted=3`、`failed=4`），未知状态给 `UNKNOWN_RANK=99` 浮到最高 —— 不认识的值不能悄悄当成「最好」或「最差」，必须让人看见。
+
+新增两关：
+- **第 32 关 INSERT 列完整性**：对全部 INSERT 做审计。结论是 `stage_code` 是孤例（1.1.115 已修），不是系统性缺陷。关键判据：真值来源必须用**真实库 PRAGMA**，不能用 DDL 文本（DDL 是源码里写的，能对上不能证明落库对了）。
+- **第 33 关枚举兜底语义**：静态扫 `?? 0` 类兜底。踩到的坑：必须先**整文件剥块注释**，否则注释里的示例代码会被当成真实代码报红。
+
+## English
+
+A recurrence of an old defect: `REVERT_RANK[x] ?? 0` treats **unregistered** states as the minimum 0, which happens to be `applied`'s rank. So `worseRevertHit('failed', 'applied')` returned `'applied'` — **a bad outcome silently overwritten by a good one**, directly contradicting the comment above that very code.
+
+`APPLY_STATUS_RANK` had the same bug fixed in 1.1.107; the lesson was not carried over, so this round adds the gates too.
+
+Fix: explicit rank per state (`applied/skipped/na=0`, `missing=1`, `absent=2`, `reverted=3`, `failed=4`) and `UNKNOWN_RANK=99` so unknown values float to the top — an unrecognized value must never be quietly treated as "best" or "worst".
+
+Two new gates:
+- **32: INSERT column integrity** — audited every INSERT. Conclusion: `stage_code` was a one-off (fixed in 1.1.115), not systemic. Key criterion: the truth source must be a **real library PRAGMA**, not the DDL text (matching the DDL proves nothing about what actually landed).
+- **33: enum fallback semantics** — static scan for `?? 0`-style fallbacks. Trap: block comments must be stripped from the **whole file first**, otherwise example code inside comments gets reported as real code.
+
+---
+
+# 1.1.115 — 图谱补第 4 层 references 与 stage_code 漏写库
+
+## 中文
+
+**图谱抽取只到第 3 层路径**，`references/`（第 4 层）一个都没入图：115 篇参考资料在图上完全不存在，于是「这个技能引了哪些深水材料」在图谱里查不到。补 `injectReferenceEdges()`，+115 节点 / +122 边，两种布局（`<refs>/<rel>` 扁平与 `<refs>/<skill-id>/<rel>` 独立目录）都要认。
+
+顺带修正 `name-communities.mjs` 的定位：它只该改名、不该动聚类。graphify label 每次都会重新聚类，拿旧社区的 id/相似度去迁移是死路。
+
+**真 bug**：`score_hit` 表有 `stage_code` 列、`addScoreHit` 收这个参数、**INSERT 却漏写** —— 于是 `scoreStageOf` 退化，五阶段塞分只有 `internet` 变 `done`。store 层同时补了 `LEGACY_STAGE_MAP` 映射，让两条入口（tool 层与 store 层）口径一致。
+
+## English
+
+**Graph extraction stopped at path depth 3**, so `references/` (depth 4) contributed zero nodes: 115 reference documents were absent from the graph and "which deep-dive material does this skill cite" was unanswerable. Added `injectReferenceEdges()`: +115 nodes / +122 edges, recognizing both layouts (`<refs>/<rel>` flat and `<refs>/<skill-id>/<rel>` per-skill dirs).
+
+Also corrected what `name-communities.mjs` is for: renaming only, never re-clustering. graphify label re-clusters on every run, so migrating old community ids/similarity is a dead end.
+
+**Real bug**: the `score_hit` table has a `stage_code` column, `addScoreHit` accepts the parameter, **and the INSERT never wrote it** — so `scoreStageOf` degraded and, of five stages seeded with points, only `internet` flipped to `done`. Added `LEGACY_STAGE_MAP` at the store layer so both entry paths (tool and store) agree.
+
+---
+
 # 1.1.113
 
 ## 中文

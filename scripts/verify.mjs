@@ -330,6 +330,29 @@ if (!skip("search")) {
   }
 }
 
+// 关 34：ATT&CK 编号检索排序（进程内实测，卡首条）。
+// 由来：1.1.113 给 77 个技能打了 ATT&CK 标签，但标签只写在正文表格里，而索引抽取只扫
+// id+summary+whenToUse+headings —— 编号一个都没进索引。实测 `q=T1059` 回「没有匹配」。
+// 这是「加了等于白加」的第三次踩点：内容写进正文了，读路径没覆盖到。
+// 修好后又暴露两层排序缺陷（都必须用闸门守，因为静态扫索引看不出来）：
+//   ① attack-traceability 是映射参考表（列 23 个编号），不扣分时它是**每个** ATT&CK
+//      查询的第一名 —— 答案全变成「怎么填映射表」；
+//   ② llm-security 只列一个顶层 T1059（提示注入的下游副作用），靠字母序压过
+//      shell-handler（真把命令解释器拆成 PowerShell/cmd/Unix Shell）。
+// 反向探针验过两次：清空 attack 字段 → 5 条全红；废掉 depthBonus+spanPenalty →
+// q=T1059 首条退回 llm-security，闸门红。所以这一关真的在管排序，不是白挂的。
+if (!skip("searchrank")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-search-rank.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`ATT&CK 编号检索排序未守住：${bad || (res.stderr || "").trim().split("\n")[0]}`);
+  } else {
+    const stat = out.find((l) => l.includes("首条")) || "";
+    notes.push(`编号检索：${stat.replace(/^\[check-search-rank\]\s*/, "").trim()}`);
+  }
+}
+
 // 关 23：事实库引用完整性——asset_id 不许指向不存在的资产。
 // 由来：2026-11-14 逻辑审阅实测，schema 里 24 张表没有任何 FOREIGN KEY，应用层原先也不校验，
 // asset_id=99999 会写入成功并可查回（asset_ip 为 null）。后果不是"多一条脏数据"：
