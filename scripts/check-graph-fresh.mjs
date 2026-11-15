@@ -73,7 +73,15 @@ try {
   process.exit(1);
 }
 
-const codeChanged = changed.filter((f) => /^(lib\/|scripts\/|bin\/).*\.(m?js|json)$/.test(f));
+/* **只有真源码改动才让 AST 失真**（1.1.125 修正）。
+   `lib/generated/*.json` 是**生成物**（skills-index / skills-search / skills-agents），
+   每次跑 build-skill-graph 都会变 —— 把它们算进「改了代码就必须重抽」，
+   会让闸门在「只改了技能内容」时也报红，把人逼到每次都跑 5 分钟 graphify。
+   实测：一次纯文档提交后，这个判据报了 4 个文件，其中 2 个是生成物。 */
+const GENERATED = /^(lib\/generated\/|graphify-out\/|presets\/|\.cache\/)/;
+const codeChanged = changed.filter(
+  (f) => /^(lib\/|scripts\/|bin\/).*\.(m?js|js)$/.test(f) && !GENERATED.test(f)
+);
 const sample = changed.slice(0, 5).join(", ");
 
 if (lag >= MAX_LAG) {

@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `28a2d3db`
+- Built from commit: `789f8aff`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,131 +19,131 @@
 - Offensive Security Attack Surfaces
 - Config & Preset Management
 - Child Process Execution
-- IP Address Utilities
-- Skill Management Commands
-- Skills Build Validation
-- Corpus Dimension Audit
-- Frontend Tab Components
-- Offensive Security Testing
-- Patch Anchoring & Host Upgrades
+- IP Network Utilities
+- Skills Management
+- Build Validation Scripts
+- Corpus Audit Dimensions
+- Frontend UI Tabs
+- Security Testing Playbooks
+- Host Patch Management
 - Capability Protocol Handling
 - Rules Management
 - Session Rewind & Replay
 - Prompt Assembly & Persona Injection
 - Skill Graph Builder
-- Network Access Control
+- net-scope.js
 - .db
-- Host Patching and Cleanup
-- Model Tool Building
-- Package Validation
-- Version Patch Checking
-- Override Install Management
-- Redteam UI Components
-- Redteam State Store
+- Desktop Patch Cleanup
+- Model Tool Commands
+- Package Check Script
+- Version & Text Utilities
+- Override Management
+- Redteam UI Tabs
+- Redteam Engagement Store
 - Offensive Security & Forensics
 - Reverse Engineering & Firmware Analysis
 - Config & Update Management
 - Build & Audit Scripts
 - Desktop Process Management
 - Prompt Injection & Phishing
-- dsh-purge.js
-- Uninstall Restart Flow
+- CLI Verification & Hygiene
+- Restart & Port Management
 - Store Reference Parity Checks
-- Chat Composer Input
+- Composer Draft & Rewind UI
 - Agent Role Binding
 - Toolkit Health Check
 - ATT&CK Technique Mapping
 - CLI Smoke Testing
 - Continue Retry Handling
-- Desktop Restart & ASAR Swap
-- Dock Geometry & UI Gates
-- Host Sync & Packaging
-- File Patching Utilities
+- Sealed Desktop Restart
+- Dock Management
+- Host Profile Sync
+- Filesystem Patch Shims
 - Command Routing Flags
-- Platform Path Config
-- Second-Shot Injection
-- Backup Snapshot Management
-- Directory Shim Discovery
-- Skill Availability Check
-- Vulnerability Issue Tracking
-- Search Index Key Analysis
-- Desktop App Executable Discovery
-- Smoke Test Fixtures
+- Platform Config & Path Detection
+- Second-Shot Injection Check
+- Backup and Snapshot Management
+- Directory and Path Discovery
+- Red Team Skill Check
+- Vulnerability Issue Reporting
+- Search Index Stats
+- Desktop App Discovery
+- Crypto Smoke Tests
 - Debt Report Generation
-- GitHub Release Workflow
-- Dependency Graph Audit
-- Package Attestation & Docs
-- Release Gate Checks
+- Release Workflow
+- Graph Audit
+- Project Assets & Package Attestation
+- Release Gates & Smoke Testing
 - AiBase Discovery
-- Installability Check
+- Installability Checks
 - Patch Surface Rendering
 - POC Knowledge Base
-- JS Reverse Engineering & Deobfuscation
-- Skill Runnability Check
-- Graph Edge Sync
-- Host Directory Sync
-- Shell Setup Script
-- API Client UI Components
-- Desktop Restart Handoff
+- Reverse Engineering & Deobfuscation
+- Skill Runnable Check
+- Graph Sync & Edges
+- Host Sync & Copy
+- Shell Setup Helpers
+- apiJson
+- Desktop Restart Handling
 - Database Insert Audit
 - Bilingual Locale Validation
-- Subagent Role Management
+- Subagent Role Tracking
 - Instruction Anchoring Gate
 - Locale Build
-- Windows Download Toolkit
+- Windows Toolkit CLI
 - Pentest Workflow Orchestration
-- Atomic Build Script
+- Atomic Build Pipeline
 - Market Data Sweep
-- Host Leftover Cleanup
+- Host Leftover Pruning
 - Pentest Attack Doctrine Framework
-- Asset Slot Table
-- Scope and CIDR Validation
+- Slot Table Key Management
+- Network Scope Validation
 - Patch Bucketing & Host Alignment
-- Skill-Doctrine Consistency Audit
+- Skill & Tool Consistency Audit
 - Score Radar & Fingerprinting
-- Client Build Script
+- Client Build & Source Drilling
 - Scope Gate Check
 - Preset Sync Parity
 - Tool Reachability Check
 - Graphify Labeling
 - Scenario Drill Runner
-- HTTP Replay Reporting
+- HTTP Request Replay
 - Prompt Injection Defense
 - Target File Resolution
 - Agent Settings Config
 - Desktop Surface Detection
-- Graph Validation Script
-- Tool Schema Check
+- Graph Check Script
+- Tool Schema Validation
 - Wordlist Fetching
 - MCP Server & Tool Contracts
 - Upstream Drift Check
-- Patch & Install
+- Patch & Bundle Install
 - Engagement Report Export
-- Status Rendering
-- Rules/Skills HTTP Handlers
-- Profile Guard & Health
-- Asset & Stage Management
+- Health Status Reporting
+- HTTP Route Handlers
+- Profile Patching & Health
+- Asset Stage Tracking
 - Attack Shot Files
 - Path Boundary Validation
-- Community Name Inference
+- Community Naming
 - Skill Heading Normalization
 - Bundled Plugin Sync
-- App Runtime Repair
+- Post-Unpack CLI Repair
 - ASAR Toggle Utility
-- Prompt Embedding Pipeline
+- Prompt Embedding Build
 - Host Prompt Cleaning
 - Package Exports Config
-- ASAR Switch Validation
-- Attack Suffix Checks
-- Continuity Checks
-- Search Rank Checks
+- ASAR Switch Checks
+- Attack Suffix Check
+- Continuity Check
+- Search Rank Check
 - Store Module
-- Clarify Behavior Judge
-- Desktop Install Path Utils
-- RewindSafe Error Boundary
-- RtBoundary Error Boundary
+- Clarify Behavior Check
+- Desktop Install Path Detection
+- React Error Boundary
+- React Error Boundary
 - React Error Boundaries
-- Prompt Persona Framework
+- LLM Prompt Framework
 
 ## God Nodes (most connected - your core abstractions)
 1. `RedteamStore` - 119 edges
@@ -231,31 +231,31 @@ Nodes (72): clearDrillGrant(), drillGrantPath(), readDrillGrant(), writeDrillGra
 Cohesion: 0.06
 Nodes (70): builtinChildProcess(), ChildProcess, cp, exec, execFile, execFileSync, execSync, fork (+62 more)
 
-### Community 5 - "IP Address Utilities"
+### Community 5 - "IP Network Utilities"
 Cohesion: 0.08
 Nodes (54): RFC-1918, cidrOf(), defaultPocFilename(), expandIpv6(), ipToInt(), isIpv6(), slugify(), slugPoc() (+46 more)
 
-### Community 6 - "Skill Management Commands"
+### Community 6 - "Skills Management"
 Cohesion: 0.10
 Nodes (61): handleSkillsCommand(), handleSkillsOp(), renderSkillsStatus(), assertImportSourceOutsideSkills(), assertInside(), backupExisting(), blockScalarValue(), copyDir() (+53 more)
 
-### Community 7 - "Skills Build Validation"
+### Community 7 - "Build Validation Scripts"
 Cohesion: 0.04
 Nodes (44): PROMPTS, checkOnly, dry, root, STEPS, factory, notes, problems (+36 more)
 
-### Community 8 - "Corpus Dimension Audit"
+### Community 8 - "Corpus Audit Dimensions"
 Cohesion: 0.04
 Nodes (40): corpus, DIMS, files, rows, coarse, DIR, files, PARENT_SUBS (+32 more)
 
-### Community 9 - "Frontend Tab Components"
+### Community 9 - "Frontend UI Tabs"
 Cohesion: 0.08
 Nodes (46): AgentsTab(), applyDrillParts(), AssetsTab(), AttackFilesTab(), bothInjectEmpty(), ChainTab(), clampRtGeom(), Clip() (+38 more)
 
-### Community 10 - "Offensive Security Testing"
+### Community 10 - "Security Testing Playbooks"
 Cohesion: 0.12
 Nodes (52): Agent 服从性工程：优先级、工具描述可信度、拒绝与执行的双向测试, Agent 安全测试：工具面、权限边界、记忆污染、多 Agent 信任传递, C2 基础设施实战手册, C2 流量分析（从防守方视角反推怎么改）, CI/CD 流水线攻击面：Workflow 注入、runner 滥用、secret 泄露, 数据库配置错误清单：五类库的危险默认项与一条命令查完, 主机持久化与痕迹清除：每条入口的落地位置、存活判据、留痕, Implant 加载器开发 (+44 more)
 
-### Community 11 - "Patch Anchoring & Host Upgrades"
+### Community 11 - "Host Patch Management"
 Cohesion: 0.09
 Nodes (48): 三条破损补丁 #77 / #68 / #26, 死补丁 #40 移除与 84 → 83 计数, 适配-0.2.1-rc.2-差异分析.md（宿主升级核对）, 0.2.2-rc.1 锚点漂移已修：7 条补丁重锚或补映射，实况 74/76（追平 0.2.1 基线）, 宿主实况：桌面 EXE 0.2.2-rc.1 / runtime 0.2.2-rc.1 / cordis 4.1.0, 0.2.2-rc.1 包搬家两例：PTC 执行器拆成 dsh-tool-executor-ptc、交付物提示词拆成 dsh-deliverable-file-references, #82 教训：打包注释 //#region 不能当锚点第二行, asar 密封态 = 补丁是否真生效的判据 (+40 more)
 
@@ -279,7 +279,7 @@ Nodes (45): ASSEMBLE_GUARD, assemblyHasExactInject(), assemblyLooksRedteam(), at
 Cohesion: 0.05
 Nodes (41): agents, assigned, byDomainStage, CN_NOISE, DOMAIN_RULES, dry, dupRel, EN_COMMON (+33 more)
 
-### Community 17 - "Network Access Control"
+### Community 17 - "net-scope.js"
 Cohesion: 0.09
 Nodes (43): core0(), defaultRenderStatus(), addHost(), allowCache, allowDecision(), allowFilePath(), appendDenial(), BANK_HOSTS (+35 more)
 
@@ -287,31 +287,31 @@ Nodes (43): core0(), defaultRenderStatus(), addHost(), allowCache, allowDecision
 Cohesion: 0.08
 Nodes (8): nowIso(), tunnelIsLegit(), normGained(), targetKey(), normalizeShellStatus(), normalizeShellType(), WEBSHELL_STATUSES, WEBSHELL_TYPES
 
-### Community 19 - "Host Patching and Cleanup"
+### Community 19 - "Desktop Patch Cleanup"
 Cohesion: 0.10
 Nodes (46): aiBaseBelongsToExe(), aiBaseUnderAppDir(), allPatchHostsWritten(), applyPatchesAllHosts(), applyRuntimeEnv(), clearDesktopLocateCache(), desktopAsarStillSealed(), ensureHostClean() (+38 more)
 
-### Community 20 - "Model Tool Building"
+### Community 20 - "Model Tool Commands"
 Cohesion: 0.08
 Nodes (31): BRIEF_SUFFIX, buildModelTools(), DRILL_ENTITIES, DRILL_WRITE_ENTITIES, escapeRe(), expandQuery(), isAsciiWord(), loadSearchIndex() (+23 more)
 
-### Community 21 - "Package Validation"
+### Community 21 - "Package Check Script"
 Cohesion: 0.05
 Nodes (40): asJson, CLAIM_FILES, CN, cnNum, declaredParams, descNumM, EN, fileKeyList (+32 more)
 
-### Community 22 - "Version Patch Checking"
+### Community 22 - "Version & Text Utilities"
 Cohesion: 0.06
 Nodes (39): argv, asPatched, asPostPatch, asWhitespace, cmpVer(), collapse(), collapsedIdx(), decodeLit() (+31 more)
 
-### Community 23 - "Override Install Management"
+### Community 23 - "Override Management"
 Cohesion: 0.14
 Nodes (43): main(), commitOverrideOnApply(), defaultOverrideHash(), defaultOverrideText(), editOverride(), findDshHome(), findOverrideFile(), hangOperatorPrompt() (+35 more)
 
-### Community 24 - "Redteam UI Components"
+### Community 24 - "Redteam UI Tabs"
 Cohesion: 0.10
 Nodes (36): AgentsTab(), apply(), AssetsTab(), AttackFilesTab(), ChainTab(), clampRtGeom(), Clip(), ConcurrencyCard() (+28 more)
 
-### Community 25 - "Redteam State Store"
+### Community 25 - "Redteam Engagement Store"
 Cohesion: 0.12
 Nodes (7): 真 bug：openEngagement 把 scope 串直接存进 scope_cidrs，导致 report() 的 .join 抛错, op=report：战报 / kind=score 得分报告 / kind=targets 目标汇总（零新增参数收纳，输出 2-16 行有界）, cidrList(), promptHash(), readMeta(), RedteamStore, writeMeta()
 
@@ -339,11 +339,11 @@ Nodes (33): 三份 spawnEnv 分叉：只有 desktop 那份兜底 DSH_PROFILE, �
 Cohesion: 0.16
 Nodes (35): default-prompt-inject.md（当前生效的注入正文）, default-prompt-inject.en.md（英文版注入正文）, default-prompt-inject.zh.md（中文版注入正文）, 草稿审查 R1–R8 缺陷清单, Scoped Rules 动态路由（25 条按意图激活）, 邮件认证检查清单：SPF / DKIM / DMARC 的判定与伪造成本, 邮箱滥用：转发、委派、OAuth 授权、拉信与持久化验证, OAuth 同意钓鱼全流程 (+27 more)
 
-### Community 32 - "dsh-purge.js"
+### Community 32 - "CLI Verification & Hygiene"
 Cohesion: 0.08
 Nodes (27): args, MODES, CLI 实时验收 --verify-live：契约表/补丁分桶/注入状态/路由 live 四查，有 ⚠ 即非 0, 关 10 磁盘卫生夹具 + 面板路由存活矩阵（12 条断言：阈值、负载形状、反腐蚀）, lib/mcp-server.js：MCP 协议单一来源 mcpRespond —— stdio 循环与宿主 HTTP 路由 POST /dsh-purge/mcp 共用, dirMb(), resolveResources(), ROUTE_PROBES (+19 more)
 
-### Community 33 - "Uninstall Restart Flow"
+### Community 33 - "Restart & Port Management"
 Cohesion: 0.07
 Nodes (25): child, portFree(), waitFree(), hostFromRequest(), portFromRequest(), restartArgv(), scheduleCleanupRestart(), scheduleRestart() (+17 more)
 
@@ -351,7 +351,7 @@ Nodes (25): child, portFree(), waitFree(), hostFromRequest(), portFromRequest(),
 Cohesion: 0.06
 Nodes (25): ANCHORS, CUSTOM, FACTORY, hits, problems, ROOT, failed, results (+17 more)
 
-### Community 35 - "Chat Composer Input"
+### Community 35 - "Composer Draft & Rewind UI"
 Cohesion: 0.11
 Nodes (25): armComposerFill(), clearStoredDraft(), ContinueButton(), conversationFace(), conversationInput(), currentSessionId(), dropInheritedQueue(), fillComposer() (+17 more)
 
@@ -375,19 +375,19 @@ Nodes (25): 关 11 CLI 冒烟：真跑 bin 的只读模式（此前十关没一�
 Cohesion: 0.12
 Nodes (26): ABNORMAL_KINDS, clampCount(), createTracker(), DEFAULT_CONTINUE_RETRY, failureCodeOf(), hasFreshHumanTurn(), inboxBusy(), inspectTurn() (+18 more)
 
-### Community 41 - "Desktop Restart & ASAR Swap"
+### Community 41 - "Sealed Desktop Restart"
 Cohesion: 0.10
 Nodes (28): scheduleSealedDesktopRestart(), ASAR_RENAME_WHEN_IDLE_PS1, ASAR_RENAME_WHEN_IDLE_SH, ASAR_SWAP_PS1, cmdEntryAlreadyGood(), INTERNAL_LOG_PATH, isSealedRuntimeDir(), jsString() (+20 more)
 
-### Community 42 - "Dock Geometry & UI Gates"
+### Community 42 - "Dock Management"
 Cohesion: 0.13
 Nodes (28): apply(), AuthGate(), clampDockGeom(), defaultDockGeom(), EnvAdaptSendGate(), fetchEnvAdaptStatus(), hasInlinePurgeEntry(), HeroNewSessionMount() (+20 more)
 
-### Community 43 - "Host Sync & Packaging"
+### Community 43 - "Host Profile Sync"
 Cohesion: 0.07
 Nodes (28): npm run host-sync：把「仓库 → 宿主 profile 副本」这条重复手工动作固化, 清单一致性闸门：COPY_NAMES（自更新）必须落在 files（发布）之内, COPY_NAMES, bin, dsh-purge, bugs, url, description (+20 more)
 
-### Community 44 - "File Patching Utilities"
+### Community 44 - "Filesystem Patch Shims"
 Cohesion: 0.13
 Nodes (29): applyPatches(), ensureDirSync(), fileKeysOf(), hasLegacyPermissionPin(), homeHasHarnessData(), insertShimInject(), isFile(), isTextShim() (+21 more)
 
@@ -395,39 +395,39 @@ Nodes (29): applyPatches(), ensureDirSync(), fileKeysOf(), hasLegacyPermissionPi
 Cohesion: 0.13
 Nodes (25): ALIASED, commandFor(), commandsForStage(), listWordlists(), NEEDS_PROXY, NUCLEI_FAST_FLAGS, nucleiReady(), PD_MUST_FLAG (+17 more)
 
-### Community 46 - "Platform Path Config"
+### Community 46 - "Platform Config & Path Detection"
 Cohesion: 0.19
 Nodes (26): adaptInDir(), assignToolkitFolder(), configPathOf(), defaultToolkitDir(), detectKali(), EMPTY(), envAdaptStatus(), findInDir() (+18 more)
 
-### Community 47 - "Second-Shot Injection"
+### Community 47 - "Second-Shot Injection Check"
 Cohesion: 0.08
 Nodes (25): asJson, files, minIdx, noSection, qualified, root, rows, SKILLS (+17 more)
 
-### Community 48 - "Backup Snapshot Management"
+### Community 48 - "Backup and Snapshot Management"
 Cohesion: 0.17
 Nodes (27): backupAll(), collectRevertTargets(), dropStaleUserProfilePatchBackups(), ensureOfficialSnapshot(), flattenTargetPaths(), hasBackup(), hostBakDigest(), hostBakVaultRoot() (+19 more)
 
-### Community 49 - "Directory Shim Discovery"
+### Community 49 - "Directory and Path Discovery"
 Cohesion: 0.17
 Nodes (26): collectDirs(), dirHasDshLauncher(), displayTitleOf(), execFileText(), findAiBase(), findAiBaseWeb(), findDesktopShimDir(), findNpmPrefix() (+18 more)
 
-### Community 50 - "Skill Availability Check"
+### Community 50 - "Red Team Skill Check"
 Cohesion: 0.14
 Nodes (23): 进攻力体检：红队 32 技能可用 32、坏 0；单查给出缺的环境变量与修法, bundledSkillSummaries(), checkSkill(), dshHomeCandidates(), existsUnderAnyHome(), expandSkillPath(), pathCountsOnThisHost(), readSkillFromRoot() (+15 more)
 
-### Community 51 - "Vulnerability Issue Tracking"
+### Community 51 - "Vulnerability Issue Reporting"
 Cohesion: 0.14
 Nodes (23): SEVERITIES, VULN_STATUSES, ASSET_PRIORITIES, ASSET_TEST_STATES, issue(), LEGACY_STAGES, parseScopeString(), renderIssue() (+15 more)
 
-### Community 52 - "Search Index Key Analysis"
+### Community 52 - "Search Index Stats"
 Cohesion: 0.08
 Nodes (23): attackInKeys, avg, avgKeys, freq, idx, keySets, keyTotal, leftover (+15 more)
 
-### Community 53 - "Desktop App Executable Discovery"
+### Community 53 - "Desktop App Discovery"
 Cohesion: 0.19
 Nodes (23): desktopHomeCandidates(), commonDesktopInstallDirs(), exeCandidatesBeside(), exeDirFromRegistryValue(), extraDiscoveredInstallDirs(), extraInstallsFromEnv(), findDesktopAppExecutable(), firstExistingExe() (+15 more)
 
-### Community 54 - "Smoke Test Fixtures"
+### Community 54 - "Crypto Smoke Tests"
 Cohesion: 0.09
 Nodes (17): beforePending, childFile, expected, expectedSrc, fakeBase, fixture, home, hostBase (+9 more)
 
@@ -435,19 +435,19 @@ Nodes (17): beforePending, childFile, expected, expectedSrc, fakeBase, fixture, 
 Cohesion: 0.09
 Nodes (21): argv, checkDebt, day, dbPath, debtLines, failures, liveLines, md (+13 more)
 
-### Community 56 - "GitHub Release Workflow"
+### Community 56 - "Release Workflow"
 Cohesion: 0.09
 Nodes (21): concurrency, cancel-in-progress, group, GH_TOKEN, jobs, release, name, on (+13 more)
 
-### Community 57 - "Dependency Graph Audit"
+### Community 57 - "Graph Audit"
 Cohesion: 0.10
 Nodes (21): asJson, deadExports, fileInbound, g, graphBlind, graphPath, hasName(), inbound (+13 more)
 
-### Community 58 - "Package Attestation & Docs"
+### Community 58 - "Project Assets & Package Attestation"
 Cohesion: 0.14
 Nodes (20): banner.svg（720×180 项目横幅）, dock-auth.png（850×925，演练台授权页截图）, dock-clean.png（800×850，清洗页侧栏截图）, dock-drill.png（900×850，演练台截图）, own-servers.png（652×509，自己的服务器白名单截图·中文）, own-servers-en.png（652×505，自己的服务器白名单截图·英文）, rules.png（1064×1244，规则集截图）, settings.png（1064×1972，补丁页截图） (+12 more)
 
-### Community 59 - "Release Gate Checks"
+### Community 59 - "Release Gates & Smoke Testing"
 Cohesion: 0.10
 Nodes (18): 发版七关闸门：语法 / 体积预算 / 双语 key 一致性 / 清单一致性 / 包自证 / 工具面 / JSON 合法（npm run verify 一票过）, 生态 tag 口径门禁：7 个 tag 全部满足「2000 条样本在用 + purge 真具备」，词形分裂按生态现状并存, 图谱审计：文件级孤儿判红；导出级只报线索（含结构边修正与 79% 盲区率）, 闸门反向探针总表：每道门都要有「改坏即红」的证据，否则等于不知道真假, 端到端情景第八关：20 步串 op 并断言回读，专抓组合期「说谎的回读」与跨 op 不一致, 工具面闸门 check-tools：结构 + 描述预算 + 返回值预算 + op/entity 可发现性（七关之一）, 关 13 工具层冒烟：真执行 purge_apply / purge_revert（mutating 工具分支此前没有一关跑过）, 关 12 写路径冒烟：夹具起点用保险柜原文；单次 apply→revert 哈希精确等于官方；双次 apply 污染还原点（5 文件停在一次已打补丁态） (+10 more)
 
@@ -455,7 +455,7 @@ Nodes (18): 发版七关闸门：语法 / 体积预算 / 双语 key 一致性 / 
 Cohesion: 0.18
 Nodes (21): aiBaseGuessesAround(), aiBaseGuessesFor(), dshBaseEnvStatus(), enumeratePatchAiBases(), findAiBaseDesktop(), findAiBaseFromDshHome(), findAiBaseFromRequire(), findAiBaseFromRunningProcess() (+13 more)
 
-### Community 61 - "Installability Check"
+### Community 61 - "Installability Checks"
 Cohesion: 0.12
 Nodes (19): ALIAS, checkOnly, drift, dry, esc(), files, has(), have (+11 more)
 
@@ -467,31 +467,31 @@ Nodes (19): clientGuessSurface(), detectHostTheme(), hostSurfaceOf(), hostText()
 Cohesion: 0.17
 Nodes (4): purge_drill：56 个 preset 平面工具收成聚合入口，18 op（读 8 + 写面收纳 update 四方法 / delete 三方法 / open / switch）, 组合式收纳：一个 entity 参数换 10 读面 + 13 写面（POC 五面闭环、资产登记/评估/测试回写）, op=entity_add：一个 op 覆盖六个写面（+92 字符 ≈15/面），shot/poc 明确不接并说明原因, pocCategoryName()
 
-### Community 64 - "JS Reverse Engineering & Deobfuscation"
+### Community 64 - "Reverse Engineering & Deobfuscation"
 Cohesion: 0.11
 Nodes (19): 反分析技术总览：检测点、绕过、残留, AST 去混淆：从混淆态还原到可读逻辑, 自动化入口：从「看到混淆 JS」到「可执行任务」的入口判定, 补环境：让 Node 跑得动浏览器代码, 回退策略：主路径失败的四类原因与替代路径, 插桩：把运行时变成可观察的白盒, 本地复现：把远程逻辑搬到本机跑起来, MCP 专用任务编排（jshookmcp / browser MCP） (+11 more)
 
-### Community 65 - "Skill Runnability Check"
+### Community 65 - "Skill Runnable Check"
 Cohesion: 0.11
 Nodes (16): argvLimit, asJson, files, have, LINUX_MARKS, linuxRows, missRows, root (+8 more)
 
-### Community 66 - "Graph Edge Sync"
+### Community 66 - "Graph Sync & Edges"
 Cohesion: 0.23
 Nodes (18): edgesOf(), ensureBaseline(), fail(), FILE_TYPES, foldRationale(), hyperEdgesOf(), INFERRED_OK, injectReferenceEdges() (+10 more)
 
-### Community 67 - "Host Directory Sync"
+### Community 67 - "Host Sync & Copy"
 Cohesion: 0.11
 Nodes (16): argv, copyDir, copyMatches(), dryRun, force, head, home, m (+8 more)
 
-### Community 68 - "Shell Setup Script"
+### Community 68 - "Shell Setup Helpers"
 Cohesion: 0.27
 Nodes (18): ask(), ask_secret(), bad(), BIN, cur_env(), dim(), dl_asset(), doctor() (+10 more)
 
-### Community 69 - "API Client UI Components"
+### Community 69 - "apiJson"
 Cohesion: 0.15
 Nodes (18): apiJson(), apiTimeoutMs(), apiUrl(), Btn(), clientCurrentCwd(), ContinueRetrySection(), formatSize(), isAbortError() (+10 more)
 
-### Community 70 - "Desktop Restart Handoff"
+### Community 70 - "Desktop Restart Handling"
 Cohesion: 0.18
 Nodes (18): rememberDesktopInstallForHandoff(), cleanupLegacyRestartScripts(), desktopRestartChoice(), desktopRuntimeOf(), dshHomeForRelaunch(), helperEnv(), isDesktopExecutable(), logInternal() (+10 more)
 
@@ -503,7 +503,7 @@ Nodes (14): db, inserts, KEY, s, src, tableNames, tables, tmp (+6 more)
 Cohesion: 0.13
 Nodes (13): 双语字典 328×2 key 必须一模一样（按连续文案行自动发现块，不硬编码行号）, 双语文案拆开：源在 locale/*.json，运行时仍走构建期内联（拆源不拆加载）, argv, asJson, blocks, dicts, expectBlocks, file (+5 more)
 
-### Community 73 - "Subagent Role Management"
+### Community 73 - "Subagent Role Tracking"
 Cohesion: 0.28
 Nodes (15): currentEngagementId(), evictRoleBySessionIfOverflow(), installSubagentRoleCapture(), isRedteamChild(), noteClaimedMessage(), parseRedteamRole(), readRoleFile(), remember() (+7 more)
 
@@ -515,7 +515,7 @@ Nodes (15): apply(), buildInstructionHint(), classifyReasoning(), countWord(), d
 Cohesion: 0.13
 Nodes (13): block, checkOnly, clientPath, crlf, die(), en, marked, onlyEn (+5 more)
 
-### Community 76 - "Windows Download Toolkit"
+### Community 76 - "Windows Toolkit CLI"
 Cohesion: 0.14
 Nodes (12): argv, checkOnly, download(), exists(), force, NL, onlyIdx, picks (+4 more)
 
@@ -523,7 +523,7 @@ Nodes (12): argv, checkOnly, download(), exists(), force, NL, onlyIdx, picks (+4
 Cohesion: 0.22
 Nodes (15): 自动化循环模式：观察→假设→验证→落库，以及何时退出, 渗透工具选型速查：按任务给首选与替代, Burp 与 MCP 协作：API 暴露面、批量请求、扫描器触发, 客户端实验手册：本地靶场、代理配置、插件、复现模板, AI Agent 能力矩阵：哪些任务该交给 Agent，哪些不该, 渗透循环：五阶段迭代与阶段间交接物, 侦察流水线：子域 → 解析 → 存活 → 指纹 → 目录，每步的输入输出, 角色 流程/编排（9 个技能） (+7 more)
 
-### Community 78 - "Atomic Build Script"
+### Community 78 - "Atomic Build Pipeline"
 Cohesion: 0.15
 Nodes (13): CACHE, cdnPath(), failed, fetchOne(), ids, index, OUT, results (+5 more)
 
@@ -531,7 +531,7 @@ Nodes (13): CACHE, cdnPath(), failed, fetchOne(), ids, index, OUT, results (+5 m
 Cohesion: 0.16
 Nodes (13): all, asJson, BASELINE, both, cacheFile, diffs, FIELDS(), got (+5 more)
 
-### Community 80 - "Host Leftover Cleanup"
+### Community 80 - "Host Leftover Pruning"
 Cohesion: 0.13
 Nodes (12): anchor, apply, asJson, candidates, entries, keepArg, prevs, reclaim (+4 more)
 
@@ -539,11 +539,11 @@ Nodes (12): anchor, apply, asJson, candidates, entries, keepArg, prevs, reclaim 
 Cohesion: 0.21
 Nodes (14): v1.1.34-prompt-inject.md（历史版本快照）, WEB PENTEST ROUTING 与 canned slots（技能路由表的前身）, ZERO-LATENCY INTERRUPT 与 Σ Integration（旧版思维框架）, 生成物即资产：工程性 / 连续性 / 项目性三纪律, 进攻条令 — ATTACK DOCTRINE（输出即火力）, 火力阶梯五级（打光弹药才停火）, 五阶段主线（信息收集→资产梳理→漏洞发现→漏洞利用→内网渗透）, release-notes.md（1.1.72 → 1.1.83 演化史） (+6 more)
 
-### Community 82 - "Asset Slot Table"
+### Community 82 - "Slot Table Key Management"
 Cohesion: 0.24
 Nodes (9): IV, MASK, SLOT, SLOT_ROWS, TAG, MIX, mixKey(), sealSlot() (+1 more)
 
-### Community 83 - "Scope and CIDR Validation"
+### Community 83 - "Network Scope Validation"
 Cohesion: 0.30
 Nodes (13): checkAction(), checkTarget(), checkTechnique(), cidrInsideCidr(), ipInCidr(), ipv4ToInt(), isDomain(), isIpv4() (+5 more)
 
@@ -551,7 +551,7 @@ Nodes (13): checkAction(), checkTarget(), checkTechnique(), cidrInsideCidr(), ip
 Cohesion: 0.21
 Nodes (12): markersAny=true 的补丁：applied 只代表「至少打了一处」，会藏半个没打的门, 状态面升级：补丁按 已清洗/待清洗/锚点未命中/不适用/缺文件 分桶 + 宿主版本对齐告警, 未安装项整体摘除：83 → 76 条补丁，面板 0 不适用 / 0 缺文件, ADAPTERS, dshHostVersion(), hostAdapter(), hostAlignment(), readJsonVersion() (+4 more)
 
-### Community 85 - "Skill-Doctrine Consistency Audit"
+### Community 85 - "Skill & Tool Consistency Audit"
 Cohesion: 0.15
 Nodes (12): 关 9 弹药层一致性审计：技能引用的工具名与条令点名的技能都必须真实存在, asJson, doctrineFiles, ghostRefs, linkProblems, missingSkills, realTools, root (+4 more)
 
@@ -559,7 +559,7 @@ Nodes (12): 关 9 弹药层一致性审计：技能引用的工具名与条令�
 Cohesion: 0.23
 Nodes (12): aggregateHits(), COST_LABEL, FINGERPRINT_RULES, hostKey(), looksWebHost(), matchFingerprints(), radarOneLine(), radarState() (+4 more)
 
-### Community 87 - "Client Build Script"
+### Community 87 - "Client Build & Source Drilling"
 Cohesion: 0.15
 Nodes (12): applyAt, beginAt, body, client, clientPath, drillSrc, end, endAt (+4 more)
 
@@ -583,7 +583,7 @@ Nodes (10): batchSize, cfgPath, env, extra, labelsPath, maxConcurrency, missingO
 Cohesion: 0.21
 Nodes (12): drill, failures, has(), liveStore, main(), not(), re(), root (+4 more)
 
-### Community 93 - "HTTP Replay Reporting"
+### Community 93 - "HTTP Request Replay"
 Cohesion: 0.29
 Nodes (7): RFC-3986, buildCurlCommand(), buildHttpRequest(), commandKind(), fillTemplate(), parseCurl(), parseTarget()
 
@@ -603,11 +603,11 @@ Nodes (11): clampMaxAgents(), DEFAULT_MAX_AGENTS, MAX_AGENTS_LIMIT, maxAgentsOf(
 Cohesion: 0.33
 Nodes (10): adoptSurfaceForAiBase(), aiBaseLooksDesktopInstall(), exeName(), forcedSurface(), isDesktopSurface(), norm(), pathLooksDesktop(), resourcesLookLikeDesktopInstall() (+2 more)
 
-### Community 98 - "Graph Validation Script"
+### Community 98 - "Graph Check Script"
 Cohesion: 0.20
 Nodes (11): comms, fallback, html, ids, isFallback(), notes, out, problems (+3 more)
 
-### Community 99 - "Tool Schema Check"
+### Community 99 - "Tool Schema Validation"
 Cohesion: 0.17
 Nodes (9): ASAR, ASAR_CANDIDATES, asarLib, CACHE, names, problems, ROOT, src (+1 more)
 
@@ -623,7 +623,7 @@ Nodes (9): 社区情报主文档：独占性、目录规模、restart∩patch=0�
 Cohesion: 0.24
 Nodes (10): 上游漂移探测 check:upstream：latest vs dshTarget vs engines，越界才判失败、离线只报未知, asJson, cmp(), core3(), inRange(), pkg, range, root (+2 more)
 
-### Community 103 - "Patch & Install"
+### Community 103 - "Patch & Bundle Install"
 Cohesion: 0.18
 Nodes (11): patch, inject, platform, dsh, bundle, client, install, git (+3 more)
 
@@ -631,19 +631,19 @@ Nodes (11): patch, inject, platform, dsh, bundle, client, install, git (+3 more)
 Cohesion: 0.18
 Nodes (9): argv, id, name, outDir, outFile, rep, shotsDst, shotsSrc (+1 more)
 
-### Community 105 - "Status Rendering"
+### Community 105 - "Health Status Reporting"
 Cohesion: 0.24
 Nodes (10): printStatus(), alignSummary 建议行分档 + 设计内 skipped 清单（DESIGN_SKIPPED_VERIFIED，带 checkedAgainst/证据文档，第 22 项守它别烂）, alignSummary(), estimateTokens(), hostEnumerationLine(), patchTally(), tallyDisplayPatches(), line() (+2 more)
 
-### Community 106 - "Rules/Skills HTTP Handlers"
+### Community 106 - "HTTP Route Handlers"
 Cohesion: 0.31
 Nodes (10): installRulesHttp(), installSkillsHttp(), methodNotAllowed(), readJsonBody(), registerRoute(), rulesHttpHandler(), sendJson(), sendOptions() (+2 more)
 
-### Community 107 - "Profile Guard & Health"
+### Community 107 - "Profile Patching & Health"
 Cohesion: 0.44
 Nodes (9): guardProfilePatch(), inspectHostHealth(), listPatchBackups(), missingPackages(), packageInstalled(), packageOf(), profilePatchIsEmpty(), sanitizePatchText() (+1 more)
 
-### Community 108 - "Asset & Stage Management"
+### Community 108 - "Asset Stage Tracking"
 Cohesion: 0.20
 Nodes (3): scopeOfIp(), parseJson(), scoreStageOf()
 
@@ -651,7 +651,7 @@ Nodes (3): scopeOfIp(), parseJson(), scoreStageOf()
 Cohesion: 0.20
 Nodes (7): allowed, failed, results, ROOT, secret, tmp, validatePath
 
-### Community 111 - "Community Name Inference"
+### Community 111 - "Community Naming"
 Cohesion: 0.20
 Nodes (7): byComm, g, gp, hp, labels, lp, still
 
@@ -663,7 +663,7 @@ Nodes (9): checkOnly, demote(), dropRedundantH1(), dry, files, normalize(), rema
 Cohesion: 0.22
 Nodes (8): argv, BUNDLES, dry, force, pluginDirs(), pluginRootFiles(), root, walk()
 
-### Community 114 - "App Runtime Repair"
+### Community 114 - "Post-Unpack CLI Repair"
 Cohesion: 0.28
 Nodes (9): repairOfficialCliAfterUnpack(), ensureAppRuntimeSymlink(), isDir(), packageRootsFromInstall(), repairOfficialCliAfterUnpack(), resourceDirCandidates(), resourcesDirForExecutable(), sameBase() (+1 more)
 
@@ -671,7 +671,7 @@ Nodes (9): repairOfficialCliAfterUnpack(), ensureAppRuntimeSymlink(), isDir(), p
 Cohesion: 0.22
 Nodes (6): findResourcesDir(), appDir, argv, asar, parked, res
 
-### Community 116 - "Prompt Embedding Pipeline"
+### Community 116 - "Prompt Embedding Build"
 Cohesion: 0.22
 Nodes (7): embed-prompt, dest, packed, root, src, text, 发版固定流程：改 md 源 → embed-prompt 重封入 asset-table.js → bump 三份 README → pnpm update
 
@@ -683,19 +683,19 @@ Nodes (7): systemPromptFiles(), unpackedHostIsClean(), HOST_CLEAN_IDENTITY_MARK,
 Cohesion: 0.25
 Nodes (8): exports, ./client, ./locale/*.json, ./package.json, ./redteam, ./redteam/store, ./redteam/tools, ./redteam/ui
 
-### Community 119 - "ASAR Switch Validation"
+### Community 119 - "ASAR Switch Checks"
 Cohesion: 0.25
 Nodes (4): checks, problems, root, toggle
 
-### Community 120 - "Attack Suffix Checks"
+### Community 120 - "Attack Suffix Check"
 Cohesion: 0.25
 Nodes (6): avg, DIR, FAMILIES, files, problems, rows
 
-### Community 121 - "Continuity Checks"
+### Community 121 - "Continuity Check"
 Cohesion: 0.25
 Nodes (7): all, byTitle, fails, problems, ROOT, s, tmp
 
-### Community 122 - "Search Rank Checks"
+### Community 122 - "Search Rank Check"
 Cohesion: 0.25
 Nodes (7): announce, bogus, bogusText, cases, problems, ROOT, semanticCases
 
@@ -703,15 +703,15 @@ Nodes (7): announce, bogus, bogusText, cases, problems, ROOT, semanticCases
 Cohesion: 0.38
 Nodes (5): apply(), inject, name, readSelfPackage(), resolveRoot()
 
-### Community 124 - "Clarify Behavior Judge"
+### Community 124 - "Clarify Behavior Check"
 Cohesion: 0.33
 Nodes (6): extractBlock(), judge(), notes, problems, root, userFp
 
-### Community 125 - "Desktop Install Path Utils"
+### Community 125 - "Desktop Install Path Detection"
 Cohesion: 0.40
 Nodes (6): inferDesktopInstallDir(), isInsideDesktopInstall(), isSubPath(), looksLikeDesktopNameTail(), slashNorm(), isPackagedDesktopDshRoot()
 
-### Community 129 - "Prompt Persona Framework"
+### Community 129 - "LLM Prompt Framework"
 Cohesion: 0.50
 Nodes (4): CTF CORE CONTRACT / SCOPE / EVIDENCE / WORKFLOW 四段, Little Code Sauce / YG 人格框架（SANDBOX — STABLE）, HARD OUTPUT RULES + 拒绝对抗（禁止词表与整轮重写）, collectInjectText()
 
@@ -727,17 +727,17 @@ Nodes (4): CTF CORE CONTRACT / SCOPE / EVIDENCE / WORKFLOW 四段, Little Code S
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `README.md（中文主文档）` connect `Package Attestation & Docs` to `dsh-purge.js`, `Update & Channel Management`, `Core Utilities`, `Skill Management Commands`, `Bilingual Locale Validation`, `Frontend Tab Components`, `Host Sync & Packaging`, `Capability Protocol Handling`, `Rules Management`, `Session Rewind & Replay`, `Patch Anchoring & Host Upgrades`, `Network Access Control`, `Pentest Attack Doctrine Framework`, `Patch Bucketing & Host Alignment`, `Prompt Injection Defense`, `Release Gate Checks`, `Desktop Process Management`?**
+- **Why does `README.md（中文主文档）` connect `Project Assets & Package Attestation` to `CLI Verification & Hygiene`, `Update & Channel Management`, `Core Utilities`, `Skills Management`, `Bilingual Locale Validation`, `Frontend UI Tabs`, `Host Profile Sync`, `Capability Protocol Handling`, `Rules Management`, `Session Rewind & Replay`, `Host Patch Management`, `net-scope.js`, `Pentest Attack Doctrine Framework`, `Patch Bucketing & Host Alignment`, `Prompt Injection Defense`, `Release Gates & Smoke Testing`, `Desktop Process Management`?**
   _High betweenness centrality (0.111) - this node is a cross-community bridge._
 - **What connects `RFC-1918`, `BIN`, `RFC-3986` to the rest of the system?**
   _112 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Core Utilities` be split into smaller, more focused modules?**
   _Cohesion score 0.048153214774281805 - nodes in this community are weakly interconnected._
-- **Why does `release-notes.md（1.1.72 → 1.1.83 演化史）` connect `Pentest Attack Doctrine Framework` to `Update & Channel Management`, `Offensive Security & Forensics`, `MCP Server & Tool Contracts`, `IP Address Utilities`, `Bilingual Locale Validation`, `Frontend Tab Components`, `Offensive Security Testing`, `Patch Anchoring & Host Upgrades`, `Prompt Assembly & Persona Injection`, `Package Attestation & Docs`, `Prompt Injection & Phishing`?**
+- **Why does `release-notes.md（1.1.72 → 1.1.83 演化史）` connect `Pentest Attack Doctrine Framework` to `Update & Channel Management`, `Offensive Security & Forensics`, `MCP Server & Tool Contracts`, `IP Network Utilities`, `Bilingual Locale Validation`, `Frontend UI Tabs`, `Security Testing Playbooks`, `Host Patch Management`, `Prompt Assembly & Persona Injection`, `Project Assets & Package Attestation`, `Prompt Injection & Phishing`?**
   _High betweenness centrality (0.083) - this node is a cross-community bridge._
 - **Should `Update & Channel Management` be split into smaller, more focused modules?**
   _Cohesion score 0.06974789915966387 - nodes in this community are weakly interconnected._
-- **Why does `RedteamStore` connect `Redteam State Store` to `IP Address Utilities`, `Engagement Report Export`, `Asset & Stage Management`, `Attack Shot Files`, `Platform Path Config`, `.db`, `Model Tool Building`, `Store Module`, `Scenario Drill Runner`, `HTTP Replay Reporting`, `POC Knowledge Base`?**
+- **Why does `RedteamStore` connect `Redteam Engagement Store` to `IP Network Utilities`, `Engagement Report Export`, `Asset Stage Tracking`, `Attack Shot Files`, `Platform Config & Path Detection`, `.db`, `Model Tool Commands`, `Store Module`, `Scenario Drill Runner`, `HTTP Request Replay`, `POC Knowledge Base`?**
   _High betweenness centrality (0.049) - this node is a cross-community bridge._
 
 ### Low-confidence Hints
