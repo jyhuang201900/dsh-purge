@@ -203,12 +203,14 @@ Set-ADAccountPassword -Identity svc_victim -Reset `
 对某个 GPO 对象有 `GenericWrite`，且该 GPO **link 到了包含目标主机的 OU** → 你能让目标主机执行任意配置。
 两条落地方式：改本地管理员组成员（`Restricted Groups`）、加开机脚本/计划任务。
 
-```bash
+```powershell
 # 枚举 GPO 与链接（RSAT；无 RSAT 则用 LDAP 直查 gPLink）
 Get-GPO -All | Select-Object DisplayName, Id, GpoStatus
 Get-GPOReport -Name "Workstations Policy" -ReportType Xml -Path .\gpo.xml
+```
 
-# 无 RSAT 时：看某个 OU 上挂了哪些 GPO
+```bash
+# 无 RSAT 时：看某个 OU 上挂了哪些 GPO（Linux 跳板机上可直接跑）
 ldapsearch -x -H ldap://10.0.0.10 -D 'user@corp.local' -w 'pass' \
   -b 'OU=Workstations,DC=corp,DC=local' '(objectClass=organizationalUnit)' gPLink
 

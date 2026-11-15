@@ -322,6 +322,22 @@ second-shot:end -->
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`、`impacket`、`netexec`、`nxc`、`bloodhound`、`mimikatz`
+- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
+- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
+- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
+- `nxc`：同 `netexec`：本机没有。用 `fscan` 初筛 SMB；需要 PtH/WinRM 精确验证时 `python -m pip install netexec`
+- `bloodhound`：采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可
+- `mimikatz`：**只能拷到目标机跑**（它读的是目标内存里的凭据，本机跑没有任何意义）。本机只需准备二进制：`Invoke-Mimikatz` 官方 release 或 `python -m pip install pypykatz`（离线解析目标 dump 出来的 lsass.dmp）
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -337,17 +353,3 @@ second-shot:end -->
 - **配套工具**（做完这步要落库/查询时用，别只记在上下文里）：`redteam_sessions`（一屏看已上线 WebShell、隧道可达网段、凭据、访问会话）；`redteam_sessions`（同上：判断现在能往哪走，别凭记忆）
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`hashcat`、`impacket`、`netexec`、`nxc`、`bloodhound`、`mimikatz`
-- `hashcat`：官方只发 `hashcat-<ver>.7z`（多平台包，需 7z 解压后取 `hashcat.exe`）。**注意：CPU 跑慢**，先小字典+规则，破不出就用哈希直接 PtH
-- `impacket`：`python -m pip install impacket`（本机有 python）；装完直接用 `python -m impacket.examples.wmiexec` 等模块名，别指望有 `impacket-*` 在 PATH
-- `netexec`：`python -m pip install netexec`（旧名 crackmapexec）；装完命令是 `nxc`
-- `nxc`：同 `netexec`：本机没有。用 `fscan` 初筛 SMB；需要 PtH/WinRM 精确验证时 `python -m pip install netexec`
-- `bloodhound`：采集器 **SharpHound 是 .NET，可本机跑**（`Invoke-BloodHound` 或 `SharpHound.exe`）；BloodHound 本体是 Java/Neo4j 服务端，本机只装采集器即可
-- `mimikatz`：**只能拷到目标机跑**（它读的是目标内存里的凭据，本机跑没有任何意义）。本机只需准备二进制：`Invoke-Mimikatz` 官方 release 或 `python -m pip install pypykatz`（离线解析目标 dump 出来的 lsass.dmp）
-
-runnability:end -->

@@ -1,3 +1,70 @@
+# 1.1.121 — 语义层首次可机器审：4 个 CVE 事实错、9 处代码块给错工具
+
+前两轮看「有没有写」（1.1.119）与「跑不跑得起来」（1.1.120），都在结构层。
+这一轮第一次查**内容本身对不对** —— 逐条对官方页核 CVE、用本机真实二进制核 flag、
+用本机注册表核路径。
+
+## 一、CVE 事实：4 处写错，都对过 NVD 官方页
+
+| CVE | 原写法 | 官方事实 |
+|---|---|---|
+| CVE-2026-7482 | 「Bleeding Llama，未授权内存泄露」 | **不存在这个名字**。实际是 Ollama < 0.17.1 的 GGUF 堆越界读；漏掉关键外带路径：须通过 `/api/push` 推到攻击者 registry 才能取出数据，且 `/api/create` 与 `/api/push` 都无鉴权 |
+| CVE-2026-5027 | 「路径遍历 → **未授权** RCE」 | LangFlow `/api/v2/files` 的 filename 路径遍历，**PR:L（需低权限）**，不是未授权；仅路径遍历，RCE 需另配落点 |
+| CVE-2025-34291 | 「RCE，已被 APT 利用」 | **CORS 误配 → 账户接管**（allow_origins='*' + credentials + SameSite=None），且 **UI:P 需受害者打开页面**，纯流量打不下来 |
+| CVE-2025-62215 | 受影响版本写「Win11 22H2」 | 官方列表里**没有 22H2**（Win10 21H2/22H2 + Win11 23H2/24H2/25H2）。拿 22621 做实验会「打不出效果」，然后误判成 PoC 写错 |
+
+同时补了每个洞的**验伤判据**：`validate/code` 要看到命令回显（`print(7*7)`→`49`）不是 HTTP 200；
+`CORS` 要真收到 victim 的 refresh_token，只回显 `Allow-Origin` 是「误配存在」不是「已拿到 token」；
+`Ollama` 要真从 push 目标取回数据，光崩一下只证明越界读触发。
+
+## 二、代码块语言标签：9 处给错执行环境
+
+```` ```bash `` 不是排版 —— 模型按它选执行环境。实测 9 处内容与标签不符：
+
+- `wevtutil gl Security` + `Get-WinEvent` 标成 `bash`（在 bash 里两条都跑不了）
+- `Get-GPO -All` 与 `ldapsearch` 混在一个 `bash` 块里（一个 PS 一个 Linux）
+- `curl` 与 `Invoke-SelfSearch` 混排，且用 `curl -o /dev/null`（在 PS 里 `curl` 是 `Invoke-WebRequest` 别名，`-o/-w` 全不兼容 → 必须 `curl.exe`）
+
+**判据改了三版才稳**（都是被实测打回来的）：② 一个块里并列 `# Linux - bash` + `# Windows - powershell` 是**正确写法**（豁免）；② `\bSet-[A-Z][a-z]+` 会把 `Set-Cookie:` 当 cmdlet；③ DNP3 的 `Select-Before-Operate` 也长得像 cmdlet。最后定成「动词-驼峰名 + 空白/括号/行尾」且先剥业务术语。
+
+## 三、注册表路径：Set-ItemProperty 指向不存在的键（实测复现）
+
+`edr-bypass-re` 用 `Set-ItemProperty` 关闭 PowerShell 三个日志组策略键。**这三个键在干净系统上不存在**（实测 `Test-Path` 全 False），所以整条命令直接抛：
+
+```
+Cannot find path 'HKLM:\SOFTWARE\Policies\...\ScriptBlockLogging' because it does not exist.
+```
+
+改用 `reg add`（自动建键）后实测返回「操作成功完成」。同时补：验伤（读回必须是 0）、回滚命令、以及**「reg add 成功 ≠ 日志真关了」** —— 域策略会把值覆盖回去，部分 EDR 从 ETW 取数据不看注册表；唯一可靠验伤是打一条特征命令再看 4104 有没有新记录。
+
+顺带修了这段的 `######` 注释（Markdown H6 语法，被当脚本复制会报错）。
+
+## 四、新增两关（39、40）
+
+- **第 38 关 `check-cve-refs`**：50 处 CVE 里，攻击类必须带版本范围 + 验伤判据。豁免 21 处清单/模板类（SBOM 输出、nuclei 模板名 —— 它们不产生攻击动作）。**不判 CVE 事实**：那要联网、会过期，硬编码「合法表」更糟（第一版就把 7045/4886/4104 全判成假的）。
+- **第 39 关 `check-codeblock-lang`**：237 文件的代码块语言标签与内容一致性。
+- **第 40 关 `check-ps-alias`**：脚本块里不许用会被别名劫持的命令（curl/wget/rm -rf/cat/ls -la/ps -ef/kill -9/grep -r）。
+
+三关都做过反向探针：删掉 Langflow 验伤段 → 3 处报红；把 `hunting-loop` 标签改回 bash → 报红；把 `curl.exe` 改回 `curl` → 2 处报红。
+
+## 五、工具面
+
+新增 `scripts/fetch-toolhelp.mjs`：抓本机真实二进制的 help 供比对。过程中发现两个抓取陷阱 ——
+fscan 的 `-h` 是「目标主机」不是 help（要试 `-help`）；Go 的 flag 包把 usage 打在 **stderr 且 exit 0**
+（execFileSync 拿不到，必须 spawnSync 收两路）。抓全后实测出**真缺陷**：
+
+`nuclei -json` 在 v3.11.1 已改为 `-jsonl`，照抄得到 `flag provided but not defined: -json`。
+（`httpx`/`naabu` 的 `-json` 仍然合法 —— 同类工具升级方向不一致，所以只能对着二进制核，不能靠记忆。）
+
+## 六、确认没问题的
+
+- 12 个工具的 flag 与本机二进制完全一致（nmap/chisel/gobuster 判据不全，已跳过避免误判）
+- 显式声明的服务-端口对应 10 处全部正确（ollama 11434 / langflow 7860 / kubelet 10250 / redis 6379 / mssql 1433 …）
+- 事件 ID 全部合法（7045 服务安装、4886/4887 ADCS、4104 脚本块 —— 我第一版凭记忆的「已知表」反而把它们判成假的）
+- 内核 CVE 组（DirtyPipe/DirtyCow/overlayfs/nf_tables）描述准确
+
+---
+
 # 1.1.120 — 按「可运行」审阅：路径、平台、边界输入
 
 1.1.119 那轮看的是覆盖率（有没有写）。这轮改看**能不能照它跑起来** —— 结构性指标全绿时，最可能藏缺陷的地方是「路径指向不存在的东西」和「查询返回噪音」。

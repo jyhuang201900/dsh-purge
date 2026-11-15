@@ -120,6 +120,18 @@ second-shot:end -->
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
 
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`ghidra`
+- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
+- `ghidra`：官方发 `ghidra_<ver>_PUBLIC_<date>.zip`（**需 JDK 17+**，解压后 `ghidraRun.bat`）。**本机已有 `radare2`**：日常反汇编/字符串交叉引用用 `radare2` 够，Ghidra 的优势是反编译成伪 C，只在需要读复杂逻辑时装
+
+runnability:end -->
+
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 
 ## 链路位置（本技能不是孤岛：上游先做、下游交给谁、结果落哪个库）
@@ -133,13 +145,3 @@ second-shot:end -->
 
 
 <!-- /skill-link-graph -->
-
-<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
-
-## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
-
-本技能命令用到的工具里，本机（PATH 与 toolkit 双探）没有：`frida`、`ghidra`
-- `frida`：`python -m pip install frida-tools`（本机有 python）；App 侧还需 `frida-server`（推目标机，架构要对）
-- `ghidra`：官方发 `ghidra_<ver>_PUBLIC_<date>.zip`（**需 JDK 17+**，解压后 `ghidraRun.bat`）。**本机已有 `radare2`**：日常反汇编/字符串交叉引用用 `radare2` 够，Ghidra 的优势是反编译成伪 C，只在需要读复杂逻辑时装
-
-runnability:end -->

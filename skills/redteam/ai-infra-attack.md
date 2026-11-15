@@ -60,10 +60,18 @@ curl -s http://<target>:11434/api/ps            # 正在跑的模型（说明有
 curl -s http://<target>:11434/api/show -d '{"name":"<模型名>"}'
 ```
 
-**CVE-2026-7482（Bleeding Llama，未授权内存泄露）**：`/api/create` 处理 GGUF 文件时未校验 tensor 元素数量，
-构造恶意 GGUF 可触发堆越界读，泄露 Ollama 进程内存（里面有 API key、其他模型的 prompt）。
-2026-05 披露，影响面约 30 万台暴露实例。**判定版本 + 用公开 PoC 验一次即可，不要反复打**——
-越界读会打出进程崩溃，打崩了目标就没了。
+**CVE-2026-7482（Ollama GGUF 堆越界读）**：**Ollama < 0.17.1**，`/api/create` 接受攻击者提供的
+GGUF 文件，其中声明的 tensor offset/size 超出文件实际长度；量化时（`fs/ggml/gguf.go`、
+`server/quantization.go` 的 `WriteTo()`）服务端读过堆缓冲区末尾。泄露内容可含环境变量、
+API key、系统提示词、并发用户会话数据。
+
+**外带路径别漏**：泄露结果要**通过 `/api/push` 推到攻击者控制的 registry** 才能取出来 ——
+上游 `/api/create` 与 `/api/push` **都没有鉴权**。默认只绑 `127.0.0.1`，但文档推荐的
+`OLLAMA_HOST=0.0.0.0` 在实践中被广泛使用（公网暴露量很大）。
+
+CNA 评分 8.8（CVSS 4.0，AV:N/PR:N/UI:N，VC:H/VA:H）；NVD 自身未另评。
+**打之前确认是不是 0.17.1 以下**（`/api/version` 或 `curl /`），并对准「push 外带」这条链 ——
+只触发崩溃说明不了泄露成功，反而打崩目标就没了。**不要反复打**。
 
 **算力盗取**（`computepower-cards`，10 分/张）：`/api/ps` 里能看到已加载模型与显存占用，
 结合 `/api/generate` 能白嫖推理；多卡机器按卡数记。**记分时写明显卡型号与张数**。
@@ -89,19 +97,39 @@ llama.cpp server：`GET /props` 看 `default_generation_settings`，`POST /compl
 Langflow 是低代码 Agent 编排平台，一台机器上通常同时跑着 **LLM API key、向量库凭据、RAG 文档库**，
 所以它一旦被打穿，等于把整个 AI 应用的数据面一起交了。
 
-已知洞（**按版本对号，不要盲打**）：
+已知洞（**按版本对号，不要盲打**；下表的修复版本与 CVSS 均已对过 NVD 官方页）：
 
-| CVE | 类型 | 要点 |
-|---|---|---|
-| CVE-2025-3248 | 认证绕过（CVSS 9.8） | `/api/v1/validate/code` 未鉴权即可执行代码，1.3.0 修复；披露数小时即在野利用，2025-05 进 KEV |
-| CVE-2026-9198 | 代码注入（CVSS 9.8） | 1.10.1 修复，2026-07 进 KEV |
-| CVE-2026-5027 | 路径遍历 → 未授权 RCE | 文件访问没有边界，可读写工作流目录 |
-| CVE-2025-34291 | RCE | 已被 APT 利用 |
+| CVE | 类型 | 影响/修复版本 | 要点 |
+|---|---|---|---|
+| CVE-2025-3248 | 认证绕过 → RCE（CVSS 9.8） | `< 1.3.0` | `/api/v1/validate/code` 未鉴权即可 `exec()` 用户代码。2025-04 披露，**2025-05-05 进 KEV**；披露数小时即在野利用 |
+| CVE-2026-9198 | 认证绕过链 → RCE（CVSS 9.8） | `1.0.0 ~ 1.10.0`，1.10.1 修 | **两步链**：`/api/v1/auto_login` 给任意网络调用者签发 SUPERUSER token → 再用 `/api/v1/validate/code` 执行代码。**2026-08-04 进 KEV** |
+| CVE-2025-34291 | CORS 误配 → 账户接管 → RCE（CVSS 4.0 9.4） | `<= 1.6.9` | `allow_origins='*'` + `allow_credentials=True` + refresh cookie `SameSite=None` → 恶意网页跨域拿到 victim 的新 token 对。**需要受害者打开页面（UI:P）**，纯流量打不下来 |
+| CVE-2026-5027 | 路径遍历（CVSS 3.1 8.8） | `langflow < 1.9.0` | `POST /api/v2/files` 的 multipart `filename` 未过滤，`../` 可写任意位置。**PR:L（需低权限）**，不是未授权；RCE 需配合后续写文件落点 |
+
+**打的时候按「能不能无凭据」分层**：`CVE-2025-3248` / `CVE-2026-9198` 是**真正未授权**，
+优先试；`CVE-2026-5027` 需要先有低权限账号，`CVE-2025-34291` 需要受害者交互 ——
+后两者在纯黑盒里往往打不通，别把时间耗在这。
 
 ```bash
 curl -s http://<target>:7860/health          # 存活
 curl -s http://<target>:7860/api/v1/version  # 版本 → 对上面的表
+# 未授权自检（CVE-2026-9198 第一步）：能拿到 token 说明 auto_login 没关
+curl -s -X POST http://<target>:7860/api/v1/auto_login -H 'Content-Type: application/json' -d '{}'
 ```
+
+**验伤（这四个洞的假成功方式各不相同，必须分开判）**：
+- **CVE-2025-3248 / CVE-2026-9198**：判据是**命令回显**，不是 HTTP 200。
+  `validate/code` 里塞 `print(7*7)`，响应里要出现 `49`（或你指定的任意标记）；
+  `/api/v1/version` 回 200 只能说明服务活着，跟洞无关。
+  返回 `{"detail":"Not Found"}` = 路由已被移除（打不上，版本太新）。
+- **CVE-2026-5027**：判据是**目标机上真出现那个文件** —— 写 `../../../../tmp/pwned_<随机>`
+  再用读接口/另一个洞回读确认。响应 200 只说明「请求被接受」，不代表文件落盘。
+  且它需要低权限 token，**先用匿名请求试**：401 就直接换别的洞，别在爆破账号上耗。
+- **CVE-2025-34291**：判据是**从攻击者 origin 收到了 victim 的 refresh_token**。
+  只看到 CORS 头里回显 `Access-Control-Allow-Origin: <你的域>` 是**误配特征存在**，
+  不等于拿到了 token —— 还得 `allow_credentials=True` 且浏览器真的带上了 cookie。
+  这一步天然需要受害者交互，纯 curl 复现不了。
+- 通用陷阱：`curl` 不看 `Content-Type` 就会把 HTML 当 JSON 成功解析。**先 `curl -i` 看头**。
 
 命中后优先取 **环境变量里的模型 key 与数据库连接串**（这是 `model-data` 与 `db-credential` 的双份分），
 再把工作流 JSON 导出（里面常含内网地址与凭据）。
@@ -233,6 +261,16 @@ second-shot:end -->
 
 落到事实库时，把这几个编号写进 `attack_step` 的标题或 `detail`：报告与检测配对要靠它们对齐；
 **没写编号的动作在「按 ATT&CK 复核」时等于不存在**（防守方按技术编号查日志，查不到就是漏）。
+
+
+
+<!-- runnability:start scripts/inject-runnability.mjs 生成，勿手改 -->
+
+## 本机可执行性（自动探测；命令是按 Linux/Kali 写的，照抄会撞空）
+
+命令含 Linux 专属形态（`sudo` / `apt` / `/usr/share` 等）：本机是 Windows，**去掉 sudo**、把绝对路径换成工具目录（`$DSH_HOME/redteam/toolkit/<name>/`），`.exe` 后缀别漏。
+
+runnability:end -->
 
 <!-- skill-link-graph:build-skill-graph.mjs 生成，勿手改 -->
 

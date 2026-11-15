@@ -252,15 +252,18 @@ curl -s -G -H "Authorization: Bearer $AT" \
 
 ### 通道 2：EWS（on-prem Exchange 主路）
 
-```bash
+```powershell
 # EWS 端点探测（不需要凭据也能看是否存在 + 版本）
-curl -s -o /dev/null -w "%{http_code}\n" https://mail.corp.local/EWS/Exchange.asmx
-curl -s https://mail.corp.local/autodiscover/autodiscover.xml -d '<Autodiscover/>' | head
+curl.exe -s -o NUL -w "%{http_code}`n" https://mail.corp.local/EWS/Exchange.asmx
+curl.exe -s https://mail.corp.local/autodiscover/autodiscover.xml -d '<Autodiscover/>' | Select-Object -First 5
 
 # 用 MailSniper（PowerShell）搜索（参数以 Get-Help 为准）
 Invoke-SelfSearch -Mailbox alice@corp.local -ExchHostname mail.corp.local `
   -ExchangeVersion Exchange2013_SP1 -Remote -OutputCsv .\mail.csv
 ```
+
+> `curl` 在 PowerShell 里是 `Invoke-WebRequest` 的别名，参数不兼容（`-o`/`-w` 会报错）。
+> 必须写 `curl.exe`。这是 PowerShell 上最常撞的一个坑。
 
 **EWS 的替代**：`exchangelib`（Python）能直接脚本化：
 

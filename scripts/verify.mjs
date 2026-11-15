@@ -412,6 +412,69 @@ if (!skip("toolpaths")) {
   }
 }
 
+// 关 38：CVE 引用规范——攻击类 CVE 必须带版本范围与验伤判据。
+// 由来：1.1.121 语义层审计。前 37 关全是「有没有写 / 路径对不对」，这一关第一次
+// 查「内容本身对不对」。逐条对 NVD 官方页核了 50 处 CVE，抓出 4 个事实错误：
+//   · CVE-2026-7482 名字写成「Bleeding Llama」且漏了关键外带路径（/api/push 推 registry）；
+//   · CVE-2026-5027 标成「未授权 RCE」，官方是 PR:L（需低权限）+ 仅路径遍历；
+//   · CVE-2025-34291 标成「RCE」，官方是 CORS 误配导致的账户接管，且需受害者交互（UI:P）；
+//   · CVE-2025-62215 把受影响版本写成 Win11 22H2，官方列表里根本没有 22H2。
+// 但闸门**不判事实**（要联网，且事实会变）。只判写作规范：缺版本 → 不知道目标有没有洞；
+// 缺验伤 → 打了没成功也当成功。这两条核对官方页之后是稳定的。
+// 反向探针验过：删掉 Langflow 的验伤段 → 3 处立刻报红。
+if (!skip("cve")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-cve-refs.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    const ex = out.find((l) => /^\s{3}\S+\/\S+ · CVE-/.test(l)) || "";
+    failures.push(`CVE 引用不规范：${bad} ${ex.trim().slice(0, 110)}`);
+  } else {
+    const stat = out.find((l) => l.includes("处 CVE")) || "";
+    notes.push(`CVE 引用：${stat.replace(/^\[check-cve-refs\]\s*/, "").trim()}`);
+  }
+}
+
+// 关 39：代码块的语言标签必须与内容匹配。
+// 由来：1.1.121 语义层审计。技能里的 `\`\`\`bash` 不只是排版 —— 模型按标签选执行环境。
+// 标签写 bash 而内容是 cmd/PowerShell 命令，等于给错工具，照抄必报错
+// （`wevtutil gl Security` 在 bash 里根本没有）。
+// 实测 5 处误报 + 4 处真缺陷，判据改了三版才稳：
+//   ① 一个块里并列 `# Linux - bash` + `# Windows - powershell` 是**正确写法**，豁免；
+//   ② `\bSet-[A-Z][a-z]+` 会把 `Set-Cookie:` 当 cmdlet → 必须卡「动词-驼峰名 + 空白/括号/行尾」；
+//   ③ DNP3 的 `Select-Before-Operate` 也长得像 cmdlet → 先剥业务术语再判。
+// 反向探针验过：把 hunting-loop 的标签改回 bash → 立刻报红。
+if (!skip("codeblock")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-codeblock-lang.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    failures.push(`代码块语言标签不符：${bad}`);
+  } else {
+    const stat = out.find((l) => l.includes("语言标签")) || "";
+    notes.push(`代码块标签：${stat.replace(/^\[check-codeblock-lang\]\s*/, "").trim()}`);
+  }
+}
+
+// 关 40：脚本块里不许用「会被别名劫持」的命令。
+// 由来：1.1.121 语义层审计。Windows 上 `curl` 不是 curl，是 Invoke-WebRequest 的别名，
+// `-o`/`-w`/`-s` 全不兼容 → 照抄得到 "A parameter cannot be found"。
+// 同类：`wget`/`rm -rf`/`cat`/`ls -la`/`ps -ef`/`kill -9`/`grep -r`/`head`/`tail`。
+// 只在 powershell 块里判 —— 在 bash 块里写 curl 是对的（那是 Linux/Kali 侧）。
+// 反向探针验过：把 mailbox-abuse 的 curl.exe 改回 curl → 2 处报红。
+if (!skip("psalias")) {
+  const res = spawnSync(process.execPath, [path.join(root, "scripts", "check-ps-alias.mjs")], { encoding: "utf8" });
+  const out = (res.stdout || "").trim().split("\n").filter(Boolean);
+  if (res.status !== 0) {
+    const bad = out.filter((l) => l.includes("✗")).slice(0, 1).join(" ");
+    const ex = out.find((l) => /^\s{3}\S+:\d+\s+\w+ →/.test(l)) || "";
+    failures.push(`脚本块别名劫持：${bad} ${ex.trim().slice(0, 100)}`);
+  } else {
+    const stat = out.find((l) => l.includes("别名")) || "";
+    notes.push(`别名劫持：${stat.replace(/^\[check-ps-alias\]\s*/, "").trim()}`);
+  }
+}
+
 // 关 23：事实库引用完整性——asset_id 不许指向不存在的资产。
 // 由来：2026-11-14 逻辑审阅实测，schema 里 24 张表没有任何 FOREIGN KEY，应用层原先也不校验，
 // asset_id=99999 会写入成功并可查回（asset_ip 为 null）。后果不是"多一条脏数据"：

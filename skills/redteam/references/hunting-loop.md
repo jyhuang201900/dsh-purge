@@ -75,7 +75,7 @@ SecurityEvent
 1. **这个环境真的可能有吗** —— 全是 Windows 就别查 Linux 提权
 2. **数据源覆盖够不够** —— 没有进程创建日志（4688/Sysmon 1）就别查 LOLBin
 
-```bash
+```powershell
 # 快速确认数据源覆盖（先做这个，再选技术）
 # Windows：检查关键日志是否开启
 wevtutil gl Security | findstr "enabled"
